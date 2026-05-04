@@ -1,26 +1,698 @@
+/* Revised design reminder: Elegant Quivo color system: rice-paper ivory, Himalayan ink, aged copper, muted sage, and soft clay accents. Use Poppins with measured tracking, reusable brand colors, rounded product cards, and accessible focus states. */
 @import "tailwindcss";
+@import "tw-animate-css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@custom-variant dark (&:is(.dark *));
 
 @theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+:root {
+  --radius: 1.35rem;
+  --background: oklch(0.963 0.028 82.2);
+  --foreground: oklch(0.25 0.035 267.8);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.25 0.035 267.8);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.25 0.035 267.8);
+  --primary: oklch(0.31 0.043 267.8);
+  --primary-foreground: oklch(0.97 0.024 82.2);
+  --secondary: oklch(0.55 0.105 55.2);
+  --secondary-foreground: oklch(0.985 0.018 82.2);
+  --muted: oklch(0.91 0.032 78.5);
+  --muted-foreground: oklch(0.49 0.026 282.4);
+  --accent: oklch(0.62 0.095 44.8);
+  --accent-foreground: oklch(0.24 0.035 267.8);
+  --destructive: oklch(0.58 0.22 27.3);
+  --destructive-foreground: oklch(0.985 0 0);
+  --border: oklch(0.79 0.025 78.5 / 62%);
+  --input: oklch(0.79 0.025 78.5 / 62%);
+  --ring: oklch(0.55 0.105 55.2);
+  --chart-1: oklch(0.55 0.105 55.2);
+  --chart-2: oklch(0.62 0.095 44.8);
+  --chart-3: oklch(0.31 0.043 267.8);
+  --chart-4: oklch(0.58 0.055 134.4);
+  --chart-5: oklch(0.72 0.07 87.6);
+  --sidebar: oklch(0.97 0.024 82.2);
+  --sidebar-foreground: oklch(0.25 0.035 267.8);
+  --sidebar-primary: oklch(0.31 0.043 267.8);
+  --sidebar-primary-foreground: oklch(0.97 0.024 82.2);
+  --sidebar-accent: oklch(0.91 0.032 78.5);
+  --sidebar-accent-foreground: oklch(0.25 0.035 267.8);
+  --sidebar-border: oklch(0.79 0.025 78.5 / 62%);
+  --sidebar-ring: oklch(0.55 0.105 55.2);
+}
+
+.dark {
+  --background: oklch(0.18 0.034 267.8);
+  --foreground: oklch(0.94 0.022 82.2);
+  --card: oklch(0.25 0.036 267.8);
+  --card-foreground: oklch(0.94 0.022 82.2);
+  --popover: oklch(0.25 0.036 267.8);
+  --popover-foreground: oklch(0.94 0.022 82.2);
+  --primary: oklch(0.55 0.105 55.2);
+  --primary-foreground: oklch(0.985 0.018 82.2);
+  --secondary: oklch(0.31 0.043 267.8);
+  --secondary-foreground: oklch(0.97 0.024 82.2);
+  --muted: oklch(0.30 0.032 267.8);
+  --muted-foreground: oklch(0.76 0.026 82.2);
+  --accent: oklch(0.62 0.095 44.8);
+  --accent-foreground: oklch(0.24 0.035 267.8);
+  --destructive: oklch(0.7 0.19 22.2);
+  --destructive-foreground: oklch(0.985 0 0);
+  --border: oklch(1 0 0 / 12%);
+  --input: oklch(1 0 0 / 16%);
+  --ring: oklch(0.55 0.105 55.2);
+  --chart-1: oklch(0.55 0.105 55.2);
+  --chart-2: oklch(0.62 0.095 44.8);
+  --chart-3: oklch(0.58 0.055 134.4);
+  --chart-4: oklch(0.72 0.07 87.6);
+  --chart-5: oklch(0.8 0.09 305);
+  --sidebar: oklch(0.25 0.036 267.8);
+  --sidebar-foreground: oklch(0.94 0.022 82.2);
+  --sidebar-primary: oklch(0.55 0.105 55.2);
+  --sidebar-primary-foreground: oklch(0.985 0.018 82.2);
+  --sidebar-accent: oklch(0.30 0.032 267.8);
+  --sidebar-accent-foreground: oklch(0.94 0.022 82.2);
+  --sidebar-border: oklch(1 0 0 / 12%);
+  --sidebar-ring: oklch(0.55 0.105 55.2);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: "Poppins", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    text-rendering: optimizeLegibility;
+    font-feature-settings: "kern" 1, "liga" 1;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  ::selection {
+    background: #A7653A;
+    color: #ffffff;
+  }
+
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]),
+  [type="button"]:not(:disabled),
+  [type="submit"]:not(:disabled),
+  [type="reset"]:not(:disabled),
+  a[href],
+  select:not(:disabled),
+  input[type="checkbox"]:not(:disabled),
+  input[type="radio"]:not(:disabled) {
+    @apply cursor-pointer;
+  }
+
+  button,
+  a {
+    -webkit-tap-highlight-color: transparent;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer components {
+  .container {
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .flex {
+    min-height: 0;
+    min-width: 0;
+  }
+
+  @media (min-width: 640px) {
+    .container {
+      padding-left: 1.5rem;
+      padding-right: 1.5rem;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .container {
+      padding-left: 2rem;
+      padding-right: 2rem;
+      max-width: 1240px;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+
+/* Award upgrade design reminder: Cinematic Local Commerce uses tactile rice-paper depth, scanner-light motion, magnetic card response, and barcode textures while preserving Quivo's existing content and mobile-safe behavior. */
+@layer components {
+  .quivo-award-shell {
+    position: relative;
+    isolation: isolate;
+    background:
+      radial-gradient(circle at 9% 7%, rgba(216, 201, 154, 0.28), transparent 28rem),
+      radial-gradient(circle at 90% 12%, rgba(167, 101, 58, 0.14), transparent 26rem),
+      linear-gradient(180deg, #f7f0e6 0%, #fffaf2 42%, #f7f0e6 100%);
+  }
+
+  .quivo-award-shell::before {
+    content: "";
+    pointer-events: none;
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    opacity: 0.13;
+    mix-blend-mode: multiply;
+    background-image:
+      linear-gradient(90deg, rgba(39, 50, 74, 0.12) 1px, transparent 1px),
+      linear-gradient(0deg, rgba(39, 50, 74, 0.08) 1px, transparent 1px);
+    background-size: 72px 72px, 72px 72px;
+    mask-image: radial-gradient(circle at center, black, transparent 78%);
+  }
+
+  .award-header {
+    box-shadow: 0 18px 70px rgba(39, 50, 74, 0.08);
+  }
+
+  .award-header::after {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    bottom: -1px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(167, 101, 58, 0.44), transparent);
+  }
+
+  .award-hero {
+    min-height: calc(100svh - 5rem);
+    background:
+      linear-gradient(115deg, rgba(247, 240, 230, 0.96), rgba(255, 251, 244, 0.88)),
+      repeating-linear-gradient(90deg, rgba(39, 50, 74, 0.055) 0 1px, transparent 1px 18px);
+  }
+
+  .award-hero::after {
+    content: "";
+    pointer-events: none;
+    position: absolute;
+    inset-inline: 0;
+    bottom: 0;
+    height: 14rem;
+    background: linear-gradient(180deg, transparent, rgba(255, 251, 244, 0.92));
+  }
+
+  .glass-panel,
+  .tilt-card,
+  .product-card,
+  .feature-card {
+    position: relative;
+    transform-style: preserve-3d;
+  }
+
+  .glass-panel::before,
+  .tilt-card::before,
+  .product-card::before,
+  .feature-card::before {
+    content: "";
+    pointer-events: none;
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    border-radius: inherit;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.52), transparent 34%, rgba(216, 201, 154, 0.12));
+    opacity: 0;
+    transition: opacity 360ms ease;
+  }
+
+  .glass-panel:hover::before,
+  .tilt-card:hover::before,
+  .product-card:hover::before,
+  .feature-card:hover::before {
+    opacity: 1;
+  }
+
+  .scanner-panel::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    opacity: 0.22;
+    background-image: repeating-linear-gradient(90deg, transparent 0 9px, rgba(216, 201, 154, 0.5) 9px 10px, transparent 10px 18px);
+  }
+
+  .scan-beam {
+    position: absolute;
+    inset-block: -12%;
+    left: -20%;
+    width: 22%;
+    z-index: 2;
+    background: linear-gradient(90deg, transparent, rgba(216, 201, 154, 0.42), transparent);
+    filter: blur(10px);
+    animation: quivo-scan-beam 3.8s linear infinite;
+  }
+
+  .award-button {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .award-button::before {
+    content: "";
+    position: absolute;
+    inset: -160% auto -160% -35%;
+    width: 42%;
+    transform: rotate(18deg);
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.42), transparent);
+    transition: transform 650ms ease;
+  }
+
+  .award-button:hover::before {
+    transform: translateX(380%) rotate(18deg);
+  }
+
+  .magnetic-card {
+    will-change: transform;
+  }
+
+  .reveal-section {
+    position: relative;
+  }
+
+  .reveal-section::before {
+    content: "";
+    pointer-events: none;
+    position: absolute;
+    inset-inline: 5vw;
+    top: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(39, 50, 74, 0.12), transparent);
+  }
+}
+
+@keyframes quivo-scan-beam {
+  0% { transform: translateX(0) skewX(-12deg); opacity: 0; }
+  10% { opacity: 1; }
+  58% { opacity: 1; }
+  100% { transform: translateX(620%) skewX(-12deg); opacity: 0; }
+}
+
+@media (max-width: 639px) {
+  .quivo-award-shell::before {
+    opacity: 0.06;
+    background-size: 54px 54px, 54px 54px;
+  }
+
+  .award-hero {
+    min-height: auto;
+  }
+
+  .magnetic-card {
+    transform: none !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scan-beam,
+  .scanner-line {
+    animation: none !important;
+  }
+}
+
+/* Quivo mobile responsiveness pass: compact header, intentional phone hero rhythm, calmer cards, and no horizontal page drift while preserving desktop award styling. */
+@media (max-width: 639px) {
+  html,
+  body {
+    overflow-x: clip;
+  }
+
+  .quivo-award-shell {
+    overflow-x: clip;
+  }
+
+  .quivo-award-shell::before {
+    z-index: 1;
+  }
+
+  .award-header {
+    box-shadow: 0 10px 34px rgba(39, 50, 74, 0.08);
+  }
+
+  .award-hero {
+    background:
+      linear-gradient(135deg, rgba(247, 240, 230, 0.98), rgba(255, 251, 244, 0.94)),
+      repeating-linear-gradient(90deg, rgba(39, 50, 74, 0.045) 0 1px, transparent 1px 16px);
+  }
+
+  .award-hero::after {
+    height: 5rem;
+  }
+
+  .hero-title {
+    word-break: normal;
+    text-wrap: balance;
+  }
+
+  .hero-copy {
+    text-wrap: pretty;
+  }
+
+  .hero-mobile-shop-strip,
+  .hero-actions,
+  .hero-stat {
+    transform: translateZ(0);
+  }
+
+  .hero-mobile-shop-strip::before,
+  .product-card::before,
+  .feature-card::before {
+    display: none;
+  }
+
+  .reveal-section {
+    scroll-margin-top: 4.25rem;
+  }
+
+  .reveal-section h2 {
+    font-size: clamp(1.9rem, 8.2vw, 2.35rem) !important;
+    line-height: 1.08 !important;
+    letter-spacing: -0.035em !important;
+  }
+
+  .reveal-section p,
+  .reveal-section li {
+    line-height: 1.65;
+  }
+
+  .product-card,
+  .feature-card,
+  .glass-panel,
+  details,
+  article {
+    max-width: 100%;
+  }
+
+  table {
+    font-size: 0.86rem;
+  }
+}
+
+/* Quivo mobile responsiveness refinement: protect the award-style desktop composition while giving phones a deliberately composed, no-overflow layout. */
+@media (max-width: 767px) {
+  html,
+  body,
+  #root {
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  .quivo-award-shell {
+    width: 100%;
+    max-width: 100vw;
+    overflow-x: clip;
+  }
+
+  .quivo-award-shell .container {
+    width: 100%;
+    max-width: 100%;
+    padding-left: clamp(1rem, 4.6vw, 1.2rem);
+    padding-right: clamp(1rem, 4.6vw, 1.2rem);
+  }
+
+  .award-header .container {
+    padding-left: 0.9rem;
+    padding-right: 0.9rem;
+  }
+
+  .award-header a {
+    max-width: calc(100vw - 5.2rem);
+  }
+
+  .award-header button[aria-label="Open menu"] {
+    display: grid;
+    position: relative;
+    z-index: 60;
+  }
+
+  .quivo-award-shell section {
+    max-width: 100vw;
+    overflow-x: clip;
+  }
+
+  .quivo-award-shell h1 {
+    max-width: 100%;
+    font-size: clamp(2.15rem, 12.2vw, 3.15rem) !important;
+    line-height: 0.96 !important;
+    letter-spacing: -0.055em !important;
+  }
+
+  .quivo-award-shell h2 {
+    font-size: clamp(1.9rem, 9vw, 2.45rem) !important;
+    line-height: 1.04 !important;
+    letter-spacing: -0.04em !important;
+  }
+
+  .quivo-award-shell p {
+    overflow-wrap: anywhere;
+  }
+
+  .hero-actions button {
+    min-height: 3.15rem;
+  }
+
+  .hero-stat,
+  .feature-card,
+  .product-card,
+  .magnetic-card {
+    transform: none !important;
+  }
+
+  .product-card {
+    border-radius: 1.25rem !important;
+  }
+
+  .quivo-award-shell [data-carousel-content],
+  .quivo-award-shell [data-carousel-item] {
+    max-width: 100%;
+  }
+
+  .quivo-award-shell table {
+    font-size: 0.84rem;
+  }
+
+  .quivo-award-shell details summary h3 {
+    font-size: 1.35rem !important;
+    line-height: 1.1 !important;
+  }
+}
+
+@media (max-width: 420px) {
+  .quivo-award-shell .container {
+    padding-left: 0.9rem;
+    padding-right: 0.9rem;
+  }
+
+  .award-header .container {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+
+  .quivo-award-shell h1 {
+    font-size: clamp(2rem, 11vw, 2.75rem) !important;
+  }
+}
+
+
+/* Quivo mobile responsiveness hardening pass: final phone composition constraints after visual QA. */
+@media (max-width: 767px) {
+  .award-header {
+    overflow: visible !important;
+  }
+
+  .award-header .container {
+    position: relative;
+    min-width: 0;
+  }
+
+  .award-header button[aria-label="Open menu"] {
+    display: grid !important;
+    position: absolute !important;
+    right: 0.85rem;
+    top: 0.62rem;
+    width: 2.75rem;
+    height: 2.75rem;
+    background: #ffffff !important;
+    color: #27324a !important;
+  }
+
+  .award-header a[aria-label="Quivo home"] {
+    max-width: calc(100vw - 6.25rem) !important;
+    padding-right: 0.25rem;
+  }
+
+  .quivo-award-shell h1.hero-title {
+    width: 100% !important;
+    max-width: calc(100vw - 2rem) !important;
+    font-size: clamp(1.92rem, 9.6vw, 2.32rem) !important;
+    line-height: 1.02 !important;
+    letter-spacing: -0.052em !important;
+  }
+
+  .quivo-award-shell .hero-copy {
+    max-width: calc(100vw - 2rem) !important;
+    font-size: 0.94rem !important;
+    line-height: 1.62 !important;
+  }
+
+  .hero-mobile-shop-strip {
+    width: 100% !important;
+    max-width: calc(100vw - 2rem) !important;
+    overflow: hidden !important;
+  }
+
+  .hero-mobile-shop-strip button {
+    min-width: 0 !important;
+    overflow: hidden !important;
+  }
+
+  .hero-mobile-shop-strip img {
+    max-width: 100% !important;
+  }
+
+  .hero-actions,
+  .hero-actions button,
+  .hero-stat,
+  .quivo-award-shell .grid,
+  .quivo-award-shell article,
+  .quivo-award-shell details,
+  .quivo-award-shell section > .container > div {
+    max-width: 100% !important;
+  }
+}
+
+@media (max-width: 420px) {
+  .quivo-award-shell h1.hero-title {
+    font-size: clamp(1.78rem, 9.1vw, 2.12rem) !important;
+    letter-spacing: -0.048em !important;
+  }
+
+  .hero-mobile-shop-strip {
+    max-width: calc(100vw - 1.8rem) !important;
+  }
+}
+
+/* Quivo mobile composition lock: constrain phone previews to a deliberate handheld column. */
+@media (max-width: 767px) {
+  .quivo-award-shell .container {
+    width: min(100%, 390px) !important;
+    max-width: 390px !important;
+    margin-left: 0 !important;
+    margin-right: auto !important;
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+
+  .award-header .container {
+    min-height: 4.05rem !important;
+    padding-top: 0.55rem !important;
+    padding-bottom: 0.55rem !important;
+  }
+
+  .award-header button[aria-label="Open menu"] {
+    right: 1rem !important;
+  }
+
+  .quivo-award-shell h1.hero-title,
+  .quivo-award-shell .hero-copy,
+  .hero-mobile-shop-strip,
+  .hero-actions,
+  .hero-actions button {
+    max-width: 358px !important;
+  }
+
+  .quivo-award-shell h1.hero-title {
+    font-size: clamp(1.78rem, 8.6vw, 2.08rem) !important;
+  }
+
+  .hero-mobile-shop-strip .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .quivo-award-shell [data-slot="carousel"],
+  .quivo-award-shell [data-slot="carousel-content"] {
+    max-width: 358px !important;
+    overflow: hidden !important;
+  }
+
+  .quivo-award-shell [data-slot="carousel-item"] {
+    flex-basis: 100% !important;
+    max-width: 358px !important;
+  }
+
+  .quivo-award-shell .product-card {
+    max-width: 342px !important;
+  }
+
+  .quivo-award-shell section {
+    overflow-x: clip !important;
+  }
 }
