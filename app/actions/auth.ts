@@ -57,7 +57,7 @@ export async function loginWithEmail(formData: FormData) {
     .single();
 
   const role = profile?.role || 'customer';
-  const redirectUrl = role === 'owner' ? '/dashboard' : '/';
+  const redirectUrl = '/dashboard';
 
   return { success: true, redirectUrl }
 }
