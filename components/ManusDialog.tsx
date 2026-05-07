@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { loginWithEmail, signUpWithEmail, signInWithGoogle } from "@/app/actions/auth";
+import { loginWithEmail, signUpWithEmail } from "@/app/actions/auth";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -36,9 +36,11 @@ export function ManusDialog({
   const router = useRouter();
 
   useEffect(() => {
-    if (!onOpenChange) {
-      setInternalOpen(open);
+    if (!onOpenChange && internalOpen !== open) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setTimeout(() => setInternalOpen(open), 0);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, onOpenChange]);
 
   const handleOpenChange = (nextOpen: boolean) => {
@@ -81,7 +83,7 @@ export function ManusDialog({
           toast.success(result.success);
         }
       }
-    } catch (error) {
+    } catch {
       toast.error("An unexpected error occurred");
     } finally {
       setIsLoading(false);
@@ -108,7 +110,7 @@ export function ManusDialog({
         toast.error(error.message);
         setIsLoading(false);
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to sign in with Google");
       setIsLoading(false);
     }

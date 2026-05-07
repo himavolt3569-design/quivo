@@ -34,7 +34,8 @@ function NavbarContent({ scrollToSection }: NavbarProps) {
 
   useEffect(() => {
     if (searchParams.get("login") === "true") {
-      setAuthModalOpen(true);
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setTimeout(() => setAuthModalOpen(true), 0);
       // Clean up the URL
       const newUrl = pathname;
       window.history.replaceState({}, "", newUrl);
