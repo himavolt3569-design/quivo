@@ -3,6 +3,8 @@
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
+import { z } from 'zod'
+import { checkRateLimit } from '@/lib/rate-limit'
 
 const DISPOSABLE_EMAIL_DOMAINS = [
   'mailinator.com', 'guerrillamail.com', '10minutemail.com', 'temp-mail.org',
@@ -17,14 +19,28 @@ function isDisposableEmail(email: string) {
   return DISPOSABLE_EMAIL_DOMAINS.includes(domain.toLowerCase());
 }
 
-export async function loginWithEmail(formData: FormData) {
-  const supabase = await createClient()
-  const email = formData.get('email') as string
-  const password = formData.get('password') as string
+const AuthSchema = z.object({
+  email: z.string().trim().email("Invalid email address").max(255, "Email too long"),
+  password: z.string().min(6, "Password must be at least 6 characters").max(100, "Password too long"),
+})
 
-  if (!email || !password) {
-    return { error: 'Email and password are required' }
+const SignUpSchema = AuthSchema.extend({
+  role: z.enum(['customer', 'owner']).default('customer'),
+})
+
+export async function loginWithEmail(formData: FormData) {
+  const rateLimit = await checkRateLimit('loginWithEmail');
+  if (!rateLimit.success) {
+    return { error: rateLimit.error }
   }
+
+  const parseResult = AuthSchema.safeParse(Object.fromEntries(formData));
+  if (!parseResult.success) {
+    return { error: parseResult.error.issues[0].message }
+  }
+
+  const { email, password } = parseResult.data;
+  const supabase = await createClient()
 
   const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
     email,
@@ -35,7 +51,6 @@ export async function loginWithEmail(formData: FormData) {
     return { error: authError.message }
   }
 
-  // Fetch the user's role from the profiles table
   const { data: profile } = await supabase
     .from('profiles')
     .select('role')
@@ -43,38 +58,35 @@ export async function loginWithEmail(formData: FormData) {
     .single();
 
   const role = profile?.role || 'customer';
-  
-  // Determine where to send them based on their true role
   const redirectUrl = role === 'owner' ? '/dashboard' : '/';
 
   return { success: true, redirectUrl }
 }
 
 export async function signUpWithEmail(formData: FormData) {
-  const supabase = await createClient()
-  const email = formData.get('email') as string
-  const password = formData.get('password') as string
-  const role = formData.get('role') as string || 'customer'
-
-  if (!email || !password) {
-    return { error: 'Email and password are required' }
+  const rateLimit = await checkRateLimit('signUpWithEmail');
+  if (!rateLimit.success) {
+    return { error: rateLimit.error }
   }
+
+  const parseResult = SignUpSchema.safeParse(Object.fromEntries(formData));
+  if (!parseResult.success) {
+    return { error: parseResult.error.issues[0].message }
+  }
+
+  const { email, password, role } = parseResult.data;
 
   if (isDisposableEmail(email)) {
     return { error: 'Temporary or disposable emails are not allowed for security reasons.' }
   }
 
-  if (role !== 'customer' && role !== 'owner') {
-    return { error: 'Invalid role selection.' }
-  }
+  const supabase = await createClient()
 
   const { error } = await supabase.auth.signUp({
     email,
     password,
     options: {
-      data: {
-        role: role,
-      },
+      data: { role },
       emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/auth/callback`,
     },
   })
@@ -87,6 +99,11 @@ export async function signUpWithEmail(formData: FormData) {
 }
 
 export async function signInWithGoogle() {
+  const rateLimit = await checkRateLimit('signInWithGoogle');
+  if (!rateLimit.success) {
+    return { error: rateLimit.error }
+  }
+
   const supabase = await createClient()
   
   const { data, error } = await supabase.auth.signInWithOAuth({
@@ -109,4 +126,5 @@ export async function signInWithGoogle() {
     redirect(data.url)
   }
 }
+
 
