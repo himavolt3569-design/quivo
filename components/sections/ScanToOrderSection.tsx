@@ -156,52 +156,57 @@ export function ScanToOrderSection({
     import("leaflet").then(Leaflet => {
       if (!map.getContainer()) return;
 
-      shopMarkersRef.current.forEach((marker: any) => marker.remove());
-      shopMarkersRef.current = [];
+      try {
+        shopMarkersRef.current.forEach((marker: any) => marker.remove());
+        shopMarkersRef.current = [];
 
-      if (radiusCircleRef.current) radiusCircleRef.current.remove();
-      if (customerMarkerRef.current) customerMarkerRef.current.remove();
+        if (radiusCircleRef.current) radiusCircleRef.current.remove();
+        if (customerMarkerRef.current) customerMarkerRef.current.remove();
 
-      map.setView(
-        [customerLocation.lat, customerLocation.lng],
-        map.getZoom() || 13
-      );
+        map.setView(
+          [customerLocation.lat, customerLocation.lng],
+          map.getZoom() || 13,
+          { animate: false }
+        );
 
-      radiusCircleRef.current = Leaflet.circle(
-        [customerLocation.lat, customerLocation.lng],
-        {
-          radius: 6000,
-          color: "#A7653A",
-          opacity: 0.9,
-          weight: 2,
-          fillColor: "#A7653A",
-          fillOpacity: 0.08,
-        }
-      ).addTo(map);
+        radiusCircleRef.current = Leaflet.circle(
+          [customerLocation.lat, customerLocation.lng],
+          {
+            radius: 6000,
+            color: "#A7653A",
+            opacity: 0.9,
+            weight: 2,
+            fillColor: "#A7653A",
+            fillOpacity: 0.08,
+          }
+        ).addTo(map);
 
-      customerMarkerRef.current = Leaflet.marker(
-        [customerLocation.lat, customerLocation.lng],
-        {
-          title:
-            locationPermission === "granted"
-              ? "Customer location"
-              : "Fallback customer area",
-        }
-      ).addTo(map);
+        customerMarkerRef.current = Leaflet.marker(
+          [customerLocation.lat, customerLocation.lng],
+          {
+            title:
+              locationPermission === "granted"
+                ? "Customer location"
+                : "Fallback customer area",
+          }
+        ).addTo(map);
 
-      const boundsPoints: [number, number][] = [
-        [customerLocation.lat, customerLocation.lng],
-      ];
-      filteredNearbyShops.forEach(shop => {
-        const marker = Leaflet.marker([shop.position.lat, shop.position.lng], {
-          title: `${shop.name} \u00b7 ${shop.distance}km`,
-        }).addTo(map);
-        marker.on("click", () => setActiveShopName(shop.name));
-        shopMarkersRef.current.push(marker);
-        boundsPoints.push([shop.position.lat, shop.position.lng]);
-      });
+        const boundsPoints: [number, number][] = [
+          [customerLocation.lat, customerLocation.lng],
+        ];
+        filteredNearbyShops.forEach(shop => {
+          const marker = Leaflet.marker([shop.position.lat, shop.position.lng], {
+            title: `${shop.name} \u00b7 ${shop.distance}km`,
+          }).addTo(map);
+          marker.on("click", () => setActiveShopName(shop.name));
+          shopMarkersRef.current.push(marker);
+          boundsPoints.push([shop.position.lat, shop.position.lng]);
+        });
 
-      map.fitBounds(Leaflet.latLngBounds(boundsPoints), { padding: [72, 72] });
+        map.fitBounds(Leaflet.latLngBounds(boundsPoints), { padding: [72, 72], animate: false });
+      } catch (error) {
+        console.warn("Leaflet map view update failed:", error);
+      }
     });
   }, [customerLocation, filteredNearbyShops, locationPermission]);
 
