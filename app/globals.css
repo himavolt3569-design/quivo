@@ -456,35 +456,30 @@
   }
 }
 
-/* Quivo mobile responsiveness refinement: protect the award-style desktop composition while giving phones a deliberately composed, no-overflow layout. */
+/* Quivo mobile responsiveness refinement: protect the award-style desktop composition while giving phones a deliberately composed layout. */
 @media (max-width: 767px) {
   html,
   body,
   #root {
-    max-width: 100%;
+    max-width: 100vw;
     overflow-x: hidden;
   }
 
   .quivo-award-shell {
     width: 100%;
     max-width: 100vw;
-    overflow-x: clip;
+    overflow-x: hidden;
   }
 
   .quivo-award-shell .container {
     width: 100%;
-    max-width: 100%;
-    padding-left: clamp(1rem, 4.6vw, 1.2rem);
-    padding-right: clamp(1rem, 4.6vw, 1.2rem);
+    padding-left: clamp(1rem, 4.6vw, 1.5rem);
+    padding-right: clamp(1rem, 4.6vw, 1.5rem);
   }
 
   .award-header .container {
-    padding-left: 0.9rem;
-    padding-right: 0.9rem;
-  }
-
-  .award-header a {
-    max-width: calc(100vw - 5.2rem);
+    padding-left: 1rem;
+    padding-right: 1rem;
   }
 
   .award-header button[aria-label="Open menu"] {
@@ -495,24 +490,19 @@
 
   .quivo-award-shell section {
     max-width: 100vw;
-    overflow-x: clip;
+    overflow-x: hidden;
   }
 
   .quivo-award-shell h1 {
-    max-width: 100%;
-    font-size: clamp(2.15rem, 12.2vw, 3.15rem) !important;
-    line-height: 0.96 !important;
-    letter-spacing: -0.055em !important;
+    font-size: clamp(2.15rem, 10vw, 3.15rem);
+    line-height: 1.05;
+    letter-spacing: -0.04em;
   }
 
   .quivo-award-shell h2 {
-    font-size: clamp(1.9rem, 9vw, 2.45rem) !important;
-    line-height: 1.04 !important;
-    letter-spacing: -0.04em !important;
-  }
-
-  .quivo-award-shell p {
-    overflow-wrap: anywhere;
+    font-size: clamp(1.9rem, 8vw, 2.45rem);
+    line-height: 1.08;
+    letter-spacing: -0.03em;
   }
 
   .hero-actions button {
@@ -527,172 +517,11 @@
   }
 
   .product-card {
-    border-radius: 1.25rem !important;
-  }
-
-  .quivo-award-shell [data-carousel-content],
-  .quivo-award-shell [data-carousel-item] {
-    max-width: 100%;
+    border-radius: 1.25rem;
   }
 
   .quivo-award-shell table {
     font-size: 0.84rem;
   }
-
-  .quivo-award-shell details summary h3 {
-    font-size: 1.35rem !important;
-    line-height: 1.1 !important;
-  }
 }
 
-@media (max-width: 420px) {
-  .quivo-award-shell .container {
-    padding-left: 0.9rem;
-    padding-right: 0.9rem;
-  }
-
-  .award-header .container {
-    padding-left: 0.75rem;
-    padding-right: 0.75rem;
-  }
-
-  .quivo-award-shell h1 {
-    font-size: clamp(2rem, 11vw, 2.75rem) !important;
-  }
-}
-
-
-/* Quivo mobile responsiveness hardening pass: final phone composition constraints after visual QA. */
-@media (max-width: 767px) {
-  .award-header {
-    overflow: visible !important;
-  }
-
-  .award-header .container {
-    position: relative;
-    min-width: 0;
-  }
-
-  .award-header button[aria-label="Open menu"] {
-    display: grid !important;
-    position: absolute !important;
-    right: 0.85rem;
-    top: 0.62rem;
-    width: 2.75rem;
-    height: 2.75rem;
-    background: #ffffff !important;
-    color: #27324a !important;
-  }
-
-  .award-header a[aria-label="Quivo home"] {
-    max-width: calc(100vw - 6.25rem) !important;
-    padding-right: 0.25rem;
-  }
-
-  .quivo-award-shell h1.hero-title {
-    width: 100% !important;
-    max-width: calc(100vw - 2rem) !important;
-    font-size: clamp(1.92rem, 9.6vw, 2.32rem) !important;
-    line-height: 1.02 !important;
-    letter-spacing: -0.052em !important;
-  }
-
-  .quivo-award-shell .hero-copy {
-    max-width: calc(100vw - 2rem) !important;
-    font-size: 0.94rem !important;
-    line-height: 1.62 !important;
-  }
-
-  .hero-mobile-shop-strip {
-    width: 100% !important;
-    max-width: calc(100vw - 2rem) !important;
-    overflow: hidden !important;
-  }
-
-  .hero-mobile-shop-strip button {
-    min-width: 0 !important;
-    overflow: hidden !important;
-  }
-
-  .hero-mobile-shop-strip img {
-    max-width: 100% !important;
-  }
-
-  .hero-actions,
-  .hero-actions button,
-  .hero-stat,
-  .quivo-award-shell .grid,
-  .quivo-award-shell article,
-  .quivo-award-shell details,
-  .quivo-award-shell section > .container > div {
-    max-width: 100% !important;
-  }
-}
-
-@media (max-width: 420px) {
-  .quivo-award-shell h1.hero-title {
-    font-size: clamp(1.78rem, 9.1vw, 2.12rem) !important;
-    letter-spacing: -0.048em !important;
-  }
-
-  .hero-mobile-shop-strip {
-    max-width: calc(100vw - 1.8rem) !important;
-  }
-}
-
-/* Quivo mobile composition lock: constrain phone previews to a deliberate handheld column. */
-@media (max-width: 767px) {
-  .quivo-award-shell .container {
-    width: min(100%, 390px) !important;
-    max-width: 390px !important;
-    margin-left: 0 !important;
-    margin-right: auto !important;
-    padding-left: 1rem !important;
-    padding-right: 1rem !important;
-  }
-
-  .award-header .container {
-    min-height: 4.05rem !important;
-    padding-top: 0.55rem !important;
-    padding-bottom: 0.55rem !important;
-  }
-
-  .award-header button[aria-label="Open menu"] {
-    right: 1rem !important;
-  }
-
-  .quivo-award-shell h1.hero-title,
-  .quivo-award-shell .hero-copy,
-  .hero-mobile-shop-strip,
-  .hero-actions,
-  .hero-actions button {
-    max-width: 358px !important;
-  }
-
-  .quivo-award-shell h1.hero-title {
-    font-size: clamp(1.78rem, 8.6vw, 2.08rem) !important;
-  }
-
-  .hero-mobile-shop-strip .grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-  }
-
-  .quivo-award-shell [data-slot="carousel"],
-  .quivo-award-shell [data-slot="carousel-content"] {
-    max-width: 358px !important;
-    overflow: hidden !important;
-  }
-
-  .quivo-award-shell [data-slot="carousel-item"] {
-    flex-basis: 100% !important;
-    max-width: 358px !important;
-  }
-
-  .quivo-award-shell .product-card {
-    max-width: 342px !important;
-  }
-
-  .quivo-award-shell section {
-    overflow-x: clip !important;
-  }
-}
