@@ -45,7 +45,7 @@ export function LiveChat({ currentUser }: { currentUser: User }) {
         .limit(50);
 
       if (error) {
-        console.error("Error fetching messages:", error);
+        console.error("Error fetching messages:", error.message || error, error.details || "");
       } else {
         setMessages(data || []);
       }
@@ -144,7 +144,7 @@ export function LiveChat({ currentUser }: { currentUser: User }) {
               <div className="grid gap-2">
                 {/* Mock contacts - in reality, fetch these based on role (owners vs customers) */}
                 <button
-                  onClick={() => setRecipientId("mock-shop-owner-id")}
+                  onClick={() => setRecipientId("00000000-0000-0000-0000-000000000000")}
                   className="flex items-center gap-3 rounded-2xl bg-white p-3 text-left shadow-sm transition-all hover:shadow-md active:scale-[0.98]"
                 >
                   <div className="grid h-10 w-10 place-items-center rounded-full bg-[#E8E3D1] text-[#626A54]">
