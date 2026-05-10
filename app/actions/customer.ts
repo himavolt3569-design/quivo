@@ -300,6 +300,22 @@ export async function placeOrder(data: {
     return { error: "Order total is too large." };
   }
 
+  // Resolve delivery address: use caller-supplied value or fall back to default address
+  let delivery_address = parse.data.delivery_address ?? null;
+  if (!delivery_address) {
+    const { data: defaultAddr } = await supabase
+      .from("addresses")
+      .select("address_line, landmark")
+      .eq("customer_id", user.id)
+      .eq("is_default", true)
+      .single();
+    if (defaultAddr) {
+      delivery_address = defaultAddr.landmark
+        ? `${defaultAddr.address_line}, ${defaultAddr.landmark}`
+        : defaultAddr.address_line;
+    }
+  }
+
   const order_number = `QUIVO-${nanoid(6).toUpperCase()}`;
 
   const { data: order, error } = await supabase
@@ -312,7 +328,7 @@ export async function placeOrder(data: {
       total_amount,
       items: parse.data.items,
       notes: parse.data.notes ?? null,
-      delivery_address: parse.data.delivery_address ?? null,
+      delivery_address,
       eta_minutes: parse.data.eta_minutes ?? 20,
     })
     .select()
