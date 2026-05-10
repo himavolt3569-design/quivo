@@ -15,6 +15,7 @@ import { navigationItems } from "@/lib/data";
 import { ManusDialog } from "@/components/ManusDialog";
 import { createClient } from "@/lib/supabase/client";
 import type { User } from "@supabase/supabase-js";
+import type { Profile } from "@/lib/types";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
@@ -26,6 +27,7 @@ function NavbarContent({ scrollToSection }: NavbarProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
+  const [profile, setProfile] = useState<Partial<Profile> | null>(null);
 
   const supabase = createClient();
   const router = useRouter();
@@ -48,12 +50,22 @@ function NavbarContent({ scrollToSection }: NavbarProps) {
         data: { user },
       } = await supabase.auth.getUser();
       setUser(user);
+      if (user) {
+        const { data } = await supabase.from("profiles").select("avatar_url, full_name").eq("id", user.id).single();
+        setProfile(data);
+      }
     };
     getUser();
 
     const { data: authListener } = supabase.auth.onAuthStateChange(
-      (event, session) => {
+      async (event, session) => {
         setUser(session?.user ?? null);
+        if (session?.user) {
+          const { data } = await supabase.from("profiles").select("avatar_url, full_name").eq("id", session.user.id).single();
+          setProfile(data);
+        } else {
+          setProfile(null);
+        }
       },
     );
 
@@ -147,7 +159,11 @@ function NavbarContent({ scrollToSection }: NavbarProps) {
                   href="/dashboard"
                   className="flex items-center gap-2 rounded-full bg-[#27324A] px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-[#27324A]/25 transition hover:-translate-y-0.5 hover:bg-[#1B2030] focus:outline-none focus:ring-2 focus:ring-[#27324A] focus:ring-offset-4"
                 >
-                  <UserIcon className="h-4 w-4" />
+                  {profile?.avatar_url ? (
+                    <img src={profile.avatar_url} alt="Profile" className="h-5 w-5 rounded-full object-cover ring-1 ring-white/20" />
+                  ) : (
+                    <UserIcon className="h-4 w-4" />
+                  )}
                   Dashboard
                 </Link>
                 <button
@@ -232,7 +248,11 @@ function NavbarContent({ scrollToSection }: NavbarProps) {
                         href="/dashboard"
                         className="flex min-h-12 items-center justify-center gap-2 rounded-full bg-[#27324A] px-5 text-sm font-semibold text-white shadow-lg shadow-[#27324A]/20"
                       >
-                        <UserIcon className="h-4 w-4" />
+                        {profile?.avatar_url ? (
+                          <img src={profile.avatar_url} alt="Profile" className="h-5 w-5 rounded-full object-cover ring-1 ring-white/20" />
+                        ) : (
+                          <UserIcon className="h-4 w-4" />
+                        )}
                         Dashboard
                       </Link>
                     </SheetClose>

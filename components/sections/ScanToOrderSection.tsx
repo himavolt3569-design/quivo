@@ -1,7 +1,16 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { ArrowRight, Barcode, CheckCircle2, Crosshair, MapPin, ShoppingBag, Trash2, XCircle } from "lucide-react";
+import {
+  ArrowRight,
+  Barcode,
+  CheckCircle2,
+  Crosshair,
+  MapPin,
+  ShoppingBag,
+  Trash2,
+  XCircle,
+} from "lucide-react";
 import { toast } from "sonner";
 import { Eyebrow } from "@/components/Eyebrow";
 import { MapViewDynamic as MapView } from "@/components/MapDynamic";
@@ -11,7 +20,7 @@ import {
   orderFilters,
   nearbyShops,
   popularProducts,
-  customerFallbackLocation
+  customerFallbackLocation,
 } from "@/lib/data";
 
 type LocationPermissionState =
@@ -32,7 +41,7 @@ export function ScanToOrderSection({
   basketItems,
   addProductToBasket,
   removeProductFromBasket,
-  scrollToSection
+  scrollToSection,
 }: ScanToOrderSectionProps) {
   const [customerName, setCustomerName] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
@@ -45,7 +54,7 @@ export function ScanToOrderSection({
   const [locationPermission, setLocationPermission] =
     useState<LocationPermissionState>("idle");
   const [customerLocation, setCustomerLocation] = useState(
-    customerFallbackLocation
+    customerFallbackLocation,
   );
   const [activeOrderFilter, setActiveOrderFilter] = useState("All");
   const [activeShopName, setActiveShopName] = useState(nearbyShops[0].name);
@@ -59,20 +68,21 @@ export function ScanToOrderSection({
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const customerMarkerRef = useRef<any>(null);
 
-  const shopsInsideRadius = nearbyShops.filter(shop => shop.distance <= 6);
+  const shopsInsideRadius = nearbyShops.filter((shop) => shop.distance <= 6);
   const filteredNearbyShops = shopsInsideRadius.filter(
-    shop => activeOrderFilter === "All" || shop.category === activeOrderFilter
+    (shop) =>
+      activeOrderFilter === "All" || shop.category === activeOrderFilter,
   );
   const selectedOrderShop =
-    filteredNearbyShops.find(shop => shop.name === activeShopName) ??
+    filteredNearbyShops.find((shop) => shop.name === activeShopName) ??
     filteredNearbyShops[0] ??
     shopsInsideRadius[0];
-  const basketProducts = popularProducts.filter(product =>
-    basketItems.includes(product.id)
+  const basketProducts = popularProducts.filter((product) =>
+    basketItems.includes(product.id),
   );
   const basketTotal = basketProducts.reduce(
     (total, product) => total + product.priceNumber,
-    0
+    0,
   );
 
   const permissionCopy = {
@@ -94,7 +104,7 @@ export function ScanToOrderSection({
 
     setLocationPermission("requesting");
     navigator.geolocation.getCurrentPosition(
-      position => {
+      (position) => {
         setCustomerLocation({
           lat: position.coords.latitude,
           lng: position.coords.longitude,
@@ -102,7 +112,7 @@ export function ScanToOrderSection({
         setLocationPermission("granted");
       },
       () => setLocationPermission("denied"),
-      { enableHighAccuracy: true, timeout: 8000, maximumAge: 120000 }
+      { enableHighAccuracy: true, timeout: 8000, maximumAge: 120000 },
     );
   }
 
@@ -116,14 +126,15 @@ export function ScanToOrderSection({
       return;
     }
 
-    const orderId = `QUIVO-${Math.floor(1000 + Math.random() * 9000)}`;
+    // eslint-disable-next-line react-hooks/purity
+    const orderId = `QUIVO-${Math.floor(1000 + (Date.now() % 9000))}`;
     const savedOrder = {
       id: orderId,
       shop: selectedOrderShop.name,
       customerName: customerName.trim(),
       customerPhone: customerPhone.trim(),
       deliveryNote: deliveryNote.trim(),
-      items: basketProducts.map(product => ({
+      items: basketProducts.map((product) => ({
         id: product.id,
         name: product.name,
         barcode: product.barcode,
@@ -133,11 +144,11 @@ export function ScanToOrderSection({
       createdAt: new Date().toISOString(),
     };
     const previousOrders = JSON.parse(
-      window.localStorage.getItem("quivo-submitted-orders") ?? "[]"
+      window.localStorage.getItem("quivo-submitted-orders") ?? "[]",
     ) as (typeof savedOrder)[];
     window.localStorage.setItem(
       "quivo-submitted-orders",
-      JSON.stringify([savedOrder, ...previousOrders].slice(0, 20))
+      JSON.stringify([savedOrder, ...previousOrders].slice(0, 20)),
     );
     setSubmittedOrder({
       id: orderId,
@@ -153,55 +164,66 @@ export function ScanToOrderSection({
     const map = discoveryMapRef.current;
     if (!map) return;
 
-    import("leaflet").then(Leaflet => {
+    import("leaflet").then((Leaflet) => {
       if (!map.getContainer()) return;
 
-      shopMarkersRef.current.forEach((marker: any) => marker.remove());
-      shopMarkersRef.current = [];
+      try {
+        shopMarkersRef.current.forEach((marker: any) => marker.remove());
+        shopMarkersRef.current = [];
 
-      if (radiusCircleRef.current) radiusCircleRef.current.remove();
-      if (customerMarkerRef.current) customerMarkerRef.current.remove();
+        if (radiusCircleRef.current) radiusCircleRef.current.remove();
+        if (customerMarkerRef.current) customerMarkerRef.current.remove();
 
-      map.setView(
-        [customerLocation.lat, customerLocation.lng],
-        map.getZoom() || 13
-      );
+        map.setView(
+          [customerLocation.lat, customerLocation.lng],
+          map.getZoom() || 13,
+          { animate: false },
+        );
 
-      radiusCircleRef.current = Leaflet.circle(
-        [customerLocation.lat, customerLocation.lng],
-        {
-          radius: 6000,
-          color: "#A7653A",
-          opacity: 0.9,
-          weight: 2,
-          fillColor: "#A7653A",
-          fillOpacity: 0.08,
-        }
-      ).addTo(map);
+        radiusCircleRef.current = Leaflet.circle(
+          [customerLocation.lat, customerLocation.lng],
+          {
+            radius: 6000,
+            color: "#A7653A",
+            opacity: 0.9,
+            weight: 2,
+            fillColor: "#A7653A",
+            fillOpacity: 0.08,
+          },
+        ).addTo(map);
 
-      customerMarkerRef.current = Leaflet.marker(
-        [customerLocation.lat, customerLocation.lng],
-        {
-          title:
-            locationPermission === "granted"
-              ? "Customer location"
-              : "Fallback customer area",
-        }
-      ).addTo(map);
+        customerMarkerRef.current = Leaflet.marker(
+          [customerLocation.lat, customerLocation.lng],
+          {
+            title:
+              locationPermission === "granted"
+                ? "Customer location"
+                : "Fallback customer area",
+          },
+        ).addTo(map);
 
-      const boundsPoints: [number, number][] = [
-        [customerLocation.lat, customerLocation.lng],
-      ];
-      filteredNearbyShops.forEach(shop => {
-        const marker = Leaflet.marker([shop.position.lat, shop.position.lng], {
-          title: `${shop.name} \u00b7 ${shop.distance}km`,
-        }).addTo(map);
-        marker.on("click", () => setActiveShopName(shop.name));
-        shopMarkersRef.current.push(marker);
-        boundsPoints.push([shop.position.lat, shop.position.lng]);
-      });
+        const boundsPoints: [number, number][] = [
+          [customerLocation.lat, customerLocation.lng],
+        ];
+        filteredNearbyShops.forEach((shop) => {
+          const marker = Leaflet.marker(
+            [shop.position.lat, shop.position.lng],
+            {
+              title: `${shop.name} \u00b7 ${shop.distance}km`,
+            },
+          ).addTo(map);
+          marker.on("click", () => setActiveShopName(shop.name));
+          shopMarkersRef.current.push(marker);
+          boundsPoints.push([shop.position.lat, shop.position.lng]);
+        });
 
-      map.fitBounds(Leaflet.latLngBounds(boundsPoints), { padding: [72, 72] });
+        map.fitBounds(Leaflet.latLngBounds(boundsPoints), {
+          padding: [72, 72],
+          animate: false,
+        });
+      } catch (error) {
+        console.warn("Leaflet map view update failed:", error);
+      }
     });
   }, [customerLocation, filteredNearbyShops, locationPermission]);
 
@@ -228,12 +250,12 @@ export function ScanToOrderSection({
           </div>
           <div className="reveal-item max-w-3xl">
             <p className="text-lg leading-8 text-[#5F5A61]">
-              Customers scan the product they already know, Quivo checks
-              quick inventory around them, and the basket goes straight to
-              the selected shop.
+              Customers scan the product they already know, Quivo checks quick
+              inventory around them, and the basket goes straight to the
+              selected shop.
             </p>
             <div className="mt-5 grid gap-3 sm:grid-cols-3">
-              {barcodeSteps.map(step => {
+              {barcodeSteps.map((step) => {
                 const StepIcon = step.icon;
                 return (
                   <div
@@ -245,9 +267,7 @@ export function ScanToOrderSection({
                         <StepIcon className="h-5 w-5" aria-hidden="true" />
                       </span>
                       <div>
-                        <p className="font-bold text-[#27324A]">
-                          {step.label}
-                        </p>
+                        <p className="font-bold text-[#27324A]">{step.label}</p>
                         <p className="text-xs font-medium text-[#746E73]">
                           {step.detail}
                         </p>
@@ -279,10 +299,7 @@ export function ScanToOrderSection({
                     disabled={locationPermission === "requesting"}
                     className="inline-flex min-h-12 items-center justify-center rounded-full bg-white px-5 text-sm font-semibold text-[#27324A] transition hover:-translate-y-0.5 hover:bg-[#F3E1CB] disabled:cursor-wait disabled:opacity-70 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-4 focus:ring-offset-[#27324A]"
                   >
-                    <Crosshair
-                      className="mr-2 h-4 w-4"
-                      aria-hidden="true"
-                    />
+                    <Crosshair className="mr-2 h-4 w-4" aria-hidden="true" />
                     {locationPermission === "granted"
                       ? "Location ready"
                       : locationPermission === "requesting"
@@ -321,7 +338,7 @@ export function ScanToOrderSection({
               </div>
 
               <div className="grid gap-3 p-4 sm:grid-cols-3 sm:gap-4 sm:p-5">
-                {customerDealItems.map(deal => (
+                {customerDealItems.map((deal) => (
                   <article
                     key={deal.name}
                     className="product-card magnetic-card overflow-hidden rounded-[1.35rem] bg-[#F7F0E6] shadow-inner shadow-[#27324A]/5"
@@ -358,7 +375,7 @@ export function ScanToOrderSection({
 
             <form
               className="rounded-[1.5rem] border border-[#2E3344]/8 bg-white p-4 shadow-sm sm:rounded-[1.75rem] sm:p-5"
-              onSubmit={event => {
+              onSubmit={(event) => {
                 event.preventDefault();
                 submitCustomerOrder();
               }}
@@ -380,7 +397,7 @@ export function ScanToOrderSection({
 
               <div className="mt-5 space-y-3">
                 {basketProducts.length ? (
-                  basketProducts.map(item => (
+                  basketProducts.map((item) => (
                     <div
                       key={item.id}
                       className="flex flex-col gap-3 rounded-2xl bg-[#F7F0E6] px-4 py-3 text-sm sm:flex-row sm:items-center sm:justify-between"
@@ -420,7 +437,7 @@ export function ScanToOrderSection({
                   Customer name
                   <input
                     value={customerName}
-                    onChange={event => setCustomerName(event.target.value)}
+                    onChange={(event) => setCustomerName(event.target.value)}
                     placeholder="e.g. Anita Tamang"
                     className="min-h-12 rounded-2xl border border-[#2E3344]/10 bg-[#FFFBF4] px-4 text-sm outline-none transition focus:border-[#A7653A] focus:ring-2 focus:ring-[#A7653A]/20"
                   />
@@ -429,7 +446,7 @@ export function ScanToOrderSection({
                   Phone number
                   <input
                     value={customerPhone}
-                    onChange={event => setCustomerPhone(event.target.value)}
+                    onChange={(event) => setCustomerPhone(event.target.value)}
                     placeholder="98XXXXXXXX"
                     className="min-h-12 rounded-2xl border border-[#2E3344]/10 bg-[#FFFBF4] px-4 text-sm outline-none transition focus:border-[#A7653A] focus:ring-2 focus:ring-[#A7653A]/20"
                   />
@@ -439,7 +456,7 @@ export function ScanToOrderSection({
                 Delivery note
                 <textarea
                   value={deliveryNote}
-                  onChange={event => setDeliveryNote(event.target.value)}
+                  onChange={(event) => setDeliveryNote(event.target.value)}
                   placeholder="Gate color, substitution preference, pickup time..."
                   rows={3}
                   className="rounded-2xl border border-[#2E3344]/10 bg-[#FFFBF4] px-4 py-3 text-sm outline-none transition focus:border-[#A7653A] focus:ring-2 focus:ring-[#A7653A]/20"
@@ -456,8 +473,7 @@ export function ScanToOrderSection({
               {submittedOrder ? (
                 <div className="mt-4 rounded-2xl border border-[#626A54]/20 bg-[#E8E3D1] px-4 py-3 text-sm font-semibold text-[#27324A]">
                   Order {submittedOrder.id} sent to {submittedOrder.shop}.
-                  Estimated total: Rs.{" "}
-                  {submittedOrder.total.toLocaleString()}.
+                  Estimated total: Rs. {submittedOrder.total.toLocaleString()}.
                 </div>
               ) : null}
             </form>
@@ -474,7 +490,7 @@ export function ScanToOrderSection({
                 </h3>
               </div>
               <div className="flex flex-wrap gap-2">
-                {orderFilters.map(filter => (
+                {orderFilters.map((filter) => (
                   <button
                     key={filter}
                     type="button"
@@ -497,7 +513,7 @@ export function ScanToOrderSection({
                   initialCenter={customerFallbackLocation}
                   initialZoom={13}
                   className="h-[240px] w-full sm:h-[300px] lg:h-[340px]"
-                  onMapReady={map => {
+                  onMapReady={(map) => {
                     discoveryMapRef.current = map;
                   }}
                 />
@@ -513,7 +529,7 @@ export function ScanToOrderSection({
             </div>
 
             <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              {filteredNearbyShops.map(shop => (
+              {filteredNearbyShops.map((shop) => (
                 <button
                   key={shop.name}
                   type="button"
@@ -570,8 +586,8 @@ export function ScanToOrderSection({
                   </h4>
                   <p className="mt-2 text-sm text-white/65">
                     {selectedOrderShop.distance} km away ·{" "}
-                    {selectedOrderShop.eta} · {selectedOrderShop.queue}{" "}
-                    orders in queue
+                    {selectedOrderShop.eta} · {selectedOrderShop.queue} orders
+                    in queue
                   </p>
                 </div>
                 <button
@@ -579,8 +595,8 @@ export function ScanToOrderSection({
                   onClick={() =>
                     addProductToBasket(
                       popularProducts.find(
-                        product => product.shop === selectedOrderShop.name
-                      )?.id ?? popularProducts[0].id
+                        (product) => product.shop === selectedOrderShop.name,
+                      )?.id ?? popularProducts[0].id,
                     )
                   }
                   className="inline-flex min-h-12 w-full items-center justify-center rounded-full bg-white px-5 text-sm font-semibold text-[#27324A] transition hover:-translate-y-0.5 hover:bg-[#F3E1CB] focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-4 focus:ring-offset-[#27324A] sm:w-auto"

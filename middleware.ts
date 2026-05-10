@@ -30,7 +30,7 @@ export async function middleware(request: NextRequest) {
             return request.cookies.getAll()
           },
           setAll(cookiesToSet) {
-            cookiesToSet.forEach(({ name, value, options }) => request.cookies.set(name, value))
+            cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
             response = NextResponse.next({
               request: {
                 headers: request.headers,
@@ -53,6 +53,9 @@ export async function middleware(request: NextRequest) {
     }
   } catch (error) {
     console.error("Middleware Auth Error:", error);
+    if (request.nextUrl.pathname.startsWith('/dashboard')) {
+      return NextResponse.redirect(new URL('/?login=true', request.url))
+    }
   }
 
   return response

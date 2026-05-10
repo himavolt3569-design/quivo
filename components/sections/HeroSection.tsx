@@ -13,6 +13,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { toast } from "sonner";
+import Link from "next/link";
 import { Eyebrow } from "@/components/Eyebrow";
 import {
   stats,
@@ -26,6 +27,7 @@ import {
   customerFallbackLocation,
 } from "@/lib/data";
 import { MapViewDynamic as MapView } from "@/components/MapDynamic";
+import { BarcodeScanner } from "../dashboard/customer/BarcodeScanner";
 
 type LocationPermissionState =
   | "idle"
@@ -39,9 +41,10 @@ interface HeroSectionProps {
   addProductToBasket?: (productId: string) => void;
 }
 
-export function HeroSection({ scrollToSection }: HeroSectionProps) {
+export function HeroSection({ scrollToSection, addProductToBasket: propAddProduct }: HeroSectionProps) {
   const rootRef = useRef<HTMLDivElement | null>(null);
 
+  const [scannerOpen, setScannerOpen] = useState(false);
   const [basketItems, setBasketItems] = useState<string[]>(["rice", "milk"]);
   const [customerName, setCustomerName] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
@@ -97,6 +100,10 @@ export function HeroSection({ scrollToSection }: HeroSectionProps) {
   }[locationPermission];
 
   function addProductToBasket(productId: string) {
+    if (propAddProduct) {
+      propAddProduct(productId);
+      return;
+    }
     const product = popularProducts.find((item) => item.id === productId);
     setBasketItems((current) =>
       current.includes(productId) ? current : [...current, productId],
@@ -284,6 +291,14 @@ export function HeroSection({ scrollToSection }: HeroSectionProps) {
 
   return (
     <div ref={rootRef}>
+      <BarcodeScanner
+        open={scannerOpen}
+        onClose={() => setScannerOpen(false)}
+        onOrderNow={(detected) => {
+          addProductToBasket(detected.id);
+          scrollToSection("orders");
+        }}
+      />
       <section className="award-hero relative overflow-hidden">
         <div
           className="absolute inset-0 opacity-50"
@@ -327,52 +342,20 @@ export function HeroSection({ scrollToSection }: HeroSectionProps) {
               send a ready basket.
             </p>
 
-            <div className="glass-panel hero-mobile-shop-strip mt-4 max-w-[21rem] rounded-[1.2rem] border border-[#2E3344]/8 bg-white/88 p-3 shadow-xl shadow-[#27324A]/8 backdrop-blur min-[430px]:max-w-[24rem] md:rounded-[1.5rem] lg:hidden">
-              <div className="mb-3 flex items-center justify-between gap-2 px-1">
-                <span className="text-xs font-bold uppercase tracking-[0.14em] text-[#8D5132]">
-                  Popular near you
-                </span>
-                <span className="hidden text-xs font-semibold text-[#746E73] min-[430px]:inline">
-                  Tap to add
-                </span>
-              </div>
-              <div className="grid grid-cols-2 gap-2 min-w-0">
-                {popularProducts.slice(0, 2).map((product) => (
-                  <button
-                    key={product.id}
-                    type="button"
-                    onClick={() => addProductToBasket(product.id)}
-                    className="rounded-[1rem] bg-[#F7F0E6] p-2 text-left transition hover:-translate-y-0.5 hover:bg-[#EFE5D6] focus:outline-none focus:ring-2 focus:ring-[#A7653A]"
-                  >
-                    <img
-                      src={product.image}
-                      alt={`${product.name} product`}
-                      className="h-14 w-full rounded-[0.9rem] object-cover sm:h-20"
-                    />
-                    <span className="mt-2 block truncate text-[0.82rem] font-bold text-[#27324A] sm:text-sm">
-                      {product.name}
-                    </span>
-                    <span className="mt-0.5 block truncate text-[0.68rem] font-semibold text-[#A7653A] sm:text-xs">
-                      {product.price} · barcode match
-                    </span>
-                  </button>
-                ))}
-              </div>
-            </div>
-            <div className="hero-actions mt-5 flex flex-col gap-2.5 sm:mt-8 sm:flex-row sm:gap-4">
+            <div className="hero-actions mt-6 flex flex-col gap-3 sm:mt-8 sm:flex-row sm:gap-4">
               <button
-                onClick={() => scrollToSection("orders")}
-                className="award-button group inline-flex min-h-13 w-full items-center justify-center rounded-full bg-[#A7653A] px-6 text-sm font-semibold text-white shadow-xl shadow-[#A7653A]/25 transition hover:-translate-y-0.5 hover:bg-[#8E5432] focus:outline-none focus:ring-2 focus:ring-[#A7653A] focus:ring-offset-4 sm:min-h-14 sm:w-auto sm:px-7 sm:text-base"
+                onClick={() => setScannerOpen(true)}
+                className="group inline-flex min-h-14 w-full items-center justify-center gap-2 rounded-full bg-[#A7653A] px-6 text-sm font-bold text-white shadow-xl shadow-[#A7653A]/25 transition hover:-translate-y-0.5 hover:bg-[#8E5432] focus:outline-none focus:ring-2 focus:ring-[#A7653A] focus:ring-offset-4 sm:w-auto sm:px-8 sm:text-base"
               >
-                Start barcode shopping
-                <ArrowRight className="ml-2 h-5 w-5 transition group-hover:translate-x-1" />
+                <Barcode className="h-5 w-5" />
+                Scan Barcode
               </button>
-              <button
-                onClick={() => scrollToSection("owner-orders")}
-                className="inline-flex min-h-13 w-full items-center justify-center rounded-full border border-[#2E3344]/12 bg-white px-6 text-sm font-semibold text-[#27324A] shadow-sm transition hover:-translate-y-0.5 hover:border-[#A7653A]/45 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-[#A7653A] focus:ring-offset-4 sm:min-h-14 sm:w-auto sm:px-7 sm:text-base"
+              <Link
+                href="/?login=true"
+                className="inline-flex min-h-14 w-full items-center justify-center rounded-full border border-[#2E3344]/12 bg-white px-6 text-sm font-bold text-[#27324A] shadow-sm transition hover:-translate-y-0.5 hover:border-[#A7653A]/45 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-[#A7653A] focus:ring-offset-4 sm:w-auto sm:px-8 sm:text-base"
               >
-                I own a shop
-              </button>
+                Sign In / Sign Up
+              </Link>
             </div>
             <div className="mt-5 grid w-full max-w-full grid-cols-2 gap-2 text-[0.72rem] font-semibold text-[#746E73] sm:mt-6 sm:flex sm:max-w-none sm:flex-wrap sm:text-sm">
               {customerSearchChips.slice(0, 4).map((chip) => (
