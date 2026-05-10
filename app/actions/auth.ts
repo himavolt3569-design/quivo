@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { checkRateLimit } from "@/lib/rate-limit";
+import { getSiteUrl } from "@/lib/security";
 
 const DISPOSABLE_EMAIL_DOMAINS = [
   "mailinator.com",
@@ -43,9 +44,7 @@ const AuthSchema = z.object({
     .max(100, "Password too long"),
 });
 
-const SignUpSchema = AuthSchema.extend({
-  role: z.enum(["customer", "owner"]).default("customer"),
-});
+const SignUpSchema = AuthSchema;
 
 export async function loginWithEmail(formData: FormData) {
   const rateLimit = await checkRateLimit("loginWithEmail");
@@ -61,23 +60,15 @@ export async function loginWithEmail(formData: FormData) {
   const { email, password } = parseResult.data;
   const supabase = await createClient();
 
-  const { data: authData, error: authError } =
-    await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+  const { error: authError } = await supabase.auth.signInWithPassword({
+    email,
+    password,
+  });
 
   if (authError) {
-    return { error: authError.message };
+    return { error: "Invalid email or password." };
   }
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", authData.user.id)
-    .single();
-
-  const role = profile?.role || "customer";
   const redirectUrl = "/dashboard";
 
   return { success: true, redirectUrl };
@@ -94,7 +85,7 @@ export async function signUpWithEmail(formData: FormData) {
     return { error: parseResult.error.issues[0].message };
   }
 
-  const { email, password, role } = parseResult.data;
+  const { email, password } = parseResult.data;
 
   if (isDisposableEmail(email)) {
     return {
@@ -109,13 +100,13 @@ export async function signUpWithEmail(formData: FormData) {
     email,
     password,
     options: {
-      data: { role },
-      emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"}/auth/callback`,
+      data: { role: "customer" },
+      emailRedirectTo: `${getSiteUrl()}/auth/callback`,
     },
   });
 
   if (error) {
-    return { error: error.message };
+    return { error: "Could not create account. Please try again." };
   }
 
   return { success: "Check your email to verify your account." };
@@ -132,7 +123,7 @@ export async function signInWithGoogle() {
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "google",
     options: {
-      redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"}/auth/callback`,
+      redirectTo: `${getSiteUrl()}/auth/callback`,
       queryParams: {
         access_type: "offline",
         prompt: "consent",
@@ -142,7 +133,7 @@ export async function signInWithGoogle() {
 
   if (error) {
     console.error("Google Auth Error:", error.message);
-    return { error: error.message };
+    return { error: "Could not start Google sign-in. Please try again." };
   }
 
   if (data.url) {
@@ -151,6 +142,11 @@ export async function signInWithGoogle() {
 }
 
 export async function signOut() {
+  const rateLimit = await checkRateLimit("signOut");
+  if (!rateLimit.success) {
+    return { error: rateLimit.error };
+  }
+
   const supabase = await createClient();
   await supabase.auth.signOut();
   redirect("/");

@@ -1,105 +1,119 @@
 "use client";
 
-import { PackageCheck, ReceiptText, WalletCards, ArrowRight } from "lucide-react";
+import { PackageCheck, ReceiptText, WalletCards, ArrowRight, Store } from "lucide-react";
 import { quickSignals, incomingOrders } from "@/lib/data";
 
 export function OwnerDashboard() {
   return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 fill-mode-both">
-      {/* Header Section */}
-      <section className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="animate-in fade-in slide-in-from-left-4 duration-500 delay-100 fill-mode-both">
-          <h1 className="text-3xl font-bold tracking-[-0.02em] text-[#27324A]">
-            Shop Overview
-          </h1>
-          <p className="mt-1 text-sm font-medium text-[#746E73]">
-            Maitidevi Fresh Mart
-          </p>
-        </div>
-        <div className="flex items-center gap-3 animate-in fade-in slide-in-from-right-4 duration-500 delay-100 fill-mode-both">
-          <button className="inline-flex h-12 items-center justify-center gap-2 rounded-full border border-[#2E3344]/12 bg-white px-5 text-sm font-semibold text-[#27324A] transition-all duration-300 hover:-translate-y-1 hover:shadow-md active:scale-95">
-            <PackageCheck className="h-4 w-4" />
-            Update Stock
-          </button>
-          <button className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-[#27324A] px-5 text-sm font-semibold text-white shadow-xl shadow-[#27324A]/25 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:bg-[#1B2030] active:scale-95">
-            <ReceiptText className="h-4 w-4" />
-            New Bill
-          </button>
-        </div>
-      </section>
-
-      {/* Quick Signals */}
-      <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-200 fill-mode-both">
-        {quickSignals.map(([value, label]) => (
-          <div key={label} className="group rounded-[1.25rem] border border-[#2E3344]/8 bg-white p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg cursor-default">
-            <p className="text-2xl font-bold text-[#27324A] transition-colors group-hover:text-[#A7653A]">{value}</p>
-            <p className="mt-1 text-xs font-semibold uppercase tracking-[0.1em] text-[#746E73]">
-              {label}
+    <div className="space-y-6 max-w-6xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500 fill-mode-both">
+      
+      {/* ── Top Bento Header ────────────────────────────────────────── */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+        {/* Shop Greeting Card */}
+        <div className="lg:col-span-8 rounded-[2.5rem] bg-white border border-[#2E3344]/8 p-8 relative overflow-hidden shadow-sm group flex flex-col justify-between">
+           <div className="absolute top-0 right-0 p-8 opacity-[0.03] group-hover:opacity-[0.05] transition-opacity">
+             <Store className="h-32 w-32 rotate-12" />
+          </div>
+          <div>
+            <h1 className="text-3xl sm:text-4xl font-black tracking-[-0.03em] text-[#27324A]">
+              Maitidevi <span className="text-[#A7653A]">Fresh Mart</span>
+            </h1>
+            <p className="mt-2 text-base font-bold text-[#746E73]">
+              Your shop is currently <span className="text-green-600">Live & Accepting Orders</span>.
             </p>
           </div>
-        ))}
-      </section>
-
-      <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
-        {/* Live Orders */}
-        <section className="animate-in fade-in slide-in-from-bottom-4 duration-500 delay-300 fill-mode-both">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-sm font-bold uppercase tracking-[0.14em] text-[#8D5132]">
-              Live Orders
-            </h2>
-            <button className="text-sm font-semibold text-[#A7653A] hover:underline transition-all">
-              View queue
-            </button>
+          <div className="mt-8 flex flex-wrap gap-3">
+             <button className="h-12 px-6 rounded-full bg-[#27324A] text-white text-xs font-black uppercase tracking-widest hover:bg-[#1b2333] transition shadow-lg shadow-[#27324A]/10 active:scale-95 flex items-center gap-2">
+                <PackageCheck className="h-4 w-4" />
+                Update Inventory
+             </button>
+             <button className="h-12 px-6 rounded-full border border-[#2E3344]/12 bg-white text-[#27324A] text-xs font-black uppercase tracking-widest hover:border-[#A7653A]/40 transition active:scale-95 flex items-center gap-2">
+                <ReceiptText className="h-4 w-4" />
+                Generate Bill
+             </button>
           </div>
-          <div className="overflow-hidden rounded-[1.5rem] border border-[#2E3344]/8 bg-white shadow-sm">
-            <div className="divide-y divide-[#2E3344]/8">
-              {incomingOrders.slice(0, 2).map((order) => (
-                <div key={order.id} className="group p-5 transition-all hover:bg-[#FFFBF4] cursor-pointer">
-                  <div className="flex items-start justify-between gap-4">
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="rounded-full bg-[#27324A] px-2.5 py-0.5 text-[0.65rem] font-bold text-white transition-colors group-hover:bg-[#A7653A]">
-                          {order.id}
-                        </span>
-                        <span className={`rounded-full px-2.5 py-0.5 text-[0.65rem] font-bold ${order.priority === "Urgent" ? "bg-[#F3E1CB] text-[#8D5132]" : "bg-[#E8E3D1] text-[#626A54]"}`}>
-                          {order.priority}
-                        </span>
+        </div>
+
+        {/* Quick Insights Bento */}
+        <div className="lg:col-span-4 grid grid-cols-2 gap-3">
+           {quickSignals.slice(0, 4).map(([value, label]) => (
+              <div key={label} className="rounded-[1.75rem] border border-[#2E3344]/8 bg-white p-5 shadow-sm hover:border-[#A7653A]/20 transition flex flex-col justify-center">
+                 <p className="text-2xl font-black text-[#27324A]">{value}</p>
+                 <p className="mt-1 text-[9px] font-black uppercase tracking-widest text-[#746E73]">{label}</p>
+              </div>
+           ))}
+        </div>
+      </div>
+
+      {/* ── Secondary Bento Row ─────────────────────────────────────── */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        {/* Live Orders Column */}
+        <div className="lg:col-span-8 space-y-6">
+          <section className="rounded-[2.5rem] bg-[#F7F0E6]/40 border border-[#A7653A]/10 p-7">
+            <div className="flex items-center justify-between mb-6 px-2">
+              <h2 className="text-xs font-black uppercase tracking-widest text-[#8D5132]">
+                Active Queue
+              </h2>
+              <button className="text-xs font-bold text-[#A7653A] hover:underline">
+                View All
+              </button>
+            </div>
+            <div className="space-y-3">
+              {incomingOrders.slice(0, 3).map((order) => (
+                <div key={order.id} className="group rounded-[1.75rem] bg-white border border-[#2E3344]/5 p-5 shadow-sm hover:shadow-md transition">
+                  <div className="flex items-center justify-between gap-4">
+                    <div className="flex items-center gap-4">
+                      <div className="h-12 w-12 rounded-2xl bg-[#27324A] text-white flex items-center justify-center font-black text-xs">
+                        {order.id.slice(-2)}
                       </div>
-                      <h4 className="mt-2 font-bold text-[#27324A]">{order.customer}</h4>
-                      <p className="mt-1 text-sm text-[#746E73]">{order.items}</p>
+                      <div className="min-w-0">
+                        <h4 className="font-black text-[#27324A] truncate">{order.customer}</h4>
+                        <p className="text-xs font-bold text-[#746E73] mt-0.5 truncate">{order.items}</p>
+                      </div>
                     </div>
-                    <button className="rounded-full bg-[#F7F0E6] px-4 py-2 text-xs font-semibold text-[#27324A] transition-all duration-300 hover:bg-[#E8E3D1] active:scale-95">
-                      Review
-                    </button>
+                    <div className="flex items-center gap-3">
+                       <span className={`hidden sm:inline-block rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-wider ${order.priority === "Urgent" ? "bg-red-50 text-red-500" : "bg-blue-50 text-blue-500"}`}>
+                          {order.priority}
+                       </span>
+                       <button className="h-10 px-5 rounded-full bg-[#F7F0E6] text-[#27324A] text-xs font-black hover:bg-[#A7653A] hover:text-white transition active:scale-95">
+                          Review
+                       </button>
+                    </div>
                   </div>
                 </div>
               ))}
             </div>
-          </div>
-        </section>
-
-        {/* Ledger & Tools */}
-        <aside className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-400 fill-mode-both">
-          <section>
-            <h2 className="text-sm font-bold uppercase tracking-[0.14em] text-[#8D5132] mb-4">
-              Pending Ledger
-            </h2>
-            <div className="group rounded-[1.5rem] border border-[#2E3344]/8 bg-white p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
-              <div className="flex items-center gap-4 border-b border-[#2E3344]/8 pb-4">
-                <div className="grid h-12 w-12 place-items-center rounded-xl bg-[#E8E3D1] text-[#626A54] transition-colors duration-300 group-hover:bg-[#D8C99A] group-hover:text-[#8D5132]">
-                  <WalletCards className="h-6 w-6" />
-                </div>
-                <div>
-                  <p className="font-bold text-[#27324A] text-xl transition-colors group-hover:text-[#A7653A]">Rs. 12,450</p>
-                  <p className="text-xs font-medium text-[#746E73]">Total outstanding</p>
-                </div>
-              </div>
-              <button className="mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-[#F7F0E6] px-4 py-2 text-sm font-semibold text-[#27324A] transition-all duration-300 hover:bg-[#E8E3D1] active:scale-95">
-                View Ledger <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-              </button>
-            </div>
           </section>
+        </div>
+
+        {/* Financials & Tools Sidebar */}
+        <aside className="lg:col-span-4 space-y-6">
+          {/* Ledger Bento */}
+          <div className="rounded-[2.5rem] bg-[#27324A] p-7 text-white shadow-xl shadow-[#27324A]/10 flex flex-col justify-between group">
+             <div>
+                <p className="text-[10px] font-black uppercase tracking-widest text-[#D8C99A]">Outstanding Balance</p>
+                <p className="text-3xl font-black mt-3">Rs. 12,450</p>
+                <p className="mt-2 text-xs text-white/50 font-medium leading-relaxed">
+                   Pending settlements from 14 delivery completions this week.
+                </p>
+             </div>
+             <button className="mt-8 w-full py-4 rounded-full bg-white/10 text-white text-xs font-black uppercase tracking-widest hover:bg-white/20 transition flex items-center justify-center gap-2">
+                Settlement History
+                <ArrowRight className="h-4 w-4" />
+             </button>
+          </div>
+
+          {/* Shop Performance Small Bento */}
+          <div className="rounded-[2.5rem] bg-[#E8E3D1]/50 border border-[#2E3344]/8 p-7 flex flex-col items-center text-center">
+             <div className="h-14 w-14 rounded-[1.25rem] bg-white flex items-center justify-center shadow-sm mb-4">
+                <WalletCards className="h-7 w-7 text-[#A7653A]" />
+             </div>
+             <h3 className="text-sm font-black text-[#27324A] uppercase tracking-wider">Market Pulse</h3>
+             <p className="text-xs text-[#746E73] mt-2 font-medium">Your shop is in the <span className="text-[#A7653A] font-bold">top 5%</span> of local neighborhood sellers this month.</p>
+          </div>
         </aside>
+
       </div>
     </div>
   );

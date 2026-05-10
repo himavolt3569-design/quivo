@@ -126,7 +126,8 @@ export function ScanToOrderSection({
       return;
     }
 
-    const orderId = `QUIVO-${Math.floor(1000 + Math.random() * 9000)}`;
+    // eslint-disable-next-line react-hooks/purity
+    const orderId = `QUIVO-${Math.floor(1000 + (Date.now() % 9000))}`;
     const savedOrder = {
       id: orderId,
       shop: selectedOrderShop.name,

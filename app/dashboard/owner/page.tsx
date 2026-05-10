@@ -1,7 +1,8 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
+import { OwnerDashboard } from "@/components/dashboard/OwnerDashboard";
 
-export default async function DashboardPage() {
+export default async function OwnerPage() {
   const supabase = await createClient();
   const {
     data: { user },
@@ -18,9 +19,9 @@ export default async function DashboardPage() {
     .eq("id", user.id)
     .single();
 
-  if (profile?.role === "owner") {
-    redirect("/dashboard/owner");
+  if (profile?.role !== "owner") {
+    redirect("/dashboard/home");
   }
 
-  redirect("/dashboard/home");
+  return <OwnerDashboard />;
 }
