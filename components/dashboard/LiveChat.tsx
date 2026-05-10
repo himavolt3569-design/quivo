@@ -34,11 +34,6 @@ export function LiveChat({ currentUser }: { currentUser: User }) {
     }
   }, [messages, isOpen]);
 
-  // Reset peek when chat is opened
-  useEffect(() => {
-    if (isOpen) setIsPeek(false);
-  }, [isOpen]);
-
   // Fetch initial messages and subscribe to real-time updates
   useEffect(() => {
     if (!isOpen || !recipientId) return;
@@ -120,6 +115,16 @@ export function LiveChat({ currentUser }: { currentUser: User }) {
     }
   };
 
+  const handleOpenChat = () => {
+    setIsPeek(false);
+    setIsOpen(true);
+  };
+
+  const handleCloseChat = () => {
+    setIsOpen(false);
+    setIsPeek(true);
+  };
+
   return (
     <>
       {/* Floating Action Button with Peek Behavior */}
@@ -134,7 +139,7 @@ export function LiveChat({ currentUser }: { currentUser: User }) {
         className="fixed bottom-32 right-6 z-50 flex items-center gap-2"
       >
         <button
-          onClick={() => isPeek ? setIsPeek(false) : setIsOpen(true)}
+          onClick={handleOpenChat}
           onMouseEnter={() => isPeek && setIsPeek(false)}
           className={`group flex items-center justify-center rounded-full bg-[#27324A] text-white shadow-xl shadow-[#27324A]/25 transition-all duration-300 hover:shadow-2xl active:scale-95 focus:outline-none focus:ring-2 focus:ring-[#A7653A] focus:ring-offset-2 ${
             isPeek ? "h-10 w-10 p-0" : "h-12 w-12"
@@ -175,7 +180,7 @@ export function LiveChat({ currentUser }: { currentUser: User }) {
               </div>
               <div className="flex items-center gap-2">
                 <button
-                  onClick={() => { setIsOpen(false); setIsPeek(true); }}
+                  onClick={handleCloseChat}
                   className="rounded-full p-1.5 transition hover:bg-white/10 text-white/70 hover:text-white"
                 >
                   <X className="h-4 w-4" />

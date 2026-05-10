@@ -60,7 +60,7 @@ export async function loginWithEmail(formData: FormData) {
   const { email, password } = parseResult.data;
   const supabase = await createClient();
 
-  const { error: authError } = await supabase.auth.signInWithPassword({
+  const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
     email,
     password,
   });
@@ -69,9 +69,15 @@ export async function loginWithEmail(formData: FormData) {
     return { error: "Invalid email or password." };
   }
 
-  const redirectUrl = "/dashboard";
+  // Ensure profile row exists — the DB trigger may not be deployed
+  if (authData.user) {
+    await supabase.from("profiles").upsert(
+      { id: authData.user.id, email: authData.user.email!, role: "customer" },
+      { onConflict: "id", ignoreDuplicates: true }
+    );
+  }
 
-  return { success: true, redirectUrl };
+  return { success: true, redirectUrl: "/dashboard" };
 }
 
 export async function signUpWithEmail(formData: FormData) {

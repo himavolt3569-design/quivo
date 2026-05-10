@@ -136,28 +136,28 @@
     height: -webkit-fill-available;
   }
 
-  /* Minimal Scrollbar Styles */
-  ::-webkit-scrollbar {
+  /* Minimal Scrollbar Styles (Webkit) */
+  html::-webkit-scrollbar {
     width: 6px;
     height: 6px;
   }
 
-  ::-webkit-scrollbar-track {
+  html::-webkit-scrollbar-track {
     background: transparent;
   }
 
-  ::-webkit-scrollbar-thumb {
+  html::-webkit-scrollbar-thumb {
     background: oklch(0.79 0.025 78.5 / 30%);
     border-radius: 10px;
     transition: background 0.2s ease;
   }
 
-  ::-webkit-scrollbar-thumb:hover {
+  html::-webkit-scrollbar-thumb:hover {
     background: oklch(0.62 0.095 44.8 / 40%);
   }
 
-  /* Firefox Support */
-  * {
+  /* Firefox Support (Page-level only) */
+  html, body {
     scrollbar-width: thin;
     scrollbar-color: oklch(0.79 0.025 78.5 / 30%) transparent;
   }

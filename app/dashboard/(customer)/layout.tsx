@@ -19,13 +19,36 @@ export default async function CustomerLayout({
     redirect("/?login=true");
   }
 
-  const { data: profile } = await supabase
+  let { data: profile, error: profileError } = await supabase
     .from("profiles")
     .select("role")
     .eq("id", user.id)
     .single();
 
-  if (profile?.role === "owner") {
+  // Self-healing: profile may not exist if the DB trigger wasn't deployed
+  if (profileError?.code === "PGRST116" || (!profile && !profileError)) {
+    await supabase.from("profiles").upsert(
+      { id: user.id, email: user.email!, role: "customer" },
+      { onConflict: "id", ignoreDuplicates: true }
+    );
+    const { data: retried } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", user.id)
+      .single();
+    if (retried) {
+      profile = retried;
+      profileError = null;
+    }
+  }
+
+  if (!profile) {
+    console.error("Customer layout: could not resolve profile", profileError);
+    redirect("/?login=true");
+  }
+
+  // If they are an owner, send them to the owner dash
+  if (profile.role === "owner") {
     redirect("/dashboard/owner");
   }
 

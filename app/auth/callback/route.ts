@@ -11,6 +11,14 @@ export async function GET(request: Request) {
     const supabase = await createClient();
     const { error } = await supabase.auth.exchangeCodeForSession(code);
     if (!error) {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const inferredRole = user.app_metadata?.provider === "google" ? "owner" : "customer";
+        await supabase.from("profiles").upsert(
+          { id: user.id, email: user.email!, role: inferredRole },
+          { onConflict: "id", ignoreDuplicates: true }
+        );
+      }
       return NextResponse.redirect(`${origin}${next}`);
     }
   }

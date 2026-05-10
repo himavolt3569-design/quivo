@@ -104,21 +104,19 @@ export async function addAddress(formData: FormData) {
 
   const { supabase, user } = await getAuthUser();
 
-  if (parse.data.is_default) {
-    await supabase
-      .from("addresses")
-      .update({ is_default: false })
-      .eq("customer_id", user.id);
-  }
-
-  const { error } = await supabase.from("addresses").insert({
-    customer_id: user.id,
-    ...parse.data,
+  const { data: newId, error } = await supabase.rpc("create_address_atomic", {
+    p_label: parse.data.label,
+    p_address_line: parse.data.address_line,
+    p_landmark: parse.data.landmark ?? null,
+    p_phone: parse.data.phone ?? null,
+    p_is_default: parse.data.is_default,
+    p_lat: parse.data.lat ?? null,
+    p_lng: parse.data.lng ?? null,
   });
 
   if (error) return { error: "Could not add address." };
   revalidatePath("/dashboard");
-  return { success: true };
+  return { success: true, id: newId };
 }
 
 export async function updateAddress(id: string, formData: FormData) {
@@ -142,18 +140,16 @@ export async function updateAddress(id: string, formData: FormData) {
 
   const { supabase, user } = await getAuthUser();
 
-  if (parse.data.is_default) {
-    await supabase
-      .from("addresses")
-      .update({ is_default: false })
-      .eq("customer_id", user.id);
-  }
-
-  const { error } = await supabase
-    .from("addresses")
-    .update(parse.data)
-    .eq("id", idParse.data)
-    .eq("customer_id", user.id);
+  const { error } = await supabase.rpc("update_address_atomic", {
+    p_id: idParse.data,
+    p_label: parse.data.label,
+    p_address_line: parse.data.address_line,
+    p_landmark: parse.data.landmark ?? null,
+    p_phone: parse.data.phone ?? null,
+    p_is_default: parse.data.is_default,
+    p_lat: parse.data.lat ?? null,
+    p_lng: parse.data.lng ?? null,
+  });
 
   if (error) return { error: "Could not update address." };
   revalidatePath("/dashboard");
@@ -187,16 +183,9 @@ export async function setDefaultAddress(id: string) {
 
   const { supabase, user } = await getAuthUser();
 
-  await supabase
-    .from("addresses")
-    .update({ is_default: false })
-    .eq("customer_id", user.id);
-
-  const { error } = await supabase
-    .from("addresses")
-    .update({ is_default: true })
-    .eq("id", idParse.data)
-    .eq("customer_id", user.id);
+  const { error } = await supabase.rpc("set_address_default_atomic", {
+    p_id: idParse.data,
+  });
 
   if (error) return { error: "Could not set default address." };
   revalidatePath("/dashboard");

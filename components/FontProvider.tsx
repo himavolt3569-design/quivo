@@ -29,9 +29,6 @@ export function FontProvider({
 
   const setFontSize = (size: FontSize) => {
     setFontSizeState(size);
-    if (typeof window !== "undefined") {
-      document.documentElement.style.fontSize = FONT_SIZE_MAP[size];
-    }
   };
 
   useEffect(() => {
