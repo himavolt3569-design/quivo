@@ -18,17 +18,20 @@ export default async function DashboardLayout({
   } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect("/?login=true");
+    // redirect("/?login=true");
   }
 
-  const { data: profile } = await supabase
+  const { data: profile } = user ? await supabase
     .from("profiles")
-    .select("full_name, avatar_url, font_size")
+    .select("full_name, avatar_url, font_size, owner_font_size")
     .eq("id", user.id)
-    .single<Pick<Profile, "full_name" | "avatar_url" | "font_size">>();
+    .single<Pick<Profile, "full_name" | "avatar_url" | "font_size" | "owner_font_size">>() : { data: null };
 
   return (
-    <FontProvider initialFontSize={profile?.font_size ?? "standard"}>
+    <FontProvider 
+      initialCustomerFontSize={profile?.font_size ?? "standard"}
+      initialOwnerFontSize={profile?.owner_font_size ?? "standard"}
+    >
       <div className="min-h-screen bg-[#f8f8f7] font-[Poppins]">
         <header className="sticky top-0 z-40 border-b border-[#2E3344]/8 bg-[#F7F0E6]/85 backdrop-blur-2xl">
           <div className="container flex h-16 items-center justify-between px-4 sm:px-6">
@@ -46,11 +49,11 @@ export default async function DashboardLayout({
                   <img src={profile.avatar_url} alt="Profile" className="h-8 w-8 rounded-full object-cover border border-[#2E3344]/10" />
                 ) : (
                   <div className="h-8 w-8 rounded-full bg-[#27324A] flex items-center justify-center text-white text-xs font-bold">
-                    {(profile?.full_name ?? user.email ?? "U")[0].toUpperCase()}
+                    {(profile?.full_name ?? user?.email ?? "U")[0].toUpperCase()}
                   </div>
                 )}
                 <span className="hidden text-sm font-medium text-[#746E73] sm:inline-block">
-                  {profile?.full_name ?? user.email}
+                  {profile?.full_name ?? user?.email}
                 </span>
               </div>
               <div className="h-6 w-px bg-[#2E3344]/10" />

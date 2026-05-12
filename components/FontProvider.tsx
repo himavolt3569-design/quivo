@@ -1,8 +1,9 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 
-type FontSize = "small" | "standard" | "large" | "xlarge";
+export type FontSize = "small" | "standard" | "large" | "xlarge";
 
 const FONT_SIZE_MAP: Record<FontSize, string> = {
   small: "14px",
@@ -12,32 +13,42 @@ const FONT_SIZE_MAP: Record<FontSize, string> = {
 };
 
 interface FontContextType {
-  fontSize: FontSize;
-  setFontSize: (size: FontSize) => void;
+  customerFontSize: FontSize;
+  ownerFontSize: FontSize;
+  setCustomerFontSize: (size: FontSize) => void;
+  setOwnerFontSize: (size: FontSize) => void;
 }
 
 const FontContext = createContext<FontContextType | undefined>(undefined);
 
 export function FontProvider({ 
   children, 
-  initialFontSize = "standard" 
+  initialCustomerFontSize = "standard",
+  initialOwnerFontSize = "standard"
 }: { 
   children: React.ReactNode;
-  initialFontSize?: FontSize;
+  initialCustomerFontSize?: FontSize;
+  initialOwnerFontSize?: FontSize;
 }) {
-  const [fontSize, setFontSizeState] = useState<FontSize>(initialFontSize);
-
-  const setFontSize = (size: FontSize) => {
-    setFontSizeState(size);
-  };
+  const [customerFontSize, setCustomerFontSize] = useState<FontSize>(initialCustomerFontSize);
+  const [ownerFontSize, setOwnerFontSize] = useState<FontSize>(initialOwnerFontSize);
+  const pathname = usePathname();
 
   useEffect(() => {
-    // Initial mount application
-    document.documentElement.style.fontSize = FONT_SIZE_MAP[fontSize];
-  }, [fontSize]);
+    // Determine which scale to apply based on current route
+    const isOwnerRoute = pathname?.startsWith("/dashboard/owner");
+    const activeSize = isOwnerRoute ? ownerFontSize : customerFontSize;
+    
+    document.documentElement.style.fontSize = FONT_SIZE_MAP[activeSize];
+  }, [customerFontSize, ownerFontSize, pathname]);
 
   return (
-    <FontContext.Provider value={{ fontSize, setFontSize }}>
+    <FontContext.Provider value={{ 
+      customerFontSize, 
+      ownerFontSize, 
+      setCustomerFontSize, 
+      setOwnerFontSize 
+    }}>
       {children}
     </FontContext.Provider>
   );

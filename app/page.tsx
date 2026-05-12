@@ -19,6 +19,7 @@ import { ScanToOrderSection } from "@/components/sections/ScanToOrderSection";
 import { toast } from "sonner";
 import { popularProducts } from "@/lib/data";
 import { useSearchParams } from "next/navigation";
+import { AUTH_ERROR_MESSAGES, isAuthErrorCode } from "@/lib/auth-errors";
 
 function scrollToSection(id: string) {
   document
@@ -32,13 +33,10 @@ function HomeContent() {
   const searchParams = useSearchParams();
 
   useLayoutEffect(() => {
-    const error = searchParams.get("auth_error");
-    if (error === "missing_profile") {
-      toast.error("Profile synchronization issue detected.", {
-        description: "We're attempting to fix your account. Please try logging out and back in.",
-        duration: 8000,
-      });
-    }
+    const code = searchParams.get("auth_error");
+    if (!isAuthErrorCode(code)) return;
+    const { title, description } = AUTH_ERROR_MESSAGES[code](searchParams);
+    toast.error(title, { description, duration: 10000 });
   }, [searchParams]);
 
   function addProductToBasket(productId: string) {

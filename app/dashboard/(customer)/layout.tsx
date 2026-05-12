@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { DashboardNav } from "@/components/dashboard/DashboardNav";
 import { LiveChat } from "@/components/dashboard/LiveChat";
+import { RoleModeSwitch } from "@/components/dashboard/RoleModeSwitch";
 
 export default async function CustomerLayout({
   children,
@@ -19,54 +20,41 @@ export default async function CustomerLayout({
     redirect("/?login=true");
   }
 
-  let { data: profile, error: profileError } = await supabase
+  const { data: profile } = await supabase
     .from("profiles")
     .select("role")
-    .eq("id", user.id)
-    .single();
+    .eq("id", user!.id)
+    .maybeSingle();
 
-  // Self-healing: profile may not exist if the DB trigger wasn't deployed
-  if (profileError?.code === "PGRST116" || (!profile && !profileError)) {
-    await supabase.from("profiles").upsert(
-      { id: user.id, email: user.email!, role: "customer" },
-      { onConflict: "id", ignoreDuplicates: true }
-    );
-    const { data: retried } = await supabase
-      .from("profiles")
-      .select("role")
-      .eq("id", user.id)
-      .single();
-    if (retried) {
-      profile = retried;
-      profileError = null;
-    }
-  }
-
+  // SECURITY: no self-healing. A missing profile for an authenticated user
+  // means the account was revoked (admin deleted the profile row) or the
+  // auth.users row is orphaned. Redirect to the revocation route which
+  // signs the session out globally and lands them on the login page.
   if (!profile) {
-    console.error("Customer layout: could not resolve profile", profileError);
-    redirect("/?login=true");
+    redirect("/auth/revoked");
   }
 
-  // If they are an owner, send them to the owner dash
-  if (profile.role === "owner") {
-    redirect("/dashboard/owner");
-  }
+  // Owners can browse the customer dashboard; they get a "Back to Owner" pill.
+  // Customers stay here. The owner layout enforces the inverse (customers
+  // cannot reach /dashboard/owner).
+  const isOwner = profile.role === "owner";
 
   const { count: activeOrderCount } = await supabase
     .from("orders")
     .select("id", { count: "exact", head: true })
-    .eq("customer_id", user.id)
+    .eq("customer_id", user!.id)
     .not("status", "in", "(delivered,cancelled)");
 
   return (
     <div className="animate-in fade-in duration-300">
       <DashboardNav activeOrderCount={activeOrderCount ?? 0} />
+      {isOwner && <RoleModeSwitch variant="pill" targetMode="owner" />}
       <main className="container px-4 pb-28 pt-8 sm:px-6 sm:pb-10 lg:pt-10">
         <div className="mx-auto max-w-5xl">
           {children}
         </div>
       </main>
-      <LiveChat currentUser={user} />
+      <LiveChat currentUser={user!} />
     </div>
   );
 }

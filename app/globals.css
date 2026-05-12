@@ -131,9 +131,26 @@
     overflow-x: hidden;
   }
 
-  html {
-    scroll-behavior: smooth;
-    height: -webkit-fill-available;
+  /* Optimize UI transitions for high-end feel.
+     NOTE: do NOT set `transform` or `will-change: transform` here — any
+     ancestor with a non-`none` transform becomes the containing block for
+     `position: fixed` descendants (CSS spec). That breaks fixed bottom
+     navs, full-screen modals, etc. The animation keyframes already promote
+     to GPU via translate3d in the `from` state. */
+  .animate-in {
+    animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+    backface-visibility: hidden;
+  }
+
+  /* Sidebars and dialogs: same constraint — no global transform on the open
+     state, or fixed children get re-parented. */
+  [data-state='open'] {
+    backface-visibility: hidden;
+  }
+
+  /* Prevent layout thrashing on root scaling */
+  :root {
+    transition: font-size 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   /* Minimal Scrollbar Styles (Webkit) */

@@ -423,6 +423,27 @@ export async function updateFontSize(size: string) {
   return { success: true };
 }
 
+export async function updateOwnerFontSize(size: string) {
+  const validSizes = ["small", "standard", "large", "xlarge"];
+  if (!validSizes.includes(size)) {
+    return { error: "Invalid font size" };
+  }
+
+  const rateLimit = await checkRateLimit("updateOwnerFontSize");
+  if (!rateLimit.success) return { error: rateLimit.error };
+
+  const { supabase, user } = await getAuthUser();
+
+  const { error } = await supabase
+    .from("profiles")
+    .update({ owner_font_size: size })
+    .eq("id", user.id);
+
+  if (error) return { error: "Could not update owner font size." };
+  revalidatePath("/dashboard");
+  return { success: true };
+}
+
 export async function changePassword(formData: FormData) {
   const rateLimit = await checkRateLimit("changePassword");
   if (!rateLimit.success) return { error: rateLimit.error };

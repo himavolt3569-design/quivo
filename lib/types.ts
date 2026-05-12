@@ -70,6 +70,7 @@ export interface Profile {
   avatar_url: string | null;
   cover_color: string | null;
   font_size: "small" | "standard" | "large" | "xlarge";
+  owner_font_size: "small" | "standard" | "large" | "xlarge";
   wallet_balance: number;
   quivo_coins: number;
   role: "customer" | "owner";

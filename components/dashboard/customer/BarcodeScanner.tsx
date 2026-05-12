@@ -166,8 +166,11 @@ export function BarcodeScanner({ open, onClose, onOrderNow }: BarcodeScannerProp
 
   return (
     <div className="fixed inset-0 z-[100] bg-black flex flex-col">
-      {/* Header */}
-      <div className="flex items-center justify-between px-4 pt-6 pb-3">
+      {/* Header — top safe-area for iOS notch */}
+      <div
+        className="flex items-center justify-between px-4 pb-3"
+        style={{ paddingTop: "max(env(safe-area-inset-top), 1.5rem)" }}
+      >
         <div className="flex items-center gap-2">
           <Barcode className="h-5 w-5 text-[#A7653A]" />
           <span className="text-white font-semibold text-sm tracking-wide">
@@ -176,7 +179,7 @@ export function BarcodeScanner({ open, onClose, onOrderNow }: BarcodeScannerProp
         </div>
         <button
           onClick={() => { stopCamera(); onClose(); }}
-          className="rounded-full bg-white/10 p-2 text-white hover:bg-white/20 transition active:scale-95"
+          className="rounded-full bg-white/10 p-2.5 text-white hover:bg-white/20 transition active:scale-95"
           aria-label="Close scanner"
         >
           <X className="h-5 w-5" />
@@ -275,7 +278,8 @@ export function BarcodeScanner({ open, onClose, onOrderNow }: BarcodeScannerProp
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 48 }}
               transition={{ type: "spring", damping: 26, stiffness: 320 }}
-              className="absolute inset-x-0 bottom-0 p-4"
+              className="absolute inset-x-0 bottom-0 px-4 pt-4"
+              style={{ paddingBottom: "max(env(safe-area-inset-bottom), 1rem)" }}
             >
               <div className="rounded-3xl bg-white p-5 shadow-2xl">
                 {detected.image ? (
@@ -334,15 +338,21 @@ export function BarcodeScanner({ open, onClose, onOrderNow }: BarcodeScannerProp
         </AnimatePresence>
       </div>
 
-      {/* Bottom hint */}
-      <div className="py-5 text-center">
-        {state === "scanning" && (
-          <p className="text-xs text-white/45">Point the camera at any product barcode</p>
-        )}
-        {state === "requesting" && (
-          <p className="text-xs text-white/45">Requesting camera access…</p>
-        )}
-      </div>
+      {/* Bottom hint — only render when there's no detected sheet covering it,
+          and respect the iOS home indicator safe area. */}
+      {state !== "detected" && (
+        <div
+          className="pt-5 text-center"
+          style={{ paddingBottom: "max(env(safe-area-inset-bottom), 1.25rem)" }}
+        >
+          {state === "scanning" && (
+            <p className="text-xs text-white/45">Point the camera at any product barcode</p>
+          )}
+          {state === "requesting" && (
+            <p className="text-xs text-white/45">Requesting camera access…</p>
+          )}
+        </div>
+      )}
     </div>
   );
 }
