@@ -22,6 +22,7 @@ import {
 } from "@/app/actions/customer";
 import type { Address } from "@/lib/types";
 import type { PinCoords } from "./AddressPinPicker";
+import { LABEL_COLOR } from "./address-constants";
 
 const AddressPinPicker = dynamic(
   () => import("./AddressPinPicker").then((m) => m.AddressPinPicker),
@@ -29,6 +30,16 @@ const AddressPinPicker = dynamic(
     ssr: false,
     loading: () => (
       <div className="h-[200px] animate-pulse rounded-xl bg-[#F7F0E6]" />
+    ),
+  }
+);
+
+const AddressOverviewMap = dynamic(
+  () => import("./AddressOverviewMap").then((m) => m.AddressOverviewMap),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="h-[200px] animate-pulse rounded-t-2xl bg-[#F7F0E6]" />
     ),
   }
 );
@@ -209,9 +220,36 @@ export function AddressBook({ addresses, onChange }: AddressBookProps) {
   };
 
   const LabelIcon = LABEL_ICON[form.label] ?? MapPin;
+  const pinnedAddresses = addresses.filter((a) => a.lat != null && a.lng != null);
+  const overviewKey = pinnedAddresses.map((a) => `${a.id}:${a.lat}:${a.lng}`).join(",");
 
   return (
     <div className="space-y-4">
+      {/* Overview map — shown when 1+ addresses are pinned and no form is open */}
+      {pinnedAddresses.length > 0 && !showForm && (
+        <div className="overflow-hidden rounded-2xl border border-[#2E3344]/8 bg-white shadow-sm">
+          <AddressOverviewMap key={overviewKey} addresses={addresses} />
+          <div className="flex flex-wrap items-center gap-4 border-t border-[#2E3344]/6 px-4 py-2.5">
+            {pinnedAddresses.map((a) => (
+              <span
+                key={a.id}
+                className="flex items-center gap-1.5 text-xs font-semibold"
+                style={{ color: LABEL_COLOR[a.label] ?? LABEL_COLOR.Other }}
+              >
+                <span
+                  className="inline-block h-2 w-2 rounded-full"
+                  style={{ background: LABEL_COLOR[a.label] ?? LABEL_COLOR.Other }}
+                />
+                {a.label}
+              </span>
+            ))}
+            <span className="ml-auto text-[10px] text-[#746E73]">
+              Tap a pin to see address
+            </span>
+          </div>
+        </div>
+      )}
+
       {/* Address list */}
       {addresses.length === 0 && !showForm ? (
         <div className="rounded-2xl border border-dashed border-[#2E3344]/15 bg-white p-10 text-center">
@@ -488,6 +526,7 @@ export function AddressBook({ addresses, onChange }: AddressBookProps) {
                   point.
                 </p>
                 <AddressPinPicker
+                  key={editingId ?? "new"}
                   value={form.pin}
                   onChange={(coords) =>
                     setForm((f) => ({ ...f, pin: coords, geocoding: true }))
@@ -496,10 +535,10 @@ export function AddressBook({ addresses, onChange }: AddressBookProps) {
                     setForm((f) => ({
                       ...f,
                       geocoding: false,
-                      address_line:
-                        f.address_line.trim() || !address ? f.address_line : address,
-                      landmark:
-                        f.landmark.trim() || !landmark ? f.landmark : landmark,
+                      // Always update address from geocode — user moved the pin intentionally
+                      address_line: address || f.address_line,
+                      // Only fill landmark if user hasn't typed one
+                      landmark: f.landmark.trim() ? f.landmark : (landmark ?? f.landmark),
                     }))
                   }
                 />

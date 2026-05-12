@@ -15,11 +15,11 @@ export default async function ProfilePage() {
   }
 
   const [
-    { data: profile },
-    { data: addresses },
-    { count: totalOrderCount },
-    { count: savedShopCount },
-    { count: savedProductCount },
+    { data: profile, error: profileError },
+    { data: addresses, error: addressesError },
+    { count: totalOrderCount, error: totalCountError },
+    { count: savedShopCount, error: shopsCountError },
+    { count: savedProductCount, error: productsCountError },
   ] = await Promise.all([
     supabase
       .from("profiles")
@@ -49,6 +49,19 @@ export default async function ProfilePage() {
       .select("id", { count: "exact", head: true })
       .eq("customer_id", user.id),
   ]);
+
+  const errors = [
+    profileError,
+    addressesError,
+    totalCountError,
+    shopsCountError,
+    productsCountError,
+  ].filter(Boolean);
+
+  if (errors.length > 0) {
+    console.error("Database query failures:", errors);
+    throw new Error("Failed to load profile data. Please try again later.");
+  }
 
   return (
     <ProfileTab

@@ -14,7 +14,10 @@ export default async function SavedPage() {
     redirect("/?login=true");
   }
 
-  const [{ data: savedShops }, { data: savedProducts }] = await Promise.all([
+  const [
+    { data: savedShops, error: shopsError },
+    { data: savedProducts, error: productsError },
+  ] = await Promise.all([
     supabase
       .from("saved_shops")
       .select("*")
@@ -29,6 +32,11 @@ export default async function SavedPage() {
       .order("created_at", { ascending: false })
       .returns<SavedProduct[]>(),
   ]);
+
+  if (shopsError || productsError) {
+    console.error("Database query failures:", { shopsError, productsError });
+    throw new Error("Failed to load saved items. Please try again later.");
+  }
 
   return (
     <SavedItems

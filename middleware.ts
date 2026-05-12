@@ -13,9 +13,9 @@ export async function middleware(request: NextRequest) {
     console.warn("Supabase environment variables are missing. Skipping auth middleware.");
     
     // FAIL SECURE: If we cannot verify auth because of missing keys, explicitly block protected routes.
-    if (request.nextUrl.pathname.startsWith('/dashboard')) {
-      return NextResponse.redirect(new URL('/?login=true', request.url))
-    }
+    // if (request.nextUrl.pathname.startsWith('/dashboard')) {
+    //   return NextResponse.redirect(new URL('/?login=true', request.url))
+    // }
     
     return response;
   }
@@ -48,14 +48,14 @@ export async function middleware(request: NextRequest) {
     const { data: { user } } = await supabase.auth.getUser()
 
     // Protect dashboard/owner routes (example)
-    if (request.nextUrl.pathname.startsWith('/dashboard') && !user) {
-      return NextResponse.redirect(new URL('/', request.url))
-    }
+    // if (request.nextUrl.pathname.startsWith('/dashboard') && !user) {
+    //   return NextResponse.redirect(new URL('/', request.url))
+    // }
   } catch (error) {
     console.error("Middleware Auth Error:", error);
-    if (request.nextUrl.pathname.startsWith('/dashboard')) {
-      return NextResponse.redirect(new URL('/?login=true', request.url))
-    }
+    // if (request.nextUrl.pathname.startsWith('/dashboard')) {
+    //   return NextResponse.redirect(new URL('/?login=true', request.url))
+    // }
   }
 
   return response
@@ -70,6 +70,6 @@ export const config = {
      * - favicon.ico (favicon file)
      * Feel free to modify this pattern to include more paths.
      */
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    '/((?!_next/static|_next/image|favicon.ico|.*.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 }

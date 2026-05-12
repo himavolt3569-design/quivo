@@ -104,21 +104,19 @@ export async function addAddress(formData: FormData) {
 
   const { supabase, user } = await getAuthUser();
 
-  if (parse.data.is_default) {
-    await supabase
-      .from("addresses")
-      .update({ is_default: false })
-      .eq("customer_id", user.id);
-  }
-
-  const { error } = await supabase.from("addresses").insert({
-    customer_id: user.id,
-    ...parse.data,
+  const { data: newId, error } = await supabase.rpc("create_address_atomic", {
+    p_label: parse.data.label,
+    p_address_line: parse.data.address_line,
+    p_landmark: parse.data.landmark ?? null,
+    p_phone: parse.data.phone ?? null,
+    p_is_default: parse.data.is_default,
+    p_lat: parse.data.lat ?? null,
+    p_lng: parse.data.lng ?? null,
   });
 
   if (error) return { error: "Could not add address." };
   revalidatePath("/dashboard");
-  return { success: true };
+  return { success: true, id: newId };
 }
 
 export async function updateAddress(id: string, formData: FormData) {
@@ -142,18 +140,16 @@ export async function updateAddress(id: string, formData: FormData) {
 
   const { supabase, user } = await getAuthUser();
 
-  if (parse.data.is_default) {
-    await supabase
-      .from("addresses")
-      .update({ is_default: false })
-      .eq("customer_id", user.id);
-  }
-
-  const { error } = await supabase
-    .from("addresses")
-    .update(parse.data)
-    .eq("id", idParse.data)
-    .eq("customer_id", user.id);
+  const { error } = await supabase.rpc("update_address_atomic", {
+    p_id: idParse.data,
+    p_label: parse.data.label,
+    p_address_line: parse.data.address_line,
+    p_landmark: parse.data.landmark ?? null,
+    p_phone: parse.data.phone ?? null,
+    p_is_default: parse.data.is_default,
+    p_lat: parse.data.lat ?? null,
+    p_lng: parse.data.lng ?? null,
+  });
 
   if (error) return { error: "Could not update address." };
   revalidatePath("/dashboard");
@@ -187,16 +183,9 @@ export async function setDefaultAddress(id: string) {
 
   const { supabase, user } = await getAuthUser();
 
-  await supabase
-    .from("addresses")
-    .update({ is_default: false })
-    .eq("customer_id", user.id);
-
-  const { error } = await supabase
-    .from("addresses")
-    .update({ is_default: true })
-    .eq("id", idParse.data)
-    .eq("customer_id", user.id);
+  const { error } = await supabase.rpc("set_address_default_atomic", {
+    p_id: idParse.data,
+  });
 
   if (error) return { error: "Could not set default address." };
   revalidatePath("/dashboard");
@@ -311,6 +300,22 @@ export async function placeOrder(data: {
     return { error: "Order total is too large." };
   }
 
+  // Resolve delivery address: use caller-supplied value or fall back to default address
+  let delivery_address = parse.data.delivery_address ?? null;
+  if (!delivery_address) {
+    const { data: defaultAddr } = await supabase
+      .from("addresses")
+      .select("address_line, landmark")
+      .eq("customer_id", user.id)
+      .eq("is_default", true)
+      .single();
+    if (defaultAddr) {
+      delivery_address = defaultAddr.landmark
+        ? `${defaultAddr.address_line}, ${defaultAddr.landmark}`
+        : defaultAddr.address_line;
+    }
+  }
+
   const order_number = `QUIVO-${nanoid(6).toUpperCase()}`;
 
   const { data: order, error } = await supabase
@@ -323,7 +328,7 @@ export async function placeOrder(data: {
       total_amount,
       items: parse.data.items,
       notes: parse.data.notes ?? null,
-      delivery_address: parse.data.delivery_address ?? null,
+      delivery_address,
       eta_minutes: parse.data.eta_minutes ?? 20,
     })
     .select()
@@ -414,6 +419,27 @@ export async function updateFontSize(size: string) {
     .eq("id", user.id);
 
   if (error) return { error: "Could not update font size." };
+  revalidatePath("/dashboard");
+  return { success: true };
+}
+
+export async function updateOwnerFontSize(size: string) {
+  const validSizes = ["small", "standard", "large", "xlarge"];
+  if (!validSizes.includes(size)) {
+    return { error: "Invalid font size" };
+  }
+
+  const rateLimit = await checkRateLimit("updateOwnerFontSize");
+  if (!rateLimit.success) return { error: rateLimit.error };
+
+  const { supabase, user } = await getAuthUser();
+
+  const { error } = await supabase
+    .from("profiles")
+    .update({ owner_font_size: size })
+    .eq("id", user.id);
+
+  if (error) return { error: "Could not update owner font size." };
   revalidatePath("/dashboard");
   return { success: true };
 }

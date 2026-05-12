@@ -1,6 +1,6 @@
 "use client";
 
-import { useLayoutEffect, useRef, useState } from "react";
+import { useLayoutEffect, useRef, useState, Suspense } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { Navbar } from "@/components/sections/Navbar";
@@ -18,6 +18,8 @@ import { Footer } from "@/components/sections/Footer";
 import { ScanToOrderSection } from "@/components/sections/ScanToOrderSection";
 import { toast } from "sonner";
 import { popularProducts } from "@/lib/data";
+import { useSearchParams } from "next/navigation";
+import { AUTH_ERROR_MESSAGES, isAuthErrorCode } from "@/lib/auth-errors";
 
 function scrollToSection(id: string) {
   document
@@ -25,9 +27,17 @@ function scrollToSection(id: string) {
     ?.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
-export default function Home() {
+function HomeContent() {
   const rootRef = useRef<HTMLDivElement | null>(null);
   const [basketItems, setBasketItems] = useState<string[]>(["rice", "milk"]);
+  const searchParams = useSearchParams();
+
+  useLayoutEffect(() => {
+    const code = searchParams.get("auth_error");
+    if (!isAuthErrorCode(code)) return;
+    const { title, description } = AUTH_ERROR_MESSAGES[code](searchParams);
+    toast.error(title, { description, duration: 10000 });
+  }, [searchParams]);
 
   function addProductToBasket(productId: string) {
     const product = popularProducts.find((item) => item.id === productId);
@@ -158,5 +168,13 @@ export default function Home() {
 
       <Footer />
     </div>
+  );
+}
+
+export default function Home() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[#F7F0E6]" />}>
+      <HomeContent />
+    </Suspense>
   );
 }

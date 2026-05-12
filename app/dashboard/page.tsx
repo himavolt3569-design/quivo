@@ -15,11 +15,22 @@ export default async function DashboardPage() {
   const { data: profile } = await supabase
     .from("profiles")
     .select("role")
-    .eq("id", user.id)
-    .single();
+    .eq("id", user!.id)
+    .maybeSingle();
 
-  if (profile?.role === "owner") {
-    redirect("/dashboard/owner");
+  // SECURITY: no self-healing. Missing profile = revoked account.
+  if (!profile) {
+    redirect("/auth/revoked");
+  }
+
+  if (profile.role === "owner") {
+    const { count } = await supabase
+      .from("shop_members")
+      .select("shop_id", { count: "exact", head: true })
+      .eq("user_id", user!.id)
+      .eq("status", "active");
+
+    redirect((count ?? 0) > 0 ? "/dashboard/owner" : "/onboarding/owner");
   }
 
   redirect("/dashboard/home");

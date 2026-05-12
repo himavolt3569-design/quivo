@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { checkRateLimit } from "@/lib/rate-limit";
+import { cookies } from "next/headers";
 import { getSiteUrl } from "@/lib/security";
 
 const DISPOSABLE_EMAIL_DOMAINS = [
@@ -44,7 +45,11 @@ const AuthSchema = z.object({
     .max(100, "Password too long"),
 });
 
-const SignUpSchema = AuthSchema;
+const SignUpSchema = AuthSchema.extend({
+  role: z.enum(["customer", "owner"]).default("customer"),
+});
+
+type SignUpIntent = "customer" | "owner";
 
 export async function loginWithEmail(formData: FormData) {
   const rateLimit = await checkRateLimit("loginWithEmail");
@@ -60,7 +65,7 @@ export async function loginWithEmail(formData: FormData) {
   const { email, password } = parseResult.data;
   const supabase = await createClient();
 
-  const { error: authError } = await supabase.auth.signInWithPassword({
+  const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
     email,
     password,
   });
@@ -69,9 +74,70 @@ export async function loginWithEmail(formData: FormData) {
     return { error: "Invalid email or password." };
   }
 
-  const redirectUrl = "/dashboard";
+  const rememberMe = formData.get("rememberMe") === "on";
 
-  return { success: true, redirectUrl };
+  if (!rememberMe) {
+    const cookieStore = await cookies();
+    const allCookies = cookieStore.getAll();
+    for (const cookie of allCookies) {
+      if (cookie.name.startsWith("sb-") && cookie.name.endsWith("-auth-token")) {
+        // Overwrite the cookie to be a session cookie (no maxAge, no expires)
+        cookieStore.set(cookie.name, cookie.value, {
+          path: "/",
+          httpOnly: true,
+          secure: true,
+          sameSite: "lax",
+          maxAge: undefined,
+          expires: undefined,
+        });
+      }
+    }
+  }
+
+  if (!authData.user) {
+    return { error: "Authentication failed. Please try again." };
+  }
+
+  // SECURITY: do NOT auto-create a profile here. If a profile row is missing
+  // for a successfully authenticated user, treat it as account revocation —
+  // an admin deleted the profile (or the auth.users row is orphaned). Sign
+  // the session out globally and refuse the login. Profile rows are only
+  // created during the legitimate signup paths (email verification or OAuth
+  // callback inside /auth/callback).
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("id")
+    .eq("id", authData.user.id)
+    .maybeSingle();
+
+  if (!profile) {
+    console.warn("loginWithEmail: authenticated user has no profile — revoking", {
+      event: "account_revoked",
+      userId: authData.user.id,
+      email: authData.user.email,
+    });
+    // Audit while we still have auth.uid() — the RPC binds it at call time.
+    try {
+      await supabase.rpc("record_security_event", {
+        p_event_type: "account_revoked",
+        p_metadata: {
+          email: authData.user.email,
+          user_id: authData.user.id,
+          via: "loginWithEmail",
+        },
+        p_ip_hash: null,
+      });
+    } catch {
+      /* best-effort */
+    }
+    await supabase.auth.signOut({ scope: "global" });
+    return {
+      error:
+        "Your account is no longer active. If you believe this is a mistake, please contact support.",
+    };
+  }
+
+  return { success: true, redirectUrl: "/dashboard" };
 }
 
 export async function signUpWithEmail(formData: FormData) {
@@ -85,7 +151,7 @@ export async function signUpWithEmail(formData: FormData) {
     return { error: parseResult.error.issues[0].message };
   }
 
-  const { email, password } = parseResult.data;
+  const { email, password, role } = parseResult.data;
 
   if (isDisposableEmail(email)) {
     return {
@@ -96,12 +162,18 @@ export async function signUpWithEmail(formData: FormData) {
 
   const supabase = await createClient();
 
+  // Stash the role on user_metadata AND in the callback URL so it survives
+  // email verification (some providers strip query params; user_metadata wins
+  // if both are present).
+  const intent: SignUpIntent = role;
+  const emailRedirectTo = `${getSiteUrl()}/auth/callback?intent=${intent}`;
+
   const { error } = await supabase.auth.signUp({
     email,
     password,
     options: {
-      data: { role: "customer" },
-      emailRedirectTo: `${getSiteUrl()}/auth/callback`,
+      data: { role: intent },
+      emailRedirectTo,
     },
   });
 
@@ -110,6 +182,29 @@ export async function signUpWithEmail(formData: FormData) {
   }
 
   return { success: "Check your email to verify your account." };
+}
+
+export async function resetPassword(formData: FormData) {
+  const rateLimit = await checkRateLimit("resetPassword");
+  if (!rateLimit.success) {
+    return { error: rateLimit.error };
+  }
+
+  const email = formData.get("email")?.toString();
+  if (!email || !z.string().email().safeParse(email).success) {
+    return { error: "Invalid email address." };
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${getSiteUrl()}/auth/callback?next=/dashboard/profile`,
+  });
+
+  if (error) {
+    return { error: "Could not send reset email. Please try again." };
+  }
+
+  return { success: "Password reset link sent! Check your email." };
 }
 
 export async function signInWithGoogle() {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   ArrowRight,
   Barcode,
@@ -68,17 +68,31 @@ export function ScanToOrderSection({
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const customerMarkerRef = useRef<any>(null);
 
-  const shopsInsideRadius = nearbyShops.filter((shop) => shop.distance <= 6);
-  const filteredNearbyShops = shopsInsideRadius.filter(
-    (shop) =>
-      activeOrderFilter === "All" || shop.category === activeOrderFilter,
+  const shopsInsideRadius = useMemo(
+    () => nearbyShops.filter((shop) => shop.distance <= 6),
+    []
   );
-  const selectedOrderShop =
-    filteredNearbyShops.find((shop) => shop.name === activeShopName) ??
-    filteredNearbyShops[0] ??
-    shopsInsideRadius[0];
-  const basketProducts = popularProducts.filter((product) =>
-    basketItems.includes(product.id),
+
+  const filteredNearbyShops = useMemo(
+    () =>
+      shopsInsideRadius.filter(
+        (shop) =>
+          activeOrderFilter === "All" || shop.category === activeOrderFilter
+      ),
+    [shopsInsideRadius, activeOrderFilter]
+  );
+
+  const selectedOrderShop = useMemo(
+    () =>
+      filteredNearbyShops.find((shop) => shop.name === activeShopName) ??
+      filteredNearbyShops[0] ??
+      shopsInsideRadius[0],
+    [filteredNearbyShops, activeShopName, shopsInsideRadius]
+  );
+
+  const basketProducts = useMemo(
+    () => popularProducts.filter((product) => basketItems.includes(product.id)),
+    [basketItems]
   );
   const basketTotal = basketProducts.reduce(
     (total, product) => total + product.priceNumber,
@@ -126,8 +140,7 @@ export function ScanToOrderSection({
       return;
     }
 
-    // eslint-disable-next-line react-hooks/purity
-    const orderId = `QUIVO-${Math.floor(1000 + (Date.now() % 9000))}`;
+    const orderId = `QUIVO-${crypto.randomUUID().slice(0, 8).toUpperCase()}`;
     const savedOrder = {
       id: orderId,
       shop: selectedOrderShop.name,
@@ -143,9 +156,20 @@ export function ScanToOrderSection({
       total: basketTotal,
       createdAt: new Date().toISOString(),
     };
-    const previousOrders = JSON.parse(
-      window.localStorage.getItem("quivo-submitted-orders") ?? "[]",
-    ) as (typeof savedOrder)[];
+    
+    let previousOrders: (typeof savedOrder)[] = [];
+    try {
+      const stored = window.localStorage.getItem("quivo-submitted-orders");
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed)) {
+          previousOrders = parsed;
+        }
+      }
+    } catch (err) {
+      console.warn("Failed to parse previous orders, resetting list.", err);
+    }
+
     window.localStorage.setItem(
       "quivo-submitted-orders",
       JSON.stringify([savedOrder, ...previousOrders].slice(0, 20)),
@@ -165,12 +189,37 @@ export function ScanToOrderSection({
     if (!map) return;
 
     import("leaflet").then((Leaflet) => {
-      if (!map.getContainer()) return;
+      // Guard: map must be mounted and its container still in the DOM
+      const container = map.getContainer?.();
+      if (!container || !document.body.contains(container)) return;
+
+      const customerIcon = Leaflet.divIcon({
+        html: `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="36" viewBox="0 0 28 36">
+          <ellipse cx="14" cy="34" rx="5" ry="1.8" fill="rgba(0,0,0,0.18)"/>
+          <path d="M14 0C6.27 0 0 6.27 0 14c0 9 14 22 14 22S28 23 28 14C28 6.27 21.73 0 14 0z" fill="#2563EB"/>
+          <circle cx="14" cy="14" r="5.5" fill="white"/>
+          <circle cx="14" cy="14" r="3" fill="#2563EB"/>
+        </svg>`,
+        className: "",
+        iconSize: [28, 36],
+        iconAnchor: [14, 36],
+      });
+
+      const shopIcon = Leaflet.divIcon({
+        html: `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="36" viewBox="0 0 28 36">
+          <ellipse cx="14" cy="34" rx="5" ry="1.8" fill="rgba(0,0,0,0.18)"/>
+          <path d="M14 0C6.27 0 0 6.27 0 14c0 9 14 22 14 22S28 23 28 14C28 6.27 21.73 0 14 0z" fill="#A7653A"/>
+          <circle cx="14" cy="14" r="5.5" fill="white"/>
+          <circle cx="14" cy="14" r="3" fill="#A7653A"/>
+        </svg>`,
+        className: "",
+        iconSize: [28, 36],
+        iconAnchor: [14, 36],
+      });
 
       try {
         shopMarkersRef.current.forEach((marker: any) => marker.remove());
         shopMarkersRef.current = [];
-
         if (radiusCircleRef.current) radiusCircleRef.current.remove();
         if (customerMarkerRef.current) customerMarkerRef.current.remove();
 
@@ -195,6 +244,7 @@ export function ScanToOrderSection({
         customerMarkerRef.current = Leaflet.marker(
           [customerLocation.lat, customerLocation.lng],
           {
+            icon: customerIcon,
             title:
               locationPermission === "granted"
                 ? "Customer location"
@@ -208,9 +258,7 @@ export function ScanToOrderSection({
         filteredNearbyShops.forEach((shop) => {
           const marker = Leaflet.marker(
             [shop.position.lat, shop.position.lng],
-            {
-              title: `${shop.name} \u00b7 ${shop.distance}km`,
-            },
+            { icon: shopIcon, title: `${shop.name} \u00b7 ${shop.distance}km` },
           ).addTo(map);
           marker.on("click", () => setActiveShopName(shop.name));
           shopMarkersRef.current.push(marker);
@@ -221,8 +269,8 @@ export function ScanToOrderSection({
           padding: [72, 72],
           animate: false,
         });
-      } catch (error) {
-        console.warn("Leaflet map view update failed:", error);
+      } catch {
+        // Silently swallow transient Leaflet errors during React StrictMode remounts
       }
     });
   }, [customerLocation, filteredNearbyShops, locationPermission]);

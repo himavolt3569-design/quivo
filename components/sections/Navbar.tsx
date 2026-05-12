@@ -84,12 +84,8 @@ function NavbarContent({ scrollToSection }: NavbarProps) {
   }
 
   const handleSignOut = async () => {
-    await supabase.auth.signOut();
-    router.refresh();
-
-    if (pathname.startsWith("/dashboard")) {
-      router.push("/?login=true");
-    }
+    const { signOut } = await import("@/app/actions/auth");
+    await signOut();
   };
 
   const handleScrollToSection = (id: string) => {

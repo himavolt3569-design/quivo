@@ -111,7 +111,7 @@ export function ProfileTab({
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
 
-  const { fontSize, setFontSize } = useFontSize();
+  const { customerFontSize, setCustomerFontSize } = useFontSize();
   const [updatingFontSize, setUpdatingFontSize] = useState(false);
 
   // Layout Toggles
@@ -164,14 +164,14 @@ export function ProfileTab({
 
   const handleUpdateFontSize = async (size: (typeof FONT_SIZES)[number]["id"]) => {
     setUpdatingFontSize(true);
-    setFontSize(size); // Optimistic UI update
+    setCustomerFontSize(size); // Optimistic UI update
     
     const result = await updateFontSize(size);
     if (result.error) {
       toast.error(result.error);
-      setFontSize(profile?.font_size ?? "standard"); // Revert on error
+      setCustomerFontSize(profile?.font_size ?? "standard"); // Revert on error
     } else {
-      toast.success(`Text size set to ${size}`);
+      toast.success(`Customer UI scale set to ${size}`);
     }
     setUpdatingFontSize(false);
   };
@@ -508,7 +508,7 @@ export function ProfileTab({
                     disabled={updatingFontSize}
                     onClick={() => handleUpdateFontSize(sz.id)}
                     className={`flex-1 py-3 text-[10px] font-black uppercase tracking-wider rounded-xl transition ${
-                      fontSize === sz.id
+                      customerFontSize === sz.id
                         ? "bg-white text-[#27324A] shadow-sm"
                         : "text-[#746E73] hover:text-[#27324A]"
                     }`}

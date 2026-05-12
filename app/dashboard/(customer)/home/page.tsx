@@ -22,16 +22,16 @@ export default async function HomePage() {
   ).toISOString();
 
   const [
-    { data: profile },
-    { data: activeOrders },
-    { data: pastOrders },
-    { data: savedShops },
-    { data: savedProducts },
-    { count: totalOrderCount },
-    { count: pastOrderCount },
-    { count: addressCount },
-    { data: monthOrders },
-    { data: recentTransactions },
+    { data: profile, error: profileError },
+    { data: activeOrders, error: activeOrdersError },
+    { data: pastOrders, error: pastOrdersError },
+    { data: savedShops, error: savedShopsError },
+    { data: savedProducts, error: savedProductsError },
+    { count: totalOrderCount, error: totalCountError },
+    { count: pastOrderCount, error: pastCountError },
+    { count: addressCount, error: addressCountError },
+    { data: monthOrders, error: monthOrdersError },
+    { data: recentTransactions, error: recentTransactionsError },
   ] = await Promise.all([
     supabase
       .from("profiles")
@@ -100,6 +100,24 @@ export default async function HomePage() {
       .limit(4)
       .returns<Transaction[]>(),
   ]);
+
+  const errors = [
+    profileError,
+    activeOrdersError,
+    pastOrdersError,
+    savedShopsError,
+    savedProductsError,
+    totalCountError,
+    pastCountError,
+    addressCountError,
+    monthOrdersError,
+    recentTransactionsError,
+  ].filter(Boolean);
+
+  if (errors.length > 0) {
+    console.error("Database query failures:", errors);
+    throw new Error("Failed to load dashboard data. Please try again later.");
+  }
 
   const monthlySpend =
     monthOrders?.reduce((sum, o) => sum + o.total_amount, 0) ?? 0;

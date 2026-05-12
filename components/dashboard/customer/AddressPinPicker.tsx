@@ -139,6 +139,19 @@ export function AddressPinPicker({
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
+  // Sync map when value prop changes externally (e.g. from search)
+  useEffect(() => {
+    if (!mapRef.current || !markerRef.current || !value) return;
+    const { lat, lng } = value;
+    const currentPos = markerRef.current.getLatLng();
+    
+    // Only update if the distance is significant to avoid jitter
+    if (Math.abs(currentPos.lat - lat) > 0.0001 || Math.abs(currentPos.lng - lng) > 0.0001) {
+      markerRef.current.setLatLng([lat, lng]);
+      mapRef.current.setView([lat, lng], mapRef.current.getZoom(), { animate: true });
+    }
+  }, [value]);
+
   const handleNewPosition = async (lat: number, lng: number) => {
     onChangeRef.current({ lat, lng });
     if (!onAddressFoundRef.current) return;
@@ -169,6 +182,7 @@ export function AddressPinPicker({
       center: [center.lat, center.lng],
       zoom: 17,
       zoomControl: true,
+      scrollWheelZoom: "center", // Better for small embedded maps
     });
 
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -180,9 +194,10 @@ export function AddressPinPicker({
     const marker = L.marker([center.lat, center.lng], {
       draggable: true,
       icon: PIN_ICON,
+      zIndexOffset: 1000,
     })
       .addTo(map)
-      .bindPopup("Drag or tap to set your exact location")
+      .bindPopup("Drag or tap map to move pin")
       .openPopup();
 
     marker.on("dragend", () => {
@@ -192,14 +207,21 @@ export function AddressPinPicker({
 
     map.on("click", (e: L.LeafletMouseEvent) => {
       marker.setLatLng(e.latlng);
+      // Optional: map.panTo(e.latlng); 
       handleNewPosition(e.latlng.lat, e.latlng.lng);
     });
 
     mapRef.current = map;
     markerRef.current = marker;
-    setTimeout(() => map.invalidateSize(), 100);
+    
+    // Ensure map is correctly sized even if initialized while hidden
+    const resizeObserver = new ResizeObserver(() => {
+      map.invalidateSize();
+    });
+    resizeObserver.observe(containerRef.current);
 
     return () => {
+      resizeObserver.disconnect();
       map.remove();
       mapRef.current = null;
       markerRef.current = null;

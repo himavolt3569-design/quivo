@@ -1,8 +1,12 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Package, Bookmark, User } from "lucide-react";
+import { Home, Package, Bookmark, User, Barcode } from "lucide-react";
+import { BarcodeScanner } from "./customer/BarcodeScanner";
+import { placeOrder } from "@/app/actions/customer";
+import { toast } from "sonner";
 
 const TABS = [
   { href: "/dashboard/home", label: "Home", Icon: Home },
@@ -13,6 +17,27 @@ const TABS = [
 
 export function DashboardNav({ activeOrderCount }: { activeOrderCount: number }) {
   const pathname = usePathname();
+  const [scannerOpen, setScannerOpen] = useState(false);
+
+  const handleOrderFromScan = async (detected: {
+    id: string;
+    name: string;
+    price: string;
+    shop: string;
+  }) => {
+    const price = parseFloat(detected.price.replace(/[^0-9.]/g, "")) || 0;
+    const result = await placeOrder({
+      shop_name: detected.shop,
+      items: [{ name: detected.name, price, quantity: 1 }],
+      eta_minutes: 20,
+    });
+    if (result.error) {
+      toast.error(result.error);
+    } else if (result.order) {
+      toast.success(`Order placed at ${detected.shop}`);
+      setScannerOpen(false);
+    }
+  };
 
   return (
     <>
@@ -45,30 +70,70 @@ export function DashboardNav({ activeOrderCount }: { activeOrderCount: number })
       </div>
 
       {/* Mobile bottom nav */}
-      <nav className="fixed bottom-0 left-0 right-0 z-40 sm:hidden border-t border-[#2E3344]/8 bg-white/95 backdrop-blur-2xl flex">
-        {TABS.map(({ href, label, Icon }) => {
-          const isActive = pathname === href;
-          return (
-            <Link
-              key={href}
-              href={href}
-              className={`relative flex flex-1 flex-col items-center gap-1 py-3 transition ${
-                isActive ? "text-[#A7653A]" : "text-[#746E73]"
-              }`}
+      <nav className="fixed bottom-0 left-0 right-0 z-[100] sm:hidden bg-white border-t border-[#2E3344]/10 pb-safe">
+        <div className="flex items-center h-16 relative">
+          {TABS.slice(0, 2).map(({ href, label, Icon }) => {
+            const isActive = pathname === href;
+            return (
+              <Link
+                key={href}
+                href={href}
+                className={`flex flex-1 flex-col items-center justify-center gap-1 h-full transition-all duration-300 ${
+                  isActive ? "text-[#A7653A]" : "text-[#746E73]"
+                }`}
+              >
+                <div className={`relative flex items-center justify-center w-8 h-8 rounded-full transition-colors ${isActive ? "bg-[#F7F0E6]" : ""}`}>
+                  <Icon className={`h-5 w-5 ${isActive ? "stroke-[2.5]" : "stroke-2"}`} />
+                  {href === "/dashboard/orders" && activeOrderCount > 0 && (
+                    <span className="absolute -top-1 -right-1 grid h-4 w-4 place-items-center rounded-full bg-[#A7653A] text-[9px] font-bold text-white shadow-sm border border-white">
+                      {activeOrderCount > 9 ? "9+" : activeOrderCount}
+                    </span>
+                  )}
+                </div>
+                <span className="text-[10px] font-bold">{label}</span>
+              </Link>
+            );
+          })}
+
+          {/* Central Scanner Button Container */}
+          <div className="flex-1 flex justify-center h-full relative">
+            <button
+              onClick={() => setScannerOpen(true)}
+              className="absolute -top-6 flex h-14 w-14 items-center justify-center rounded-full bg-[#A7653A] text-white shadow-[0_8px_25px_rgba(167,101,58,0.4)] transition-all duration-300 active:scale-90 hover:scale-105"
+              aria-label="Scan & Order"
             >
-              <Icon
-                className={`h-5 w-5 ${isActive ? "stroke-[2.5]" : "stroke-2"}`}
-              />
-              <span className="text-[10px] font-bold">{label}</span>
-              {href === "/dashboard/orders" && activeOrderCount > 0 && (
-                <span className="absolute right-[calc(50%-18px)] top-2 grid h-4 w-4 place-items-center rounded-full bg-[#A7653A] text-[9px] font-bold text-white">
-                  {activeOrderCount > 9 ? "9+" : activeOrderCount}
-                </span>
-              )}
-            </Link>
-          );
-        })}
+              <Barcode className="h-6 w-6" />
+            </button>
+            <div className="mt-8">
+              <span className="text-[10px] font-black uppercase tracking-tighter text-[#A7653A]">Scan</span>
+            </div>
+          </div>
+
+          {TABS.slice(2).map(({ href, label, Icon }) => {
+            const isActive = pathname === href;
+            return (
+              <Link
+                key={href}
+                href={href}
+                className={`flex flex-1 flex-col items-center justify-center gap-1 h-full transition-all duration-300 ${
+                  isActive ? "text-[#A7653A]" : "text-[#746E73]"
+                }`}
+              >
+                <div className={`relative flex items-center justify-center w-8 h-8 rounded-full transition-colors ${isActive ? "bg-[#F7F0E6]" : ""}`}>
+                  <Icon className={`h-5 w-5 ${isActive ? "stroke-[2.5]" : "stroke-2"}`} />
+                </div>
+                <span className="text-[10px] font-bold">{label}</span>
+              </Link>
+            );
+          })}
+        </div>
       </nav>
+
+      <BarcodeScanner
+        open={scannerOpen}
+        onClose={() => setScannerOpen(false)}
+        onOrderNow={handleOrderFromScan}
+      />
     </>
   );
 }
