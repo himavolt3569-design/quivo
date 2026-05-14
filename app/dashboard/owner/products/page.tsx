@@ -1,5 +1,30 @@
+import { createClient } from "@/lib/supabase/server";
+import { getOwnerContext } from "@/lib/shop";
 import { ProductList } from "@/components/dashboard/owner/products/ProductList";
+import Link from "next/link";
 
-export default function ProductsPage() {
-  return <ProductList />;
+export default async function ProductsPage() {
+  const ctx = await getOwnerContext();
+  const shop = ctx.activeShop ?? null;
+
+  if (!shop) {
+    return (
+      <div className="flex flex-col items-center justify-center h-64 gap-4 text-center">
+        <p className="text-lg font-bold text-[#27324A]">No shop selected.</p>
+        <Link href="/onboarding/owner" className="text-sm text-[#A7653A] hover:underline font-bold">
+          Create your first shop →
+        </Link>
+      </div>
+    );
+  }
+
+  const supabase = await createClient();
+  const { data: products } = await supabase
+    .from("products")
+    .select("id, name, brand, unit, variant, category, price, cost_price, stock, low_stock_threshold, barcode, status, image_url, images, created_at")
+    .eq("shop_id", shop.id)
+    .neq("status", "archived")
+    .order("created_at", { ascending: false });
+
+  return <ProductList shopId={shop.id} shopSlug={shop.slug} initialProducts={products ?? []} />;
 }

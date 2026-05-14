@@ -33,13 +33,16 @@ const securityHeaders = [
       "form-action 'self'",
       "img-src 'self' data: blob: https:",
       "media-src 'self' data: blob: https:",
-      "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://nominatim.openstreetmap.org",
+      "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://nominatim.openstreetmap.org https://tessdata.projectnaptha.com https://cdn.jsdelivr.net",
+      // blob: lets Tesseract.js create its own blob: worker URL
+      // jsdelivr needed because the blob worker calls importScripts() back to the CDN
+      "worker-src 'self' blob: https://cdn.jsdelivr.net",
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       "font-src 'self' data: https://fonts.gstatic.com",
-      // unsafe-eval is required by React in dev mode for call-stack reconstruction
+      // unsafe-eval: React dev mode + Tesseract WASM both require it in development
       isDev
-        ? "script-src 'self' 'unsafe-inline' 'unsafe-eval'"
-        : "script-src 'self' 'unsafe-inline'",
+        ? "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net"
+        : "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net",
     ].join("; "),
   },
   {
