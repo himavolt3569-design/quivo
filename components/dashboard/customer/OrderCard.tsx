@@ -38,6 +38,8 @@ interface OrderCardProps {
   onViewReceipt: (order: Order) => void;
   deliveryLat?: number | null;
   deliveryLng?: number | null;
+  shopLat?: number | null;
+  shopLng?: number | null;
 }
 
 export function OrderCard({
@@ -46,6 +48,8 @@ export function OrderCard({
   onViewReceipt,
   deliveryLat,
   deliveryLng,
+  shopLat,
+  shopLng,
 }: OrderCardProps) {
   const items = order.items as OrderItem[];
   const stepIndex = getStepIndex(order.status);
@@ -233,6 +237,8 @@ export function OrderCard({
           </p>
           <TrackingMap
             shopName={order.shop_name}
+            shopLat={shopLat ?? null}
+            shopLng={shopLng ?? null}
             deliveryLat={deliveryLat ?? null}
             deliveryLng={deliveryLng ?? null}
           />

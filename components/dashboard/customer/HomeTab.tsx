@@ -10,16 +10,14 @@ import {
   Package,
   ReceiptText,
   Store,
-  TrendingUp,
-  Wallet,
   Bookmark,
 } from "lucide-react";
 import { toast } from "sonner";
 import type { User as SupabaseUser } from "@supabase/supabase-js";
 
-import { nearbyShops, popularProducts } from "@/lib/data";
 import { toggleSavedShop, toggleSavedProduct, placeOrder } from "@/app/actions/customer";
-import type { Order, Profile, SavedShop, SavedProduct } from "@/lib/types";
+import type { ScannedProduct } from "@/app/actions/customer";
+import type { Order, Profile, SavedShop, SavedProduct, TrendingProduct, NearbyShop } from "@/lib/types";
 
 import { BarcodeScanner } from "./BarcodeScanner";
 import { OrderCard } from "./OrderCard";
@@ -39,6 +37,8 @@ interface HomeTabProps {
   pastOrderCount: number;
   addressCount: number;
   recentTransactions: Transaction[];
+  trendingProducts: TrendingProduct[];
+  nearbyShops: NearbyShop[];
 }
 
 function getGreeting() {
@@ -60,6 +60,8 @@ export function HomeTab({
   pastOrderCount,
   addressCount,
   recentTransactions,
+  trendingProducts,
+  nearbyShops,
 }: HomeTabProps) {
   const router = useRouter();
 
@@ -94,7 +96,7 @@ export function HomeTab({
     user.email?.split("@")[0] ||
     "there";
 
-  const handleToggleShop = async (shop: (typeof nearbyShops)[0]) => {
+  const handleToggleShop = async (shop: NearbyShop) => {
     const wasSaved = savedShopNames.has(shop.name);
     setSavedShopNames((prev) => {
       const s = new Set(prev);
@@ -104,13 +106,13 @@ export function HomeTab({
     toast(wasSaved ? "Removed from saved" : `${shop.name} saved`);
     await toggleSavedShop({
       shop_name: shop.name,
-      shop_category: shop.category,
-      shop_distance: shop.distance,
-      shop_image: shop.image,
+      shop_category: shop.category ?? null,
+      shop_distance: null,
+      shop_image: shop.image_url ?? null,
     });
   };
 
-  const handleToggleProduct = async (product: (typeof popularProducts)[0]) => {
+  const handleToggleProduct = async (product: TrendingProduct) => {
     const wasSaved = savedProductIds.has(product.id);
     setSavedProductIds((prev) => {
       const s = new Set(prev);
@@ -120,28 +122,22 @@ export function HomeTab({
     await toggleSavedProduct({
       product_id: product.id,
       product_name: product.name,
-      product_price: product.price,
-      product_image: product.image,
-      product_shop: product.shop,
+      product_price: String(product.price),
+      product_image: product.image_url ?? null,
+      product_shop: product.shop_name,
     });
   };
 
-  const handleOrderFromScan = async (detected: {
-    id: string;
-    name: string;
-    price: string;
-    shop: string;
-  }) => {
-    const price = parseFloat(detected.price.replace(/[^0-9.]/g, "")) || 0;
+  const handleOrderFromScan = async (detected: ScannedProduct) => {
     const result = await placeOrder({
-      shop_name: detected.shop,
-      items: [{ name: detected.name, price, quantity: 1 }],
+      shop_name: detected.shopName,
+      items: [{ name: detected.name, price: detected.price, quantity: 1 }],
       eta_minutes: 20,
     });
     if (result.error) {
       toast.error(result.error);
     } else {
-      toast.success(`Order placed at ${detected.shop}`);
+      toast.success(`Order placed at ${detected.shopName}`);
       router.push("/dashboard/orders");
       router.refresh();
     }
@@ -269,68 +265,98 @@ export function HomeTab({
             </section>
           )}
 
-          {/* Neighborhood Pulse - Popular + Saved */}
+          {/* Neighborhood Pulse - Products + Shops from DB */}
           <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-4">
-               <h2 className="text-sm font-bold uppercase tracking-[0.14em] text-[#27324A] px-2">
+              <h2 className="text-sm font-bold uppercase tracking-[0.14em] text-[#27324A] px-2">
                 Trending Nearby
               </h2>
-              <div className="grid grid-cols-2 gap-3">
-                {popularProducts.slice(0, 4).map((product) => {
-                  const isSaved = savedProductIds.has(product.id);
-                  return (
-                    <div
-                      key={product.id}
-                      className="group flex flex-col rounded-[1.5rem] border border-[#2E3344]/8 bg-white p-3 shadow-sm hover:shadow-md transition"
-                    >
-                      <div className="relative mb-2 h-24 w-full overflow-hidden rounded-xl bg-[#F7F0E6]">
-                        <img
-                          src={product.image}
-                          alt={product.name}
-                          className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
-                        />
-                        <button
-                          onClick={() => handleToggleProduct(product)}
-                          className={`absolute right-1.5 top-1.5 rounded-full p-1.5 backdrop-blur-md transition ${
-                            isSaved
-                              ? "bg-[#A7653A] text-white"
-                              : "bg-white/60 text-[#746E73] hover:text-[#A7653A]"
-                          }`}
-                        >
-                          <Heart className={`h-3 w-3 ${isSaved ? "fill-current" : ""}`} />
-                        </button>
+              {trendingProducts.length === 0 ? (
+                <div className="rounded-[1.5rem] border border-dashed border-[#2E3344]/10 bg-white p-6 text-center">
+                  <p className="text-xs text-[#746E73]">Products will appear here once shops add their catalog.</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 gap-3">
+                  {trendingProducts.slice(0, 4).map((product) => {
+                    const isSaved = savedProductIds.has(product.id);
+                    return (
+                      <div
+                        key={product.id}
+                        className="group flex flex-col rounded-[1.5rem] border border-[#2E3344]/8 bg-white p-3 shadow-sm hover:shadow-md transition"
+                      >
+                        <div className="relative mb-2 h-24 w-full overflow-hidden rounded-xl bg-[#F7F0E6]">
+                          {product.image_url ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img
+                              src={product.image_url}
+                              alt={product.name}
+                              className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
+                            />
+                          ) : (
+                            <div className="h-full w-full flex items-center justify-center">
+                              <span className="text-2xl font-black text-[#A7653A]/30">{product.name[0]}</span>
+                            </div>
+                          )}
+                          <button
+                            onClick={() => handleToggleProduct(product)}
+                            className={`absolute right-1.5 top-1.5 rounded-full p-1.5 backdrop-blur-md transition ${
+                              isSaved ? "bg-[#A7653A] text-white" : "bg-white/60 text-[#746E73] hover:text-[#A7653A]"
+                            }`}
+                          >
+                            <Heart className={`h-3 w-3 ${isSaved ? "fill-current" : ""}`} />
+                          </button>
+                        </div>
+                        <h4 className="line-clamp-1 text-[11px] font-bold text-[#27324A]">{product.name}</h4>
+                        <p className="text-[10px] font-semibold text-[#A7653A]">Rs. {product.price.toLocaleString()}</p>
                       </div>
-                      <h4 className="line-clamp-1 text-[11px] font-bold text-[#27324A]">
-                        {product.name}
-                      </h4>
-                      <p className="text-[10px] font-semibold text-[#A7653A]">{product.price}</p>
-                    </div>
-                  );
-                })}
-              </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
 
             <div className="space-y-4">
               <h2 className="text-sm font-bold uppercase tracking-[0.14em] text-[#27324A] px-2">
-                Trusted Shops
+                Verified Shops
               </h2>
-              <div className="space-y-2">
-                 {nearbyShops.slice(0, 3).map((shop) => (
-                    <div
-                      key={shop.name}
-                      className="flex items-center gap-3 rounded-2xl border border-[#2E3344]/8 bg-white p-3 shadow-sm hover:border-[#A7653A]/20 transition cursor-pointer"
-                    >
-                      <img src={shop.image} alt={shop.name} className="h-10 w-10 rounded-xl object-cover" />
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate text-xs font-bold text-[#27324A]">{shop.name}</p>
-                        <p className="text-[10px] text-[#746E73]">{shop.category} · {shop.distance}km</p>
+              {nearbyShops.length === 0 ? (
+                <div className="rounded-[1.5rem] border border-dashed border-[#2E3344]/10 bg-white p-6 text-center">
+                  <p className="text-xs text-[#746E73]">Shops will appear here once they are verified.</p>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {nearbyShops.slice(0, 3).map((shop) => {
+                    const isSaved = savedShopNames.has(shop.name);
+                    return (
+                      <div
+                        key={shop.id}
+                        className="flex items-center gap-3 rounded-2xl border border-[#2E3344]/8 bg-white p-3 shadow-sm hover:border-[#A7653A]/20 transition"
+                      >
+                        <div className="h-10 w-10 rounded-xl bg-[#F7F0E6] overflow-hidden shrink-0 flex items-center justify-center">
+                          {shop.image_url ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img src={shop.image_url} alt={shop.name} className="h-10 w-10 object-cover" />
+                          ) : (
+                            <span className="text-sm font-black text-[#A7653A]">{shop.name[0]}</span>
+                          )}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-xs font-bold text-[#27324A]">{shop.name}</p>
+                          <p className="text-[10px] text-[#746E73]">{shop.category ?? "Shop"}</p>
+                        </div>
+                        <button
+                          onClick={() => handleToggleShop(shop)}
+                          className={`shrink-0 rounded-full p-1.5 transition ${
+                            isSaved ? "bg-[#A7653A] text-white" : "bg-[#F7F0E6] text-[#746E73] hover:text-[#A7653A]"
+                          }`}
+                        >
+                          <Heart className={`h-3.5 w-3.5 ${isSaved ? "fill-current" : ""}`} />
+                        </button>
                       </div>
-                      <div className="text-[10px] font-bold text-[#A7653A] bg-[#F7F0E6] px-2 py-0.5 rounded-full">
-                        {shop.eta}
-                      </div>
-                    </div>
-                 ))}
-              </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           </section>
         </div>
@@ -347,7 +373,7 @@ export function HomeTab({
                   { Icon: ReceiptText, label: "History", href: "/dashboard/orders" },
                   { Icon: Bookmark, label: "Wishlist", href: "/dashboard/saved" },
                   { Icon: MapPin, label: "Map Pins", href: "/dashboard/profile" },
-                  { Icon: Store, label: "All Shops", href: "/dashboard/home" },
+                  { Icon: Store, label: "All Shops", href: "/dashboard/shops" },
                 ].map(({ Icon, label, href }) => (
                   <Link
                     key={label}
@@ -412,8 +438,6 @@ function ReorderButton({
   onSuccess: () => void;
 }) {
   const [loading, setLoading] = useState(false);
-  const { toast: _toast } = { toast };
-
   const handleReorder = async () => {
     setLoading(true);
     try {

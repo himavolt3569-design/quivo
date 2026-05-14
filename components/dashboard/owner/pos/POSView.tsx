@@ -497,7 +497,16 @@ export function POSView({ shopId, shopName, catalogProducts }: POSViewProps) {
                         cartItem ? "border-[#A7653A]/40 bg-[#FDF8F4]" : ""
                       }`}
                     >
-                      <div className={`absolute top-0 right-0 w-16 h-16 -mr-8 -mt-8 rounded-full ${colorClass} opacity-50 group-hover:scale-150 transition-transform duration-500`} />
+                      {p.image_url ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={p.image_url}
+                          alt={p.name}
+                          className="absolute top-2 right-2 h-11 w-11 rounded-xl object-cover opacity-90 group-hover:opacity-100 transition-opacity"
+                        />
+                      ) : (
+                        <div className={`absolute top-0 right-0 w-16 h-16 -mr-8 -mt-8 rounded-full ${colorClass} opacity-50 group-hover:scale-150 transition-transform duration-500`} />
+                      )}
                       {cartItem && (
                         <span className="absolute top-2 right-2 h-5 min-w-[1.25rem] px-1 bg-[#A7653A] text-white rounded-full text-[10px] font-black flex items-center justify-center z-10">
                           {fmtQty(cartItem.qty, cartItem.cfg)}

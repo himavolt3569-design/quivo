@@ -33,50 +33,28 @@ export async function placeStorefrontOrder(
 
   const supabase = await createClient();
 
-  // Verify products still have stock
-  const productIds = cart.map((i) => i.id);
-  const { data: products } = await supabase
-    .from("products")
-    .select("id, name, stock")
-    .in("id", productIds)
-    .eq("shop_id", shopId);
-
-  if (products) {
-    for (const item of cart) {
-      const product = products.find((p) => p.id === item.id);
-      if (!product || product.stock < item.qty) {
-        return { error: `"${item.name}" is no longer available in the requested quantity.` };
-      }
-    }
-  }
-
   const orderNumber = `STO-${Date.now().toString(36).toUpperCase().slice(-8)}`;
 
-  const { error } = await supabase.from("orders").insert({
-    shop_id: shopId,
-    shop_name: shopName,
-    order_number: orderNumber,
-    customer_id: null,
-    customer_name: customer.name.trim(),
-    customer_phone: customer.phone.trim(),
-    customer_email: customer.email?.trim() || null,
-    delivery_address: customer.address.trim(),
-    items: cart,
-    total_amount: total,
-    payment_method: paymentMethod,
-    payment_status: "pending",
-    status: "placed",
-    notes: customer.notes?.trim() || null,
+  const { error } = await supabase.rpc("place_storefront_order", {
+    p_shop_id: shopId,
+    p_shop_name: shopName,
+    p_order_number: orderNumber,
+    p_customer_name: customer.name.trim(),
+    p_customer_phone: customer.phone.trim(),
+    p_customer_email: customer.email?.trim() || null,
+    p_delivery_address: customer.address.trim(),
+    p_items: cart,
+    p_total_amount: total,
+    p_payment_method: paymentMethod,
+    p_notes: customer.notes?.trim() || null,
   });
 
-  if (error) return { error: error.message };
-
-  // Decrement stock for each item (best-effort)
-  for (const item of cart) {
-    await supabase.rpc("decrement_product_stock", {
-      p_product_id: item.id,
-      p_qty: item.qty,
-    }).then(() => null, () => null);
+  if (error) {
+    if (error.message.startsWith("INSUFFICIENT_STOCK:")) {
+      const name = error.message.slice("INSUFFICIENT_STOCK:".length);
+      return { error: `"${name}" is no longer available in the requested quantity.` };
+    }
+    return { error: error.message };
   }
 
   revalidatePath(`/dashboard/owner/orders`);

@@ -1,12 +1,13 @@
 "use client";
 
-import { useState, useTransition } from "react";
-import { Shield, Plus, Lock, MoreVertical, X, Users } from "lucide-react";
+import { useRef, useState, useTransition } from "react";
+import { Shield, Plus, Lock, X, Users, Camera, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { addShopStaff, updateShopStaffStatus } from "@/app/actions/owner";
+import { createClient } from "@/lib/supabase/client";
 
 interface StaffMember {
   id: string;
@@ -16,6 +17,7 @@ interface StaffMember {
   email: string | null;
   notes: string | null;
   status: string;
+  image_url: string | null;
   created_at: string;
 }
 
@@ -46,11 +48,43 @@ export function StaffList({ shopId, initialStaff }: StaffListProps) {
   const [isPending, startTransition] = useTransition();
   const [showAddModal, setShowAddModal] = useState(false);
   const [form, setForm] = useState({ name: "", role: "cashier", phone: "", email: "", notes: "" });
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const [photoFile, setPhotoFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const photoInputRef = useRef<HTMLInputElement>(null);
+  const supabase = createClient();
+
+  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setPhotoFile(file);
+    setPhotoPreview(URL.createObjectURL(file));
+  };
 
   const handleAdd = () => {
-    const formData = new FormData();
-    Object.entries(form).forEach(([k, v]) => formData.set(k, v));
     startTransition(async () => {
+      let imageUrl: string | null = null;
+
+      if (photoFile) {
+        setUploading(true);
+        const ext = photoFile.name.split(".").pop() ?? "jpg";
+        const path = `staff/${shopId}/${Date.now()}.${ext}`;
+        const { data: uploaded, error: uploadError } = await supabase.storage
+          .from("shop_assets")
+          .upload(path, photoFile, { upsert: true });
+        setUploading(false);
+        if (uploadError) {
+          toast.error("Photo upload failed. Staff was not added.");
+          return;
+        }
+        const { data: { publicUrl } } = supabase.storage.from("shop_assets").getPublicUrl(uploaded.path);
+        imageUrl = publicUrl;
+      }
+
+      const formData = new FormData();
+      Object.entries(form).forEach(([k, v]) => formData.set(k, v));
+      if (imageUrl) formData.set("image_url", imageUrl);
+
       const result = await addShopStaff(shopId, formData);
       if (result.error) {
         toast.error(result.error);
@@ -58,6 +92,8 @@ export function StaffList({ shopId, initialStaff }: StaffListProps) {
         toast.success("Staff member added.");
         setShowAddModal(false);
         setForm({ name: "", role: "cashier", phone: "", email: "", notes: "" });
+        setPhotoPreview(null);
+        setPhotoFile(null);
         window.location.reload();
       }
     });
@@ -125,8 +161,13 @@ export function StaffList({ shopId, initialStaff }: StaffListProps) {
                 className="bg-white p-4 rounded-[1.5rem] border border-[#2E3344]/8 shadow-sm flex items-center justify-between"
               >
                 <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-full bg-[#E8E3D1]/50 flex items-center justify-center font-black text-[#A7653A]">
-                    {member.name[0].toUpperCase()}
+                  <div className="h-10 w-10 rounded-full bg-[#E8E3D1]/50 flex items-center justify-center font-black text-[#A7653A] overflow-hidden shrink-0">
+                    {member.image_url ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={member.image_url} alt={member.name} className="h-10 w-10 object-cover" />
+                    ) : (
+                      member.name[0].toUpperCase()
+                    )}
                   </div>
                   <div>
                     <p className="font-bold text-[#27324A] text-sm">{member.name}</p>
@@ -158,8 +199,13 @@ export function StaffList({ shopId, initialStaff }: StaffListProps) {
                     className="bg-white p-4 rounded-[1.5rem] border border-[#2E3344]/5 shadow-sm flex items-center justify-between opacity-60"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="h-10 w-10 rounded-full bg-[#E8E3D1]/30 flex items-center justify-center font-black text-[#746E73]">
-                        {member.name[0].toUpperCase()}
+                      <div className="h-10 w-10 rounded-full bg-[#E8E3D1]/30 flex items-center justify-center font-black text-[#746E73] overflow-hidden shrink-0">
+                        {member.image_url ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={member.image_url} alt={member.name} className="h-10 w-10 object-cover" />
+                        ) : (
+                          member.name[0].toUpperCase()
+                        )}
                       </div>
                       <div>
                         <p className="font-bold text-[#746E73] text-sm">{member.name}</p>
@@ -231,11 +277,44 @@ export function StaffList({ shopId, initialStaff }: StaffListProps) {
           <div className="bg-white rounded-[2rem] w-full max-w-md shadow-2xl p-6 space-y-5 animate-in slide-in-from-bottom-4 duration-300">
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-black text-[#27324A]">Add Staff Member</h2>
-              <button onClick={() => setShowAddModal(false)} className="text-[#746E73] hover:text-[#27324A] p-1">
+              <button
+                onClick={() => { setShowAddModal(false); setPhotoPreview(null); setPhotoFile(null); }}
+                className="text-[#746E73] hover:text-[#27324A] p-1"
+              >
                 <X className="h-5 w-5" />
               </button>
             </div>
             <div className="space-y-4">
+              {/* Photo upload */}
+              <div className="flex items-center gap-4">
+                <div className="h-16 w-16 rounded-2xl bg-[#F7F0E6] border-2 border-dashed border-[#A7653A]/30 flex items-center justify-center overflow-hidden shrink-0">
+                  {photoPreview ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={photoPreview} alt="Preview" className="h-16 w-16 object-cover" />
+                  ) : (
+                    <Camera className="h-6 w-6 text-[#A7653A]/40" />
+                  )}
+                </div>
+                <div>
+                  <p className="text-sm font-bold text-[#27324A]">Staff Photo</p>
+                  <p className="text-xs text-[#746E73] mb-2">Optional</p>
+                  <button
+                    type="button"
+                    onClick={() => photoInputRef.current?.click()}
+                    className="text-xs font-bold text-[#A7653A] hover:underline"
+                  >
+                    {photoPreview ? "Change photo" : "Upload photo"}
+                  </button>
+                  <input
+                    ref={photoInputRef}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handlePhotoChange}
+                  />
+                </div>
+              </div>
+
               <div>
                 <Label className="font-bold text-[#27324A]">Full Name *</Label>
                 <Input
@@ -291,17 +370,19 @@ export function StaffList({ shopId, initialStaff }: StaffListProps) {
             <div className="flex gap-3 pt-2">
               <Button
                 variant="outline"
-                onClick={() => setShowAddModal(false)}
+                onClick={() => { setShowAddModal(false); setPhotoPreview(null); setPhotoFile(null); }}
                 className="flex-1 h-12 rounded-xl border-[#2E3344]/10 font-bold"
               >
                 Cancel
               </Button>
               <Button
-                disabled={isPending || !form.name.trim()}
+                disabled={isPending || uploading || !form.name.trim()}
                 onClick={handleAdd}
                 className="flex-1 h-12 rounded-xl bg-[#27324A] hover:bg-[#1b2333] text-white font-bold"
               >
-                {isPending ? "Saving..." : "Add Staff"}
+                {uploading ? (
+                  <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Uploading…</>
+                ) : isPending ? "Saving…" : "Add Staff"}
               </Button>
             </div>
           </div>

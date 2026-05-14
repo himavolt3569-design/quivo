@@ -498,3 +498,79 @@ export async function updateProfile(formData: FormData) {
   revalidatePath("/dashboard");
   return { success: true };
 }
+
+// ─── Barcode lookup ───────────────────────────────────────────────────────────
+
+export interface ScannedProduct {
+  id: string;
+  name: string;
+  price: number;
+  stock: number;
+  shopName: string;
+  shopSlug: string;
+  image: string | null;
+  barcode: string;
+  isAvailable: boolean;
+}
+
+export async function lookupProductByBarcode(
+  barcode: string
+): Promise<{ product?: ScannedProduct; error?: string }> {
+  const trimmed = barcode.trim();
+  if (!trimmed) return {};
+
+  const supabase = await createClient();
+  // get_product_by_barcode is a public RPC (granted to anon + authenticated)
+  const { data, error } = await supabase
+    .rpc("get_product_by_barcode", { p_barcode: trimmed })
+    .limit(1)
+    .maybeSingle<{
+      product_id: string;
+      shop_name: string;
+      shop_slug: string;
+      name: string;
+      price: number;
+      stock: number;
+      image_url: string | null;
+      images: string[] | null;
+      barcode: string;
+      is_available: boolean;
+    }>();
+
+  if (error) return { error: error.message };
+  if (!data) return {};
+
+  return {
+    product: {
+      id: data.product_id,
+      name: data.name,
+      price: data.price,
+      stock: data.stock,
+      shopName: data.shop_name,
+      shopSlug: data.shop_slug,
+      image: data.images?.[0] ?? data.image_url ?? null,
+      barcode: data.barcode,
+      isAvailable: data.is_available,
+    },
+  };
+}
+
+export interface ChatShop {
+  id: string;
+  name: string;
+  slug: string;
+  image_url: string | null;
+}
+
+export async function getVerifiedShopsForChat(): Promise<ChatShop[]> {
+  const supabase = await createClient();
+  const { data } = await supabase.rpc("get_verified_shops");
+  if (!data) return [];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return (data as any[]).map((s) => ({
+    id: s.id,
+    name: s.name,
+    slug: s.slug,
+    image_url: s.image_url ?? null,
+  }));
+}

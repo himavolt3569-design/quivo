@@ -11,6 +11,7 @@ import { BarcodeScanner } from "./BarcodeScanner";
 import { OrderCard } from "./OrderCard";
 import { ReceiptSheet } from "./ReceiptSheet";
 import { placeOrder } from "@/app/actions/customer";
+import type { ScannedProduct } from "@/app/actions/customer";
 
 type OrderFilter = "active" | "accepted" | "rejected" | "past" | "all";
 
@@ -91,23 +92,17 @@ export function OrdersTab({ userId, initialOrders }: OrdersTabProps) {
       ? pastOrders
       : orders;
 
-  const handleOrderFromScan = async (detected: {
-    id: string;
-    name: string;
-    price: string;
-    shop: string;
-  }) => {
-    const price = parseFloat(detected.price.replace(/[^0-9.]/g, "")) || 0;
+  const handleOrderFromScan = async (detected: ScannedProduct) => {
     const result = await placeOrder({
-      shop_name: detected.shop,
-      items: [{ name: detected.name, price, quantity: 1 }],
+      shop_name: detected.shopName,
+      items: [{ name: detected.name, price: detected.price, quantity: 1 }],
       eta_minutes: 20,
     });
     if (result.error) {
       toast.error(result.error);
     } else if (result.order) {
       setOrders((prev) => [result.order as Order, ...prev]);
-      toast.success(`Order placed at ${detected.shop}`);
+      toast.success(`Order placed at ${detected.shopName}`);
       setScannerOpen(false);
     }
   };

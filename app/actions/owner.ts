@@ -374,6 +374,34 @@ export async function addProduct(shopId: string, formData: FormData) {
   return { success: true, id: data.id, barcode: data.barcode };
 }
 
+export async function restockProduct(
+  productId: string,
+  shopId: string,
+  addQty: number,
+  costPrice: number | null,
+  newPrice: number | null
+): Promise<{ error?: string; newStock?: number; barcode?: string }> {
+  const pidParse = ShopIdSchema.safeParse(productId);
+  const sidParse = ShopIdSchema.safeParse(shopId);
+  if (!pidParse.success || !sidParse.success) return { error: "Invalid ID" };
+  if (addQty <= 0) return { error: "Quantity must be greater than 0" };
+
+  const { supabase } = await getAuthUser();
+  const { data, error } = await supabase
+    .rpc("restock_product", {
+      p_product_id: pidParse.data,
+      p_shop_id: sidParse.data,
+      p_add_qty: addQty,
+      p_cost_price: costPrice ?? undefined,
+      p_new_price: newPrice ?? undefined,
+    })
+    .single<{ new_stock: number; barcode: string }>();
+
+  if (error) return { error: error.message };
+  revalidatePath("/dashboard/owner/products");
+  return { newStock: data.new_stock, barcode: data.barcode };
+}
+
 export async function updateProduct(productId: string, shopId: string, formData: FormData) {
   const pidParse = ShopIdSchema.safeParse(productId);
   const sidParse = ShopIdSchema.safeParse(shopId);
@@ -635,6 +663,8 @@ export async function addShopStaff(shopId: string, formData: FormData) {
   });
   if (!parse.success) return { error: parse.error.issues[0].message };
 
+  const imageUrl = formData.get("image_url")?.toString() || null;
+
   const { supabase } = await getAuthUser();
   const { error } = await supabase.from("shop_staff").insert({
     shop_id: idParse.data,
@@ -643,6 +673,7 @@ export async function addShopStaff(shopId: string, formData: FormData) {
     phone: parse.data.phone ?? null,
     email: parse.data.email || null,
     notes: parse.data.notes ?? null,
+    image_url: imageUrl,
   });
 
   if (error) return { error: `Could not add staff: ${error.message}` };

@@ -137,7 +137,7 @@ export function KYCForm({
   return (
     <div className="space-y-6">
       {/* Status Card */}
-      <div className={`rounded-[2rem] border p-6 ${cfg.bgClass} border-current/10`}>
+      <div className={`rounded-4xl border p-6 ${cfg.bgClass} border-current/10`}>
         <div className="flex items-start gap-4">
           <div className={`h-12 w-12 rounded-2xl flex items-center justify-center shrink-0 bg-white shadow-sm`}>
             <StatusIcon className={`h-6 w-6 ${cfg.iconClass}`} />
@@ -169,7 +169,7 @@ export function KYCForm({
 
       {/* Rejection Reason */}
       {verificationStatus === "rejected" && kycRejectionReason && (
-        <div className="rounded-[1.5rem] bg-red-50 border border-red-200 p-5">
+        <div className="rounded-3xl bg-red-50 border border-red-200 p-5">
           <div className="flex items-start gap-3">
             <AlertTriangle className="h-5 w-5 text-red-500 shrink-0 mt-0.5" />
             <div>
@@ -182,7 +182,7 @@ export function KYCForm({
 
       {/* Pending — live status polling notice */}
       {verificationStatus === "pending" && (
-        <div className="rounded-[1.5rem] bg-[#F7F0E6]/60 border border-[#A7653A]/20 p-5">
+        <div className="rounded-3xl bg-[#F7F0E6]/60 border border-[#A7653A]/20 p-5">
           <div className="flex items-center gap-3">
             <div className="h-9 w-9 rounded-xl bg-[#A7653A]/10 flex items-center justify-center shrink-0">
               <RefreshCw className="h-4 w-4 text-[#A7653A] animate-spin" style={{ animationDuration: "3s" }} />
@@ -223,7 +223,7 @@ export function KYCForm({
 
       {/* Upload form — only for unverified / rejected */}
       {canSubmit && (
-        <div className="bg-white rounded-[2rem] border border-[#2E3344]/10 p-6 space-y-5">
+        <div className="bg-white rounded-4xl border border-[#2E3344]/10 p-6 space-y-5">
           <div>
             <h3 className="font-black text-[#27324A] mb-1">
               {kycDocumentUrls.length > 0 ? "Add More Documents" : "Upload KYC Documents"}

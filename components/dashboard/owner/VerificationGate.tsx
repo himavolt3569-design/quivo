@@ -58,8 +58,8 @@ export function VerificationGate({ status, children }: VerificationGateProps) {
       </div>
 
       {/* Fixed fullscreen overlay — sits above sidebar and everything */}
-      <div className="fixed inset-0 z-[200] flex items-start justify-center pt-24 px-4 bg-black/30 backdrop-blur-sm">
-        <div className="bg-white rounded-[2rem] border border-[#2E3344]/10 shadow-2xl p-8 max-w-sm w-full text-center animate-in fade-in slide-in-from-top-4 duration-300">
+      <div className="fixed inset-0 z-200 flex items-start justify-center pt-24 px-4 bg-black/30 backdrop-blur-sm">
+        <div className="bg-white rounded-4xl border border-[#2E3344]/10 shadow-2xl p-8 max-w-sm w-full text-center animate-in fade-in slide-in-from-top-4 duration-300">
           <div className={`h-16 w-16 rounded-2xl flex items-center justify-center mx-auto mb-5 ${
             status === "pending" ? "bg-amber-50" : "bg-red-50"
           }`}>

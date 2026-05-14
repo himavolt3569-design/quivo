@@ -2,149 +2,175 @@
 
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { MessageSquare, X, Send, User as UserIcon, ChevronLeft } from "lucide-react";
+import { MessageSquare, X, Send, ChevronLeft, Store, Search } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import type { User } from "@supabase/supabase-js";
 import { toast } from "sonner";
+import { getVerifiedShopsForChat, type ChatShop } from "@/app/actions/customer";
+import { sendCustomerChatMessage } from "@/app/actions/storefront";
 
-interface Message {
+interface ChatMessage {
   id: string;
-  sender_id: string;
-  content: string;
+  sender: "customer" | "owner";
+  message: string;
   created_at: string;
 }
 
-export function LiveChat({ currentUser }: { currentUser: User }) {
+interface LiveChatProps {
+  currentUser: User;
+  customerName: string;
+}
+
+function makeSessionId(userId: string, shopId: string): string {
+  // Deterministic per customer-shop pair so chat history persists across sessions
+  return `cust-${userId.slice(0, 8)}-${shopId.slice(0, 8)}`;
+}
+
+function timeAgo(dateStr: string): string {
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const m = Math.floor(diff / 60000);
+  if (m < 1) return "just now";
+  if (m < 60) return `${m}m`;
+  return `${Math.floor(m / 60)}h`;
+}
+
+export function LiveChat({ currentUser, customerName }: LiveChatProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isPeek, setIsPeek] = useState(true);
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [newMessage, setNewMessage] = useState("");
-  const [recipientId, setRecipientId] = useState<string | null>(null);
+
+  // Contact list state
+  const [shops, setShops] = useState<ChatShop[]>([]);
+  const [shopsLoading, setShopsLoading] = useState(false);
+  const [shopSearch, setShopSearch] = useState("");
+  const [selectedShop, setSelectedShop] = useState<ChatShop | null>(null);
+
+  // Message state
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [input, setInput] = useState("");
+  const [sending, setSending] = useState(false);
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const supabase = createClient();
 
-  // Scroll to bottom when new messages arrive
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
-
+  // Load shops when chat first opens
   useEffect(() => {
-    if (isOpen) {
-      scrollToBottom();
-    }
-  }, [messages, isOpen]);
+    if (!isOpen || shops.length > 0) return;
+    setShopsLoading(true);
+    getVerifiedShopsForChat()
+      .then(setShops)
+      .catch(() => toast.error("Could not load shops"))
+      .finally(() => setShopsLoading(false));
+  }, [isOpen, shops.length]);
 
-  // Fetch initial messages and subscribe to real-time updates
+  // Load messages + realtime when a shop is selected
   useEffect(() => {
-    if (!isOpen || !recipientId) return;
+    if (!selectedShop) return;
+    const sessionId = makeSessionId(currentUser.id, selectedShop.id);
 
-    const fetchMessages = async () => {
-      const { data, error } = await supabase
-        .from("messages")
-        .select("*")
-        .or(
-          `and(sender_id.eq.${currentUser.id},receiver_id.eq.${recipientId}),and(sender_id.eq.${recipientId},receiver_id.eq.${currentUser.id})`,
-        )
+    const load = async () => {
+      const { data } = await supabase
+        .from("chat_messages")
+        .select("id, sender, message, created_at")
+        .eq("shop_id", selectedShop.id)
+        .eq("session_id", sessionId)
         .order("created_at", { ascending: true })
-        .limit(50);
-
-      if (error) {
-        console.error(
-          "Error fetching messages:",
-          error.message || error,
-          error.details || "",
-        );
-      } else {
-        setMessages(data || []);
-      }
+        .limit(60);
+      setMessages((data as ChatMessage[]) ?? []);
     };
 
-    fetchMessages();
+    load();
 
-    // Subscribe to real-time inserts on the 'messages' table
     const channel = supabase
-      .channel("realtime-messages")
+      .channel(`livechat:${sessionId}`)
       .on(
         "postgres_changes",
         {
           event: "INSERT",
           schema: "public",
-          table: "messages",
-          filter: `receiver_id=eq.${currentUser.id}`, // Listen for messages sent TO this user
+          table: "chat_messages",
+          filter: `session_id=eq.${sessionId}`,
         },
         (payload) => {
-          const newMsg = payload.new as Message;
-          // Only add if it's from the currently selected recipient
-          if (newMsg.sender_id === recipientId) {
-            setMessages((prev) => [...prev, newMsg]);
-          }
-        },
+          const msg = payload.new as ChatMessage;
+          setMessages((prev) => {
+            if (prev.some((m) => m.id === msg.id)) return prev;
+            return [...prev, msg];
+          });
+        }
       )
       .subscribe();
 
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [isOpen, recipientId, currentUser.id, supabase]);
+  }, [selectedShop, currentUser.id, supabase]);
 
-  const handleSendMessage = async (e: React.FormEvent) => {
+  // Scroll to bottom on new messages
+  useEffect(() => {
+    if (isOpen && selectedShop) {
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages, isOpen, selectedShop]);
+
+  const handleSend = async (e: React.SyntheticEvent) => {
     e.preventDefault();
-    if (!newMessage.trim() || !recipientId) return;
+    if (!input.trim() || !selectedShop || sending) return;
+    const text = input.trim();
+    const sessionId = makeSessionId(currentUser.id, selectedShop.id);
 
-    const tempMessage = {
-      id: crypto.randomUUID(),
-      sender_id: currentUser.id,
-      content: newMessage.trim(),
+    // Optimistic
+    const tempId = crypto.randomUUID();
+    const tempMsg: ChatMessage = {
+      id: tempId,
+      sender: "customer",
+      message: text,
       created_at: new Date().toISOString(),
     };
+    setMessages((prev) => [...prev, tempMsg]);
+    setInput("");
+    setSending(true);
 
-    // Optimistic UI update
-    setMessages((prev) => [...prev, tempMessage]);
-    setNewMessage("");
+    const result = await sendCustomerChatMessage(
+      selectedShop.id,
+      sessionId,
+      customerName,
+      text
+    );
 
-    const { error } = await supabase.from("messages").insert({
-      sender_id: currentUser.id,
-      receiver_id: recipientId,
-      content: tempMessage.content,
-    });
-
-    if (error) {
+    setSending(false);
+    if (result.error) {
       toast.error("Failed to send message");
-      // Revert optimistic update on error
-      setMessages((prev) => prev.filter((msg) => msg.id !== tempMessage.id));
+      setMessages((prev) => prev.filter((m) => m.id !== tempId));
+      setInput(text);
     }
   };
 
-  const handleOpenChat = () => {
-    setIsPeek(false);
-    setIsOpen(true);
-  };
-
-  const handleCloseChat = () => {
-    setIsOpen(false);
-    setIsPeek(true);
-  };
+  const filteredShops = shopSearch.trim()
+    ? shops.filter((s) =>
+        s.name.toLowerCase().includes(shopSearch.toLowerCase())
+      )
+    : shops;
 
   return (
     <>
-      {/* Floating Action Button with Peek Behavior */}
+      {/* FAB */}
       <motion.div
         initial={false}
-        animate={{ 
+        animate={{
           x: isPeek ? "calc(100% - 24px)" : 0,
           opacity: isOpen ? 0 : 1,
-          pointerEvents: isOpen ? "none" : "auto"
+          pointerEvents: isOpen ? "none" : "auto",
         }}
         transition={{ type: "spring", stiffness: 300, damping: 25 }}
         className="fixed bottom-32 right-6 z-50 flex items-center gap-2"
       >
         <button
-          onClick={handleOpenChat}
+          onClick={() => { setIsPeek(false); setIsOpen(true); }}
           onMouseEnter={() => isPeek && setIsPeek(false)}
           className={`group flex items-center justify-center rounded-full bg-[#27324A] text-white shadow-xl shadow-[#27324A]/25 transition-all duration-300 hover:shadow-2xl active:scale-95 focus:outline-none focus:ring-2 focus:ring-[#A7653A] focus:ring-offset-2 ${
-            isPeek ? "h-10 w-10 p-0" : "h-12 w-12"
+            isPeek ? "h-10 w-10" : "h-12 w-12"
           }`}
-          aria-label="Open Live Chat"
+          aria-label="Open Shop Chat"
         >
           {isPeek ? (
             <ChevronLeft className="h-4 w-4 text-[#D8C99A]" />
@@ -152,9 +178,8 @@ export function LiveChat({ currentUser }: { currentUser: User }) {
             <MessageSquare className="h-5 w-5" />
           )}
         </button>
-        
         {!isPeek && (
-          <button 
+          <button
             onClick={() => setIsPeek(true)}
             className="h-8 w-8 rounded-full bg-white/80 border border-[#2E3344]/10 flex items-center justify-center text-[#746E73] hover:text-[#27324A] transition-colors"
           >
@@ -166,127 +191,162 @@ export function LiveChat({ currentUser }: { currentUser: User }) {
       {/* Chat Window */}
       <AnimatePresence>
         {isOpen && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
-            className="fixed bottom-32 right-6 z-50 flex h-[28rem] w-[20rem] sm:w-[22rem] flex-col overflow-hidden rounded-[2rem] border border-[#2E3344]/10 bg-white shadow-2xl"
+            className="fixed bottom-32 right-6 z-50 flex h-120 w-80 sm:w-88 flex-col overflow-hidden rounded-4xl border border-[#2E3344]/10 bg-white shadow-2xl"
           >
             {/* Header */}
-            <div className="flex items-center justify-between bg-[#27324A] px-5 py-4 text-white">
+            <div className="flex items-center justify-between bg-[#27324A] px-5 py-4 text-white shrink-0">
               <div className="flex items-center gap-2.5">
-                <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
-                <span className="font-bold tracking-tight text-sm uppercase tracking-widest">Neighborhood Chat</span>
+                {selectedShop && (
+                  <button
+                    onClick={() => { setSelectedShop(null); setMessages([]); }}
+                    className="rounded-full p-1 hover:bg-white/10 transition"
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                  </button>
+                )}
+                <div className="h-2 w-2 rounded-full bg-green-400 animate-pulse" />
+                <span className="text-sm font-bold tracking-wide">
+                  {selectedShop ? selectedShop.name : "Shop Chat"}
+                </span>
               </div>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={handleCloseChat}
-                  className="rounded-full p-1.5 transition hover:bg-white/10 text-white/70 hover:text-white"
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              </div>
+              <button
+                onClick={() => { setIsOpen(false); setIsPeek(true); }}
+                className="rounded-full p-1.5 hover:bg-white/10 text-white/70 hover:text-white transition"
+              >
+                <X className="h-4 w-4" />
+              </button>
             </div>
 
-            {/* Contact Selector (Mocked for now) */}
-            {!recipientId ? (
-              <div className="flex flex-1 flex-col overflow-y-auto bg-[#F7F0E6]/30 p-5">
-                <p className="mb-4 text-[10px] font-black uppercase tracking-widest text-[#8D5132]">
-                  Select a contact
-                </p>
-                <div className="grid gap-2.5">
-                  <button
-                    onClick={() =>
-                      setRecipientId("00000000-0000-0000-0000-000000000000")
-                    }
-                    className="flex items-center gap-4 rounded-[1.25rem] bg-white p-4 text-left shadow-sm border border-[#2E3344]/5 transition-all hover:border-[#A7653A]/20 active:scale-[0.98]"
-                  >
-                    <div className="grid h-10 w-10 place-items-center rounded-xl bg-[#27324A] text-white">
-                      <UserIcon className="h-5 w-5" />
+            {/* Shop selector */}
+            {!selectedShop ? (
+              <div className="flex flex-1 flex-col overflow-hidden">
+                <div className="p-3 border-b border-[#2E3344]/8">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[#746E73]" />
+                    <input
+                      type="text"
+                      value={shopSearch}
+                      onChange={(e) => setShopSearch(e.target.value)}
+                      placeholder="Search shops…"
+                      className="w-full pl-8 pr-3 py-2 text-xs rounded-xl bg-[#f8f8f7] border border-[#2E3344]/8 outline-none focus:border-[#A7653A] transition"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex-1 overflow-y-auto p-3 space-y-1.5">
+                  <p className="text-[9px] font-black uppercase tracking-widest text-[#8D5132] px-1 mb-2">
+                    Select a shop to chat
+                  </p>
+
+                  {shopsLoading && (
+                    <div className="space-y-2">
+                      {[1, 2, 3].map((i) => (
+                        <div key={i} className="flex items-center gap-3 p-3 rounded-2xl bg-[#f8f8f7] animate-pulse">
+                          <div className="h-9 w-9 rounded-xl bg-[#2E3344]/10 shrink-0" />
+                          <div className="flex-1 space-y-1.5">
+                            <div className="h-2.5 w-24 rounded-full bg-[#2E3344]/10" />
+                            <div className="h-2 w-16 rounded-full bg-[#2E3344]/5" />
+                          </div>
+                        </div>
+                      ))}
                     </div>
-                    <div>
-                      <p className="text-sm font-black text-[#27324A]">
-                        Support Team
-                      </p>
-                      <p className="text-[10px] font-bold text-[#746E73] uppercase tracking-wider">
-                        Available 24/7
+                  )}
+
+                  {!shopsLoading && filteredShops.length === 0 && (
+                    <div className="py-8 text-center">
+                      <Store className="h-8 w-8 mx-auto text-[#746E73]/30 mb-2" />
+                      <p className="text-xs text-[#746E73] font-medium">
+                        {shopSearch ? "No shops match your search" : "No verified shops yet"}
                       </p>
                     </div>
-                  </button>
+                  )}
+
+                  {!shopsLoading && filteredShops.map((shop) => (
+                    <button
+                      key={shop.id}
+                      onClick={() => { setSelectedShop(shop); setMessages([]); }}
+                      className="w-full flex items-center gap-3 p-3 rounded-2xl hover:bg-[#F7F0E6]/60 border border-transparent hover:border-[#A7653A]/10 transition text-left"
+                    >
+                      <div className="h-9 w-9 rounded-xl bg-[#F7F0E6] overflow-hidden shrink-0 flex items-center justify-center">
+                        {shop.image_url ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={shop.image_url} alt={shop.name} className="h-9 w-9 object-cover" />
+                        ) : (
+                          <span className="text-sm font-black text-[#A7653A]">{shop.name[0]}</span>
+                        )}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-xs font-bold text-[#27324A] truncate">{shop.name}</p>
+                        <p className="text-[10px] text-[#746E73] font-medium">Tap to chat</p>
+                      </div>
+                      <ChevronLeft className="h-3.5 w-3.5 text-[#746E73]/40 rotate-180 shrink-0" />
+                    </button>
+                  ))}
                 </div>
               </div>
             ) : (
               <>
-                {/* Message List */}
-                <div className="flex-1 overflow-y-auto bg-[#F7F0E6]/30 p-5">
-                  <div className="flex flex-col gap-3.5">
-                    {messages.length === 0 ? (
-                      <div className="mt-10 text-center px-4">
-                        <div className="mx-auto h-12 w-12 rounded-2xl bg-[#E8E3D1] flex items-center justify-center mb-3">
-                           <MessageSquare className="h-6 w-6 text-[#626A54]" />
-                        </div>
-                        <p className="text-xs font-bold text-[#27324A]">New Conversation</p>
-                        <p className="text-[10px] text-[#746E73] mt-1 leading-relaxed">
-                          Ask anything about local shops or your recent orders.
-                        </p>
+                {/* Messages */}
+                <div className="flex-1 overflow-y-auto bg-[#F7F0E6]/20 p-4 space-y-3">
+                  {messages.length === 0 ? (
+                    <div className="h-full flex flex-col items-center justify-center text-center px-4">
+                      <div className="h-12 w-12 rounded-2xl bg-[#E8E3D1] flex items-center justify-center mb-3">
+                        <MessageSquare className="h-6 w-6 text-[#626A54]" />
                       </div>
-                    ) : (
-                      messages.map((msg) => {
-                        const isMe = msg.sender_id === currentUser.id;
-                        return (
+                      <p className="text-xs font-bold text-[#27324A]">Start the conversation</p>
+                      <p className="text-[10px] text-[#746E73] mt-1 leading-relaxed">
+                        Ask {selectedShop.name} about products, availability, or your order.
+                      </p>
+                    </div>
+                  ) : (
+                    messages.map((msg) => {
+                      const isMe = msg.sender === "customer";
+                      return (
+                        <div
+                          key={msg.id}
+                          className={`flex flex-col max-w-[82%] ${isMe ? "self-end items-end ml-auto" : "self-start items-start"}`}
+                        >
                           <div
-                            key={msg.id}
-                            className={`flex max-w-[85%] flex-col ${
+                            className={`rounded-2xl px-4 py-2.5 text-xs leading-relaxed ${
                               isMe
-                                ? "self-end items-end"
-                                : "self-start items-start"
+                                ? "rounded-tr-sm bg-[#27324A] text-white shadow-lg shadow-[#27324A]/10"
+                                : "rounded-tl-sm bg-white text-[#27324A] shadow-sm border border-[#2E3344]/5"
                             }`}
                           >
-                            <div
-                              className={`rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${
-                                isMe
-                                  ? "rounded-tr-sm bg-[#27324A] text-white shadow-lg shadow-[#27324A]/10"
-                                  : "rounded-tl-sm bg-white text-[#27324A] shadow-sm border border-[#2E3344]/5"
-                              }`}
-                            >
-                              {msg.content}
-                            </div>
+                            {msg.message}
                           </div>
-                        );
-                      })
-                    )}
-                    <div ref={messagesEndRef} />
-                  </div>
+                          <p className="text-[9px] text-[#746E73]/60 mt-0.5 px-1">
+                            {timeAgo(msg.created_at)}
+                          </p>
+                        </div>
+                      );
+                    })
+                  )}
+                  <div ref={messagesEndRef} />
                 </div>
 
-                {/* Input Area */}
+                {/* Input */}
                 <form
-                  onSubmit={handleSendMessage}
-                  className="flex items-center gap-2 border-t border-[#2E3344]/8 bg-white p-4"
+                  onSubmit={handleSend}
+                  className="flex items-center gap-2 border-t border-[#2E3344]/8 bg-white p-3 shrink-0"
                 >
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setRecipientId(null);
-                      setMessages([]);
-                    }}
-                    className="p-2 text-[#746E73] hover:text-[#27324A] transition-colors"
-                  >
-                    <ChevronLeft className="h-5 w-5" />
-                  </button>
                   <input
                     type="text"
-                    value={newMessage}
-                    onChange={(e) => setNewMessage(e.target.value)}
-                    placeholder="Message..."
-                    className="flex-1 rounded-full border border-[#2E3344]/8 bg-[#F7F0E6]/30 px-5 py-2.5 text-sm outline-none transition focus:border-[#A7653A] focus:ring-4 focus:ring-[#A7653A]/5"
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    placeholder={`Message ${selectedShop.name}…`}
+                    className="flex-1 rounded-full border border-[#2E3344]/8 bg-[#F7F0E6]/30 px-4 py-2 text-xs outline-none focus:border-[#A7653A] focus:ring-4 focus:ring-[#A7653A]/5 transition"
                   />
                   <button
                     type="submit"
-                    disabled={!newMessage.trim()}
-                    className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[#A7653A] text-white shadow-lg shadow-[#A7653A]/20 transition hover:bg-[#8E5432] disabled:opacity-50 active:scale-95"
+                    disabled={!input.trim() || sending}
+                    className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[#A7653A] text-white shadow-md shadow-[#A7653A]/20 transition hover:bg-[#8E5432] disabled:opacity-50 active:scale-95"
                   >
-                    <Send className="h-4 w-4" />
+                    <Send className="h-3.5 w-3.5" />
                   </button>
                 </form>
               </>

@@ -24,6 +24,7 @@ import type { User as SupabaseUser } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/client";
 import { nearbyShops, popularProducts } from "@/lib/data";
 import { toggleSavedShop, toggleSavedProduct, placeOrder, updateProfile } from "@/app/actions/customer";
+import type { ScannedProduct } from "@/app/actions/customer";
 import type { Order, Profile, Address, SavedShop, SavedProduct, OrderItem } from "@/lib/types";
 
 import { BarcodeScanner } from "./customer/BarcodeScanner";
@@ -234,23 +235,17 @@ export function CustomerDashboard({
     });
   };
 
-  const handleOrderFromScan = async (detected: {
-    id: string;
-    name: string;
-    price: string;
-    shop: string;
-  }) => {
-    const price = parseFloat(detected.price.replace(/[^0-9.]/g, "")) || 0;
+  const handleOrderFromScan = async (detected: ScannedProduct) => {
     const result = await placeOrder({
-      shop_name: detected.shop,
-      items: [{ name: detected.name, price, quantity: 1 }],
+      shop_name: detected.shopName,
+      items: [{ name: detected.name, price: detected.price, quantity: 1 }],
       eta_minutes: 20,
     });
     if (result.error) {
       toast.error(result.error);
     } else if (result.order) {
       setOrders((prev) => [result.order as Order, ...prev]);
-      toast.success(`Order placed at ${detected.shop}`);
+      toast.success(`Order placed at ${detected.shopName}`);
       setTab("orders");
     }
   };
