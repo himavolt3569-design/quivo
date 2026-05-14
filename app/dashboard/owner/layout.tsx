@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { OwnerSidebar } from "@/components/dashboard/owner/OwnerSidebar";
 import { OwnerMobileNav } from "@/components/dashboard/owner/OwnerMobileNav";
 import { VerificationBanner } from "@/components/dashboard/owner/VerificationBanner";
+import { VerificationGate } from "@/components/dashboard/owner/VerificationGate";
 import { getOwnerContext } from "@/lib/shop";
 
 export default async function OwnerLayout({
@@ -64,7 +65,9 @@ export default async function OwnerLayout({
       <div className="flex flex-1">
         <OwnerSidebar shops={shops} activeShopId={activeShopId} />
         <main className="flex-1 w-full p-4 sm:p-6 lg:p-8 pb-24 lg:pb-8">
-          {children}
+          <VerificationGate status={verificationStatus}>
+            {children}
+          </VerificationGate>
         </main>
         <OwnerMobileNav shops={shops} activeShopId={activeShopId} />
       </div>

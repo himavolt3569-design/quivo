@@ -89,7 +89,7 @@ export function BarcodeScanner({ open, onClose, onOrderNow }: BarcodeScannerProp
           return;
         }
 
-        // @ts-ignore — BarcodeDetector not yet in TS lib
+        // @ts-expect-error — BarcodeDetector not yet in TS lib
         const detector = new window.BarcodeDetector({
           formats: ["ean_13", "ean_8", "qr_code", "code_128", "upc_a", "upc_e", "code_39"],
         });
@@ -122,11 +122,10 @@ export function BarcodeScanner({ open, onClose, onOrderNow }: BarcodeScannerProp
           rafRef.current = requestAnimationFrame(loop);
         };
         loop();
-      } catch (err: any) {
+      } catch (err: unknown) {
         if (!alive) return;
-        const isDenied =
-          err?.name === "NotAllowedError" ||
-          err?.name === "PermissionDeniedError";
+        const name = (err as { name?: string })?.name;
+        const isDenied = name === "NotAllowedError" || name === "PermissionDeniedError";
         setState(isDenied ? "denied" : "unsupported");
       }
     };

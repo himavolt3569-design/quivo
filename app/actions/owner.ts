@@ -4,7 +4,6 @@ import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { getSiteUrl, isSafeHttpUrl } from "@/lib/security";
-import { getOwnerContext } from "@/lib/shop";
 
 const SUBDOMAIN_REGEX = /^[a-z0-9][a-z0-9-]{1,49}$/;
 const TIME_REGEX = /^([01]\d|2[0-3]):[0-5]\d$/;
@@ -843,4 +842,36 @@ export async function deleteShop(shopId: string) {
   revalidatePath("/dashboard/owner");
   revalidatePath("/dashboard");
   return { success: true };
+}
+
+export async function submitKYCDocuments(shopId: string, docUrls: string[]) {
+  const idParse = ShopIdSchema.safeParse(shopId);
+  if (!idParse.success) return { error: "Invalid shop ID" };
+  if (!docUrls.length) return { error: "Upload at least one document." };
+
+  const { supabase } = await getAuthUser();
+  const { error } = await supabase.rpc("submit_kyc_review", {
+    p_shop_id: idParse.data,
+    p_doc_urls: docUrls,
+  });
+
+  if (error) return { error: error.message };
+  revalidatePath("/dashboard/owner");
+  revalidatePath("/dashboard/owner/settings");
+  return { success: true };
+}
+
+export async function getKYCStatus(shopId: string) {
+  const idParse = ShopIdSchema.safeParse(shopId);
+  if (!idParse.success) return { error: "Invalid shop ID" };
+
+  const { supabase } = await getAuthUser();
+  const { data, error } = await supabase
+    .from("shops")
+    .select("verification_status, kyc_submitted_at, kyc_rejection_reason, kyc_document_urls, kyc_confidence")
+    .eq("id", idParse.data)
+    .single();
+
+  if (error) return { error: error.message };
+  return { data };
 }

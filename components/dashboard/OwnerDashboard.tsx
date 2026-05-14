@@ -208,9 +208,9 @@ export function OwnerDashboard({
                 </a>
               </span>
               <span className="text-[#746E73]/30">·</span>
-              <a href="/onboarding/owner" className="text-[#A7653A] hover:underline">
+              <Link href="/onboarding/owner" className="text-[#A7653A] hover:underline">
                 + New shop
-              </a>
+              </Link>
               {shopCount > 1 && (
                 <span className="text-[10px] uppercase tracking-widest font-bold text-[#746E73]">
                   {shopCount} shops
@@ -220,9 +220,9 @@ export function OwnerDashboard({
           ) : (
             <p className="mt-1 text-sm font-bold text-[#746E73]">
               You haven&apos;t created a shop yet.{" "}
-              <a href="/onboarding/owner" className="text-[#A7653A] hover:underline">
+              <Link href="/onboarding/owner" className="text-[#A7653A] hover:underline">
                 Set up your first shop →
-              </a>
+              </Link>
             </p>
           )}
         </div>

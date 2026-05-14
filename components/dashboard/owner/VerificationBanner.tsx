@@ -1,6 +1,6 @@
 "use client";
 
-import { ShieldAlert, ShieldCheck, Clock, X } from "lucide-react";
+import { ShieldAlert, Clock, X } from "lucide-react";
 import { useState } from "react";
 import Link from "next/link";
 

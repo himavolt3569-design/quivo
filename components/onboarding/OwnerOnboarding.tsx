@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { startTransition, useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import dynamic from "next/dynamic";
@@ -149,7 +149,7 @@ export function OwnerOnboarding() {
   // Auto-derive slug from store name unless user edited it manually
   useEffect(() => {
     if (!slugEdited && storeName) {
-      setSlug(slugify(storeName));
+      startTransition(() => setSlug(slugify(storeName)));
     }
   }, [storeName, slugEdited]);
 

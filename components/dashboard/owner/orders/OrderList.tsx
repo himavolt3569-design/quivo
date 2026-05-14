@@ -168,7 +168,7 @@ export function OrderList({ shopId, initialOrders }: OrderListProps) {
                     <p className="text-xs text-[#746E73] mt-0.5 line-clamp-1">📍 {order.delivery_address}</p>
                   )}
                   {order.notes && (
-                    <p className="text-xs text-[#746E73] italic mt-0.5 line-clamp-1">"{order.notes}"</p>
+                    <p className="text-xs text-[#746E73] italic mt-0.5 line-clamp-1">&quot;{order.notes}&quot;</p>
                   )}
                   <div className="flex items-center gap-4 mt-2 text-[10px] font-bold text-[#746E73] uppercase tracking-widest">
                     <span className="flex items-center gap-1">

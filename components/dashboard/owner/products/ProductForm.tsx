@@ -324,7 +324,7 @@ export function ProductForm({ shopId, shopSlug, catalog }: ProductFormProps) {
                   )}
                 </div>
                 <p className="text-xs font-bold text-[#A7653A] flex-1 min-w-0 truncate">
-                  Pre-filled from <span className="font-black">"{prefill.name}"</span> — edit any field to create a new product
+                  Pre-filled from <span className="font-black">&quot;{prefill.name}&quot;</span> — edit any field to create a new product
                 </p>
                 <button
                   type="button"

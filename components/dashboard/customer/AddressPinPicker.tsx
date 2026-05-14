@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { startTransition, useEffect, useLayoutEffect, useRef, useState } from "react";
 import * as L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { MapPin, Search, X } from "lucide-react";
@@ -99,8 +99,14 @@ export function AddressPinPicker({
   const markerRef = useRef<L.Marker | null>(null);
   const onChangeRef = useRef(onChange);
   const onAddressFoundRef = useRef(onAddressFound);
-  onChangeRef.current = onChange;
-  onAddressFoundRef.current = onAddressFound;
+  // Skip-sync flag: set when the map itself triggered the change so we
+  // don't double-move the marker in the sync effect.
+  const internalMoveRef = useRef(false);
+
+  useLayoutEffect(() => {
+    onChangeRef.current = onChange;
+    onAddressFoundRef.current = onAddressFound;
+  });
 
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchResult[]>([]);
@@ -111,8 +117,7 @@ export function AddressPinPicker({
   // Debounced place search
   useEffect(() => {
     if (query.trim().length < 3) {
-      setResults([]);
-      setShowResults(false);
+      startTransition(() => { setResults([]); setShowResults(false); });
       return;
     }
     const timer = setTimeout(async () => {
@@ -128,10 +133,7 @@ export function AddressPinPicker({
   // Close dropdown on outside click
   useEffect(() => {
     const handler = (e: MouseEvent) => {
-      if (
-        searchWrapRef.current &&
-        !searchWrapRef.current.contains(e.target as Node)
-      ) {
+      if (searchWrapRef.current && !searchWrapRef.current.contains(e.target as Node)) {
         setShowResults(false);
       }
     };
@@ -139,25 +141,26 @@ export function AddressPinPicker({
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
-  // Sync map when value prop changes externally (e.g. from search)
+  // Sync map marker when value prop changes externally (parent sets coords)
   useEffect(() => {
     if (!mapRef.current || !markerRef.current || !value) return;
-    const { lat, lng } = value;
-    const currentPos = markerRef.current.getLatLng();
-    
-    // Only update if the distance is significant to avoid jitter
-    if (Math.abs(currentPos.lat - lat) > 0.0001 || Math.abs(currentPos.lng - lng) > 0.0001) {
-      markerRef.current.setLatLng([lat, lng]);
-      mapRef.current.setView([lat, lng], mapRef.current.getZoom(), { animate: true });
+    if (internalMoveRef.current) {
+      // This change originated from within the map — skip re-syncing to avoid jitter
+      internalMoveRef.current = false;
+      return;
     }
+    markerRef.current.setLatLng([value.lat, value.lng]);
+    mapRef.current.setView([value.lat, value.lng], mapRef.current.getZoom(), { animate: true });
   }, [value]);
 
-  const handleNewPosition = async (lat: number, lng: number) => {
+  // Stable ref-based position handler — safe to use inside Leaflet event closures
+  const handleNewPositionRef = useRef(async (lat: number, lng: number) => {
+    internalMoveRef.current = true;
     onChangeRef.current({ lat, lng });
     if (!onAddressFoundRef.current) return;
     const result = await reverseGeocode(lat, lng);
     onAddressFoundRef.current(result?.address ?? "", result?.landmark);
-  };
+  });
 
   const handleSelectResult = (result: SearchResult) => {
     const lat = parseFloat(result.lat);
@@ -171,7 +174,7 @@ export function AddressPinPicker({
       mapRef.current.setView([lat, lng], 17, { animate: true });
       markerRef.current.setLatLng([lat, lng]);
     }
-    handleNewPosition(lat, lng);
+    handleNewPositionRef.current(lat, lng);
   };
 
   useEffect(() => {
@@ -202,25 +205,26 @@ export function AddressPinPicker({
 
     marker.on("dragend", () => {
       const pos = marker.getLatLng();
-      handleNewPosition(pos.lat, pos.lng);
+      handleNewPositionRef.current(pos.lat, pos.lng);
     });
 
     map.on("click", (e: L.LeafletMouseEvent) => {
       marker.setLatLng(e.latlng);
-      // Optional: map.panTo(e.latlng); 
-      handleNewPosition(e.latlng.lat, e.latlng.lng);
+      handleNewPositionRef.current(e.latlng.lat, e.latlng.lng);
     });
 
     mapRef.current = map;
     markerRef.current = marker;
-    
-    // Ensure map is correctly sized even if initialized while hidden
-    const resizeObserver = new ResizeObserver(() => {
-      map.invalidateSize();
-    });
+
+    // Delayed invalidateSize handles cases where the container animates in
+    // (e.g. step transitions in onboarding) and Leaflet inits before final size.
+    const sizeTimer = setTimeout(() => map.invalidateSize(), 150);
+
+    const resizeObserver = new ResizeObserver(() => map.invalidateSize());
     resizeObserver.observe(containerRef.current);
 
     return () => {
+      clearTimeout(sizeTimer);
       resizeObserver.disconnect();
       map.remove();
       mapRef.current = null;

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useTransition } from "react";
+import { startTransition, useState, useEffect, useRef, useTransition } from "react";
 import { MessageCircle, X, Send, Bot } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { sendCustomerChatMessage } from "@/app/actions/storefront";
@@ -40,12 +40,11 @@ export function ChatWidget({ shopId, shopName, themeColor }: ChatWidgetProps) {
       sid = `session_${Date.now()}_${Math.random().toString(36).slice(2)}`;
       localStorage.setItem(sessionKey, sid);
     }
-    setSessionId(sid);
+    startTransition(() => setSessionId(sid));
 
     const savedName = localStorage.getItem(nameKey);
     if (savedName) {
-      setCustomerName(savedName);
-      setNameEntered(true);
+      startTransition(() => { setCustomerName(savedName); setNameEntered(true); });
     }
   }, [sessionKey, nameKey]);
 

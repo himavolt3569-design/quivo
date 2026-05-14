@@ -51,7 +51,9 @@ export function OwnerShopSwitcher({ shops, activeShopId }: OwnerShopSwitcherProp
 
   // Keep local state in sync when shops list changes (e.g. after creating a new shop)
   React.useEffect(() => {
-    setSelectedShop(shops.find((s) => s.id === activeShopId) ?? shops[0] ?? null);
+    React.startTransition(() => {
+      setSelectedShop(shops.find((s) => s.id === activeShopId) ?? shops[0] ?? null);
+    });
   }, [shops, activeShopId]);
 
   const handleSelect = async (shop: SwitcherShop) => {

@@ -218,7 +218,7 @@ export function ScanToOrderSection({
       });
 
       try {
-        shopMarkersRef.current.forEach((marker: any) => marker.remove());
+        shopMarkersRef.current.forEach((marker: { remove: () => void }) => marker.remove());
         shopMarkersRef.current = [];
         if (radiusCircleRef.current) radiusCircleRef.current.remove();
         if (customerMarkerRef.current) customerMarkerRef.current.remove();
