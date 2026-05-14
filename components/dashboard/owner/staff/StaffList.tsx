@@ -1,129 +1,312 @@
 "use client";
 
-import { useState } from "react";
-import { Users, Shield, Plus, Lock, MoreVertical } from "lucide-react";
+import { useState, useTransition } from "react";
+import { Shield, Plus, Lock, MoreVertical, X, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
+import { addShopStaff, updateShopStaffStatus } from "@/app/actions/owner";
 
-export function StaffList() {
-  const staff = [
-    { id: "1", name: "Ramesh Sharma", role: "Owner", phone: "9800000001", status: "Active" },
-    { id: "2", name: "Sita Khadka", role: "Manager", phone: "9800000002", status: "Active" },
-    { id: "3", name: "Bikash Gurung", role: "Cashier", phone: "9800000003", status: "Active" },
-    { id: "4", name: "Anu Shrestha", role: "Inventory Staff", phone: "9800000004", status: "Inactive" },
-  ];
+interface StaffMember {
+  id: string;
+  name: string;
+  role: string;
+  phone: string | null;
+  email: string | null;
+  notes: string | null;
+  status: string;
+  created_at: string;
+}
 
-  const permissions = [
-    { module: "Dashboard & Analytics", owner: true, manager: true, cashier: false, inventory: false },
-    { module: "Point of Sale (POS)", owner: true, manager: true, cashier: true, inventory: false },
-    { module: "Product Management", owner: true, manager: true, cashier: false, inventory: true },
-    { module: "Stock Adjustments", owner: true, manager: true, cashier: false, inventory: true },
-    { module: "Customer Udhar", owner: true, manager: true, cashier: true, inventory: false },
-    { module: "Supplier Payments", owner: true, manager: false, cashier: false, inventory: false },
-    { module: "Shop Settings", owner: true, manager: false, cashier: false, inventory: false },
-  ];
+interface StaffListProps {
+  shopId: string;
+  initialStaff: StaffMember[];
+}
+
+const ROLES = [
+  { id: "manager", label: "Manager" },
+  { id: "cashier", label: "Cashier" },
+  { id: "inventory", label: "Inventory Staff" },
+  { id: "viewer", label: "Viewer" },
+];
+
+const PERMISSIONS = [
+  { module: "Dashboard & Analytics", manager: true, cashier: false, inventory: false, viewer: true },
+  { module: "Point of Sale (POS)", manager: true, cashier: true, inventory: false, viewer: false },
+  { module: "Product Management", manager: true, cashier: false, inventory: true, viewer: false },
+  { module: "Stock Adjustments", manager: true, cashier: false, inventory: true, viewer: false },
+  { module: "Customer Udhar", manager: true, cashier: true, inventory: false, viewer: false },
+  { module: "Supplier Payments", manager: false, cashier: false, inventory: false, viewer: false },
+  { module: "Shop Settings", manager: false, cashier: false, inventory: false, viewer: false },
+];
+
+export function StaffList({ shopId, initialStaff }: StaffListProps) {
+  const [staff, setStaff] = useState(initialStaff);
+  const [isPending, startTransition] = useTransition();
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [form, setForm] = useState({ name: "", role: "cashier", phone: "", email: "", notes: "" });
+
+  const handleAdd = () => {
+    const formData = new FormData();
+    Object.entries(form).forEach(([k, v]) => formData.set(k, v));
+    startTransition(async () => {
+      const result = await addShopStaff(shopId, formData);
+      if (result.error) {
+        toast.error(result.error);
+      } else {
+        toast.success("Staff member added.");
+        setShowAddModal(false);
+        setForm({ name: "", role: "cashier", phone: "", email: "", notes: "" });
+        window.location.reload();
+      }
+    });
+  };
+
+  const handleToggleStatus = (id: string, currentStatus: string) => {
+    const newStatus = currentStatus === "active" ? "inactive" : "active";
+    startTransition(async () => {
+      const result = await updateShopStaffStatus(id, shopId, newStatus as "active" | "inactive");
+      if (result.error) {
+        toast.error(result.error);
+      } else {
+        setStaff((prev) =>
+          prev.map((s) => (s.id === id ? { ...s, status: newStatus } : s))
+        );
+        toast.success(`Staff marked as ${newStatus}.`);
+      }
+    });
+  };
+
+  const activeStaff = staff.filter((s) => s.status === "active");
+  const inactiveStaff = staff.filter((s) => s.status !== "active");
 
   return (
     <div className="space-y-6 max-w-6xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500 pb-10">
-      
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between gap-4">
         <div>
           <h1 className="text-2xl font-black text-[#27324A]">Staff & Roles</h1>
           <p className="text-sm font-medium text-[#746E73] mt-1">Manage employee access and shop permissions.</p>
         </div>
-        <Button className="rounded-xl h-12 bg-[#27324A] hover:bg-[#1b2333] text-white font-bold px-6 shadow-sm w-full sm:w-auto">
+        <Button
+          onClick={() => setShowAddModal(true)}
+          className="rounded-xl h-12 bg-[#27324A] hover:bg-[#1b2333] text-white font-bold px-6 shadow-sm w-full sm:w-auto"
+        >
           <Plus className="h-4 w-4 mr-2" /> Add Staff Member
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        
-        {/* Staff List */}
-        <div className="lg:col-span-4 space-y-4">
-          {staff.map(member => (
-            <div key={member.id} className="bg-white p-4 rounded-[1.5rem] border border-[#2E3344]/8 shadow-sm flex items-center justify-between">
-               <div className="flex items-center gap-3">
-                 <div className="h-10 w-10 rounded-full bg-[#E8E3D1]/50 flex items-center justify-center font-black text-[#A7653A]">
-                   {member.name[0]}
-                 </div>
-                 <div>
-                   <p className="font-bold text-[#27324A] text-sm">{member.name}</p>
-                   <div className="flex items-center gap-2 mt-0.5">
-                     <span className="text-[10px] font-bold text-[#A7653A] bg-[#F7F0E6] px-2 py-0.5 rounded-md uppercase tracking-widest">{member.role}</span>
-                     {member.status === "Inactive" && <span className="text-[10px] text-[#746E73] font-bold">Inactive</span>}
-                   </div>
-                 </div>
-               </div>
-               <button className="text-[#746E73] hover:text-[#27324A] p-2"><MoreVertical className="h-4 w-4" /></button>
-            </div>
-          ))}
-        </div>
-
-        {/* Permissions Matrix */}
-        <div className="lg:col-span-8 bg-white rounded-[2rem] border border-[#2E3344]/8 shadow-sm overflow-hidden">
-          <div className="p-6 border-b border-[#2E3344]/8 bg-[#f8f8f7] flex items-center gap-3">
-            <Shield className="h-5 w-5 text-[#27324A]" />
-            <h2 className="text-lg font-black text-[#27324A]">Permission Matrix</h2>
+      {staff.length === 0 && (
+        <div className="flex flex-col items-center justify-center py-24 gap-4 text-center bg-white rounded-[2rem] border border-[#2E3344]/8">
+          <div className="h-16 w-16 rounded-2xl bg-[#F7F0E6] flex items-center justify-center">
+            <Users className="h-8 w-8 text-[#A7653A]" />
           </div>
-          
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm whitespace-nowrap">
-              <thead className="bg-white border-b border-[#2E3344]/8 text-[#746E73] font-bold uppercase tracking-widest text-[10px]">
-                <tr>
-                  <th className="px-6 py-4">Module</th>
-                  <th className="px-6 py-4 text-center">Owner</th>
-                  <th className="px-6 py-4 text-center">Manager</th>
-                  <th className="px-6 py-4 text-center">Cashier</th>
-                  <th className="px-6 py-4 text-center">Inventory</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[#2E3344]/5">
-                {permissions.map((perm, i) => (
-                  <tr key={i} className="hover:bg-[#f8f8f7]/50 transition">
-                    <td className="px-6 py-4 font-bold text-[#27324A]">{perm.module}</td>
-                    <td className="px-6 py-4 text-center">
-                      <div className="mx-auto h-5 w-5 rounded-full bg-green-100 flex items-center justify-center">
-                        <div className="h-2 w-2 rounded-full bg-green-500" />
+          <h3 className="text-lg font-black text-[#27324A]">No staff added yet</h3>
+          <p className="text-sm text-[#746E73] font-medium max-w-xs">
+            Add your cashiers, managers, and inventory staff to track who has access to what.
+          </p>
+          <Button
+            onClick={() => setShowAddModal(true)}
+            className="rounded-xl h-11 bg-[#27324A] hover:bg-[#1b2333] text-white font-bold"
+          >
+            <Plus className="h-4 w-4 mr-2" /> Add First Staff Member
+          </Button>
+        </div>
+      )}
+
+      {staff.length > 0 && (
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          {/* Staff List */}
+          <div className="lg:col-span-4 space-y-3">
+            {activeStaff.map((member) => (
+              <div
+                key={member.id}
+                className="bg-white p-4 rounded-[1.5rem] border border-[#2E3344]/8 shadow-sm flex items-center justify-between"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-full bg-[#E8E3D1]/50 flex items-center justify-center font-black text-[#A7653A]">
+                    {member.name[0].toUpperCase()}
+                  </div>
+                  <div>
+                    <p className="font-bold text-[#27324A] text-sm">{member.name}</p>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <span className="text-[10px] font-bold text-[#A7653A] bg-[#F7F0E6] px-2 py-0.5 rounded-md uppercase tracking-widest">
+                        {ROLES.find((r) => r.id === member.role)?.label ?? member.role}
+                      </span>
+                      {member.phone && (
+                        <span className="text-[10px] text-[#746E73] font-bold">{member.phone}</span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+                <button
+                  disabled={isPending}
+                  onClick={() => handleToggleStatus(member.id, member.status)}
+                  className="text-xs font-bold text-red-500 hover:bg-red-50 px-3 py-1.5 rounded-lg transition"
+                >
+                  Deactivate
+                </button>
+              </div>
+            ))}
+            {inactiveStaff.length > 0 && (
+              <div className="mt-4">
+                <p className="text-[10px] font-black uppercase tracking-widest text-[#746E73] mb-2 ml-1">Inactive</p>
+                {inactiveStaff.map((member) => (
+                  <div
+                    key={member.id}
+                    className="bg-white p-4 rounded-[1.5rem] border border-[#2E3344]/5 shadow-sm flex items-center justify-between opacity-60"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="h-10 w-10 rounded-full bg-[#E8E3D1]/30 flex items-center justify-center font-black text-[#746E73]">
+                        {member.name[0].toUpperCase()}
                       </div>
-                    </td>
-                    <td className="px-6 py-4 text-center">
-                      {perm.manager ? (
-                        <div className="mx-auto h-5 w-5 rounded-full bg-green-100 flex items-center justify-center">
-                          <div className="h-2 w-2 rounded-full bg-green-500" />
-                        </div>
-                      ) : (
-                        <Lock className="h-4 w-4 text-[#746E73] mx-auto opacity-30" />
-                      )}
-                    </td>
-                    <td className="px-6 py-4 text-center">
-                      {perm.cashier ? (
-                        <div className="mx-auto h-5 w-5 rounded-full bg-green-100 flex items-center justify-center">
-                          <div className="h-2 w-2 rounded-full bg-green-500" />
-                        </div>
-                      ) : (
-                        <Lock className="h-4 w-4 text-[#746E73] mx-auto opacity-30" />
-                      )}
-                    </td>
-                    <td className="px-6 py-4 text-center">
-                      {perm.inventory ? (
-                        <div className="mx-auto h-5 w-5 rounded-full bg-green-100 flex items-center justify-center">
-                          <div className="h-2 w-2 rounded-full bg-green-500" />
-                        </div>
-                      ) : (
-                        <Lock className="h-4 w-4 text-[#746E73] mx-auto opacity-30" />
-                      )}
-                    </td>
-                  </tr>
+                      <div>
+                        <p className="font-bold text-[#746E73] text-sm">{member.name}</p>
+                        <span className="text-[10px] font-bold text-[#746E73] uppercase tracking-widest">Inactive</span>
+                      </div>
+                    </div>
+                    <button
+                      disabled={isPending}
+                      onClick={() => handleToggleStatus(member.id, member.status)}
+                      className="text-xs font-bold text-green-600 hover:bg-green-50 px-3 py-1.5 rounded-lg transition"
+                    >
+                      Reactivate
+                    </button>
+                  </div>
                 ))}
-              </tbody>
-            </table>
+              </div>
+            )}
           </div>
-          <div className="p-4 bg-[#f8f8f7] text-center border-t border-[#2E3344]/5">
-             <p className="text-[10px] text-[#746E73] font-bold">Permissions are role-based. To create custom roles, upgrade to the Enterprise plan.</p>
+
+          {/* Permissions Matrix */}
+          <div className="lg:col-span-8 bg-white rounded-[2rem] border border-[#2E3344]/8 shadow-sm overflow-hidden">
+            <div className="p-6 border-b border-[#2E3344]/8 bg-[#f8f8f7] flex items-center gap-3">
+              <Shield className="h-5 w-5 text-[#27324A]" />
+              <h2 className="text-lg font-black text-[#27324A]">Role Permissions</h2>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-sm whitespace-nowrap">
+                <thead className="bg-white border-b border-[#2E3344]/8 text-[#746E73] font-bold uppercase tracking-widest text-[10px]">
+                  <tr>
+                    <th className="px-6 py-4">Module</th>
+                    <th className="px-6 py-4 text-center">Owner</th>
+                    <th className="px-6 py-4 text-center">Manager</th>
+                    <th className="px-6 py-4 text-center">Cashier</th>
+                    <th className="px-6 py-4 text-center">Inventory</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[#2E3344]/5">
+                  {PERMISSIONS.map((perm, i) => (
+                    <tr key={i} className="hover:bg-[#f8f8f7]/50 transition">
+                      <td className="px-6 py-4 font-bold text-[#27324A]">{perm.module}</td>
+                      {[true, perm.manager, perm.cashier, perm.inventory].map((allowed, j) => (
+                        <td key={j} className="px-6 py-4 text-center">
+                          {allowed ? (
+                            <div className="mx-auto h-5 w-5 rounded-full bg-green-100 flex items-center justify-center">
+                              <div className="h-2 w-2 rounded-full bg-green-500" />
+                            </div>
+                          ) : (
+                            <Lock className="h-4 w-4 text-[#746E73] mx-auto opacity-30" />
+                          )}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <div className="p-4 bg-[#f8f8f7] text-center border-t border-[#2E3344]/5">
+              <p className="text-[10px] text-[#746E73] font-bold">
+                Owner always has full access. Staff without a Quivo account are tracked for record-keeping only.
+              </p>
+            </div>
           </div>
         </div>
+      )}
 
-      </div>
+      {/* Add Staff Modal */}
+      {showAddModal && (
+        <div className="fixed inset-0 z-50 bg-black/40 flex items-end sm:items-center justify-center p-4">
+          <div className="bg-white rounded-[2rem] w-full max-w-md shadow-2xl p-6 space-y-5 animate-in slide-in-from-bottom-4 duration-300">
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-black text-[#27324A]">Add Staff Member</h2>
+              <button onClick={() => setShowAddModal(false)} className="text-[#746E73] hover:text-[#27324A] p-1">
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <div className="space-y-4">
+              <div>
+                <Label className="font-bold text-[#27324A]">Full Name *</Label>
+                <Input
+                  value={form.name}
+                  onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+                  placeholder="Staff member name"
+                  className="h-12 rounded-xl mt-1.5"
+                />
+              </div>
+              <div>
+                <Label className="font-bold text-[#27324A]">Role *</Label>
+                <select
+                  value={form.role}
+                  onChange={(e) => setForm((f) => ({ ...f, role: e.target.value }))}
+                  className="flex h-12 w-full items-center justify-between rounded-xl border border-input bg-transparent px-3 py-2 text-sm shadow-sm mt-1.5 outline-none focus:ring-1"
+                >
+                  {ROLES.map((r) => (
+                    <option key={r.id} value={r.id}>{r.label}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label className="font-bold text-[#27324A]">Phone</Label>
+                  <Input
+                    value={form.phone}
+                    onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
+                    placeholder="98XXXXXXXX"
+                    className="h-12 rounded-xl mt-1.5"
+                  />
+                </div>
+                <div>
+                  <Label className="font-bold text-[#27324A]">Email</Label>
+                  <Input
+                    value={form.email}
+                    onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
+                    type="email"
+                    placeholder="staff@email.com"
+                    className="h-12 rounded-xl mt-1.5"
+                  />
+                </div>
+              </div>
+              <div>
+                <Label className="font-bold text-[#27324A]">Notes (optional)</Label>
+                <Input
+                  value={form.notes}
+                  onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))}
+                  placeholder="e.g. Morning shift only"
+                  className="h-12 rounded-xl mt-1.5"
+                />
+              </div>
+            </div>
+            <div className="flex gap-3 pt-2">
+              <Button
+                variant="outline"
+                onClick={() => setShowAddModal(false)}
+                className="flex-1 h-12 rounded-xl border-[#2E3344]/10 font-bold"
+              >
+                Cancel
+              </Button>
+              <Button
+                disabled={isPending || !form.name.trim()}
+                onClick={handleAdd}
+                className="flex-1 h-12 rounded-xl bg-[#27324A] hover:bg-[#1b2333] text-white font-bold"
+              >
+                {isPending ? "Saving..." : "Add Staff"}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
