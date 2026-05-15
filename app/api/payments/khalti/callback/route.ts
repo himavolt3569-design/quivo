@@ -15,12 +15,15 @@
 
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { getSiteUrl } from "@/lib/security";
 import { verifyKhalti } from "@/lib/payments/providers/khalti";
 import type { PaymentSecrets } from "@/lib/payments";
 
 const TERMINAL_STATUSES = new Set([
   "payment_verified", "cod_paid", "refunded", "payment_rejected",
 ]);
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const PIDX_RE = /^[A-Za-z0-9_-]{4,128}$/;
 
 interface PaymentRow {
   id: string;
@@ -29,26 +32,29 @@ interface PaymentRow {
   amount: number;
   payment_status: string;
   transaction_reference: string;
+  gateway_transaction_id: string | null;
 }
 
 interface OrderRow {
   order_number: string;
+  tracking_token: string;
 }
 
-function failureRedirect(origin: string, orderNumber: string | null, reason: string) {
-  const target = orderNumber
-    ? `${origin}/order/${orderNumber}?payment=failed&reason=${encodeURIComponent(reason)}`
+function failureRedirect(origin: string, orderNumber: string | null, trackingToken: string | null, reason: string) {
+  const target = orderNumber && trackingToken
+    ? `${origin}/order/${orderNumber}?t=${trackingToken}&payment=failed&reason=${encodeURIComponent(reason)}`
     : `${origin}/?payment=failed&reason=${encodeURIComponent(reason)}`;
   return NextResponse.redirect(target);
 }
 
 export async function GET(request: Request) {
-  const { searchParams, origin } = new URL(request.url);
+  const { searchParams } = new URL(request.url);
+  const origin = getSiteUrl();
   const paymentId = searchParams.get("payment_id");
   const pidx      = searchParams.get("pidx");
   const status    = searchParams.get("status");
 
-  if (!paymentId) {
+  if (!paymentId || !UUID_RE.test(paymentId)) {
     return NextResponse.redirect(`${origin}/?payment=failed&reason=missing_payment_id`);
   }
 
@@ -56,7 +62,7 @@ export async function GET(request: Request) {
 
   const { data: payment, error: payErr } = await admin
     .from("payments")
-    .select("id, order_id, shop_id, amount, payment_status, transaction_reference")
+    .select("id, order_id, shop_id, amount, payment_status, transaction_reference, gateway_transaction_id")
     .eq("id", paymentId)
     .maybeSingle<PaymentRow>();
 
@@ -66,39 +72,45 @@ export async function GET(request: Request) {
 
   const { data: order } = await admin
     .from("orders")
-    .select("order_number")
+    .select("order_number, tracking_token")
     .eq("id", payment.order_id)
     .maybeSingle<OrderRow>();
   const orderNumber = order?.order_number ?? null;
+  const trackingToken = order?.tracking_token ?? null;
+  const orderPath = orderNumber && trackingToken
+    ? `/order/${orderNumber}?t=${trackingToken}`
+    : "/";
 
   // Idempotent — already terminal.
   if (TERMINAL_STATUSES.has(payment.payment_status)) {
-    return NextResponse.redirect(`${origin}/order/${orderNumber ?? ""}`);
+    return NextResponse.redirect(`${origin}${orderPath}`);
   }
 
-  if (!pidx) {
-    await admin
-      .from("payments")
-      .update({
-        payment_status: "payment_failed",
-        gateway_response: { status, reason: "missing_pidx" },
-      })
-      .eq("id", payment.id);
-    await admin.from("orders").update({ payment_status: "payment_failed" }).eq("id", payment.order_id);
+  if (!pidx || !PIDX_RE.test(pidx)) {
     await admin.from("payment_audit_logs").insert({
       payment_id: payment.id, shop_id: payment.shop_id,
-      action: "failed", actor_type: "gateway",
-      from_status: payment.payment_status, to_status: "payment_failed",
-      metadata: { status, reason: "missing_pidx" },
+      action: "callback_ignored", actor_type: "gateway",
+      from_status: payment.payment_status, to_status: payment.payment_status,
+      metadata: { status, reason: pidx ? "invalid_pidx" : "missing_pidx" },
     });
-    return failureRedirect(origin, orderNumber, "missing_pidx");
+    return failureRedirect(origin, orderNumber, trackingToken, pidx ? "invalid_pidx" : "missing_pidx");
+  }
+
+  if (payment.gateway_transaction_id && payment.gateway_transaction_id !== pidx) {
+    await admin.from("payment_audit_logs").insert({
+      payment_id: payment.id, shop_id: payment.shop_id,
+      action: "callback_ignored", actor_type: "gateway",
+      from_status: payment.payment_status, to_status: payment.payment_status,
+      metadata: { status, reason: "pidx_mismatch", pidx },
+    });
+    return failureRedirect(origin, orderNumber, trackingToken, "pidx_mismatch");
   }
 
   const { data: secrets, error: secretsErr } = await admin
     .rpc("get_shop_payment_secrets", { p_shop_id: payment.shop_id })
     .single<PaymentSecrets>();
   if (secretsErr || !secrets) {
-    return failureRedirect(origin, orderNumber, "config_missing");
+    return failureRedirect(origin, orderNumber, trackingToken, "config_missing");
   }
 
   const verifyResult = await verifyKhalti({
@@ -106,28 +118,22 @@ export async function GET(request: Request) {
     shopId: payment.shop_id,
     transactionReference: payment.transaction_reference,
     amount: Number(payment.amount),
-    gatewayPayload: { pidx, status: status ?? "" },
+    gatewayPayload: {
+      pidx,
+      status: status ?? "",
+      expected_pidx: payment.gateway_transaction_id ?? "",
+    },
     secrets,
   });
 
   if (!verifyResult.ok) {
-    await admin
-      .from("payments")
-      .update({
-        payment_status: "payment_failed",
-        gateway_transaction_id: pidx,
-        gateway_response: verifyResult.rawResponse ?? { reason: verifyResult.reason },
-      })
-      .eq("id", payment.id)
-      .eq("payment_status", payment.payment_status);
-    await admin.from("orders").update({ payment_status: "payment_failed" }).eq("id", payment.order_id);
     await admin.from("payment_audit_logs").insert({
       payment_id: payment.id, shop_id: payment.shop_id,
-      action: "failed", actor_type: "gateway",
-      from_status: payment.payment_status, to_status: "payment_failed",
+      action: "verification_failed", actor_type: "gateway",
+      from_status: payment.payment_status, to_status: payment.payment_status,
       metadata: { reason: verifyResult.reason ?? "verification_failed", pidx, status },
     });
-    return failureRedirect(origin, orderNumber, verifyResult.reason ?? "verification_failed");
+    return failureRedirect(origin, orderNumber, trackingToken, verifyResult.reason ?? "verification_failed");
   }
 
   const { data: updated, error: updErr } = await admin
@@ -139,12 +145,12 @@ export async function GET(request: Request) {
       verified_at: new Date().toISOString(),
     })
     .eq("id", payment.id)
-    .not("payment_status", "in", "(payment_verified,cod_paid,refunded)")
+    .not("payment_status", "in", "(payment_verified,cod_paid,refunded,payment_rejected)")
     .select("id")
     .maybeSingle();
 
   if (updErr) {
-    return failureRedirect(origin, orderNumber, "db_update_failed");
+    return failureRedirect(origin, orderNumber, trackingToken, "db_update_failed");
   }
 
   if (updated) {
@@ -165,5 +171,8 @@ export async function GET(request: Request) {
     });
   }
 
-  return NextResponse.redirect(`${origin}/order/${orderNumber ?? ""}?payment=success`);
+  const successPath = orderNumber && trackingToken
+    ? `/order/${orderNumber}?t=${trackingToken}&payment=success`
+    : "/";
+  return NextResponse.redirect(`${origin}${successPath}`);
 }

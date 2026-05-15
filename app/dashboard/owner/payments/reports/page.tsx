@@ -18,8 +18,9 @@ export default async function PaymentsReportsPage({
 }: { searchParams: Promise<SP> }) {
   const sp = await searchParams;
   const days = Math.max(1, Math.min(365, parseInt(sp.days ?? "30", 10) || 30));
-  const from = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
   const to = new Date();
+  const from = new Date(to);
+  from.setDate(to.getDate() - days);
 
   const [shopsRes, overviewRes, listRes] = await Promise.all([
     getOwnerShops(),

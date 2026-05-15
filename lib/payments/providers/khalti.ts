@@ -26,6 +26,8 @@ const KHALTI_ENDPOINTS = {
     lookup:   "https://khalti.com/api/v2/epayment/lookup/",
   },
 };
+const FETCH_TIMEOUT_MS = 10_000;
+const PIDX_RE = /^[A-Za-z0-9_-]{4,128}$/;
 
 function npRupeesToPaisa(amountNpr: number): number {
   return Math.round(amountNpr * 100);
@@ -57,8 +59,11 @@ export async function initiateKhalti(
     },
   };
 
+  const signal = AbortSignal.timeout(FETCH_TIMEOUT_MS);
   const res = await fetch(endpoint, {
     method: "POST",
+    cache: "no-store",
+    signal,
     headers: {
       "Content-Type": "application/json",
       "Authorization": `Key ${secrets.khalti_secret_key}`,
@@ -88,13 +93,21 @@ export async function verifyKhalti(ctx: VerifyContext): Promise<VerifyResult> {
 
   const pidx = gatewayPayload.pidx;
   if (!pidx) return { ok: false, reason: "MISSING_PIDX" };
+  if (!PIDX_RE.test(pidx)) return { ok: false, reason: "INVALID_PIDX" };
+  const expectedPidx = gatewayPayload.expected_pidx;
+  if (expectedPidx && expectedPidx !== pidx) {
+    return { ok: false, reason: "PIDX_MISMATCH" };
+  }
 
   const env = secrets.khalti_environment;
   const endpoint = KHALTI_ENDPOINTS[env].lookup;
 
   try {
+    const signal = AbortSignal.timeout(FETCH_TIMEOUT_MS);
     const res = await fetch(endpoint, {
       method: "POST",
+      cache: "no-store",
+      signal,
       headers: {
         "Content-Type": "application/json",
         "Authorization": `Key ${secrets.khalti_secret_key}`,
@@ -120,6 +133,9 @@ export async function verifyKhalti(ctx: VerifyContext): Promise<VerifyResult> {
       : NaN;
     if (Math.abs(lookupAmountNpr - amount) > 0.01) {
       return { ok: false, reason: "AMOUNT_MISMATCH", rawResponse: lookup };
+    }
+    if (lookup.purchase_order_id && lookup.purchase_order_id !== ctx.transactionReference) {
+      return { ok: false, reason: "TXN_REF_MISMATCH", rawResponse: lookup };
     }
 
     return {

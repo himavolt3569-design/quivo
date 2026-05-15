@@ -7,6 +7,7 @@ import type { PaymentMethod, PublicPaymentMethods } from "@/lib/payments";
 
 interface ReceiptUploaderProps {
   orderNumber: string;
+  trackingToken: string;
   method: PaymentMethod;
   bank: PublicPaymentMethods | null;
   total: number;
@@ -31,7 +32,7 @@ function Copyable({ value, label }: { value: string; label: string }) {
   );
 }
 
-export function ReceiptUploader({ orderNumber, method, bank, total }: ReceiptUploaderProps) {
+export function ReceiptUploader({ orderNumber, trackingToken, method, bank, total }: ReceiptUploaderProps) {
   const fileRef = useRef<HTMLInputElement>(null);
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
@@ -58,7 +59,7 @@ export function ReceiptUploader({ orderNumber, method, bank, total }: ReceiptUpl
     startTransition(async () => {
       const fd = new FormData();
       fd.append("receipt", file);
-      const res = await uploadReceiptForOrder(orderNumber, fd);
+      const res = await uploadReceiptForOrder(orderNumber, trackingToken, fd);
       if (res.error) { setError(res.error); return; }
       setUploaded(true);
       window.location.reload();

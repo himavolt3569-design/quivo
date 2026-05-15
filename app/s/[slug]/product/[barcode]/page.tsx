@@ -26,6 +26,16 @@ interface ProductResult {
   is_available?: boolean;
 }
 
+interface PublicProductShop {
+  id: string;
+  name: string;
+  slug: string;
+  theme_color: string | null;
+  logo_url: string | null;
+  phone: string | null;
+  whatsapp_number: string | null;
+}
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { barcode } = await params;
   const supabase = await createClient();
@@ -55,10 +65,8 @@ export default async function ProductPage({ params }: Props) {
 
   const [{ data: shop }, { data: similar }] = await Promise.all([
     supabase
-      .from("shops")
-      .select("id, name, slug, theme_color, logo_url, phone, whatsapp_number")
-      .eq("slug", slug)
-      .single(),
+      .rpc("get_public_shop", { p_slug: slug })
+      .maybeSingle<PublicProductShop>(),
     supabase.rpc("get_similar_products", { p_product_id: product.product_id, p_limit: 8 }),
   ]);
 

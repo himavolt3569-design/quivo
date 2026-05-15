@@ -26,6 +26,7 @@ const ESEWA_ENDPOINTS = {
     status: "https://epay.esewa.com.np/api/epay/transaction/status/",
   },
 };
+const FETCH_TIMEOUT_MS = 10_000;
 
 function esewaSign(message: string, secret: string): string {
   const hmac = crypto.createHmac("sha256", secret);
@@ -89,6 +90,10 @@ export function decodeEsewaCallback(rawData: string): Record<string, string> | n
   }
 }
 
+function amountsMatch(left: number, right: number) {
+  return Number.isFinite(left) && Number.isFinite(right) && Math.abs(left - right) <= 0.01;
+}
+
 export async function verifyEsewa(ctx: VerifyContext): Promise<VerifyResult> {
   const { secrets, gatewayPayload, transactionReference, amount } = ctx;
   if (!secrets.esewa_merchant_code || !secrets.esewa_secret_key) {
@@ -108,12 +113,20 @@ export async function verifyEsewa(ctx: VerifyContext): Promise<VerifyResult> {
   if (decoded.transaction_uuid !== transactionReference) {
     return { ok: false, reason: "TXN_REF_MISMATCH", rawResponse: decoded };
   }
-  if (parseFloat(decoded.total_amount.replace(/,/g, "")) !== amount) {
+  if (decoded.product_code !== secrets.esewa_merchant_code) {
+    return { ok: false, reason: "MERCHANT_MISMATCH", rawResponse: decoded };
+  }
+  if (!amountsMatch(parseFloat(decoded.total_amount.replace(/,/g, "")), amount)) {
     return { ok: false, reason: "AMOUNT_MISMATCH", rawResponse: decoded };
   }
 
   // 2. Verify signature
   const signedFields = (decoded.signed_field_names ?? "").split(",");
+  for (const required of ["total_amount", "transaction_uuid", "product_code"]) {
+    if (!signedFields.includes(required)) {
+      return { ok: false, reason: "SIGNED_FIELDS_MISSING_REQUIRED", rawResponse: decoded };
+    }
+  }
   const signatureSource = signedFields
     .map((f) => `${f}=${decoded[f] ?? ""}`)
     .join(",");
@@ -130,7 +143,8 @@ export async function verifyEsewa(ctx: VerifyContext): Promise<VerifyResult> {
     `&transaction_uuid=${encodeURIComponent(transactionReference)}`;
 
   try {
-    const res = await fetch(statusUrl, { method: "GET" });
+    const signal = AbortSignal.timeout(FETCH_TIMEOUT_MS);
+    const res = await fetch(statusUrl, { method: "GET", cache: "no-store", signal });
     const lookup = await res.json().catch(() => null);
     if (!res.ok || !lookup) {
       return { ok: false, reason: "STATUS_LOOKUP_FAILED", rawResponse: decoded };

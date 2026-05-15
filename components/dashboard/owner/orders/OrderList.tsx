@@ -12,7 +12,8 @@ type OrderStatus = "placed" | "confirmed" | "packing" | "out_for_delivery" | "de
 interface OrderItem {
   name: string;
   price: number;
-  quantity: number;
+  quantity?: number;
+  qty?: number;
 }
 
 interface Order {
@@ -142,7 +143,7 @@ export function OrderList({ shopId, initialOrders }: OrderListProps) {
         {filtered.map((order) => {
           const badge = STATUS_BADGE[order.status];
           const itemSummary = order.items
-            ?.map((i: OrderItem) => `${i.name} x${i.quantity}`)
+            ?.map((i: OrderItem) => `${i.name} x${i.quantity ?? i.qty ?? 0}`)
             .join(", ") ?? "";
           const canAccept = order.status === "placed";
           const canCancel = !["delivered", "cancelled"].includes(order.status);

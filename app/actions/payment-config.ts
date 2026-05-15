@@ -26,6 +26,10 @@ import type {
 
 const ShopIdSchema = z.string().uuid("Invalid shop ID");
 const PaymentIdSchema = z.string().uuid("Invalid payment ID");
+const ReceiptPathSchema = z.string().regex(
+  /^[0-9a-f-]{36}\/[0-9a-f-]{36}\/[0-9]+-[0-9a-f]{8}\.(?:png|jpe?g|webp|pdf)$/i,
+  "Invalid receipt path."
+);
 
 async function getAuthUser() {
   const supabase = await createClient();
@@ -309,11 +313,12 @@ export async function getReceiptSignedUrl(
   path: string,
   expiresInSec = 300
 ): Promise<{ error?: string; url?: string }> {
-  if (!path) return { error: "Receipt path required." };
+  const pathParse = ReceiptPathSchema.safeParse(path);
+  if (!pathParse.success) return { error: pathParse.error.issues[0].message };
   const { supabase } = await getAuthUser();
   const { data, error } = await supabase.storage
     .from("payment_receipts")
-    .createSignedUrl(path, Math.max(60, Math.min(expiresInSec, 3600)));
+    .createSignedUrl(pathParse.data, Math.max(60, Math.min(expiresInSec, 3600)));
   if (error) return { error: error.message };
   return { url: data?.signedUrl };
 }

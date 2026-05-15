@@ -30,6 +30,7 @@ export function ThemeProvider({
     if (switchable) {
       const stored = localStorage.getItem("theme");
       if (stored === "light" || stored === "dark") {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setTheme(stored);
       }
     }

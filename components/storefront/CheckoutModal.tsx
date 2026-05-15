@@ -18,7 +18,7 @@ interface CheckoutModalProps {
   shopId: string;
   shopName: string;
   themeColor: string;
-  onSuccess: (orderNumber: string) => void;
+  onSuccess: (orderNumber: string, trackingToken: string) => void;
 }
 
 const METHOD_ICONS: Record<PaymentMethod, React.ComponentType<{ className?: string }>> = {
@@ -78,6 +78,7 @@ export function CheckoutModal({
   useEffect(() => {
     if (!isOpen) return;
     let cancelled = false;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoadingMethods(true);
     getPublicShopPaymentMethods(shopId).then((res) => {
       if (cancelled) return;
@@ -139,7 +140,7 @@ export function CheckoutModal({
         return;
       }
 
-      onSuccess(result.orderNumber);
+      onSuccess(result.orderNumber, result.trackingToken ?? "");
     });
   };
 
@@ -310,12 +311,14 @@ export function CheckoutModal({
 
 interface OrderConfirmationProps {
   orderNumber: string;
+  trackingToken: string;
   shopName: string;
   themeColor: string;
   onClose: () => void;
 }
 
-export function OrderConfirmation({ orderNumber, shopName, themeColor, onClose }: OrderConfirmationProps) {
+export function OrderConfirmation({ orderNumber, trackingToken, shopName, themeColor, onClose }: OrderConfirmationProps) {
+  const trackingHref = `/order/${orderNumber}?t=${trackingToken}`;
   return (
     <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
       <div className="bg-white w-full max-w-sm rounded-3xl shadow-2xl p-8 text-center">
@@ -333,7 +336,7 @@ export function OrderConfirmation({ orderNumber, shopName, themeColor, onClose }
           <p className="text-xs text-gray-500 mt-1">Save this for tracking your order</p>
         </div>
         <a
-          href={`/order/${orderNumber}`}
+          href={trackingHref}
           className="block w-full py-3 rounded-2xl text-white font-bold mb-2"
           style={{ backgroundColor: themeColor }}
         >

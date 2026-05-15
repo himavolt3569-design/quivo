@@ -22,12 +22,14 @@
 
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { getSiteUrl } from "@/lib/security";
 import { verifyEsewa } from "@/lib/payments/providers/esewa";
 import type { PaymentSecrets } from "@/lib/payments";
 
 const TERMINAL_STATUSES = new Set([
   "payment_verified", "cod_paid", "refunded", "payment_rejected",
 ]);
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 interface PaymentRow {
   id: string;
@@ -40,23 +42,28 @@ interface PaymentRow {
 
 interface OrderRow {
   order_number: string;
+  tracking_token: string;
 }
 
-function failureRedirect(origin: string, orderNumber: string | null, reason: string) {
-  const target = orderNumber
-    ? `${origin}/order/${orderNumber}?payment=failed&reason=${encodeURIComponent(reason)}`
+function failureRedirect(origin: string, orderNumber: string | null, trackingToken: string | null, reason: string) {
+  const target = orderNumber && trackingToken
+    ? `${origin}/order/${orderNumber}?t=${trackingToken}&payment=failed&reason=${encodeURIComponent(reason)}`
     : `${origin}/?payment=failed&reason=${encodeURIComponent(reason)}`;
   return NextResponse.redirect(target);
 }
 
 export async function GET(request: Request) {
-  const { searchParams, origin } = new URL(request.url);
+  const { searchParams } = new URL(request.url);
+  const origin = getSiteUrl();
   const paymentId = searchParams.get("payment_id");
   const result    = searchParams.get("result");
   const data      = searchParams.get("data");
 
-  if (!paymentId) {
+  if (!paymentId || !UUID_RE.test(paymentId)) {
     return NextResponse.redirect(`${origin}/?payment=failed&reason=missing_payment_id`);
+  }
+  if (data && data.length > 8192) {
+    return NextResponse.redirect(`${origin}/?payment=failed&reason=invalid_callback_data`);
   }
 
   const admin = createAdminClient();
@@ -73,33 +80,29 @@ export async function GET(request: Request) {
 
   const { data: order } = await admin
     .from("orders")
-    .select("order_number")
+    .select("order_number, tracking_token")
     .eq("id", payment.order_id)
     .maybeSingle<OrderRow>();
   const orderNumber = order?.order_number ?? null;
+  const trackingToken = order?.tracking_token ?? null;
+  const orderPath = orderNumber && trackingToken
+    ? `/order/${orderNumber}?t=${trackingToken}`
+    : "/";
 
   // Idempotent: already terminal → just bounce to tracking page.
   if (TERMINAL_STATUSES.has(payment.payment_status)) {
-    return NextResponse.redirect(`${origin}/order/${orderNumber ?? ""}`);
+    return NextResponse.redirect(`${origin}${orderPath}`);
   }
 
   // Customer cancelled / eSewa reported failure.
   if (result === "failure" || !data) {
-    await admin
-      .from("payments")
-      .update({
-        payment_status: "payment_failed",
-        gateway_response: { result: result ?? "missing_data" },
-      })
-      .eq("id", payment.id);
-    await admin.from("orders").update({ payment_status: "payment_failed" }).eq("id", payment.order_id);
     await admin.from("payment_audit_logs").insert({
       payment_id: payment.id, shop_id: payment.shop_id,
-      action: "failed", actor_type: "gateway",
-      from_status: payment.payment_status, to_status: "payment_failed",
+      action: "callback_ignored", actor_type: "gateway",
+      from_status: payment.payment_status, to_status: payment.payment_status,
       metadata: { result, reason: "no_data_or_failure" },
     });
-    return failureRedirect(origin, orderNumber, "gateway_failure");
+    return failureRedirect(origin, orderNumber, trackingToken, "gateway_failure");
   }
 
   // Pull the shop's secrets via service-role.
@@ -107,7 +110,7 @@ export async function GET(request: Request) {
     .rpc("get_shop_payment_secrets", { p_shop_id: payment.shop_id })
     .single<PaymentSecrets>();
   if (secretsErr || !secrets) {
-    return failureRedirect(origin, orderNumber, "config_missing");
+    return failureRedirect(origin, orderNumber, trackingToken, "config_missing");
   }
 
   const verifyResult = await verifyEsewa({
@@ -120,22 +123,13 @@ export async function GET(request: Request) {
   });
 
   if (!verifyResult.ok) {
-    await admin
-      .from("payments")
-      .update({
-        payment_status: "payment_failed",
-        gateway_response: verifyResult.rawResponse ?? { reason: verifyResult.reason },
-      })
-      .eq("id", payment.id)
-      .eq("payment_status", payment.payment_status); // optimistic concurrency
-    await admin.from("orders").update({ payment_status: "payment_failed" }).eq("id", payment.order_id);
     await admin.from("payment_audit_logs").insert({
       payment_id: payment.id, shop_id: payment.shop_id,
-      action: "failed", actor_type: "gateway",
-      from_status: payment.payment_status, to_status: "payment_failed",
+      action: "verification_failed", actor_type: "gateway",
+      from_status: payment.payment_status, to_status: payment.payment_status,
       metadata: { reason: verifyResult.reason ?? "verification_failed" },
     });
-    return failureRedirect(origin, orderNumber, verifyResult.reason ?? "verification_failed");
+    return failureRedirect(origin, orderNumber, trackingToken, verifyResult.reason ?? "verification_failed");
   }
 
   // Verified — transition to payment_verified.  Conditional UPDATE on
@@ -149,12 +143,12 @@ export async function GET(request: Request) {
       verified_at: new Date().toISOString(),
     })
     .eq("id", payment.id)
-    .not("payment_status", "in", "(payment_verified,cod_paid,refunded)")
+    .not("payment_status", "in", "(payment_verified,cod_paid,refunded,payment_rejected)")
     .select("id")
     .maybeSingle();
 
   if (updErr) {
-    return failureRedirect(origin, orderNumber, "db_update_failed");
+    return failureRedirect(origin, orderNumber, trackingToken, "db_update_failed");
   }
 
   // updated === null means another concurrent callback already finalized this
@@ -177,7 +171,10 @@ export async function GET(request: Request) {
     });
   }
 
-  return NextResponse.redirect(`${origin}/order/${orderNumber ?? ""}?payment=success`);
+  const successPath = orderNumber && trackingToken
+    ? `/order/${orderNumber}?t=${trackingToken}&payment=success`
+    : "/";
+  return NextResponse.redirect(`${origin}${successPath}`);
 }
 
 // eSewa sometimes uses POST to the success_url with `data` in the body.

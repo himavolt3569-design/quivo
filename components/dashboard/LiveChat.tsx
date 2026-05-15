@@ -7,7 +7,7 @@ import { createClient } from "@/lib/supabase/client";
 import type { User } from "@supabase/supabase-js";
 import { toast } from "sonner";
 import { getVerifiedShopsForChat, type ChatShop } from "@/app/actions/customer";
-import { sendCustomerChatMessage } from "@/app/actions/storefront";
+import { getCustomerChatMessages, sendCustomerChatMessage } from "@/app/actions/storefront";
 
 interface ChatMessage {
   id: string;
@@ -24,6 +24,16 @@ interface LiveChatProps {
 function makeSessionId(userId: string, shopId: string): string {
   // Deterministic per customer-shop pair so chat history persists across sessions
   return `cust-${userId.slice(0, 8)}-${shopId.slice(0, 8)}`;
+}
+
+function makeSessionSecret(shopId: string): string {
+  const key = `customer_chat_secret_${shopId}`;
+  let secret = localStorage.getItem(key);
+  if (!secret || !/^[a-f0-9]{64,128}$/i.test(secret)) {
+    secret = crypto.randomUUID().replace(/-/g, "") + crypto.randomUUID().replace(/-/g, "");
+    localStorage.setItem(key, secret);
+  }
+  return secret;
 }
 
 function timeAgo(dateStr: string): string {
@@ -55,6 +65,7 @@ export function LiveChat({ currentUser, customerName }: LiveChatProps) {
   // Load shops when chat first opens
   useEffect(() => {
     if (!isOpen || shops.length > 0) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setShopsLoading(true);
     getVerifiedShopsForChat()
       .then(setShops)
@@ -66,16 +77,11 @@ export function LiveChat({ currentUser, customerName }: LiveChatProps) {
   useEffect(() => {
     if (!selectedShop) return;
     const sessionId = makeSessionId(currentUser.id, selectedShop.id);
+    const sessionSecret = makeSessionSecret(selectedShop.id);
 
     const load = async () => {
-      const { data } = await supabase
-        .from("chat_messages")
-        .select("id, sender, message, created_at")
-        .eq("shop_id", selectedShop.id)
-        .eq("session_id", sessionId)
-        .order("created_at", { ascending: true })
-        .limit(60);
-      setMessages((data as ChatMessage[]) ?? []);
+      const res = await getCustomerChatMessages(selectedShop.id, sessionId, sessionSecret);
+      setMessages((res.messages as ChatMessage[]) ?? []);
     };
 
     load();
@@ -90,11 +96,9 @@ export function LiveChat({ currentUser, customerName }: LiveChatProps) {
           table: "chat_messages",
           filter: `session_id=eq.${sessionId}`,
         },
-        (payload) => {
-          const msg = payload.new as ChatMessage;
-          setMessages((prev) => {
-            if (prev.some((m) => m.id === msg.id)) return prev;
-            return [...prev, msg];
+        () => {
+          getCustomerChatMessages(selectedShop.id, sessionId, sessionSecret).then((res) => {
+            setMessages((res.messages as ChatMessage[]) ?? []);
           });
         }
       )
@@ -117,6 +121,7 @@ export function LiveChat({ currentUser, customerName }: LiveChatProps) {
     if (!input.trim() || !selectedShop || sending) return;
     const text = input.trim();
     const sessionId = makeSessionId(currentUser.id, selectedShop.id);
+    const sessionSecret = makeSessionSecret(selectedShop.id);
 
     // Optimistic
     const tempId = crypto.randomUUID();
@@ -133,6 +138,7 @@ export function LiveChat({ currentUser, customerName }: LiveChatProps) {
     const result = await sendCustomerChatMessage(
       selectedShop.id,
       sessionId,
+      sessionSecret,
       customerName,
       text
     );
@@ -142,6 +148,9 @@ export function LiveChat({ currentUser, customerName }: LiveChatProps) {
       toast.error("Failed to send message");
       setMessages((prev) => prev.filter((m) => m.id !== tempId));
       setInput(text);
+    } else {
+      const res = await getCustomerChatMessages(selectedShop.id, sessionId, sessionSecret);
+      setMessages((res.messages as ChatMessage[]) ?? []);
     }
   };
 

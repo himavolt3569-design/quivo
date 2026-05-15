@@ -54,10 +54,6 @@ const CreateShopSchema = z.object({
     .regex(TIME_REGEX, "Invalid time")
     .optional()
     .transform((v) => (v ? v : undefined)),
-  verification_status: z
-    .enum(["unverified", "pending", "verified", "rejected"])
-    .default("unverified"),
-  kyc_confidence: z.coerce.number().min(0).max(100).nullable().optional(),
 });
 
 function slugify(input: string): string {
@@ -93,8 +89,6 @@ export async function createShop(formData: FormData) {
     subdomain: formData.get("subdomain")?.toString() ?? "",
     opening_time: formData.get("opening_time")?.toString() ?? "",
     closing_time: formData.get("closing_time")?.toString() ?? "",
-    verification_status: formData.get("verification_status")?.toString() ?? "unverified",
-    kyc_confidence: formData.get("kyc_confidence")?.toString() || null,
   });
 
   if (!parse.success) {
@@ -162,8 +156,8 @@ export async function createShop(formData: FormData) {
       p_opening_time: data.opening_time ?? null,
       p_closing_time: data.closing_time ?? null,
       p_site_origin: getSiteUrl(),
-      p_verification_status: data.verification_status,
-      p_kyc_confidence: data.kyc_confidence ?? null,
+      p_verification_status: "unverified",
+      p_kyc_confidence: null,
     }
   );
 

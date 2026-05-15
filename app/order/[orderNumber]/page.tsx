@@ -1,4 +1,4 @@
-import { getOrderByNumber, getPublicShopPaymentMethods } from "@/app/actions/payments";
+import { getOrderByNumberWithToken, getPublicShopPaymentMethods } from "@/app/actions/payments";
 import { PAYMENT_METHOD_LABELS, PAYMENT_STATUS_LABELS } from "@/lib/payments/constants";
 import type { PaymentMethod, PaymentStatus, PublicPaymentMethods } from "@/lib/payments";
 import { ReceiptUploader } from "@/components/storefront/ReceiptUploader";
@@ -36,19 +36,21 @@ export default async function OrderPage({
   params, searchParams,
 }: {
   params: Promise<{ orderNumber: string }>;
-  searchParams: Promise<{ payment?: string; reason?: string }>;
+	  searchParams: Promise<{ payment?: string; reason?: string; t?: string }>;
 }) {
   const { orderNumber } = await params;
-  const { payment: paymentParam, reason } = await searchParams;
+  const { payment: paymentParam, reason, t: trackingToken } = await searchParams;
 
-  const res = await getOrderByNumber(orderNumber);
+  const res = trackingToken
+    ? await getOrderByNumberWithToken(orderNumber, trackingToken)
+    : { error: "Order not found." };
   if (res.error || !res.order) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
         <div className="bg-white rounded-3xl shadow-sm p-8 max-w-md text-center">
-          <AlertTriangle className="h-12 w-12 text-amber-500 mx-auto mb-3" />
-          <h1 className="text-xl font-black text-gray-900 mb-1">Order Not Found</h1>
-          <p className="text-sm text-gray-500 mb-4">We couldn&apos;t find an order with number <span className="font-mono">{orderNumber}</span>.</p>
+            <AlertTriangle className="h-12 w-12 text-amber-500 mx-auto mb-3" />
+            <h1 className="text-xl font-black text-gray-900 mb-1">Order Not Found</h1>
+            <p className="text-sm text-gray-500 mb-4">We couldn&apos;t find an order with those tracking details.</p>
           <Link href="/" className="inline-block px-4 py-2 rounded-xl bg-gray-900 text-white text-sm font-bold">Go Home</Link>
         </div>
       </div>
@@ -118,9 +120,10 @@ export default async function OrderPage({
 
         {/* Receipt uploader */}
         {needsReceipt && (
-          <ReceiptUploader
-            orderNumber={order.order_number}
-            method={order.payment_method}
+            <ReceiptUploader
+              orderNumber={order.order_number}
+              trackingToken={trackingToken!}
+              method={order.payment_method}
             bank={methods}
             total={Number(order.total_amount)}
           />

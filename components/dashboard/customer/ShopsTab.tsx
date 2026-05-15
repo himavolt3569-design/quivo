@@ -188,6 +188,7 @@ export function ShopsTab({ shops }: ShopsTabProps) {
 
   useEffect(() => {
     if (!("geolocation" in navigator)) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setLocState("unavailable");
       return;
     }
@@ -224,8 +225,8 @@ export function ShopsTab({ shops }: ShopsTabProps) {
   // Split into nearby / far when location is known
   const locKnown = locState === "granted" && userLat !== null;
 
-  let nearbyShops: ShopWithDistance[] = [];
-  let farShops: ShopWithDistance[] = [];
+  const nearbyShops: ShopWithDistance[] = [];
+  const farShops: ShopWithDistance[] = [];
   let unknownShops: ShopWithDistance[] = [];
 
   if (locKnown) {
