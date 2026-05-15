@@ -210,6 +210,72 @@
 }
 
 @layer components {
+  .soft-skeleton {
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(
+      110deg,
+      oklch(0.91 0.032 78.5 / 55%) 8%,
+      oklch(1 0 0 / 72%) 18%,
+      oklch(0.91 0.032 78.5 / 55%) 33%
+    );
+    background-size: 220% 100%;
+    animation: quivo-soft-skeleton 1.45s ease-in-out infinite;
+  }
+
+  .soft-skeleton::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      110deg,
+      transparent 8%,
+      oklch(1 0 0 / 58%) 18%,
+      transparent 33%
+    );
+    background-size: 220% 100%;
+    animation: quivo-soft-skeleton 1.45s ease-in-out infinite;
+    pointer-events: none;
+  }
+
+  .dark .soft-skeleton {
+    background: linear-gradient(
+      110deg,
+      oklch(0.30 0.032 267.8 / 70%) 8%,
+      oklch(1 0 0 / 12%) 18%,
+      oklch(0.30 0.032 267.8 / 70%) 33%
+    );
+    background-size: 220% 100%;
+  }
+
+  .dark .soft-skeleton::after {
+    background: linear-gradient(
+      110deg,
+      transparent 8%,
+      oklch(1 0 0 / 10%) 18%,
+      transparent 33%
+    );
+    background-size: 220% 100%;
+  }
+
+  @keyframes quivo-soft-skeleton {
+    0% {
+      background-position: 140% 0;
+    }
+
+    100% {
+      background-position: -80% 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .soft-skeleton,
+    .soft-skeleton::after {
+      animation: none;
+      background-position: 0 0;
+    }
+  }
+
   .container {
     width: 100%;
     margin-left: auto;
@@ -579,4 +645,3 @@
     font-size: 0.84rem;
   }
 }
-

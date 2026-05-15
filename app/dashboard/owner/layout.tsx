@@ -21,11 +21,16 @@ export default async function OwnerLayout({
     redirect("/?login=true");
   }
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", user!.id)
-    .maybeSingle();
+  const [profileResult, ctx] = await Promise.all([
+    supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", user!.id)
+      .maybeSingle(),
+    getOwnerContext(),
+  ]);
+
+  const { data: profile } = profileResult;
 
   // SECURITY: no self-healing. A missing profile = revoked account.
   if (!profile) {
@@ -36,7 +41,6 @@ export default async function OwnerLayout({
     redirect("/dashboard/home");
   }
 
-  const ctx = await getOwnerContext();
   const shops = ctx.shops.map((s) => ({
     id: s.id,
     slug: s.slug,

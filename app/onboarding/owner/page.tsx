@@ -17,11 +17,20 @@ export default async function OwnerOnboardingPage() {
     redirect("/?login=true");
   }
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", user!.id)
-    .maybeSingle();
+  const [profileResult, shopCountResult] = await Promise.all([
+    supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", user!.id)
+      .maybeSingle(),
+    supabase
+      .from("shop_members")
+      .select("shop_id", { count: "exact", head: true })
+      .eq("user_id", user!.id)
+      .eq("status", "active"),
+  ]);
+
+  const { data: profile } = profileResult;
 
   // SECURITY: no self-healing. Missing profile = revoked account.
   if (!profile) {
@@ -42,13 +51,7 @@ export default async function OwnerOnboardingPage() {
   // which sets a 10-min HMAC-signed cookie.  Bare URL navigation → kick
   // them back to the dashboard so the "Add New Shop" button is the only
   // legitimate entry point.
-  const { count: shopCount } = await supabase
-    .from("shop_members")
-    .select("shop_id", { count: "exact", head: true })
-    .eq("user_id", user!.id)
-    .eq("status", "active");
-
-  if ((shopCount ?? 0) > 0) {
+  if ((shopCountResult.count ?? 0) > 0) {
     const jar = await cookies();
     const raw = jar.get(ONBOARDING_COOKIE_NAME)?.value;
     const verifiedUserId = verifyOnboardingToken(raw);

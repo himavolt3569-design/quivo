@@ -1,16 +1,9 @@
 import { createClient } from "@/lib/supabase/server";
-import { redirect } from "next/navigation";
 import { OwnerDashboard } from "@/components/dashboard/OwnerDashboard";
 import { getOwnerContext } from "@/lib/shop";
 
 export default async function OwnerPage() {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) redirect("/?login=true");
-
   const ctx = await getOwnerContext();
   const activeShop = ctx.activeShop;
   const shopId = activeShop?.id ?? null;
