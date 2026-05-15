@@ -22,7 +22,7 @@ export default async function CustomerLayout({
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("role")
+    .select("role, full_name")
     .eq("id", user!.id)
     .maybeSingle();
 
@@ -54,7 +54,10 @@ export default async function CustomerLayout({
           {children}
         </div>
       </main>
-      <LiveChat currentUser={user!} />
+      <LiveChat
+        currentUser={user!}
+        customerName={profile.full_name ?? user!.email?.split("@")[0] ?? "Customer"}
+      />
     </div>
   );
 }

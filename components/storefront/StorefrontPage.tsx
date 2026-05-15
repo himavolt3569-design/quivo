@@ -62,7 +62,7 @@ export function StorefrontPage({ shop, products }: StorefrontPageProps) {
   const [cart, dispatch] = useReducer(cartReducer, []);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
-  const [confirmedOrder, setConfirmedOrder] = useState<string | null>(null);
+  const [confirmedOrder, setConfirmedOrder] = useState<{ orderNumber: string; trackingToken: string } | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
 
@@ -83,8 +83,8 @@ export function StorefrontPage({ shop, products }: StorefrontPageProps) {
     setActiveCategory,
   };
 
-  const handleOrderSuccess = (orderNumber: string) => {
-    setConfirmedOrder(orderNumber);
+  const handleOrderSuccess = (orderNumber: string, trackingToken: string) => {
+    setConfirmedOrder({ orderNumber, trackingToken });
     setIsCheckoutOpen(false);
     setIsCartOpen(false);
     dispatch({ type: "CLEAR" });
@@ -125,7 +125,8 @@ export function StorefrontPage({ shop, products }: StorefrontPageProps) {
 
       {confirmedOrder && (
         <OrderConfirmation
-          orderNumber={confirmedOrder}
+          orderNumber={confirmedOrder.orderNumber}
+          trackingToken={confirmedOrder.trackingToken}
           shopName={shop.name}
           themeColor={themeColor}
           onClose={() => setConfirmedOrder(null)}

@@ -77,6 +77,28 @@ export interface Profile {
   created_at: string;
 }
 
+export interface TrendingProduct {
+  id: string;
+  name: string;
+  price: number;
+  stock: number | null;
+  image_url: string | null;
+  barcode: string | null;
+  shop_id: string;
+  shop_name: string;
+  shop_slug: string;
+}
+
+export interface NearbyShop {
+  id: string;
+  name: string;
+  slug: string;
+  category: string | null;
+  image_url: string | null;
+  lat: number | null;
+  lng: number | null;
+}
+
 export interface Transaction {
   id: string;
   user_id: string;

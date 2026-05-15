@@ -12,7 +12,8 @@ type OrderStatus = "placed" | "confirmed" | "packing" | "out_for_delivery" | "de
 interface OrderItem {
   name: string;
   price: number;
-  quantity: number;
+  quantity?: number;
+  qty?: number;
 }
 
 interface Order {
@@ -142,7 +143,7 @@ export function OrderList({ shopId, initialOrders }: OrderListProps) {
         {filtered.map((order) => {
           const badge = STATUS_BADGE[order.status];
           const itemSummary = order.items
-            ?.map((i: OrderItem) => `${i.name} x${i.quantity}`)
+            ?.map((i: OrderItem) => `${i.name} x${i.quantity ?? i.qty ?? 0}`)
             .join(", ") ?? "";
           const canAccept = order.status === "placed";
           const canCancel = !["delivered", "cancelled"].includes(order.status);
@@ -168,7 +169,7 @@ export function OrderList({ shopId, initialOrders }: OrderListProps) {
                     <p className="text-xs text-[#746E73] mt-0.5 line-clamp-1">📍 {order.delivery_address}</p>
                   )}
                   {order.notes && (
-                    <p className="text-xs text-[#746E73] italic mt-0.5 line-clamp-1">"{order.notes}"</p>
+                    <p className="text-xs text-[#746E73] italic mt-0.5 line-clamp-1">&quot;{order.notes}&quot;</p>
                   )}
                   <div className="flex items-center gap-4 mt-2 text-[10px] font-bold text-[#746E73] uppercase tracking-widest">
                     <span className="flex items-center gap-1">

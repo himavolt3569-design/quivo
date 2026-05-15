@@ -1,6 +1,7 @@
 "use client";
 import { useRef } from "react";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type noop = (...args: any[]) => any;
 
 /**

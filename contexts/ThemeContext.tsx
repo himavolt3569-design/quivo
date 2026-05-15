@@ -22,13 +22,20 @@ export function ThemeProvider({
   defaultTheme = "light",
   switchable = false,
 }: ThemeProviderProps) {
-  const [theme, setTheme] = useState<Theme>(() => {
+  // Always initialise with defaultTheme — localStorage is not available during
+  // SSR/hydration, so we read it in a useEffect to avoid a hydration mismatch.
+  const [theme, setTheme] = useState<Theme>(defaultTheme);
+
+  useEffect(() => {
     if (switchable) {
       const stored = localStorage.getItem("theme");
-      return (stored as Theme) || defaultTheme;
+      if (stored === "light" || stored === "dark") {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setTheme(stored);
+      }
     }
-    return defaultTheme;
-  });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     const root = document.documentElement;

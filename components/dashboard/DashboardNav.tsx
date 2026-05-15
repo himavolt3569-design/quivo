@@ -3,41 +3,24 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Package, Bookmark, User, Barcode } from "lucide-react";
+import { Home, Package, Bookmark, User, Barcode, Store } from "lucide-react";
 import { BarcodeScanner } from "./customer/BarcodeScanner";
-import { placeOrder } from "@/app/actions/customer";
-import { toast } from "sonner";
 
+// Desktop shows all 5 tabs; mobile bottom nav keeps the existing 4-tab layout
+// (Shops accessible via HomeTab quick-action on mobile)
 const TABS = [
   { href: "/dashboard/home", label: "Home", Icon: Home },
   { href: "/dashboard/orders", label: "Orders", Icon: Package },
+  { href: "/dashboard/shops", label: "Shops", Icon: Store },
   { href: "/dashboard/saved", label: "Wishlist", Icon: Bookmark },
   { href: "/dashboard/profile", label: "Profile", Icon: User },
 ] as const;
 
+const MOBILE_TABS = TABS.filter((t) => t.href !== "/dashboard/shops");
+
 export function DashboardNav({ activeOrderCount }: { activeOrderCount: number }) {
   const pathname = usePathname();
   const [scannerOpen, setScannerOpen] = useState(false);
-
-  const handleOrderFromScan = async (detected: {
-    id: string;
-    name: string;
-    price: string;
-    shop: string;
-  }) => {
-    const price = parseFloat(detected.price.replace(/[^0-9.]/g, "")) || 0;
-    const result = await placeOrder({
-      shop_name: detected.shop,
-      items: [{ name: detected.name, price, quantity: 1 }],
-      eta_minutes: 20,
-    });
-    if (result.error) {
-      toast.error(result.error);
-    } else if (result.order) {
-      toast.success(`Order placed at ${detected.shop}`);
-      setScannerOpen(false);
-    }
-  };
 
   return (
     <>
@@ -72,7 +55,7 @@ export function DashboardNav({ activeOrderCount }: { activeOrderCount: number })
       {/* Mobile bottom nav */}
       <nav className="fixed bottom-0 left-0 right-0 z-[100] sm:hidden bg-white border-t border-[#2E3344]/10 pb-safe">
         <div className="flex items-center h-16 relative">
-          {TABS.slice(0, 2).map(({ href, label, Icon }) => {
+          {MOBILE_TABS.slice(0, 2).map(({ href, label, Icon }) => {
             const isActive = pathname === href;
             return (
               <Link
@@ -109,7 +92,7 @@ export function DashboardNav({ activeOrderCount }: { activeOrderCount: number })
             </div>
           </div>
 
-          {TABS.slice(2).map(({ href, label, Icon }) => {
+          {MOBILE_TABS.slice(2).map(({ href, label, Icon }) => {
             const isActive = pathname === href;
             return (
               <Link
@@ -132,7 +115,6 @@ export function DashboardNav({ activeOrderCount }: { activeOrderCount: number })
       <BarcodeScanner
         open={scannerOpen}
         onClose={() => setScannerOpen(false)}
-        onOrderNow={handleOrderFromScan}
       />
     </>
   );

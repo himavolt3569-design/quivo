@@ -10,7 +10,6 @@ import type { Order } from "@/lib/types";
 import { BarcodeScanner } from "./BarcodeScanner";
 import { OrderCard } from "./OrderCard";
 import { ReceiptSheet } from "./ReceiptSheet";
-import { placeOrder } from "@/app/actions/customer";
 
 type OrderFilter = "active" | "accepted" | "rejected" | "past" | "all";
 
@@ -90,27 +89,6 @@ export function OrdersTab({ userId, initialOrders }: OrdersTabProps) {
       : orderFilter === "past"
       ? pastOrders
       : orders;
-
-  const handleOrderFromScan = async (detected: {
-    id: string;
-    name: string;
-    price: string;
-    shop: string;
-  }) => {
-    const price = parseFloat(detected.price.replace(/[^0-9.]/g, "")) || 0;
-    const result = await placeOrder({
-      shop_name: detected.shop,
-      items: [{ name: detected.name, price, quantity: 1 }],
-      eta_minutes: 20,
-    });
-    if (result.error) {
-      toast.error(result.error);
-    } else if (result.order) {
-      setOrders((prev) => [result.order as Order, ...prev]);
-      toast.success(`Order placed at ${detected.shop}`);
-      setScannerOpen(false);
-    }
-  };
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
@@ -203,7 +181,6 @@ export function OrdersTab({ userId, initialOrders }: OrdersTabProps) {
       <BarcodeScanner
         open={scannerOpen}
         onClose={() => setScannerOpen(false)}
-        onOrderNow={handleOrderFromScan}
       />
 
       <ReceiptSheet

@@ -21,7 +21,7 @@ export default async function AddProductPage() {
   const supabase = await createClient();
   const { data: catalog } = await supabase
     .from("products")
-    .select("id, name, brand, category, unit, variant, price, image_url, images")
+    .select("id, name, brand, category, unit, variant, price, stock, barcode, image_url, images")
     .eq("shop_id", shop.id)
     .neq("status", "archived")
     .order("name");

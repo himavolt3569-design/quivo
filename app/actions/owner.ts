@@ -4,7 +4,6 @@ import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { getSiteUrl, isSafeHttpUrl } from "@/lib/security";
-import { getOwnerContext } from "@/lib/shop";
 
 const SUBDOMAIN_REGEX = /^[a-z0-9][a-z0-9-]{1,49}$/;
 const TIME_REGEX = /^([01]\d|2[0-3]):[0-5]\d$/;
@@ -55,10 +54,6 @@ const CreateShopSchema = z.object({
     .regex(TIME_REGEX, "Invalid time")
     .optional()
     .transform((v) => (v ? v : undefined)),
-  verification_status: z
-    .enum(["unverified", "pending", "verified", "rejected"])
-    .default("unverified"),
-  kyc_confidence: z.coerce.number().min(0).max(100).nullable().optional(),
 });
 
 function slugify(input: string): string {
@@ -94,8 +89,6 @@ export async function createShop(formData: FormData) {
     subdomain: formData.get("subdomain")?.toString() ?? "",
     opening_time: formData.get("opening_time")?.toString() ?? "",
     closing_time: formData.get("closing_time")?.toString() ?? "",
-    verification_status: formData.get("verification_status")?.toString() ?? "unverified",
-    kyc_confidence: formData.get("kyc_confidence")?.toString() || null,
   });
 
   if (!parse.success) {
@@ -163,8 +156,8 @@ export async function createShop(formData: FormData) {
       p_opening_time: data.opening_time ?? null,
       p_closing_time: data.closing_time ?? null,
       p_site_origin: getSiteUrl(),
-      p_verification_status: data.verification_status,
-      p_kyc_confidence: data.kyc_confidence ?? null,
+      p_verification_status: "unverified",
+      p_kyc_confidence: null,
     }
   );
 
@@ -210,6 +203,14 @@ export async function createShop(formData: FormData) {
     .eq("id", user.id);
   if (activeError && activeError.code !== "42703") {
     console.error("createShop: could not set active_shop_id", activeError.code, activeError.message);
+  }
+
+  // Burn the onboarding intent cookie so a fresh URL hit re-triggers the gate.
+  try {
+    const { clearOnboardingIntent } = await import("@/app/actions/onboarding");
+    await clearOnboardingIntent();
+  } catch {
+    /* best-effort */
   }
 
   revalidatePath("/dashboard");
@@ -373,6 +374,34 @@ export async function addProduct(shopId: string, formData: FormData) {
   if (error) return { error: `Could not add product: ${error.message}` };
   revalidatePath("/dashboard/owner/products");
   return { success: true, id: data.id, barcode: data.barcode };
+}
+
+export async function restockProduct(
+  productId: string,
+  shopId: string,
+  addQty: number,
+  costPrice: number | null,
+  newPrice: number | null
+): Promise<{ error?: string; newStock?: number; barcode?: string }> {
+  const pidParse = ShopIdSchema.safeParse(productId);
+  const sidParse = ShopIdSchema.safeParse(shopId);
+  if (!pidParse.success || !sidParse.success) return { error: "Invalid ID" };
+  if (addQty <= 0) return { error: "Quantity must be greater than 0" };
+
+  const { supabase } = await getAuthUser();
+  const { data, error } = await supabase
+    .rpc("restock_product", {
+      p_product_id: pidParse.data,
+      p_shop_id: sidParse.data,
+      p_add_qty: addQty,
+      p_cost_price: costPrice ?? undefined,
+      p_new_price: newPrice ?? undefined,
+    })
+    .single<{ new_stock: number; barcode: string }>();
+
+  if (error) return { error: error.message };
+  revalidatePath("/dashboard/owner/products");
+  return { newStock: data.new_stock, barcode: data.barcode };
 }
 
 export async function updateProduct(productId: string, shopId: string, formData: FormData) {
@@ -636,6 +665,8 @@ export async function addShopStaff(shopId: string, formData: FormData) {
   });
   if (!parse.success) return { error: parse.error.issues[0].message };
 
+  const imageUrl = formData.get("image_url")?.toString() || null;
+
   const { supabase } = await getAuthUser();
   const { error } = await supabase.from("shop_staff").insert({
     shop_id: idParse.data,
@@ -644,6 +675,7 @@ export async function addShopStaff(shopId: string, formData: FormData) {
     phone: parse.data.phone ?? null,
     email: parse.data.email || null,
     notes: parse.data.notes ?? null,
+    image_url: imageUrl,
   });
 
   if (error) return { error: `Could not add staff: ${error.message}` };
@@ -843,4 +875,36 @@ export async function deleteShop(shopId: string) {
   revalidatePath("/dashboard/owner");
   revalidatePath("/dashboard");
   return { success: true };
+}
+
+export async function submitKYCDocuments(shopId: string, docUrls: string[]) {
+  const idParse = ShopIdSchema.safeParse(shopId);
+  if (!idParse.success) return { error: "Invalid shop ID" };
+  if (!docUrls.length) return { error: "Upload at least one document." };
+
+  const { supabase } = await getAuthUser();
+  const { error } = await supabase.rpc("submit_kyc_review", {
+    p_shop_id: idParse.data,
+    p_doc_urls: docUrls,
+  });
+
+  if (error) return { error: error.message };
+  revalidatePath("/dashboard/owner");
+  revalidatePath("/dashboard/owner/settings");
+  return { success: true };
+}
+
+export async function getKYCStatus(shopId: string) {
+  const idParse = ShopIdSchema.safeParse(shopId);
+  if (!idParse.success) return { error: "Invalid shop ID" };
+
+  const { supabase } = await getAuthUser();
+  const { data, error } = await supabase
+    .from("shops")
+    .select("verification_status, kyc_submitted_at, kyc_rejection_reason, kyc_document_urls, kyc_confidence")
+    .eq("id", idParse.data)
+    .single();
+
+  if (error) return { error: error.message };
+  return { data };
 }

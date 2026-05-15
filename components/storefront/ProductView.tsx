@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, ShoppingCart, Phone, ChevronLeft, ChevronRight, Package } from "lucide-react";
+import { ArrowLeft, ShoppingCart, Phone, ChevronLeft, ChevronRight, Package, PackageX } from "lucide-react";
 
 interface ProductData {
   product_id: string;
@@ -20,6 +20,7 @@ interface ProductData {
   images: string[] | null;
   image_url: string | null;
   barcode: string;
+  is_available?: boolean;
 }
 
 interface ShopData {
@@ -32,17 +33,34 @@ interface ShopData {
   whatsapp_number: string | null;
 }
 
+export interface SimilarProduct {
+  product_id: string;
+  shop_slug: string;
+  name: string;
+  brand: string | null;
+  category: string | null;
+  unit: string | null;
+  variant: string | null;
+  price: number;
+  stock: number;
+  image_url: string | null;
+  images: string[] | null;
+  barcode: string;
+}
+
 interface ProductViewProps {
   product: ProductData;
   shop: ShopData;
+  similar?: SimilarProduct[];
 }
 
-export function ProductView({ product, shop }: ProductViewProps) {
+export function ProductView({ product, shop, similar = [] }: ProductViewProps) {
   const color = shop.theme_color ?? "#A7653A";
   const allImages = product.images?.length ? product.images : (product.image_url ? [product.image_url] : []);
   const [currentImage, setCurrentImage] = useState(0);
   const [qty, setQty] = useState(1);
-  const inStock = product.stock > 0;
+  const isAvailable = product.is_available !== false; // default true if not provided
+  const inStock = isAvailable && product.stock > 0;
 
   const whatsappNumber = (shop.whatsapp_number ?? shop.phone ?? "").replace(/\D/g, "");
   const currentUrl = typeof window !== "undefined" ? window.location.href : "";
@@ -140,7 +158,11 @@ export function ProductView({ product, shop }: ProductViewProps) {
 
           <div className="flex items-center justify-between">
             <p className="text-3xl font-black text-gray-900">Rs. {product.price.toLocaleString()}</p>
-            {inStock ? (
+            {!isAvailable ? (
+              <span className="inline-flex items-center gap-1 text-xs font-bold text-red-700 bg-red-50 px-3 py-1 rounded-full border border-red-100">
+                <PackageX className="h-3 w-3" /> Not Available
+              </span>
+            ) : inStock ? (
               <span className="text-xs font-bold text-green-700 bg-green-50 px-3 py-1 rounded-full border border-green-100">In Stock</span>
             ) : (
               <span className="text-xs font-bold text-red-600 bg-red-50 px-3 py-1 rounded-full border border-red-100">Out of Stock</span>
@@ -205,6 +227,62 @@ export function ProductView({ product, shop }: ProductViewProps) {
               )}
             </div>
           </div>
+        )}
+
+        {/* More like this */}
+        {similar.length > 0 && (
+          <section className="space-y-3 pt-2">
+            <div className="flex items-baseline justify-between px-1">
+              <h2 className="text-base font-black text-gray-900">More like this</h2>
+              <Link
+                href={`/s/${shop.slug}`}
+                className="text-[11px] font-bold hover:underline"
+                style={{ color }}
+              >
+                See all →
+              </Link>
+            </div>
+            <p className="text-xs text-gray-500 px-1 -mt-1.5">
+              Other products from {shop.name}
+              {product.category && <> in <span className="font-bold text-gray-700">{product.category}</span></>}
+            </p>
+
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              {similar.map((p) => {
+                const thumb = p.images?.[0] ?? p.image_url;
+                return (
+                  <Link
+                    key={p.product_id}
+                    href={`/s/${p.shop_slug}/product/${p.barcode}`}
+                    className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition active:scale-[0.98]"
+                  >
+                    <div className="aspect-square bg-[#f0ede8] overflow-hidden">
+                      {thumb ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={thumb}
+                          alt={p.name}
+                          className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <Package className="h-9 w-9 text-gray-300" />
+                        </div>
+                      )}
+                    </div>
+                    <div className="p-3 space-y-1">
+                      {p.brand && <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400 truncate">{p.brand}</p>}
+                      <p className="text-xs font-black text-gray-900 leading-tight line-clamp-2 min-h-[2rem]">{p.name}</p>
+                      <div className="flex items-baseline justify-between gap-1 pt-0.5">
+                        <span className="text-sm font-black text-gray-900">Rs. {p.price.toLocaleString()}</span>
+                        {p.unit && <span className="text-[10px] text-gray-400 truncate">{p.unit}</span>}
+                      </div>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          </section>
         )}
 
         {/* Shop link */}

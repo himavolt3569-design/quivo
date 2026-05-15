@@ -1,6 +1,6 @@
 "use client";
 
-import { ShieldAlert, ShieldCheck, Clock, X } from "lucide-react";
+import { ShieldAlert, Clock, X } from "lucide-react";
 import { useState } from "react";
 import Link from "next/link";
 
@@ -51,7 +51,7 @@ export function VerificationBanner({ status }: VerificationBannerProps) {
       </div>
       {cfg.cta && (
         <Link
-          href="/onboarding/owner"
+          href="/dashboard/owner/settings/kyc"
           className="shrink-0 px-3 py-1 rounded-lg bg-white/20 hover:bg-white/30 text-white text-xs font-bold transition"
         >
           {cfg.cta}

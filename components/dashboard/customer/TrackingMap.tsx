@@ -6,15 +6,10 @@ import "leaflet/dist/leaflet.css";
 
 const KATHMANDU = { lat: 27.7108, lng: 85.324 };
 
-const SHOP_COORDS: Record<string, { lat: number; lng: number }> = {
-  "Maitidevi Fresh Mart": { lat: 27.7089, lng: 85.3311 },
-  "Patan Care Pharmacy": { lat: 27.6887, lng: 85.3191 },
-  "Bhaktapur Mobile Hub": { lat: 27.6721, lng: 85.3619 },
-  "Kalimati Daily Store": { lat: 27.6982, lng: 85.2915 },
-};
-
 interface TrackingMapProps {
   shopName: string;
+  shopLat: number | null;
+  shopLng: number | null;
   deliveryLat: number | null;
   deliveryLng: number | null;
 }
@@ -23,18 +18,15 @@ function lerp(a: number, b: number, t: number) {
   return a + (b - a) * t;
 }
 
-export function TrackingMap({ shopName, deliveryLat, deliveryLng }: TrackingMapProps) {
+export function TrackingMap({ shopName, shopLat, shopLng, deliveryLat, deliveryLng }: TrackingMapProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<L.Map | null>(null);
 
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
 
-    const shopCoords = SHOP_COORDS[shopName] ?? KATHMANDU;
-    const custCoords =
-      deliveryLat && deliveryLng
-        ? { lat: deliveryLat, lng: deliveryLng }
-        : KATHMANDU;
+    const shopCoords = shopLat && shopLng ? { lat: shopLat, lng: shopLng } : KATHMANDU;
+    const custCoords = deliveryLat && deliveryLng ? { lat: deliveryLat, lng: deliveryLng } : KATHMANDU;
 
     const midLat = lerp(shopCoords.lat, custCoords.lat, 0.5);
     const midLng = lerp(shopCoords.lng, custCoords.lng, 0.5);
@@ -49,11 +41,8 @@ export function TrackingMap({ shopName, deliveryLat, deliveryLng }: TrackingMapP
       doubleClickZoom: false,
     });
 
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      maxZoom: 19,
-    }).addTo(map);
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 19 }).addTo(map);
 
-    // Shop marker (blue)
     const shopIcon = L.divIcon({
       html: `<div style="background:#27324A;color:white;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:14px;box-shadow:0 2px 8px rgba(0,0,0,0.25)">🏪</div>`,
       className: "",
@@ -64,7 +53,6 @@ export function TrackingMap({ shopName, deliveryLat, deliveryLng }: TrackingMapP
       .addTo(map)
       .bindTooltip(shopName, { permanent: false });
 
-    // Rider marker (animated at 45% of route)
     const riderLat = lerp(shopCoords.lat, custCoords.lat, 0.45);
     const riderLng = lerp(shopCoords.lng, custCoords.lng, 0.45);
     const riderIcon = L.divIcon({
@@ -77,7 +65,6 @@ export function TrackingMap({ shopName, deliveryLat, deliveryLng }: TrackingMapP
       .addTo(map)
       .bindTooltip("Your rider", { permanent: false });
 
-    // Customer destination marker (orange pin)
     const custIcon = L.divIcon({
       html: `<div style="background:#F7F0E6;border:2px solid #A7653A;border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-size:13px">📍</div>`,
       className: "",
@@ -88,36 +75,20 @@ export function TrackingMap({ shopName, deliveryLat, deliveryLng }: TrackingMapP
       .addTo(map)
       .bindTooltip("Your location", { permanent: false });
 
-    // Dashed route line
     L.polyline(
-      [
-        [shopCoords.lat, shopCoords.lng],
-        [custCoords.lat, custCoords.lng],
-      ],
-      {
-        color: "#A7653A",
-        weight: 2.5,
-        dashArray: "6 8",
-        opacity: 0.7,
-      }
+      [[shopCoords.lat, shopCoords.lng], [custCoords.lat, custCoords.lng]],
+      { color: "#A7653A", weight: 2.5, dashArray: "6 8", opacity: 0.7 }
     ).addTo(map);
 
-    // Fit bounds with padding
     map.fitBounds(
-      [
-        [shopCoords.lat, shopCoords.lng],
-        [custCoords.lat, custCoords.lng],
-      ],
+      [[shopCoords.lat, shopCoords.lng], [custCoords.lat, custCoords.lng]],
       { padding: [30, 30] }
     );
 
     mapRef.current = map;
     setTimeout(() => map.invalidateSize(), 100);
 
-    return () => {
-      map.remove();
-      mapRef.current = null;
-    };
+    return () => { map.remove(); mapRef.current = null; };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return <div ref={containerRef} style={{ height: "160px", width: "100%" }} className="rounded-xl overflow-hidden" />;

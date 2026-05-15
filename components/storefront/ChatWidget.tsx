@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useEffect, useRef, useTransition } from "react";
+import { useState, useEffect, useMemo, useRef, useTransition } from "react";
 import { MessageCircle, X, Send, Bot } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
-import { sendCustomerChatMessage } from "@/app/actions/storefront";
+import { getCustomerChatMessages, sendCustomerChatMessage } from "@/app/actions/storefront";
 
 interface ChatMessage {
   id: string;
@@ -21,6 +21,7 @@ interface ChatWidgetProps {
 
 export function ChatWidget({ shopId, shopName, themeColor }: ChatWidgetProps) {
   const sessionKey = `chat_session_${shopId}`;
+  const secretKey = `chat_secret_${shopId}`;
   const nameKey = `chat_name_${shopId}`;
 
   const [isOpen, setIsOpen] = useState(false);
@@ -29,45 +30,47 @@ export function ChatWidget({ shopId, shopName, themeColor }: ChatWidgetProps) {
   const [customerName, setCustomerName] = useState("");
   const [nameEntered, setNameEntered] = useState(false);
   const [sessionId, setSessionId] = useState("");
+  const [sessionSecret, setSessionSecret] = useState("");
   const [isPending, startTransition] = useTransition();
   const bottomRef = useRef<HTMLDivElement>(null);
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
 
   // Init session
   useEffect(() => {
     let sid = localStorage.getItem(sessionKey);
     if (!sid) {
-      sid = `session_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+      sid = `session_${crypto.randomUUID()}`;
       localStorage.setItem(sessionKey, sid);
     }
-    setSessionId(sid);
-
-    const savedName = localStorage.getItem(nameKey);
-    if (savedName) {
-      setCustomerName(savedName);
-      setNameEntered(true);
+    let secret = localStorage.getItem(secretKey);
+    if (!secret) {
+      secret = crypto.randomUUID().replace(/-/g, "") + crypto.randomUUID().replace(/-/g, "");
+      localStorage.setItem(secretKey, secret);
     }
-  }, [sessionKey, nameKey]);
+    const savedName = localStorage.getItem(nameKey);
+    queueMicrotask(() => {
+      setSessionId(sid);
+      setSessionSecret(secret);
+      if (savedName) {
+        setCustomerName(savedName);
+        setNameEntered(true);
+      }
+    });
+  }, [sessionKey, secretKey, nameKey]);
 
   // Fetch existing messages for this session
   useEffect(() => {
-    if (!sessionId) return;
+    if (!sessionId || !sessionSecret) return;
     const fetch = async () => {
-      const { data } = await supabase
-        .from("chat_messages")
-        .select("id, sender, message, created_at, customer_name")
-        .eq("shop_id", shopId)
-        .eq("session_id", sessionId)
-        .order("created_at", { ascending: true })
-        .limit(50);
-      if (data) setMessages(data as ChatMessage[]);
+      const res = await getCustomerChatMessages(shopId, sessionId, sessionSecret);
+      if (res.messages) setMessages(res.messages as ChatMessage[]);
     };
     fetch();
-  }, [sessionId, shopId]);
+  }, [sessionId, sessionSecret, shopId, supabase]);
 
   // Subscribe to realtime
   useEffect(() => {
-    if (!sessionId) return;
+    if (!sessionId || !sessionSecret) return;
     const channel = supabase
       .channel(`chat:${shopId}:${sessionId}`)
       .on(
@@ -81,9 +84,8 @@ export function ChatWidget({ shopId, shopName, themeColor }: ChatWidgetProps) {
         (payload) => {
           const msg = payload.new as ChatMessage & { session_id: string };
           if (msg.session_id === sessionId) {
-            setMessages((prev) => {
-              if (prev.some((m) => m.id === msg.id)) return prev;
-              return [...prev, msg];
+            getCustomerChatMessages(shopId, sessionId, sessionSecret).then((res) => {
+              if (res.messages) setMessages(res.messages as ChatMessage[]);
             });
           }
         }
@@ -91,7 +93,7 @@ export function ChatWidget({ shopId, shopName, themeColor }: ChatWidgetProps) {
       .subscribe();
 
     return () => { supabase.removeChannel(channel); };
-  }, [sessionId, shopId]);
+  }, [sessionId, sessionSecret, shopId]);
 
   // Auto-scroll
   useEffect(() => {
@@ -99,11 +101,13 @@ export function ChatWidget({ shopId, shopName, themeColor }: ChatWidgetProps) {
   }, [messages, isOpen]);
 
   const handleSend = () => {
-    if (!input.trim() || !sessionId) return;
+    if (!input.trim() || !sessionId || !sessionSecret) return;
     const text = input.trim();
     setInput("");
     startTransition(async () => {
-      await sendCustomerChatMessage(shopId, sessionId, customerName || "Customer", text);
+      await sendCustomerChatMessage(shopId, sessionId, sessionSecret, customerName || "Customer", text);
+      const res = await getCustomerChatMessages(shopId, sessionId, sessionSecret);
+      if (res.messages) setMessages(res.messages as ChatMessage[]);
     });
   };
 

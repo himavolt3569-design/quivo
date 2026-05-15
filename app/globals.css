@@ -502,6 +502,16 @@
 }
 
 /* Quivo mobile responsiveness refinement: protect the award-style desktop composition while giving phones a deliberately composed layout. */
+@layer utilities {
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+}
+
 @media (max-width: 767px) {
   html,
   body,

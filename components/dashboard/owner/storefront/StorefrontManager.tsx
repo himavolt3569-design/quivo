@@ -1,11 +1,12 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { Reorder, useDragControls } from "framer-motion";
 import {
   QrCode, Download, Share2, Globe2, Palette, Eye,
-  CheckCircle2, Copy, MessageSquare, Send, Search,
+  CheckCircle2, Copy, MessageSquare, Send,
   LayoutGrid, List, Type, Megaphone, Star, Phone, X,
-  ChevronUp, ChevronDown, RefreshCw,
+  RefreshCw, GripVertical,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -90,6 +91,38 @@ function timeAgo(dateStr: string): string {
   return `${Math.floor(h / 24)}d ago`;
 }
 
+// ─── Drag Item ────────────────────────────────────────────────────────────────
+
+function SectionDragItem({
+  sId,
+  section,
+}: {
+  sId: string;
+  section: { id: string; label: string; icon: React.ReactNode };
+}) {
+  const controls = useDragControls();
+  return (
+    <Reorder.Item
+      value={sId}
+      dragListener={false}
+      dragControls={controls}
+      className="flex items-center gap-3 p-3 bg-[#f8f8f7] rounded-xl border border-[#2E3344]/5 select-none"
+      whileDrag={{ scale: 1.02, boxShadow: "0 8px 20px rgba(0,0,0,0.08)" }}
+    >
+      <button
+        onPointerDown={(e) => controls.start(e)}
+        className="touch-none cursor-grab active:cursor-grabbing p-1 text-[#746E73]/50 hover:text-[#746E73] transition-colors"
+        aria-label="Drag to reorder"
+        type="button"
+      >
+        <GripVertical className="h-4 w-4" />
+      </button>
+      <span className="text-[#A7653A]">{section.icon}</span>
+      <span className="text-sm font-bold text-[#27324A] flex-1">{section.label}</span>
+    </Reorder.Item>
+  );
+}
+
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function StorefrontManager({
@@ -153,18 +186,6 @@ export function StorefrontManager({
     link.download = `${shopSlug}-qr.png`;
     link.href = qrDataUrl;
     link.click();
-  };
-
-  const moveSection = (id: string, dir: -1 | 1) => {
-    setSectionsOrder((prev) => {
-      const idx = prev.indexOf(id);
-      if (idx < 0) return prev;
-      const next = [...prev];
-      const swap = idx + dir;
-      if (swap < 0 || swap >= next.length) return prev;
-      [next[idx], next[swap]] = [next[swap], next[idx]];
-      return next;
-    });
   };
 
   // Load chat sessions when chat tab is opened
@@ -470,40 +491,26 @@ export function StorefrontManager({
               />
             </div>
 
-            {/* Section Order */}
+            {/* Section Order — drag-and-drop */}
             <div className="bg-white p-6 rounded-[2rem] border border-[#2E3344]/8 shadow-sm space-y-4">
               <h2 className="text-sm font-black text-[#27324A] uppercase tracking-wider">Section Order</h2>
-              <p className="text-xs text-[#746E73] font-medium -mt-2">Drag sections up/down to reorder how they appear on your storefront.</p>
-              <div className="space-y-2">
-                {sectionsOrder.map((sId, idx) => {
+              <p className="text-xs text-[#746E73] font-medium -mt-2">
+                Drag sections to reorder how they appear on your storefront.
+              </p>
+              <Reorder.Group
+                axis="y"
+                values={sectionsOrder}
+                onReorder={setSectionsOrder}
+                className="space-y-2"
+              >
+                {sectionsOrder.map((sId) => {
                   const section = ALL_SECTIONS.find((s) => s.id === sId);
                   if (!section) return null;
                   return (
-                    <div key={sId} className="flex items-center gap-3 p-3 bg-[#f8f8f7] rounded-xl border border-[#2E3344]/5">
-                      <span className="text-[#A7653A]">{section.icon}</span>
-                      <span className="text-sm font-bold text-[#27324A] flex-1">{section.label}</span>
-                      <div className="flex gap-1">
-                        <button
-                          type="button"
-                          onClick={() => moveSection(sId, -1)}
-                          disabled={idx === 0}
-                          className="h-7 w-7 rounded-lg bg-white border border-[#2E3344]/10 flex items-center justify-center disabled:opacity-30 hover:bg-[#F7F0E6] transition"
-                        >
-                          <ChevronUp className="h-3.5 w-3.5 text-[#27324A]" />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => moveSection(sId, 1)}
-                          disabled={idx === sectionsOrder.length - 1}
-                          className="h-7 w-7 rounded-lg bg-white border border-[#2E3344]/10 flex items-center justify-center disabled:opacity-30 hover:bg-[#F7F0E6] transition"
-                        >
-                          <ChevronDown className="h-3.5 w-3.5 text-[#27324A]" />
-                        </button>
-                      </div>
-                    </div>
+                    <SectionDragItem key={sId} sId={sId} section={section} />
                   );
                 })}
-              </div>
+              </Reorder.Group>
             </div>
 
             {/* Contact */}
