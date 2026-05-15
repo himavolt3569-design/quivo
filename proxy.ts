@@ -8,9 +8,10 @@ function isProtectedPath(pathname: string) {
 }
 
 function buildCsp(nonce: string) {
+  void nonce;
   const scriptSrc = isDev
     ? "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net"
-    : `script-src 'self' 'nonce-${nonce}' 'strict-dynamic' https://cdn.jsdelivr.net`;
+    : "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net";
 
   return [
     "default-src 'self'",
