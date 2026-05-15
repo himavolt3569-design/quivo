@@ -5,9 +5,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Home, Package, Bookmark, User, Barcode, Store } from "lucide-react";
 import { BarcodeScanner } from "./customer/BarcodeScanner";
-import { placeOrder } from "@/app/actions/customer";
-import type { ScannedProduct } from "@/app/actions/customer";
-import { toast } from "sonner";
 
 // Desktop shows all 5 tabs; mobile bottom nav keeps the existing 4-tab layout
 // (Shops accessible via HomeTab quick-action on mobile)
@@ -24,20 +21,6 @@ const MOBILE_TABS = TABS.filter((t) => t.href !== "/dashboard/shops");
 export function DashboardNav({ activeOrderCount }: { activeOrderCount: number }) {
   const pathname = usePathname();
   const [scannerOpen, setScannerOpen] = useState(false);
-
-  const handleOrderFromScan = async (detected: ScannedProduct) => {
-    const result = await placeOrder({
-      shop_name: detected.shopName,
-      items: [{ name: detected.name, price: detected.price, quantity: 1 }],
-      eta_minutes: 20,
-    });
-    if (result.error) {
-      toast.error(result.error);
-    } else if (result.order) {
-      toast.success(`Order placed at ${detected.shopName}`);
-      setScannerOpen(false);
-    }
-  };
 
   return (
     <>
@@ -132,7 +115,6 @@ export function DashboardNav({ activeOrderCount }: { activeOrderCount: number })
       <BarcodeScanner
         open={scannerOpen}
         onClose={() => setScannerOpen(false)}
-        onOrderNow={handleOrderFromScan}
       />
     </>
   );

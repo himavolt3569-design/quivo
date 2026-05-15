@@ -23,8 +23,7 @@ import type { User as SupabaseUser } from "@supabase/supabase-js";
 
 import { createClient } from "@/lib/supabase/client";
 import { nearbyShops, popularProducts } from "@/lib/data";
-import { toggleSavedShop, toggleSavedProduct, placeOrder, updateProfile } from "@/app/actions/customer";
-import type { ScannedProduct } from "@/app/actions/customer";
+import { toggleSavedShop, toggleSavedProduct, updateProfile } from "@/app/actions/customer";
 import type { Order, Profile, Address, SavedShop, SavedProduct, OrderItem } from "@/lib/types";
 
 import { BarcodeScanner } from "./customer/BarcodeScanner";
@@ -233,21 +232,6 @@ export function CustomerDashboard({
       product_image: product.image,
       product_shop: product.shop,
     });
-  };
-
-  const handleOrderFromScan = async (detected: ScannedProduct) => {
-    const result = await placeOrder({
-      shop_name: detected.shopName,
-      items: [{ name: detected.name, price: detected.price, quantity: 1 }],
-      eta_minutes: 20,
-    });
-    if (result.error) {
-      toast.error(result.error);
-    } else if (result.order) {
-      setOrders((prev) => [result.order as Order, ...prev]);
-      toast.success(`Order placed at ${detected.shopName}`);
-      setTab("orders");
-    }
   };
 
   const handleSaveName = async () => {
@@ -827,7 +811,6 @@ export function CustomerDashboard({
       <BarcodeScanner
         open={scannerOpen}
         onClose={() => setScannerOpen(false)}
-        onOrderNow={handleOrderFromScan}
       />
 
       {/* Receipt sheet */}

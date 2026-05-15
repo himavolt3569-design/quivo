@@ -13,7 +13,8 @@ import {
   QrCode,
   Calculator,
   Truck,
-  Shield
+  Shield,
+  CreditCard
 } from "lucide-react";
 import { OwnerShopSwitcher, type SwitcherShop } from "./OwnerShopSwitcher";
 import { RoleModeSwitch } from "@/components/dashboard/RoleModeSwitch";
@@ -23,6 +24,7 @@ const OWNER_ROUTES = [
   { href: "/dashboard/owner/pos", label: "Point of Sale", icon: Calculator },
   { href: "/dashboard/owner/products", label: "Inventory & Products", icon: Package },
   { href: "/dashboard/owner/orders", label: "Online Orders", icon: ShoppingCart },
+  { href: "/dashboard/owner/payments", label: "Payments", icon: CreditCard },
   { href: "/dashboard/owner/customers", label: "Customers & Udhar", icon: Users },
   { href: "/dashboard/owner/suppliers", label: "Suppliers", icon: Truck },
   { href: "/dashboard/owner/finances", label: "Finances & Reports", icon: BarChart3 },

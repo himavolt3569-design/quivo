@@ -16,7 +16,6 @@ import { toast } from "sonner";
 import type { User as SupabaseUser } from "@supabase/supabase-js";
 
 import { toggleSavedShop, toggleSavedProduct, placeOrder } from "@/app/actions/customer";
-import type { ScannedProduct } from "@/app/actions/customer";
 import type { Order, Profile, SavedShop, SavedProduct, TrendingProduct, NearbyShop } from "@/lib/types";
 
 import { BarcodeScanner } from "./BarcodeScanner";
@@ -126,21 +125,6 @@ export function HomeTab({
       product_image: product.image_url ?? null,
       product_shop: product.shop_name,
     });
-  };
-
-  const handleOrderFromScan = async (detected: ScannedProduct) => {
-    const result = await placeOrder({
-      shop_name: detected.shopName,
-      items: [{ name: detected.name, price: detected.price, quantity: 1 }],
-      eta_minutes: 20,
-    });
-    if (result.error) {
-      toast.error(result.error);
-    } else {
-      toast.success(`Order placed at ${detected.shopName}`);
-      router.push("/dashboard/orders");
-      router.refresh();
-    }
   };
 
   return (
@@ -420,7 +404,6 @@ export function HomeTab({
       <BarcodeScanner
         open={scannerOpen}
         onClose={() => setScannerOpen(false)}
-        onOrderNow={handleOrderFromScan}
       />
 
       {/* Receipt sheet for active orders on home */}

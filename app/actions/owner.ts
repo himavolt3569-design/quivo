@@ -211,6 +211,14 @@ export async function createShop(formData: FormData) {
     console.error("createShop: could not set active_shop_id", activeError.code, activeError.message);
   }
 
+  // Burn the onboarding intent cookie so a fresh URL hit re-triggers the gate.
+  try {
+    const { clearOnboardingIntent } = await import("@/app/actions/onboarding");
+    await clearOnboardingIntent();
+  } catch {
+    /* best-effort */
+  }
+
   revalidatePath("/dashboard");
   revalidatePath("/dashboard/owner");
 

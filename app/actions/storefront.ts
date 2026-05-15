@@ -3,64 +3,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 
-interface CartItemInput {
-  id: string;
-  name: string;
-  price: number;
-  qty: number;
-}
-
-interface CustomerInfo {
-  name: string;
-  phone: string;
-  email?: string;
-  address: string;
-  notes?: string;
-}
-
-export async function placeStorefrontOrder(
-  shopId: string,
-  shopName: string,
-  cart: CartItemInput[],
-  total: number,
-  paymentMethod: "cod" | "esewa",
-  customer: CustomerInfo
-): Promise<{ error?: string; orderNumber?: string }> {
-  if (!cart.length) return { error: "Cart is empty." };
-  if (!customer.name.trim()) return { error: "Name is required." };
-  if (!customer.phone.trim()) return { error: "Phone number is required." };
-  if (!customer.address.trim()) return { error: "Delivery address is required." };
-
-  const supabase = await createClient();
-
-  const orderNumber = `STO-${Date.now().toString(36).toUpperCase().slice(-8)}`;
-
-  const { error } = await supabase.rpc("place_storefront_order", {
-    p_shop_id: shopId,
-    p_shop_name: shopName,
-    p_order_number: orderNumber,
-    p_customer_name: customer.name.trim(),
-    p_customer_phone: customer.phone.trim(),
-    p_customer_email: customer.email?.trim() || null,
-    p_delivery_address: customer.address.trim(),
-    p_items: cart,
-    p_total_amount: total,
-    p_payment_method: paymentMethod,
-    p_notes: customer.notes?.trim() || null,
-  });
-
-  if (error) {
-    if (error.message.startsWith("INSUFFICIENT_STOCK:")) {
-      const name = error.message.slice("INSUFFICIENT_STOCK:".length);
-      return { error: `"${name}" is no longer available in the requested quantity.` };
-    }
-    return { error: error.message };
-  }
-
-  revalidatePath(`/dashboard/owner/orders`);
-  return { orderNumber };
-}
-
 export async function sendCustomerChatMessage(
   shopId: string,
   sessionId: string,

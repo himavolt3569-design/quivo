@@ -8,6 +8,7 @@ import { Check, ChevronsUpDown, Store, PlusCircle, Loader2 } from "lucide-react"
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { setActiveShop } from "@/app/actions/owner";
+import { startNewShopOnboarding } from "@/app/actions/onboarding";
 import {
   Command,
   CommandEmpty,
@@ -162,7 +163,13 @@ export function OwnerShopSwitcher({ shops, activeShopId }: OwnerShopSwitcherProp
               <CommandItem
                 onSelect={() => {
                   setOpen(false);
-                  router.push("/onboarding/owner");
+                  // Server action sets a short-lived HMAC-signed cookie and
+                  // then redirects.  Bare URL navigation to /onboarding/owner
+                  // is blocked for owners who already have a shop, so the
+                  // cookie is the only legitimate entry point.
+                  React.startTransition(() => {
+                    void startNewShopOnboarding();
+                  });
                 }}
                 className="rounded-xl my-1 cursor-pointer text-[#A7653A] font-bold"
               >

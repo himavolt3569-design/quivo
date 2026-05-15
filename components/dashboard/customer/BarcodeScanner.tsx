@@ -1,26 +1,24 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { X, Barcode, AlertCircle, RotateCcw, PackageX } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { X, Barcode, AlertCircle, RotateCcw, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { lookupProductByBarcode } from "@/app/actions/customer";
-import type { ScannedProduct } from "@/app/actions/customer";
 
 interface BarcodeScannerProps {
   open: boolean;
   onClose: () => void;
-  onOrderNow?: (product: ScannedProduct) => void;
 }
 
-type ScanState = "requesting" | "scanning" | "detected" | "unsupported" | "denied";
+type ScanState = "requesting" | "scanning" | "detected" | "unsupported" | "denied" | "redirecting";
 
-export function BarcodeScanner({ open, onClose, onOrderNow }: BarcodeScannerProps) {
+export function BarcodeScanner({ open, onClose }: BarcodeScannerProps) {
+  const router = useRouter();
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const rafRef = useRef<number>(0);
   const [state, setState] = useState<ScanState>("requesting");
-  const [detected, setDetected] = useState<ScannedProduct | null>(null);
-  const [notFound, setNotFound] = useState(false);
   const [scannedBarcode, setScannedBarcode] = useState("");
   const [manualInput, setManualInput] = useState("");
   const [looking, setLooking] = useState(false);
@@ -37,17 +35,19 @@ export function BarcodeScanner({ open, onClose, onOrderNow }: BarcodeScannerProp
     const result = await lookupProductByBarcode(raw);
     setLooking(false);
 
-    if (result.error) {
-      setNotFound(true);
-      setScannedBarcode(raw);
-    } else if (result.product) {
-      setDetected(result.product);
-      setNotFound(false);
-    } else {
-      // barcode not found in any shop's catalog
-      setNotFound(true);
-      setScannedBarcode(raw);
+    if (result.product) {
+      // Found in some shop → redirect to that shop's product page.  Works
+      // for archived/unavailable products too — the product page renders
+      // a "Not Available" state and surfaces "More like this" alternatives.
+      setState("redirecting");
+      stopCamera();
+      router.push(`/s/${result.product.shopSlug}/product/${encodeURIComponent(result.product.barcode)}`);
+      onClose();
+      return;
     }
+
+    // Not found in any shop's catalog (or lookup error) — show fallback.
+    setScannedBarcode(raw);
     setState("detected");
   };
 
@@ -56,8 +56,6 @@ export function BarcodeScanner({ open, onClose, onOrderNow }: BarcodeScannerProp
       stopCamera();
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setState("requesting");
-      setDetected(null);
-      setNotFound(false);
       setScannedBarcode("");
       setManualInput("");
       return;
@@ -67,8 +65,6 @@ export function BarcodeScanner({ open, onClose, onOrderNow }: BarcodeScannerProp
 
     const start = async () => {
       setState("requesting");
-      setDetected(null);
-      setNotFound(false);
       try {
         const stream = await navigator.mediaDevices.getUserMedia({
           video: { facingMode: { ideal: "environment" }, width: { ideal: 1280 } },
@@ -152,7 +148,7 @@ export function BarcodeScanner({ open, onClose, onOrderNow }: BarcodeScannerProp
         <video
           ref={videoRef}
           className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-300 ${
-            state === "detected" || state === "denied" || state === "unsupported" ? "opacity-20" : "opacity-100"
+            state === "detected" || state === "denied" || state === "unsupported" || state === "redirecting" ? "opacity-20" : "opacity-100"
           }`}
           playsInline muted autoPlay
         />
@@ -218,7 +214,21 @@ export function BarcodeScanner({ open, onClose, onOrderNow }: BarcodeScannerProp
             </motion.div>
           )}
 
-          {/* Detected (found or not found) */}
+          {/* Redirecting — found product, navigating to /s/{slug}/product/{barcode} */}
+          {state === "redirecting" && (
+            <motion.div
+              key="redirecting"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 flex flex-col items-center justify-center gap-3"
+            >
+              <Loader2 className="h-8 w-8 text-[#A7653A] animate-spin" />
+              <p className="text-sm font-semibold text-white/85">Opening product…</p>
+            </motion.div>
+          )}
+
+          {/* Detected (not found in any shop) */}
           {state === "detected" && (
             <motion.div
               key="detected"
@@ -230,49 +240,13 @@ export function BarcodeScanner({ open, onClose, onOrderNow }: BarcodeScannerProp
               style={{ paddingBottom: "max(env(safe-area-inset-bottom), 1rem)" }}
             >
               <div className="rounded-3xl bg-white p-5 shadow-2xl">
-                {detected ? (
-                  /* Product found (available or archived) */
-                  <div className="flex gap-4 mb-5">
-                    {detected.image ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={detected.image}
-                        alt={detected.name}
-                        className="h-20 w-20 rounded-2xl object-cover flex-shrink-0 bg-[#F7F0E6]"
-                      />
-                    ) : (
-                      <div className="h-20 w-20 rounded-2xl bg-[#F7F0E6] flex items-center justify-center flex-shrink-0">
-                        <span className="text-2xl font-black text-[#A7653A]/40">{detected.name[0]}</span>
-                      </div>
-                    )}
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs font-semibold text-[#A7653A] mb-1 truncate">{detected.shopName}</p>
-                      <h3 className="font-bold text-[#27324A] leading-snug text-sm">{detected.name}</h3>
-                      {!detected.isAvailable ? (
-                        <div className="flex items-center gap-1.5 mt-1.5">
-                          <PackageX className="h-3.5 w-3.5 text-red-500 shrink-0" />
-                          <span className="text-xs font-bold text-red-500">Not Available</span>
-                        </div>
-                      ) : (
-                        <>
-                          <p className="text-xl font-bold text-[#27324A] mt-1.5">Rs. {detected.price.toLocaleString()}</p>
-                          <p className="text-xs text-[#746E73] mt-0.5">
-                            {detected.stock > 0 ? `${detected.stock} in stock` : "Out of stock"}
-                          </p>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                ) : (
-                  /* Not found in any shop */
-                  <div className="mb-5">
-                    <p className="text-xs font-medium text-[#746E73] mb-1">Barcode: {scannedBarcode}</p>
-                    <h3 className="font-bold text-[#27324A]">Product not found</h3>
-                    <p className="text-sm text-[#746E73] mt-1">
-                      No shop in your area carries this item yet.
-                    </p>
-                  </div>
-                )}
+                <div className="mb-5">
+                  <p className="text-xs font-medium text-[#746E73] mb-1">Barcode: {scannedBarcode}</p>
+                  <h3 className="font-bold text-[#27324A]">Product not found</h3>
+                  <p className="text-sm text-[#746E73] mt-1">
+                    No shop in your area carries this item yet.
+                  </p>
+                </div>
                 <div className="flex gap-3">
                   <button
                     onClick={handleRescan}
@@ -280,18 +254,6 @@ export function BarcodeScanner({ open, onClose, onOrderNow }: BarcodeScannerProp
                   >
                     <RotateCcw className="h-4 w-4" /> Scan again
                   </button>
-                  {detected && detected.isAvailable && detected.stock > 0 && (
-                    <button
-                      onClick={() => {
-                        onOrderNow?.(detected);
-                        stopCamera();
-                        onClose();
-                      }}
-                      className="flex-1 rounded-full bg-[#A7653A] py-3 text-sm font-semibold text-white hover:bg-[#8E5432] transition active:scale-95"
-                    >
-                      Order now
-                    </button>
-                  )}
                 </div>
               </div>
             </motion.div>

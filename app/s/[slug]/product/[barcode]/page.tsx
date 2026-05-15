@@ -23,6 +23,7 @@ interface ProductResult {
   images: string[] | null;
   image_url: string | null;
   barcode: string;
+  is_available?: boolean;
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -52,13 +53,23 @@ export default async function ProductPage({ params }: Props) {
 
   if (!product || product.shop_slug !== slug) notFound();
 
-  const { data: shop } = await supabase
-    .from("shops")
-    .select("id, name, slug, theme_color, logo_url, phone, whatsapp_number")
-    .eq("slug", slug)
-    .single();
+  const [{ data: shop }, { data: similar }] = await Promise.all([
+    supabase
+      .from("shops")
+      .select("id, name, slug, theme_color, logo_url, phone, whatsapp_number")
+      .eq("slug", slug)
+      .single(),
+    supabase.rpc("get_similar_products", { p_product_id: product.product_id, p_limit: 8 }),
+  ]);
 
   if (!shop) notFound();
 
-  return <ProductView product={product} shop={shop} />;
+  const similarProducts = (similar ?? []) as Array<{
+    product_id: string; shop_slug: string; name: string; brand: string | null;
+    category: string | null; unit: string | null; variant: string | null;
+    price: number; stock: number; image_url: string | null; images: string[] | null;
+    barcode: string; match_score: number;
+  }>;
+
+  return <ProductView product={product} shop={shop} similar={similarProducts} />;
 }

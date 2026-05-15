@@ -294,10 +294,6 @@ export function HeroSection({ scrollToSection, addProductToBasket: propAddProduc
       <BarcodeScanner
         open={scannerOpen}
         onClose={() => setScannerOpen(false)}
-        onOrderNow={(detected) => {
-          addProductToBasket(detected.id);
-          scrollToSection("orders");
-        }}
       />
       <section className="award-hero relative overflow-hidden">
         <div
