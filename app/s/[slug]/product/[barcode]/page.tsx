@@ -36,12 +36,19 @@ interface PublicProductShop {
   whatsapp_number: string | null;
 }
 
+async function lookupProductByBarcode(barcode: string) {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .rpc("get_product_by_barcode", { p_barcode: barcode })
+    .limit(1)
+    .maybeSingle<ProductResult>();
+
+  return data;
+}
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { barcode } = await params;
-  const supabase = await createClient();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data } = await (supabase.rpc as any)("get_product_by_barcode", { p_barcode: barcode });
-  const product = data as ProductResult | null;
+  const product = await lookupProductByBarcode(barcode);
   if (!product) return { title: "Product Not Found" };
   return {
     title: `${product.name}${product.brand ? ` — ${product.brand}` : ""} · Rs. ${product.price}`,
@@ -57,9 +64,7 @@ export default async function ProductPage({ params }: Props) {
   const { slug, barcode } = await params;
   const supabase = await createClient();
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data } = await (supabase.rpc as any)("get_product_by_barcode", { p_barcode: barcode });
-  const product = data as ProductResult | null;
+  const product = await lookupProductByBarcode(barcode);
 
   if (!product || product.shop_slug !== slug) notFound();
 

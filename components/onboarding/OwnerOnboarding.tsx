@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PhoneInput } from "@/components/ui/validated-input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { createShop } from "@/app/actions/owner";
@@ -195,7 +196,6 @@ export function OwnerOnboarding() {
     if (step === 2) {
       if (!coords) return "Please pin your shop location on the map.";
       if (!address.trim()) return "Shop address is required.";
-      if (kycStatus === "idle") return "Please upload your KYC document.";
       if (kycStatus === "scanning") return "Please wait for the document scan to complete.";
       if (kycStatus === "error") return "Document scan failed. Please upload a clearer image.";
     }
@@ -511,11 +511,12 @@ export function OwnerOnboarding() {
                 <Label className="text-[#27324A] font-bold text-sm">
                   Phone Number <span className="text-red-500">*</span>
                 </Label>
-                <Input
+                <PhoneInput
+                  required
+                  name="phone"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   placeholder="98XXXXXXXX"
-                  type="tel"
                   className="h-12 rounded-xl mt-1.5"
                 />
               </div>
@@ -572,7 +573,9 @@ export function OwnerOnboarding() {
             <div className="space-y-5 sm:space-y-6 animate-in fade-in slide-in-from-right-4">
               <div>
                 <h2 className="text-xl sm:text-2xl font-black text-[#27324A]">Location & KYC</h2>
-                <p className="text-sm text-[#746E73] mt-1">Pin your shop location and verify your business identity.</p>
+                <p className="text-sm text-[#746E73] mt-1">
+                  Pin your shop location. Business proof can be submitted now or within 30 days after launch.
+                </p>
               </div>
 
               <div>
@@ -631,13 +634,15 @@ export function OwnerOnboarding() {
 
               <div>
                 <Label className="text-[#27324A] font-bold text-sm mb-2 block">
-                  Business Document <span className="text-red-500">*</span>
-                  <span className="text-[#746E73] font-normal text-xs block sm:inline sm:ml-2">PAN / VAT / Registration Certificate</span>
+                  Business Document
+                  <span className="text-[#746E73] font-normal text-xs block sm:inline sm:ml-2">
+                    Optional for first 30 days — PAN / VAT / Registration Certificate
+                  </span>
                 </Label>
                 <KYCScanner onResult={handleKYCResult} />
                 <p className="text-[10px] text-[#746E73] mt-2 flex items-start gap-1">
                   <AlertCircle className="h-3 w-3 mt-0.5 shrink-0" />
-                  Documents are scanned locally on your device using AI. ≥80% confidence = auto-verified. Below that, an admin reviews within 24h.
+                  You can skip this for now. We will email reminders, and owner features require documents after 30 days.
                 </p>
               </div>
             </div>
@@ -664,10 +669,10 @@ export function OwnerOnboarding() {
                   label="KYC Status"
                   value={
                     kycStatus === "verified"
-                      ? `Auto-verified (${kycConfidence}% confidence)`
+                      ? `Document uploaded (${kycConfidence}% confidence)`
                       : kycStatus === "pending"
-                      ? `Pending review (${kycConfidence}% confidence)`
-                      : "Uploaded"
+                      ? `Document uploaded (${kycConfidence}% confidence)`
+                      : "Due within 30 days"
                   }
                 />
                 <ReviewRow label="Location" value={coords ? `${coords.lat.toFixed(4)}, ${coords.lng.toFixed(4)}` : "—"} />
@@ -676,7 +681,7 @@ export function OwnerOnboarding() {
               {kycStatus === "pending" && (
                 <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 text-sm text-amber-700 flex items-start gap-2">
                   <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" />
-                  <p>Your shop will be created but some features will be locked until an admin verifies your KYC document (usually within 24 hours).</p>
+                  <p>Your shop will be created now. You have 30 days to submit or re-submit business proof from KYC Settings.</p>
                 </div>
               )}
             </div>
@@ -692,8 +697,8 @@ export function OwnerOnboarding() {
                 <h2 className="text-2xl sm:text-3xl font-black text-[#27324A]">Shop Created!</h2>
                 <p className="text-sm text-[#746E73] mt-1">
                   {kycStatus === "verified"
-                    ? "Your shop is live and verified. Start adding products!"
-                    : "Your shop is live! Add products while your KYC is reviewed."}
+                    ? "Your shop is live. Submit final business proof from KYC Settings if requested."
+                    : "Your shop is live. You have 30 days to submit business proof."}
                 </p>
               </div>
 

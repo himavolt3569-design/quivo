@@ -5,6 +5,7 @@ import { Banknote, ArrowUpRight, ArrowDownRight, ArrowRight, ReceiptText, FileTe
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { addExpense } from "@/app/actions/owner";
 
@@ -220,15 +221,19 @@ export function FinanceDashboard({ shopId, monthlyIncome, monthlyExpenses, recen
               </div>
               <div>
                 <Label className="font-bold text-[#27324A]">Payment Method</Label>
-                <select
+                <Select
                   value={expenseMethod}
-                  onChange={(e) => setExpenseMethod(e.target.value)}
-                  className="flex h-12 w-full rounded-xl border border-input bg-transparent px-3 py-2 text-sm shadow-sm mt-1.5 outline-none"
+                  onValueChange={(v) => setExpenseMethod(v)}
                 >
-                  <option value="cash">Cash</option>
-                  <option value="card">Card</option>
-                  <option value="online">Online (eSewa / Bank)</option>
-                </select>
+                  <SelectTrigger className="w-full mt-1.5 h-12">
+                    <SelectValue placeholder="Select method" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="cash">Cash</SelectItem>
+                    <SelectItem value="card">Card</SelectItem>
+                    <SelectItem value="online">Online (eSewa / Bank)</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
             <div className="flex gap-3 pt-2">

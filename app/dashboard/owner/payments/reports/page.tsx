@@ -3,6 +3,7 @@ import { PAYMENT_METHOD_LABELS, PAYMENT_STATUS_LABELS } from "@/lib/payments/con
 import type { PaymentMethod, PaymentStatus } from "@/lib/payments";
 import Link from "next/link";
 import { ArrowLeft, BarChart3 } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const SUCCESS_STATUSES: Set<string> = new Set(["payment_verified", "cod_paid"]);
 
@@ -87,29 +88,52 @@ export default async function PaymentsReportsPage({
       </div>
 
       {/* Filters */}
-      <form className="bg-white rounded-3xl border border-[#2E3344]/8 shadow-sm p-4 grid grid-cols-2 md:grid-cols-4 gap-2.5 text-sm">
-        <select name="shop" defaultValue={sp.shop ?? ""} className="h-10 px-2 rounded-xl border border-[#2E3344]/10 bg-white">
-          <option value="">All shops</option>
-          {shops.map((s) => <option key={s.shop_id} value={s.shop_id}>{s.shop_name}</option>)}
-        </select>
-        <select name="method" defaultValue={sp.method ?? ""} className="h-10 px-2 rounded-xl border border-[#2E3344]/10 bg-white">
-          <option value="">All methods</option>
-          {(["cod","esewa","khalti","bank_transfer","qr_code"] as PaymentMethod[]).map((m) =>
-            <option key={m} value={m}>{PAYMENT_METHOD_LABELS[m]}</option>)}
-        </select>
-        <select name="status" defaultValue={sp.status ?? ""} className="h-10 px-2 rounded-xl border border-[#2E3344]/10 bg-white">
-          <option value="">All statuses</option>
-          {Object.entries(PAYMENT_STATUS_LABELS).map(([k, v]) =>
-            <option key={k} value={k}>{v}</option>)}
-        </select>
-        <div className="flex gap-2">
-          <select name="days" defaultValue={String(days)} className="h-10 px-2 rounded-xl border border-[#2E3344]/10 bg-white flex-1">
-            <option value="7">Last 7 days</option>
-            <option value="30">Last 30 days</option>
-            <option value="90">Last 90 days</option>
-            <option value="365">Last year</option>
-          </select>
-          <button type="submit" className="h-10 px-4 rounded-xl bg-[#27324A] text-white text-xs font-bold">Apply</button>
+      <form className="bg-white rounded-3xl border border-[#2E3344]/8 shadow-sm p-4 grid grid-cols-2 md:grid-cols-4 gap-2.5 text-sm items-center">
+        <Select name="shop" defaultValue={sp.shop ?? ""}>
+          <SelectTrigger className="h-10 px-3 w-full">
+            <SelectValue placeholder="All shops" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="">All shops</SelectItem>
+            {shops.map((s) => <SelectItem key={s.shop_id} value={s.shop_id}>{s.shop_name}</SelectItem>)}
+          </SelectContent>
+        </Select>
+
+        <Select name="method" defaultValue={sp.method ?? ""}>
+          <SelectTrigger className="h-10 px-3 w-full">
+            <SelectValue placeholder="All methods" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="">All methods</SelectItem>
+            {(["cod","esewa","khalti","bank_transfer","qr_code"] as PaymentMethod[]).map((m) =>
+              <SelectItem key={m} value={m}>{PAYMENT_METHOD_LABELS[m]}</SelectItem>)}
+          </SelectContent>
+        </Select>
+
+        <Select name="status" defaultValue={sp.status ?? ""}>
+          <SelectTrigger className="h-10 px-3 w-full">
+            <SelectValue placeholder="All statuses" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="">All statuses</SelectItem>
+            {Object.entries(PAYMENT_STATUS_LABELS).map(([k, v]) =>
+              <SelectItem key={k} value={k}>{v}</SelectItem>)}
+          </SelectContent>
+        </Select>
+
+        <div className="flex gap-2 w-full">
+          <Select name="days" defaultValue={String(days)}>
+            <SelectTrigger className="h-10 px-3 flex-1 w-full">
+              <SelectValue placeholder="Days" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="7">Last 7 days</SelectItem>
+              <SelectItem value="30">Last 30 days</SelectItem>
+              <SelectItem value="90">Last 90 days</SelectItem>
+              <SelectItem value="365">Last year</SelectItem>
+            </SelectContent>
+          </Select>
+          <button type="submit" className="h-10 px-4 rounded-xl bg-[#27324A] text-white text-xs font-bold transition-all duration-300 active:scale-[0.98]">Apply</button>
         </div>
       </form>
 

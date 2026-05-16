@@ -6,6 +6,7 @@ import { z } from "zod";
 import { nanoid } from "nanoid";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { isSafeHttpUrl } from "@/lib/security";
+import { OptionalPhoneSchema, OptionalShortText } from "@/lib/validation";
 
 const COVER_GRADIENTS = [
   "from-[#A7653A] via-[#D8C99A] to-[#B76E42]",
@@ -24,11 +25,11 @@ const ImageUrlSchema = z
 const AddressSchema = z.object({
   label: z.string().trim().min(1).max(20).default("Home"),
   address_line: z.string().trim().min(3, "Address is too short").max(200),
-  landmark: z.string().trim().max(100).optional(),
-  phone: z.string().trim().max(20).optional(),
+  landmark: OptionalShortText(100, "Landmark"),
+  phone: OptionalPhoneSchema,
   is_default: z.coerce.boolean().optional().default(false),
-  lat: z.coerce.number().min(-90).max(90).nullable().optional(),
-  lng: z.coerce.number().min(-180).max(180).nullable().optional(),
+  lat: z.coerce.number().min(-90, "Invalid latitude").max(90, "Invalid latitude").nullable().optional(),
+  lng: z.coerce.number().min(-180, "Invalid longitude").max(180, "Invalid longitude").nullable().optional(),
 });
 
 const PlaceOrderSchema = z.object({

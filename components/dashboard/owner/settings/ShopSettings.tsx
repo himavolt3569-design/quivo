@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Save, Store, Clock, Type, Trash2, AlertTriangle, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PhoneInput } from "@/components/ui/validated-input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useFontSize } from "@/components/FontProvider";
@@ -150,7 +151,8 @@ export function ShopSettings({ shopId, initialData }: ShopSettingsProps) {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label className="font-bold text-[#27324A]">Phone Number</Label>
-                <Input
+                <PhoneInput
+                  name="phone"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   className="h-12 rounded-xl mt-1.5"

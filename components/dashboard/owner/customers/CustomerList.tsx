@@ -10,12 +10,38 @@ import {
   AlertTriangle,
   Users,
   X,
+  Trash2,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { PhoneInput, EmailInput } from "@/components/ui/validated-input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { addShopCustomer, settleUdhar } from "@/app/actions/owner";
+import { addShopCustomer, settleUdhar, deleteShopCustomer } from "@/app/actions/owner";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 interface Customer {
   id: string;
@@ -44,6 +70,10 @@ export function CustomerList({ shopId, initialCustomers }: CustomerListProps) {
   const [addPhone, setAddPhone] = useState("");
   const [addEmail, setAddEmail] = useState("");
 
+  const [customerToDelete, setCustomerToDelete] = useState<Customer | null>(null);
+  const [customerToSettle, setCustomerToSettle] = useState<Customer | null>(null);
+  const [settleAmount, setSettleAmount] = useState("");
+
   const totalUdhar = customers.reduce((acc, c) => acc + (c.udhar_balance ?? 0), 0);
 
   const filtered = customers.filter((c) => {
@@ -70,31 +100,60 @@ export function CustomerList({ shopId, initialCustomers }: CustomerListProps) {
         setAddName("");
         setAddPhone("");
         setAddEmail("");
-        // Reload - a server action with revalidatePath will trigger a refresh
         window.location.reload();
       }
     });
   };
 
   const handleSettle = (customerId: string) => {
-    const amountStr = window.prompt("Enter amount to settle (Rs.):");
-    if (!amountStr) return;
-    const amount = parseFloat(amountStr);
+    const customer = customers.find(c => c.id === customerId);
+    if (customer) {
+      setCustomerToSettle(customer);
+      setSettleAmount(customer.udhar_balance.toString());
+    }
+  };
+
+  const confirmSettle = () => {
+    if (!customerToSettle) return;
+    const amount = parseFloat(settleAmount);
     if (isNaN(amount) || amount <= 0) { toast.error("Invalid amount"); return; }
 
     startTransition(async () => {
-      const result = await settleUdhar(customerId, shopId, amount);
+      const result = await settleUdhar(customerToSettle.id, shopId, amount);
       if (result.error) {
         toast.error(result.error);
       } else {
         setCustomers((prev) =>
           prev.map((c) =>
-            c.id === customerId
+            c.id === customerToSettle.id
               ? { ...c, udhar_balance: Math.max(0, c.udhar_balance - amount) }
               : c
           )
         );
         toast.success("Udhar settled successfully.");
+        setCustomerToSettle(null);
+      }
+    });
+  };
+
+  const handleDelete = (customerId: string) => {
+    const customer = customers.find(c => c.id === customerId);
+    if (customer) {
+      setCustomerToDelete(customer);
+    }
+  };
+
+  const confirmDelete = () => {
+    if (!customerToDelete) return;
+    
+    startTransition(async () => {
+      const result = await deleteShopCustomer(customerToDelete.id, shopId);
+      if (result.error) {
+        toast.error(result.error);
+      } else {
+        toast.success("Customer deleted successfully.");
+        setCustomers((prev) => prev.filter((c) => c.id !== customerToDelete.id));
+        setCustomerToDelete(null);
       }
     });
   };
@@ -235,6 +294,28 @@ export function CustomerList({ shopId, initialCustomers }: CustomerListProps) {
                           Settle
                         </Button>
                       )}
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon" className="h-8 w-8 text-[#746E73] hover:text-[#27324A] rounded-full">
+                            <MoreVertical className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => {
+                              navigator.clipboard.writeText(customer.phone ?? "");
+                              toast.success("Phone copied to clipboard");
+                            }}>
+                            <MessageCircle className="mr-2 h-4 w-4" /> Message/Contact
+                          </DropdownMenuItem>
+                          {customer.udhar_balance === 0 && (
+                            <>
+                              <DropdownMenuItem variant="destructive" onClick={() => handleDelete(customer.id)}>
+                                <Trash2 className="mr-2 h-4 w-4" /> Delete Customer
+                              </DropdownMenuItem>
+                            </>
+                          )}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </div>
                   </td>
                 </tr>
@@ -276,6 +357,17 @@ export function CustomerList({ shopId, initialCustomers }: CustomerListProps) {
                   Settle Udhar
                 </Button>
               )}
+              {customer.udhar_balance === 0 && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  disabled={isPending}
+                  onClick={() => handleDelete(customer.id)}
+                  className="mt-3 w-full h-9 rounded-xl border-red-200 text-red-600 bg-red-50 hover:bg-red-100 font-bold text-xs"
+                >
+                  <Trash2 className="h-4 w-4 mr-2" /> Delete Customer
+                </Button>
+              )}
             </div>
           ))}
         </div>
@@ -312,7 +404,7 @@ export function CustomerList({ shopId, initialCustomers }: CustomerListProps) {
               </div>
               <div>
                 <Label className="font-bold text-[#27324A]">Phone</Label>
-                <Input
+                <PhoneInput
                   value={addPhone}
                   onChange={(e) => setAddPhone(e.target.value)}
                   placeholder="98XXXXXXXX"
@@ -321,10 +413,9 @@ export function CustomerList({ shopId, initialCustomers }: CustomerListProps) {
               </div>
               <div>
                 <Label className="font-bold text-[#27324A]">Email (optional)</Label>
-                <Input
+                <EmailInput
                   value={addEmail}
                   onChange={(e) => setAddEmail(e.target.value)}
-                  type="email"
                   placeholder="customer@email.com"
                   className="h-12 rounded-xl mt-1.5"
                 />
@@ -349,6 +440,64 @@ export function CustomerList({ shopId, initialCustomers }: CustomerListProps) {
           </div>
         </div>
       )}
+      {/* Delete Confirmation Modal */}
+      <AlertDialog open={!!customerToDelete} onOpenChange={(o) => !o && setCustomerToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Customer</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete <span className="font-bold text-[#27324A] dark:text-white">{customerToDelete?.name}</span>? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete} disabled={isPending}>
+              {isPending ? "Deleting..." : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Settle Udhar Modal */}
+      <Dialog open={!!customerToSettle} onOpenChange={(o) => !o && setCustomerToSettle(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Settle Udhar</DialogTitle>
+            <DialogDescription>
+              Enter the amount to settle for <span className="font-bold text-[#27324A] dark:text-white">{customerToSettle?.name}</span>.
+              (Current balance: Rs. {customerToSettle?.udhar_balance})
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-2">
+            <Label className="font-bold text-[#27324A] dark:text-white">Amount (Rs.)</Label>
+            <Input
+              type="number"
+              min="0.01"
+              step="0.01"
+              value={settleAmount}
+              onChange={(e) => setSettleAmount(e.target.value)}
+              className="mt-2"
+              placeholder="0.00"
+            />
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setCustomerToSettle(null)}
+              className="h-12 rounded-xl border-[#2E3344]/10 dark:border-white/10 font-bold hover:bg-[#F7F0E6] dark:hover:bg-white/5"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={confirmSettle}
+              disabled={isPending || !settleAmount || parseFloat(settleAmount) <= 0}
+              className="h-12 rounded-xl bg-green-600 hover:bg-green-700 text-white font-bold"
+            >
+              {isPending ? "Settling..." : "Settle Amount"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

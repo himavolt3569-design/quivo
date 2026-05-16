@@ -131,29 +131,19 @@
     overflow-x: hidden;
   }
 
-  /* Optimize UI transitions for high-end feel.
-     NOTE: do NOT set `transform` or `will-change: transform` here — any
-     ancestor with a non-`none` transform becomes the containing block for
-     `position: fixed` descendants (CSS spec). That breaks fixed bottom
-     navs, full-screen modals, etc. The animation keyframes already promote
-     to GPU via translate3d in the `from` state. */
   .animate-in {
     animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
     backface-visibility: hidden;
   }
 
-  /* Sidebars and dialogs: same constraint — no global transform on the open
-     state, or fixed children get re-parented. */
   [data-state='open'] {
     backface-visibility: hidden;
   }
 
-  /* Prevent layout thrashing on root scaling */
   :root {
     transition: font-size 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
-  /* Minimal Scrollbar Styles (Webkit) */
   html::-webkit-scrollbar {
     width: 6px;
     height: 6px;
@@ -173,7 +163,6 @@
     background: oklch(0.62 0.095 44.8 / 40%);
   }
 
-  /* Firefox Support (Page-level only) */
   html, body {
     scrollbar-width: thin;
     scrollbar-color: oklch(0.79 0.025 78.5 / 30%) transparent;
@@ -203,6 +192,22 @@
     @apply cursor-pointer;
   }
 
+  /* Global Interactive Vibes */
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]),
+  a[href]:not(.no-scale):not(.nav-link) {
+    transition-property: transform, background-color, border-color, box-shadow, opacity;
+    transition-duration: 300ms;
+    transition-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
+    will-change: transform;
+  }
+
+  button:not(:disabled):active,
+  [role="button"]:not([aria-disabled="true"]):active,
+  a[href]:not(.no-scale):not(.nav-link):active {
+    transform: scale(0.97) translateZ(0);
+  }
+
   button,
   a {
     -webkit-tap-highlight-color: transparent;
@@ -210,6 +215,56 @@
 }
 
 @layer components {
+  /* Ultra-Premium Glass Skeleton */
+  .soft-skeleton {
+    position: relative;
+    overflow: hidden;
+    background-color: oklch(0.94 0.02 85 / 40%);
+    border: 1px solid oklch(0.91 0.032 78.5 / 20%);
+    box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.5);
+  }
+
+  .soft-skeleton::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.6) 50%,
+      transparent 100%
+    );
+    animation: shimmer 2s infinite cubic-bezier(0.32, 0.72, 0, 1);
+  }
+
+  .dark .soft-skeleton {
+    background-color: oklch(0.2 0.03 267.8 / 40%);
+    border: 1px solid oklch(1 0 0 / 5%);
+    box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.05);
+  }
+
+  .dark .soft-skeleton::after {
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.08) 50%,
+      transparent 100%
+    );
+  }
+
+  @keyframes shimmer {
+    100% {
+      transform: translateX(100%);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .soft-skeleton::after {
+      animation: none;
+    }
+  }
+
   .container {
     width: 100%;
     margin-left: auto;
@@ -250,8 +305,7 @@
   }
 }
 
-
-/* Award upgrade design reminder: Cinematic Local Commerce uses tactile rice-paper depth, scanner-light motion, magnetic card response, and barcode textures while preserving Quivo's existing content and mobile-safe behavior. */
+/* Award upgrade design reminder */
 @layer components {
   .quivo-award-shell {
     position: relative;
@@ -423,7 +477,6 @@
   }
 }
 
-/* Quivo mobile responsiveness pass: compact header, intentional phone hero rhythm, calmer cards, and no horizontal page drift while preserving desktop award styling. */
 @media (max-width: 639px) {
   html,
   body {
@@ -501,7 +554,6 @@
   }
 }
 
-/* Quivo mobile responsiveness refinement: protect the award-style desktop composition while giving phones a deliberately composed layout. */
 @layer utilities {
   .hide-scrollbar {
     -ms-overflow-style: none;
@@ -580,3 +632,47 @@
   }
 }
 
+@media print {
+  @page {
+    size: A4;
+    margin: 14mm;
+  }
+
+  body {
+    background: #ffffff !important;
+  }
+
+  body:has(.printable-ledger) .no-print,
+  body:has(.printable-ledger) aside,
+  body:has(.printable-ledger) nav,
+  body:has(.printable-ledger) [data-slot="dialog-overlay"],
+  body:has(.printable-ledger) [data-slot="dialog-content"] {
+    display: none !important;
+  }
+
+  body:has(.printable-ledger) main {
+    padding: 0 !important;
+  }
+
+  .printable-ledger {
+    border: 0 !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    color: #111827 !important;
+  }
+
+  .printable-ledger table {
+    page-break-inside: auto;
+    border-collapse: collapse;
+  }
+
+  .printable-ledger tr {
+    page-break-inside: avoid;
+    page-break-after: auto;
+  }
+
+  .printable-ledger th,
+  .printable-ledger td {
+    border-bottom: 1px solid #e5e7eb;
+  }
+}

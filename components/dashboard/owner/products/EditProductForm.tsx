@@ -9,6 +9,13 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { toast } from "sonner";
 import { updateProduct } from "@/app/actions/owner";
 import { createClient } from "@/lib/supabase/client";
@@ -229,9 +236,16 @@ export function EditProductForm({ shopId, shopSlug, product }: EditProductFormPr
                   </div>
                   <div>
                     <Label className="font-bold text-[#27324A]">Unit Type</Label>
-                    <select name="unit_type" defaultValue={initUnitType} className="flex h-12 w-full items-center justify-between rounded-xl border border-input bg-transparent px-3 py-2 text-sm shadow-sm mt-1.5 outline-none focus:ring-1">
-                      {UNIT_TYPES.map((u) => <option key={u} value={u}>{u}</option>)}
-                    </select>
+                    <Select name="unit_type" defaultValue={initUnitType}>
+                      <SelectTrigger className="w-full mt-1.5">
+                        <SelectValue placeholder="Unit Type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {UNIT_TYPES.map((u) => (
+                          <SelectItem key={u} value={u}>{u}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
                   <div>
                     <Label className="font-bold text-[#27324A]">Variant / Flavor</Label>

@@ -3,6 +3,7 @@ import { getOwnerContext } from "@/lib/shop";
 import { KYCForm } from "@/components/dashboard/owner/kyc/KYCForm";
 import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
+import { getKycCompliancePolicy, type VerificationStatus } from "@/lib/kyc-compliance";
 
 export default async function KYCPage() {
   const ctx = await getOwnerContext();
@@ -22,9 +23,16 @@ export default async function KYCPage() {
   const supabase = await createClient();
   const { data: shopData } = await supabase
     .from("shops")
-    .select("verification_status, kyc_submitted_at, kyc_rejection_reason, kyc_document_urls, kyc_confidence, name")
+    .select("verification_status, created_at, kyc_submitted_at, kyc_rejection_reason, kyc_document_urls, kyc_confidence, name")
     .eq("id", shop.id)
     .single();
+
+  const verificationStatus = (shopData?.verification_status ?? "unverified") as VerificationStatus;
+  const policy = getKycCompliancePolicy({
+    verificationStatus,
+    createdAt: shopData?.created_at ?? new Date().toISOString(),
+    kycSubmittedAt: shopData?.kyc_submitted_at ?? null,
+  });
 
   return (
     <div className="max-w-2xl mx-auto">
@@ -44,7 +52,10 @@ export default async function KYCPage() {
       <KYCForm
         shopId={shop.id}
         shopName={shopData?.name ?? shop.name}
-        verificationStatus={shopData?.verification_status ?? "unverified"}
+        verificationStatus={verificationStatus}
+        graceEndsAt={policy.graceEndsAt}
+        daysRemaining={policy.daysRemaining}
+        isBlocked={policy.isBlocked}
         kycSubmittedAt={shopData?.kyc_submitted_at ?? null}
         kycRejectionReason={shopData?.kyc_rejection_reason ?? null}
         kycDocumentUrls={(shopData?.kyc_document_urls as string[]) ?? []}

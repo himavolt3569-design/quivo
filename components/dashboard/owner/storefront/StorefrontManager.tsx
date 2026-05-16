@@ -1,15 +1,16 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useEffect, useCallback, useMemo, useRef } from "react";
 import { Reorder, useDragControls } from "framer-motion";
 import {
   QrCode, Download, Share2, Globe2, Palette, Eye,
   CheckCircle2, Copy, MessageSquare, Send,
-  LayoutGrid, List, Type, Megaphone, Star, Phone, X,
+  List, Type, Megaphone, Star, Phone, X,
   RefreshCw, GripVertical,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PhoneInput } from "@/components/ui/validated-input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { updateStorefrontSettings } from "@/app/actions/storefront";
@@ -71,11 +72,10 @@ const FONTS = [
   { id: "dmsans", name: "DM Sans", style: "font-sans" },
 ];
 
+// Sections the owner can reorder in the storefront body. Hero, announcement and
+// category filter are structural (always at top) and not in this list.
 const ALL_SECTIONS: { id: string; label: string; icon: React.ReactNode }[] = [
-  { id: "hero", label: "Hero Banner", icon: <Globe2 className="h-3.5 w-3.5" /> },
-  { id: "announcement", label: "Announcement", icon: <Megaphone className="h-3.5 w-3.5" /> },
   { id: "featured", label: "Featured Products", icon: <Star className="h-3.5 w-3.5" /> },
-  { id: "categories", label: "Category Filter", icon: <LayoutGrid className="h-3.5 w-3.5" /> },
   { id: "products", label: "Product Grid", icon: <List className="h-3.5 w-3.5" /> },
   { id: "about", label: "About Section", icon: <Type className="h-3.5 w-3.5" /> },
   { id: "contact", label: "Contact Info", icon: <Phone className="h-3.5 w-3.5" /> },
@@ -153,7 +153,10 @@ export function StorefrontManager({
   const [sessionMessages, setSessionMessages] = useState<ChatMessage[]>([]);
   const [chatInput, setChatInput] = useState("");
   const [chatPending, startChatTransition] = useTransition();
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
+  const activeSessionRef = useRef<string | null>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  useEffect(() => { activeSessionRef.current = activeSession; }, [activeSession]);
 
   const handlePublish = () => {
     startTransition(async () => {
@@ -188,8 +191,7 @@ export function StorefrontManager({
     link.click();
   };
 
-  // Load chat sessions when chat tab is opened
-  const loadChatSessions = async () => {
+  const loadChatSessions = useCallback(async () => {
     const { data } = await supabase
       .from("chat_messages")
       .select("session_id, customer_name, message, created_at, read, sender")
@@ -198,7 +200,6 @@ export function StorefrontManager({
 
     if (!data) return;
 
-    // Group by session_id, get last message + unread count
     const sessionMap: Record<string, ChatSession> = {};
     for (const msg of data) {
       if (!sessionMap[msg.session_id]) {
@@ -215,37 +216,84 @@ export function StorefrontManager({
       }
     }
     setSessions(Object.values(sessionMap).sort((a, b) => new Date(b.last_at).getTime() - new Date(a.last_at).getTime()));
-  };
+  }, [supabase, shopId]);
 
-  const openSession = async (sessionId: string) => {
-    setActiveSession(sessionId);
+  const loadSessionMessages = useCallback(async (sessionId: string) => {
     const { data } = await supabase
       .from("chat_messages")
       .select("id, sender, message, created_at")
       .eq("shop_id", shopId)
       .eq("session_id", sessionId)
       .order("created_at", { ascending: true });
-
     if (data) setSessionMessages(data as ChatMessage[]);
+  }, [supabase, shopId]);
+
+  const openSession = useCallback(async (sessionId: string) => {
+    setActiveSession(sessionId);
+    await loadSessionMessages(sessionId);
     await markChatSessionRead(shopId, sessionId);
     setSessions((prev) => prev.map((s) => s.session_id === sessionId ? { ...s, unread: 0 } : s));
-  };
+  }, [loadSessionMessages, shopId]);
+
+  // Realtime: subscribe once for the shop. Inserts trigger session list refresh
+  // and, if the message belongs to the currently open thread, append it live.
+  useEffect(() => {
+    loadChatSessions();
+
+    const channel = supabase
+      .channel(`owner-chat:${shopId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "chat_messages",
+          filter: `shop_id=eq.${shopId}`,
+        },
+        (payload) => {
+          const msg = payload.new as ChatMessage & { session_id: string; customer_name: string | null };
+          loadChatSessions();
+          if (activeSessionRef.current === msg.session_id) {
+            setSessionMessages((prev) => {
+              if (prev.some((m) => m.id === msg.id)) return prev;
+              return [...prev, { id: msg.id, sender: msg.sender, message: msg.message, created_at: msg.created_at }];
+            });
+            if (msg.sender === "customer") {
+              markChatSessionRead(shopId, msg.session_id).catch(() => {});
+            }
+          }
+        }
+      )
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
+  }, [supabase, shopId, loadChatSessions]);
+
+  // Auto-scroll thread on new messages
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [sessionMessages]);
 
   const handleSendReply = () => {
     if (!chatInput.trim() || !activeSession) return;
     const text = chatInput.trim();
+    const sessionId = activeSession;
     setChatInput("");
+    // Optimistic: realtime echo will reconcile by id
+    const tempId = `temp_${Date.now()}`;
+    setSessionMessages((prev) => [...prev, {
+      id: tempId, sender: "owner", message: text, created_at: new Date().toISOString(),
+    }]);
     startChatTransition(async () => {
-      const result = await sendOwnerChatReply(shopId, activeSession, text);
-      if (result.error) { toast.error(result.error); return; }
-      // Refresh messages
-      const { data } = await supabase
-        .from("chat_messages")
-        .select("id, sender, message, created_at")
-        .eq("shop_id", shopId)
-        .eq("session_id", activeSession)
-        .order("created_at", { ascending: true });
-      if (data) setSessionMessages(data as ChatMessage[]);
+      const result = await sendOwnerChatReply(shopId, sessionId, text);
+      if (result.error) {
+        toast.error(result.error);
+        setSessionMessages((prev) => prev.filter((m) => m.id !== tempId));
+        setChatInput(text);
+        return;
+      }
+      // Replace optimistic with server row (realtime will also fire)
+      await loadSessionMessages(sessionId);
     });
   };
 
@@ -277,7 +325,7 @@ export function StorefrontManager({
         {TABS.map((tab) => (
           <button
             key={tab.id}
-            onClick={() => { setActiveTab(tab.id); if (tab.id === "chat") loadChatSessions(); }}
+            onClick={() => setActiveTab(tab.id)}
             className={`flex items-center gap-2 pb-3 px-3 text-sm font-bold border-b-2 transition-all ${
               activeTab === tab.id
                 ? "border-[#A7653A] text-[#A7653A]"
@@ -518,15 +566,17 @@ export function StorefrontManager({
               <h2 className="text-sm font-black text-[#27324A] uppercase tracking-wider">Contact & Integrations</h2>
               <div>
                 <Label className="font-bold text-[#27324A]">WhatsApp Number</Label>
-                <div className="flex items-center mt-1.5">
+                <div className="flex items-start mt-1.5">
                   <span className="h-12 px-3 flex items-center bg-[#f8f8f7] border border-r-0 border-[#2E3344]/10 rounded-l-xl text-sm font-bold text-[#746E73]">+977</span>
-                  <Input
-                    value={whatsapp}
-                    onChange={(e) => setWhatsapp(e.target.value)}
-                    placeholder="98XXXXXXXX"
-                    className="h-12 rounded-l-none rounded-r-xl border-l-0"
-                    type="tel"
-                  />
+                  <div className="flex-1">
+                    <PhoneInput
+                      name="whatsapp_number"
+                      value={whatsapp}
+                      onChange={(e) => setWhatsapp(e.target.value)}
+                      placeholder="98XXXXXXXX"
+                      className="h-12 rounded-l-none rounded-r-xl border-l-0"
+                    />
+                  </div>
                 </div>
                 <p className="text-[10px] text-[#746E73] mt-1">Customers can reach you directly via WhatsApp from the storefront.</p>
               </div>
@@ -646,6 +696,7 @@ export function StorefrontManager({
                       </div>
                     </div>
                   ))}
+                  <div ref={messagesEndRef} />
                 </div>
 
                 {/* Reply */}

@@ -2,7 +2,6 @@ import { ReactNode } from "react";
 import Link from "next/link";
 import { LogOut } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
-import { redirect } from "next/navigation";
 import { signOut } from "@/app/actions/auth";
 import { FontProvider } from "@/components/FontProvider";
 import type { Profile } from "@/lib/types";

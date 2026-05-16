@@ -20,11 +20,20 @@ export default async function CustomerLayout({
     redirect("/?login=true");
   }
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role, full_name")
-    .eq("id", user!.id)
-    .maybeSingle();
+  const [profileResult, activeOrderCountResult] = await Promise.all([
+    supabase
+      .from("profiles")
+      .select("role, full_name")
+      .eq("id", user!.id)
+      .maybeSingle(),
+    supabase
+      .from("orders")
+      .select("id", { count: "exact", head: true })
+      .eq("customer_id", user!.id)
+      .not("status", "in", "(delivered,cancelled)"),
+  ]);
+
+  const { data: profile } = profileResult;
 
   // SECURITY: no self-healing. A missing profile for an authenticated user
   // means the account was revoked (admin deleted the profile row) or the
@@ -39,15 +48,9 @@ export default async function CustomerLayout({
   // cannot reach /dashboard/owner).
   const isOwner = profile.role === "owner";
 
-  const { count: activeOrderCount } = await supabase
-    .from("orders")
-    .select("id", { count: "exact", head: true })
-    .eq("customer_id", user!.id)
-    .not("status", "in", "(delivered,cancelled)");
-
   return (
     <div className="animate-in fade-in duration-300">
-      <DashboardNav activeOrderCount={activeOrderCount ?? 0} />
+      <DashboardNav activeOrderCount={activeOrderCountResult.count ?? 0} />
       {isOwner && <RoleModeSwitch variant="pill" targetMode="owner" />}
       <main className="container px-4 pb-28 pt-8 sm:px-6 sm:pb-10 lg:pt-10">
         <div className="mx-auto max-w-5xl">

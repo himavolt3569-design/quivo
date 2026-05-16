@@ -1,7 +1,12 @@
 "use client";
 
-import { Search, ShoppingBag, Plus, Zap, MapPin } from "lucide-react";
+import Link from "next/link";
+import { Search, ShoppingBag, Plus, Zap, MapPin, Phone, MessageCircle } from "lucide-react";
 import type { TemplateProps } from "./types";
+import { productHref, stopCardClick as stop } from "./cardHelpers";
+
+const BODY_SECTIONS = new Set(["featured", "products", "about", "contact"]);
+const DEFAULT_BODY_ORDER = ["products", "about", "contact"];
 
 export function DarkTemplate({ shop, products, cart, onAddToCart, onUpdateQty, onOpenCart, searchQuery, setSearchQuery, activeCategory, setActiveCategory }: TemplateProps) {
   const themeColor = shop.theme_color || "#D4A853";
@@ -83,27 +88,28 @@ export function DarkTemplate({ shop, products, cart, onAddToCart, onUpdateQty, o
         </div>
       </div>
 
-      {/* Products */}
-      <div className="max-w-4xl mx-auto px-4 sm:px-6">
-        {filtered.length === 0 ? (
-          <div className="text-center py-16 text-gray-600">
-            <ShoppingBag className="h-12 w-12 mx-auto opacity-20 mb-3" style={{ color: themeColor }} />
-            <p className="font-medium text-sm">No products found</p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
-            {filtered.map((p) => {
+      {/* Body sections rendered in owner's chosen order */}
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 space-y-12">
+        {(() => {
+          const productsBlock = (
+            <section key="products">
+              {filtered.length === 0 ? (
+                <div className="text-center py-16 text-gray-600">
+                  <ShoppingBag className="h-12 w-12 mx-auto opacity-20 mb-3" style={{ color: themeColor }} />
+                  <p className="font-medium text-sm">No products found</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
+                  {filtered.map((p) => {
               const cartItem = cart.find((c) => c.id === p.id);
-              return (
-                <div
-                  key={p.id}
-                  className="rounded-2xl overflow-hidden flex flex-col border transition"
-                  style={{
-                    backgroundColor: "#1a1a26",
-                    borderColor: cartItem ? themeColor + "60" : "#2a2a38",
-                  }}
-                >
-                  {/* Image */}
+              const href = productHref(shop.slug, p);
+              const cardCls = "rounded-2xl overflow-hidden flex flex-col border transition";
+              const cardStyle = {
+                backgroundColor: "#1a1a26",
+                borderColor: cartItem ? themeColor + "60" : "#2a2a38",
+              };
+              const body = (
+                <>
                   <div className="aspect-square flex items-center justify-center font-black text-4xl overflow-hidden relative" style={{ backgroundColor: "#13131e" }}>
                     {p.image_url ? (
                       <img src={p.image_url} alt={p.name} className="h-full w-full object-cover" />
@@ -116,24 +122,23 @@ export function DarkTemplate({ shop, products, cart, onAddToCart, onUpdateQty, o
                       </span>
                     )}
                   </div>
-
-                  {/* Info */}
                   <div className="p-3 flex flex-col flex-1">
                     {p.category && <span className="text-[9px] uppercase tracking-widest font-bold mb-1" style={{ color: themeColor }}>{p.category}</span>}
                     <h3 className="text-xs font-bold text-white line-clamp-2 flex-1">{p.name}</h3>
                     <div className="flex items-center justify-between mt-2">
                       <span className="text-sm font-black" style={{ color: themeColor }}>Rs. {p.price}</span>
                       {cartItem ? (
-                        <div className="flex items-center gap-1 rounded-xl p-0.5 border" style={{ borderColor: themeColor + "40" }}>
-                          <button onClick={() => onUpdateQty(p.id, -1)} className="h-6 w-6 flex items-center justify-center rounded-lg transition font-bold text-gray-400 hover:text-white">−</button>
+                        <div className="flex items-center gap-1 rounded-xl p-0.5 border" style={{ borderColor: themeColor + "40" }} onClick={stop}>
+                          <button type="button" onClick={(e) => { stop(e); onUpdateQty(p.id, -1); }} className="h-6 w-6 flex items-center justify-center rounded-lg transition font-bold text-gray-400 hover:text-white">−</button>
                           <span className="text-xs font-black w-4 text-center text-white">{cartItem.qty}</span>
-                          <button onClick={() => onUpdateQty(p.id, 1)} className="h-6 w-6 flex items-center justify-center rounded-lg transition" style={{ backgroundColor: themeColor }}>
+                          <button type="button" onClick={(e) => { stop(e); onUpdateQty(p.id, 1); }} className="h-6 w-6 flex items-center justify-center rounded-lg transition" style={{ backgroundColor: themeColor }}>
                             <Plus className="h-3 w-3" style={{ color: "#0c0c12" }} />
                           </button>
                         </div>
                       ) : (
                         <button
-                          onClick={() => onAddToCart(p)}
+                          type="button"
+                          onClick={(e) => { stop(e); onAddToCart(p); }}
                           className="h-7 px-2.5 rounded-xl text-[10px] font-bold flex items-center gap-1 transition active:scale-90"
                           style={{ backgroundColor: themeColor, color: "#0c0c12" }}
                         >
@@ -142,22 +147,64 @@ export function DarkTemplate({ shop, products, cart, onAddToCart, onUpdateQty, o
                       )}
                     </div>
                   </div>
-                </div>
+                </>
+              );
+              return href ? (
+                <Link key={p.id} href={href} className={cardCls} style={cardStyle}>{body}</Link>
+              ) : (
+                <div key={p.id} className={cardCls} style={cardStyle}>{body}</div>
               );
             })}
-          </div>
-        )}
+                </div>
+              )}
+            </section>
+          );
 
-        {/* About */}
-        {shop.description && (
-          <div className="mt-12 p-6 rounded-2xl border" style={{ backgroundColor: "#1a1a26", borderColor: "#2a2a38" }}>
-            <div className="flex items-center gap-2 mb-3">
-              <Zap className="h-4 w-4" style={{ color: themeColor }} />
-              <span className="text-xs font-black uppercase tracking-wider" style={{ color: themeColor }}>About</span>
-            </div>
-            <p className="text-sm text-gray-400">{shop.description}</p>
-          </div>
-        )}
+          const aboutBlock = shop.description ? (
+            <section key="about" className="p-6 rounded-2xl border" style={{ backgroundColor: "#1a1a26", borderColor: "#2a2a38" }}>
+              <div className="flex items-center gap-2 mb-3">
+                <Zap className="h-4 w-4" style={{ color: themeColor }} />
+                <span className="text-xs font-black uppercase tracking-wider" style={{ color: themeColor }}>About</span>
+              </div>
+              <p className="text-sm text-gray-400 whitespace-pre-line">{shop.description}</p>
+            </section>
+          ) : null;
+
+          const contactBlock = (shop.phone || shop.whatsapp_number || shop.address) ? (
+            <section key="contact" className="p-6 rounded-2xl border" style={{ backgroundColor: "#1a1a26", borderColor: "#2a2a38" }}>
+              <div className="flex items-center gap-2 mb-4">
+                <Zap className="h-4 w-4" style={{ color: themeColor }} />
+                <span className="text-xs font-black uppercase tracking-wider" style={{ color: themeColor }}>Contact</span>
+              </div>
+              <div className="space-y-2 text-sm text-gray-300">
+                {shop.phone && (
+                  <a href={`tel:${shop.phone}`} className="flex items-center gap-2 hover:text-white">
+                    <Phone className="h-3.5 w-3.5" style={{ color: themeColor }} /> {shop.phone}
+                  </a>
+                )}
+                {shop.whatsapp_number && (
+                  <a href={`https://wa.me/${shop.whatsapp_number.replace(/\D/g, "")}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-white">
+                    <MessageCircle className="h-3.5 w-3.5" style={{ color: themeColor }} /> WhatsApp · {shop.whatsapp_number}
+                  </a>
+                )}
+                {shop.address && (
+                  <p className="flex items-start gap-2"><MapPin className="h-3.5 w-3.5 mt-0.5 shrink-0" style={{ color: themeColor }} /> {shop.address}</p>
+                )}
+              </div>
+            </section>
+          ) : null;
+
+          const blocks: Record<string, React.ReactNode> = {
+            products: productsBlock,
+            about: aboutBlock,
+            contact: contactBlock,
+          };
+
+          const requested = (shop.sections_order ?? []).filter((s) => BODY_SECTIONS.has(s));
+          const order = requested.length ? requested.slice() : DEFAULT_BODY_ORDER.slice();
+          if (!order.includes("products")) order.push("products");
+          return order.map((id) => blocks[id]).filter(Boolean);
+        })()}
       </div>
 
       {/* Cart */}

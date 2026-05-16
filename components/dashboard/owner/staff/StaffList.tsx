@@ -1,12 +1,15 @@
 "use client";
 
 import { useRef, useState, useTransition } from "react";
-import { Shield, Plus, Lock, X, Users, Camera, Loader2 } from "lucide-react";
+import { Shield, Plus, Lock, X, Users, Camera, Loader2, LinkIcon, Unlink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PhoneInput, EmailInput } from "@/components/ui/validated-input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { addShopStaff, updateShopStaffStatus } from "@/app/actions/owner";
+import { linkStaffToUser, unlinkStaffUser } from "@/app/actions/shifts";
 import { createClient } from "@/lib/supabase/client";
 
 interface StaffMember {
@@ -18,6 +21,7 @@ interface StaffMember {
   notes: string | null;
   status: string;
   image_url: string | null;
+  linked_user_id: string | null;
   created_at: string;
 }
 
@@ -117,6 +121,28 @@ export function StaffList({ shopId, initialStaff }: StaffListProps) {
   const activeStaff = staff.filter((s) => s.status === "active");
   const inactiveStaff = staff.filter((s) => s.status !== "active");
 
+  const handleLinkAccount = (memberId: string, defaultEmail: string | null) => {
+    const email = typeof window !== "undefined"
+      ? window.prompt("Enter the Quivo email address of this staff member so they can log in and clock in:", defaultEmail ?? "")
+      : null;
+    if (!email || !email.trim()) return;
+    startTransition(async () => {
+      const res = await linkStaffToUser(memberId, email.trim());
+      if (res.error) { toast.error(res.error); return; }
+      setStaff((prev) => prev.map((s) => s.id === memberId ? { ...s, linked_user_id: res.userId ?? "linked" } : s));
+      toast.success("Staff account linked");
+    });
+  };
+
+  const handleUnlinkAccount = (memberId: string) => {
+    startTransition(async () => {
+      const res = await unlinkStaffUser(memberId);
+      if (res.error) { toast.error(res.error); return; }
+      setStaff((prev) => prev.map((s) => s.id === memberId ? { ...s, linked_user_id: null } : s));
+      toast.success("Account unlinked");
+    });
+  };
+
   return (
     <div className="space-y-6 max-w-6xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500 pb-10">
       {/* Header */}
@@ -181,13 +207,34 @@ export function StaffList({ shopId, initialStaff }: StaffListProps) {
                     </div>
                   </div>
                 </div>
-                <button
-                  disabled={isPending}
-                  onClick={() => handleToggleStatus(member.id, member.status)}
-                  className="text-xs font-bold text-red-500 hover:bg-red-50 px-3 py-1.5 rounded-lg transition"
-                >
-                  Deactivate
-                </button>
+                <div className="flex items-center gap-1.5">
+                  {member.linked_user_id ? (
+                    <button
+                      disabled={isPending}
+                      onClick={() => handleUnlinkAccount(member.id)}
+                      title="Unlink account"
+                      className="h-8 w-8 rounded-lg flex items-center justify-center text-[#41A560] hover:bg-red-50 hover:text-red-500 transition disabled:opacity-40"
+                    >
+                      <Unlink className="h-3.5 w-3.5" />
+                    </button>
+                  ) : (
+                    <button
+                      disabled={isPending}
+                      onClick={() => handleLinkAccount(member.id, member.email)}
+                      title="Link to a Quivo account so they can use the staff dashboard"
+                      className="h-8 w-8 rounded-lg flex items-center justify-center text-[#746E73] hover:bg-[#F7F0E6] hover:text-[#A7653A] transition disabled:opacity-40"
+                    >
+                      <LinkIcon className="h-3.5 w-3.5" />
+                    </button>
+                  )}
+                  <button
+                    disabled={isPending}
+                    onClick={() => handleToggleStatus(member.id, member.status)}
+                    className="text-xs font-bold text-red-500 hover:bg-red-50 px-3 py-1.5 rounded-lg transition"
+                  >
+                    Deactivate
+                  </button>
+                </div>
               </div>
             ))}
             {inactiveStaff.length > 0 && (
@@ -326,20 +373,26 @@ export function StaffList({ shopId, initialStaff }: StaffListProps) {
               </div>
               <div>
                 <Label className="font-bold text-[#27324A]">Role *</Label>
-                <select
+                <Select
                   value={form.role}
-                  onChange={(e) => setForm((f) => ({ ...f, role: e.target.value }))}
-                  className="flex h-12 w-full items-center justify-between rounded-xl border border-input bg-transparent px-3 py-2 text-sm shadow-sm mt-1.5 outline-none focus:ring-1"
+                  onValueChange={(v) => setForm((f) => ({ ...f, role: v }))}
                 >
-                  {ROLES.map((r) => (
-                    <option key={r.id} value={r.id}>{r.label}</option>
-                  ))}
-                </select>
+                  <SelectTrigger className="w-full mt-1.5 h-12">
+                    <SelectValue placeholder="Select role" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {ROLES.map((r) => (
+                      <SelectItem key={r.id} value={r.id}>
+                        {r.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <Label className="font-bold text-[#27324A]">Phone</Label>
-                  <Input
+                  <PhoneInput
                     value={form.phone}
                     onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
                     placeholder="98XXXXXXXX"
@@ -348,10 +401,9 @@ export function StaffList({ shopId, initialStaff }: StaffListProps) {
                 </div>
                 <div>
                   <Label className="font-bold text-[#27324A]">Email</Label>
-                  <Input
+                  <EmailInput
                     value={form.email}
                     onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
-                    type="email"
                     placeholder="staff@email.com"
                     className="h-12 rounded-xl mt-1.5"
                   />
