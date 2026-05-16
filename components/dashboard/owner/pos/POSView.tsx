@@ -62,6 +62,10 @@ interface CartItem {
 
 interface CompletedBill {
   items: CartItem[];
+  subtotal: number;
+  discount: number;
+  discountKind: "flat" | "percent";
+  discountValue: number;
   total: number;
   paymentMethod: string;
   customerName?: string;
@@ -71,12 +75,18 @@ interface CompletedBill {
 interface POSViewProps {
   shopId: string;
   shopName: string;
+  ownerName: string;
   catalogProducts: CatalogProduct[];
 }
 
 interface CartContentProps {
   cart: CartItem[];
   subtotal: number;
+  discount: number;
+  discountValue: number;
+  discountKind: "flat" | "percent";
+  total: number;
+  buyerName: string;
   isPending: boolean;
   showUdharPrompt: boolean;
   udharName: string;
@@ -87,6 +97,9 @@ interface CartContentProps {
   onCheckout: (method: string, name?: string) => void;
   onDismissUdhar: () => void;
   onUdharNameChange: (v: string) => void;
+  onBuyerNameChange: (v: string) => void;
+  onDiscountValueChange: (v: number) => void;
+  onDiscountKindChange: (k: "flat" | "percent") => void;
 }
 
 // ─── Unit intelligence ────────────────────────────────────────────────────────
@@ -168,8 +181,10 @@ function UnitIcon({ kind }: { kind: UnitKind }) {
 }
 
 function CartContent({
-  cart, subtotal, isPending, showUdharPrompt, udharName, udharInputRef,
+  cart, subtotal, discount, discountValue, discountKind, total, buyerName,
+  isPending, showUdharPrompt, udharName, udharInputRef,
   onClearCart, onUpdateQty, onPaymentClick, onCheckout, onDismissUdhar, onUdharNameChange,
+  onBuyerNameChange, onDiscountValueChange, onDiscountKindChange,
 }: CartContentProps) {
   return (
     <div className="w-full h-full flex flex-col bg-white lg:rounded-[2rem] lg:border border-[#2E3344]/8 lg:shadow-sm overflow-hidden shrink-0">
@@ -254,14 +269,66 @@ function CartContent({
 
       {/* Footer */}
       <div className="p-5 border-t border-[#2E3344]/8 bg-[#f8f8f7]">
+        {/* Buyer name (optional) */}
+        {cart.length > 0 && (
+          <div className="mb-3">
+            <Input
+              value={buyerName}
+              onChange={(e) => onBuyerNameChange(e.target.value)}
+              placeholder="Buyer name (optional)"
+              className="h-9 text-sm rounded-xl bg-white"
+            />
+          </div>
+        )}
+
+        {/* Discount */}
+        {cart.length > 0 && (
+          <div className="mb-3 flex gap-2 items-center">
+            <span className="text-[10px] font-black uppercase tracking-wider text-[#746E73] shrink-0">Discount</span>
+            <div className="flex flex-1 rounded-xl border border-[#2E3344]/10 overflow-hidden bg-white">
+              <button
+                type="button"
+                onClick={() => onDiscountKindChange("flat")}
+                className={`px-2 text-xs font-black ${discountKind === "flat" ? "bg-[#27324A] text-white" : "text-[#746E73]"}`}
+                aria-label="Flat amount"
+              >
+                Rs
+              </button>
+              <button
+                type="button"
+                onClick={() => onDiscountKindChange("percent")}
+                className={`px-2 text-xs font-black ${discountKind === "percent" ? "bg-[#27324A] text-white" : "text-[#746E73]"}`}
+                aria-label="Percent"
+              >
+                %
+              </button>
+              <input
+                type="number"
+                min="0"
+                step="0.01"
+                value={discountValue || ""}
+                onChange={(e) => onDiscountValueChange(Number(e.target.value) || 0)}
+                placeholder="0"
+                className="flex-1 px-2 h-9 text-sm outline-none bg-transparent"
+              />
+            </div>
+          </div>
+        )}
+
         <div className="space-y-2 mb-4">
           <div className="flex justify-between text-sm text-[#746E73] font-medium">
-            <span>{cart.length} item{cart.length !== 1 ? "s" : ""} in cart</span>
+            <span>Subtotal · {cart.length} item{cart.length !== 1 ? "s" : ""}</span>
             <span>Rs. {subtotal.toFixed(2)}</span>
           </div>
+          {discount > 0 && (
+            <div className="flex justify-between text-sm font-bold text-[#A7653A]">
+              <span>Discount{discountKind === "percent" ? ` (${discountValue}%)` : ""}</span>
+              <span>− Rs. {discount.toFixed(2)}</span>
+            </div>
+          )}
           <div className="flex justify-between text-xl font-black text-[#27324A] pt-2 border-t border-[#2E3344]/10">
             <span>Total</span>
-            <span>Rs. {subtotal.toFixed(2)}</span>
+            <span>Rs. {total.toFixed(2)}</span>
           </div>
         </div>
         <div className="grid grid-cols-3 gap-2">
@@ -284,50 +351,62 @@ function CartContent({
 
 // ─── Bill Print ───────────────────────────────────────────────────────────────
 
-function printBill(bill: CompletedBill, shopName: string) {
+function esc(s: string): string {
+  return s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!);
+}
+
+function printBill(bill: CompletedBill, shopName: string, ownerName: string) {
   const lines = bill.items.map(item =>
     `<tr>
-      <td style="padding:4px 8px;font-size:13px;">${item.name}</td>
-      <td style="padding:4px 8px;font-size:13px;text-align:center;">${fmtQty(item.qty, item.cfg)}</td>
-      <td style="padding:4px 8px;font-size:13px;text-align:right;">Rs. ${(item.price * item.qty).toFixed(2)}</td>
+      <td style="padding:4px 6px;font-size:12px;vertical-align:top;">
+        ${esc(item.name)}
+        <div style="font-size:10px;color:#666;">${fmtQty(item.qty, item.cfg)} &times; Rs. ${item.price.toFixed(2)}</div>
+      </td>
+      <td style="padding:4px 6px;font-size:12px;text-align:right;vertical-align:top;font-weight:bold;">Rs. ${(item.price * item.qty).toFixed(2)}</td>
     </tr>`
   ).join("");
 
   const payLabel = bill.paymentMethod === "udhar"
-    ? `Udhar${bill.customerName ? ` (${bill.customerName})` : ""}`
+    ? "Udhar (credit)"
     : bill.paymentMethod === "online" ? "eSewa" : "Cash";
+
+  const ts = bill.timestamp;
+  const dateStr = ts.toLocaleDateString("en-IN", { year: "numeric", month: "short", day: "2-digit" });
+  const timeStr = ts.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" });
+  const receiptNo = ts.getTime().toString().slice(-8);
 
   const html = `<!DOCTYPE html>
 <html><head><meta charset="utf-8"/>
-<title>Receipt</title>
+<title>Receipt #${receiptNo}</title>
 <style>
 * { margin:0; padding:0; box-sizing:border-box; }
-body { font-family:'Courier New',monospace; width:72mm; margin:auto; padding:8px; }
+body { font-family:'Courier New',monospace; width:76mm; margin:auto; padding:10px; color:#000; }
 h1 { font-size:16px; text-align:center; margin-bottom:2px; }
-.sub { font-size:11px; text-align:center; color:#555; margin-bottom:10px; }
-.divider { border-top:1px dashed #999; margin:8px 0; }
+.owner { font-size:10px; text-align:center; color:#555; }
+.meta { font-size:10px; text-align:center; color:#555; margin:6px 0 8px; }
+.divider { border-top:1px dashed #999; margin:6px 0; }
+.row { display:flex; justify-content:space-between; font-size:11px; padding:1px 0; }
+.row strong { font-weight:bold; }
 table { width:100%; border-collapse:collapse; }
-th { font-size:11px; text-align:left; padding:4px 8px; color:#555; }
-th:last-child { text-align:right; } th:nth-child(2) { text-align:center; }
-.total-row { font-size:15px; font-weight:bold; }
-.footer { font-size:10px; text-align:center; margin-top:12px; color:#777; }
-.pay { font-size:12px; margin:4px 8px; }
-@media print { @page { margin:0; size:72mm auto; } }
+.total-row td { padding:6px 6px; font-size:14px; font-weight:bold; border-top:1px solid #000; }
+.footer { font-size:9px; text-align:center; margin-top:10px; color:#777; }
+@media print { @page { margin:0; size:76mm auto; } }
 </style></head>
 <body>
-<h1>${shopName}</h1>
-<div class="sub">${bill.timestamp.toLocaleString("en-IN")}</div>
+<h1>${esc(shopName)}</h1>
+${ownerName ? `<div class="owner">Prop: ${esc(ownerName)}</div>` : ""}
+<div class="meta">Receipt #${receiptNo}<br/>${dateStr} &middot; ${timeStr}</div>
+${bill.customerName ? `<div class="row"><span>Buyer</span><strong>${esc(bill.customerName)}</strong></div><div class="divider"></div>` : '<div class="divider"></div>'}
+<table><tbody>${lines}</tbody></table>
 <div class="divider"></div>
-<table><thead><tr><th>Item</th><th>Qty</th><th style="text-align:right">Amount</th></tr></thead>
-<tbody>${lines}</tbody></table>
-<div class="divider"></div>
+<div class="row"><span>Subtotal</span><span>Rs. ${bill.subtotal.toFixed(2)}</span></div>
+${bill.discount > 0 ? `<div class="row"><span>Discount${bill.discountKind === "percent" ? ` (${bill.discountValue}%)` : ""}</span><span>&minus; Rs. ${bill.discount.toFixed(2)}</span></div>` : ""}
 <table><tr class="total-row">
-  <td style="padding:4px 8px;">TOTAL</td><td></td>
-  <td style="padding:4px 8px;text-align:right;">Rs. ${bill.total.toFixed(2)}</td>
+  <td>TOTAL</td>
+  <td style="text-align:right;">Rs. ${bill.total.toFixed(2)}</td>
 </tr></table>
-<div class="divider"></div>
-<div class="pay">Payment: <strong>${payLabel}</strong></div>
-<div class="footer">Thank you for shopping at ${shopName}!<br/>Powered by Quivo</div>
+<div class="row" style="margin-top:6px;"><span>Payment</span><strong>${payLabel}</strong></div>
+<div class="footer">Thank you for shopping at ${esc(shopName)}!<br/>Powered by Quivo</div>
 </body></html>`;
 
   const w = window.open("", "_blank", "width=400,height=600");
@@ -340,7 +419,7 @@ th:last-child { text-align:right; } th:nth-child(2) { text-align:center; }
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 
-export function POSView({ shopId, shopName, catalogProducts }: POSViewProps) {
+export function POSView({ shopId, shopName, ownerName, catalogProducts }: POSViewProps) {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
@@ -349,6 +428,9 @@ export function POSView({ shopId, shopName, catalogProducts }: POSViewProps) {
   const [completedBill, setCompletedBill] = useState<CompletedBill | null>(null);
   const [udharName, setUdharName] = useState("");
   const [showUdharPrompt, setShowUdharPrompt] = useState(false);
+  const [buyerName, setBuyerName] = useState("");
+  const [discountValue, setDiscountValue] = useState(0);
+  const [discountKind, setDiscountKind] = useState<"flat" | "percent">("flat");
   const udharInputRef = useRef<HTMLInputElement>(null);
 
   const categories = useMemo(() => {
@@ -369,6 +451,12 @@ export function POSView({ shopId, shopName, catalogProducts }: POSViewProps) {
   }, [catalogProducts, search, activeCategory]);
 
   const subtotal = cart.reduce((acc, item) => acc + item.price * item.qty, 0);
+  const discount = (() => {
+    if (discountValue <= 0) return 0;
+    const raw = discountKind === "percent" ? (subtotal * discountValue) / 100 : discountValue;
+    return Math.min(Math.max(raw, 0), subtotal);
+  })();
+  const total = Math.max(subtotal - discount, 0);
 
   const addToCart = (product: CatalogProduct) => {
     const cfg = parseUnit(product.unit);
@@ -398,17 +486,38 @@ export function POSView({ shopId, shopName, catalogProducts }: POSViewProps) {
   const handleCheckout = (paymentMethod: string, customerName?: string) => {
     if (!cart.length) { toast.error("Cart is empty."); return; }
     const items = cart.map((i) => ({ product_id: i.id, qty: i.qty, name: i.name, price: i.price }));
-    const notes = paymentMethod === "udhar" && customerName ? `POS Sale (Udhar — ${customerName})` : undefined;
+
+    // Build a notes line that captures buyer + discount so it's recoverable from the transaction
+    const finalBuyer = (paymentMethod === "udhar" ? customerName : null) || buyerName.trim() || null;
+    const noteParts: string[] = [`POS Sale${paymentMethod === "udhar" ? " (Udhar)" : ""}`];
+    if (finalBuyer) noteParts.push(`Buyer: ${finalBuyer}`);
+    if (discount > 0) {
+      const tag = discountKind === "percent" ? `${discountValue}%` : `Rs.${discountValue}`;
+      noteParts.push(`Discount: ${tag} (Rs.${discount.toFixed(2)})`);
+    }
+    const notes = noteParts.join(" — ");
 
     startTransition(async () => {
-      const result = await completePOSSale(shopId, items, subtotal, paymentMethod, notes);
+      const result = await completePOSSale(shopId, items, total, paymentMethod, notes);
       if (result.error) {
         toast.error(result.error);
       } else {
-        setCompletedBill({ items: [...cart], total: subtotal, paymentMethod, customerName, timestamp: new Date() });
+        setCompletedBill({
+          items: [...cart],
+          subtotal,
+          discount,
+          discountKind,
+          discountValue,
+          total,
+          paymentMethod,
+          customerName: finalBuyer ?? undefined,
+          timestamp: new Date(),
+        });
         setCart([]);
         setIsMobileCartOpen(false);
         setUdharName("");
+        setBuyerName("");
+        setDiscountValue(0);
         setShowUdharPrompt(false);
       }
     });
@@ -425,13 +534,17 @@ export function POSView({ shopId, shopName, catalogProducts }: POSViewProps) {
   };
 
   const cartProps: CartContentProps = {
-    cart, subtotal, isPending, showUdharPrompt, udharName, udharInputRef,
+    cart, subtotal, discount, discountValue, discountKind, total, buyerName,
+    isPending, showUdharPrompt, udharName, udharInputRef,
     onClearCart: () => setCart([]),
     onUpdateQty: updateQty,
     onPaymentClick: handlePaymentClick,
     onCheckout: handleCheckout,
     onDismissUdhar: () => setShowUdharPrompt(false),
     onUdharNameChange: setUdharName,
+    onBuyerNameChange: setBuyerName,
+    onDiscountValueChange: setDiscountValue,
+    onDiscountKindChange: setDiscountKind,
   };
 
   return (
@@ -591,8 +704,18 @@ export function POSView({ shopId, shopName, catalogProducts }: POSViewProps) {
                 ))}
               </div>
 
-              <div className="border-t border-[#2E3344]/10 mt-4 pt-4">
-                <div className="flex justify-between font-black text-lg text-[#27324A]">
+              <div className="border-t border-[#2E3344]/10 mt-4 pt-4 space-y-1.5">
+                <div className="flex justify-between text-sm text-[#746E73] font-medium">
+                  <span>Subtotal</span>
+                  <span>Rs. {completedBill.subtotal.toFixed(2)}</span>
+                </div>
+                {completedBill.discount > 0 && (
+                  <div className="flex justify-between text-sm font-bold text-[#A7653A]">
+                    <span>Discount{completedBill.discountKind === "percent" ? ` (${completedBill.discountValue}%)` : ""}</span>
+                    <span>− Rs. {completedBill.discount.toFixed(2)}</span>
+                  </div>
+                )}
+                <div className="flex justify-between font-black text-lg text-[#27324A] pt-1.5 border-t border-[#2E3344]/10">
                   <span>Total</span>
                   <span>Rs. {completedBill.total.toFixed(2)}</span>
                 </div>
@@ -608,12 +731,18 @@ export function POSView({ shopId, shopName, catalogProducts }: POSViewProps) {
                       : completedBill.paymentMethod === "online" ? "eSewa" : "Cash"}
                   </span>
                 </div>
+                {completedBill.customerName && completedBill.paymentMethod !== "udhar" && (
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className="text-xs font-bold text-[#746E73] uppercase tracking-wider">Buyer</span>
+                    <span className="text-xs font-bold text-[#27324A]">{completedBill.customerName}</span>
+                  </div>
+                )}
               </div>
             </div>
 
             <div className="px-6 pb-6 flex gap-3">
               <button
-                onClick={() => printBill(completedBill, shopName)}
+                onClick={() => printBill(completedBill, shopName, ownerName)}
                 className="flex-1 h-12 rounded-2xl border-2 border-[#27324A]/15 font-bold text-[#27324A] flex items-center justify-center gap-2 hover:bg-[#f8f8f7] transition"
               >
                 <Printer className="h-4 w-4" />

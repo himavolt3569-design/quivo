@@ -14,7 +14,8 @@ import {
   Calculator,
   Truck,
   Shield,
-  CreditCard
+  CreditCard,
+  Banknote,
 } from "lucide-react";
 import { OwnerShopSwitcher, type SwitcherShop } from "./OwnerShopSwitcher";
 import { RoleModeSwitch } from "@/components/dashboard/RoleModeSwitch";
@@ -29,6 +30,7 @@ const OWNER_ROUTES = [
   { href: "/dashboard/owner/suppliers", label: "Suppliers", icon: Truck },
   { href: "/dashboard/owner/finances", label: "Finances & Reports", icon: BarChart3 },
   { href: "/dashboard/owner/staff", label: "Staff & Roles", icon: Shield },
+  { href: "/dashboard/owner/payroll", label: "Payroll", icon: Banknote },
   { href: "/dashboard/owner/storefront", label: "Storefront & QR", icon: QrCode },
   { href: "/dashboard/owner/settings", label: "Shop Settings", icon: Settings },
 ];

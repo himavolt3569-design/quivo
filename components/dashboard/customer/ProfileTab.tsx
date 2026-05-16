@@ -603,43 +603,53 @@ export function ProfileTab({
               <form onSubmit={handleChangePassword} className="space-y-4">
                 <div className="space-y-3">
                   {!isGoogleUser && (
-                    <div className="relative">
+                    <label className="block">
+                      <span className="text-[11px] font-bold text-[#746E73] uppercase tracking-wider ml-1">Current password</span>
+                      <div className="relative mt-1.5">
+                        <input
+                          type={showPw.current ? "text" : "password"}
+                          placeholder="Enter your current password"
+                          required
+                          className="w-full px-5 py-3 rounded-2xl bg-[#F7F0E6]/30 border border-[#2E3344]/8 text-sm font-bold text-[#27324A] outline-none focus:ring-2 focus:ring-[#A7653A]/20"
+                          value={pwForm.current}
+                          onChange={(e) => setPwForm({ ...pwForm, current: e.target.value })}
+                        />
+                        <button type="button" onClick={() => setShowPw({...showPw, current: !showPw.current})} className="absolute right-4 top-3.5 text-[#746E73]">
+                          {showPw.current ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                        </button>
+                      </div>
+                    </label>
+                  )}
+                  <label className="block">
+                    <span className="text-[11px] font-bold text-[#746E73] uppercase tracking-wider ml-1">New password</span>
+                    <div className="relative mt-1.5">
                       <input
-                        type={showPw.current ? "text" : "password"}
-                        placeholder="Current Password"
+                        type={showPw.next ? "text" : "password"}
+                        placeholder="At least 8 characters"
                         required
+                        minLength={8}
                         className="w-full px-5 py-3 rounded-2xl bg-[#F7F0E6]/30 border border-[#2E3344]/8 text-sm font-bold text-[#27324A] outline-none focus:ring-2 focus:ring-[#A7653A]/20"
-                        value={pwForm.current}
-                        onChange={(e) => setPwForm({ ...pwForm, current: e.target.value })}
+                        value={pwForm.next}
+                        onChange={(e) => setPwForm({ ...pwForm, next: e.target.value })}
                       />
-                      <button type="button" onClick={() => setShowPw({...showPw, current: !showPw.current})} className="absolute right-4 top-3.5 text-[#746E73]">
-                        {showPw.current ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      <button type="button" onClick={() => setShowPw({...showPw, next: !showPw.current})} className="absolute right-4 top-3.5 text-[#746E73]">
+                        {showPw.next ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                       </button>
                     </div>
-                  )}
-                  <div className="relative">
-                    <input
-                      type={showPw.next ? "text" : "password"}
-                      placeholder="New Password"
-                      required
-                      className="w-full px-5 py-3 rounded-2xl bg-[#F7F0E6]/30 border border-[#2E3344]/8 text-sm font-bold text-[#27324A] outline-none focus:ring-2 focus:ring-[#A7653A]/20"
-                      value={pwForm.next}
-                      onChange={(e) => setPwForm({ ...pwForm, next: e.target.value })}
-                    />
-                    <button type="button" onClick={() => setShowPw({...showPw, next: !showPw.current})} className="absolute right-4 top-3.5 text-[#746E73]">
-                      {showPw.next ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                    </button>
-                  </div>
-                  <div className="relative">
-                    <input
-                      type={showPw.confirm ? "text" : "password"}
-                      placeholder="Confirm New Password"
-                      required
-                      className="w-full px-5 py-3 rounded-2xl bg-[#F7F0E6]/30 border border-[#2E3344]/8 text-sm font-bold text-[#27324A] outline-none focus:ring-2 focus:ring-[#A7653A]/20"
-                      value={pwForm.confirm}
-                      onChange={(e) => setPwForm({ ...pwForm, confirm: e.target.value })}
-                    />
-                  </div>
+                  </label>
+                  <label className="block">
+                    <span className="text-[11px] font-bold text-[#746E73] uppercase tracking-wider ml-1">Confirm new password</span>
+                    <div className="relative mt-1.5">
+                      <input
+                        type={showPw.confirm ? "text" : "password"}
+                        placeholder="Re-enter new password"
+                        required
+                        className="w-full px-5 py-3 rounded-2xl bg-[#F7F0E6]/30 border border-[#2E3344]/8 text-sm font-bold text-[#27324A] outline-none focus:ring-2 focus:ring-[#A7653A]/20"
+                        value={pwForm.confirm}
+                        onChange={(e) => setPwForm({ ...pwForm, confirm: e.target.value })}
+                      />
+                    </div>
+                  </label>
                 </div>
                 <button
                   type="submit"

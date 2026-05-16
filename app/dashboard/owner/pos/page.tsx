@@ -19,19 +19,26 @@ export default async function POSPage() {
   }
 
   const supabase = await createClient();
-  const { data: products } = await supabase
-    .from("products")
-    .select("id, name, brand, unit, variant, category, price, stock, image_url")
-    .eq("shop_id", activeShop.id)
-    .eq("status", "active")
-    .gt("stock", 0)
-    .order("category")
-    .order("name");
+  const { data: { user } } = await supabase.auth.getUser();
+  const [{ data: products }, { data: profile }] = await Promise.all([
+    supabase
+      .from("products")
+      .select("id, name, brand, unit, variant, category, price, stock, image_url")
+      .eq("shop_id", activeShop.id)
+      .eq("status", "active")
+      .gt("stock", 0)
+      .order("category")
+      .order("name"),
+    user
+      ? supabase.from("profiles").select("full_name").eq("id", user.id).maybeSingle()
+      : Promise.resolve({ data: null }),
+  ]);
 
   return (
     <POSView
       shopId={activeShop.id}
       shopName={activeShop.name}
+      ownerName={profile?.full_name ?? ""}
       catalogProducts={products ?? []}
     />
   );

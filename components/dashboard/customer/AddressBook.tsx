@@ -23,6 +23,7 @@ import {
 import type { Address } from "@/lib/types";
 import type { PinCoords } from "./AddressPinPicker";
 import { LABEL_COLOR } from "./address-constants";
+import { PhoneInput } from "@/components/ui/validated-input";
 
 const AddressPinPicker = dynamic(
   () => import("./AddressPinPicker").then((m) => m.AddressPinPicker),
@@ -459,17 +460,16 @@ export function AddressBook({ addresses, onChange }: AddressBookProps) {
             >
               Contact number *
             </label>
-            <input
+            <PhoneInput
               id="phone"
-              type="tel"
-              inputMode="numeric"
+              name="phone"
               required
               value={form.phone}
               onChange={(e) =>
                 setForm((f) => ({ ...f, phone: e.target.value }))
               }
               placeholder="98XXXXXXXX"
-              className="w-full rounded-xl border border-[#2E3344]/12 bg-[#F7F0E6]/40 px-4 py-2.5 text-sm text-[#27324A] outline-none transition placeholder-[#746E73]/60 focus:border-[#A7653A] focus:ring-2 focus:ring-[#A7653A]/15"
+              className="rounded-xl border border-[#2E3344]/12 bg-[#F7F0E6]/40 px-4 py-2.5 text-sm text-[#27324A] placeholder-[#746E73]/60"
             />
           </div>
 

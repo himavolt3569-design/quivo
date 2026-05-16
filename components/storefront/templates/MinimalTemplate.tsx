@@ -1,7 +1,12 @@
 "use client";
 
-import { Search, ShoppingBag, Plus, Minus, MapPin, Phone, Clock } from "lucide-react";
+import Link from "next/link";
+import { Search, ShoppingBag, Plus, Minus, MapPin, Phone, Clock, MessageCircle } from "lucide-react";
 import type { TemplateProps } from "./types";
+import { productHref, stopCardClick as stop } from "./cardHelpers";
+
+const BODY_SECTIONS = new Set(["featured", "products", "about", "contact"]);
+const DEFAULT_BODY_ORDER = ["products", "about", "contact"];
 
 export function MinimalTemplate({ shop, products, cart, onAddToCart, onUpdateQty, onOpenCart, searchQuery, setSearchQuery, activeCategory, setActiveCategory }: TemplateProps) {
   const themeColor = shop.theme_color || "#111";
@@ -91,45 +96,45 @@ export function MinimalTemplate({ shop, products, cart, onAddToCart, onUpdateQty
           ))}
         </div>
 
-        {/* Product list */}
-        {filtered.length === 0 ? (
-          <div className="text-center py-16 text-gray-300">
-            <p className="font-medium text-sm">No products found</p>
-          </div>
-        ) : (
-          <div className="divide-y divide-gray-100">
-            {filtered.map((p) => {
+        {(() => {
+          const productsBlock = (
+            <section key="products">
+              {filtered.length === 0 ? (
+                <div className="text-center py-16 text-gray-300">
+                  <p className="font-medium text-sm">No products found</p>
+                </div>
+              ) : (
+                <div className="divide-y divide-gray-100 -my-2">
+                  {filtered.map((p) => {
               const cartItem = cart.find((c) => c.id === p.id);
-              return (
-                <div key={p.id} className="flex items-center gap-4 py-4 group">
-                  {/* Image */}
+              const href = productHref(shop.slug, p);
+              const cardCls = "flex items-center gap-4 py-4 group hover:bg-gray-50/60 -mx-2 px-2 rounded-xl transition";
+              const body = (
+                <>
                   <div className="h-16 w-16 rounded-xl bg-gray-50 flex items-center justify-center font-black text-xl text-gray-200 overflow-hidden shrink-0">
                     {p.image_url ? <img src={p.image_url} alt={p.name} className="h-full w-full object-cover" /> : p.name[0]}
                   </div>
-
-                  {/* Info */}
                   <div className="flex-1 min-w-0">
                     {p.category && <span className="text-[10px] uppercase tracking-wider text-gray-400 font-bold">{p.category}</span>}
                     <p className="font-bold text-gray-900 text-sm line-clamp-1">{p.name}</p>
                     {p.unit && <p className="text-xs text-gray-400">{p.unit}</p>}
                   </div>
-
-                  {/* Price + controls */}
                   <div className="flex flex-col items-end gap-1.5 shrink-0">
                     <span className="font-black text-gray-900 text-sm">Rs. {p.price}</span>
                     {cartItem ? (
-                      <div className="flex items-center gap-1.5 bg-gray-50 border border-gray-200 rounded-xl p-0.5">
-                        <button onClick={() => onUpdateQty(p.id, -1)} className="h-6 w-6 flex items-center justify-center rounded-lg text-gray-500 hover:bg-gray-200 transition">
+                      <div className="flex items-center gap-1.5 bg-gray-50 border border-gray-200 rounded-xl p-0.5" onClick={stop}>
+                        <button type="button" onClick={(e) => { stop(e); onUpdateQty(p.id, -1); }} className="h-6 w-6 flex items-center justify-center rounded-lg text-gray-500 hover:bg-gray-200 transition">
                           <Minus className="h-3 w-3" />
                         </button>
                         <span className="text-xs font-black w-4 text-center">{cartItem.qty}</span>
-                        <button onClick={() => onUpdateQty(p.id, 1)} className="h-6 w-6 flex items-center justify-center rounded-lg text-white transition" style={{ backgroundColor: themeColor }}>
+                        <button type="button" onClick={(e) => { stop(e); onUpdateQty(p.id, 1); }} className="h-6 w-6 flex items-center justify-center rounded-lg text-white transition" style={{ backgroundColor: themeColor }}>
                           <Plus className="h-3 w-3" />
                         </button>
                       </div>
                     ) : (
                       <button
-                        onClick={() => onAddToCart(p)}
+                        type="button"
+                        onClick={(e) => { stop(e); onAddToCart(p); }}
                         className="h-7 px-3 rounded-xl text-xs font-bold text-white flex items-center gap-1 transition active:scale-95"
                         style={{ backgroundColor: themeColor }}
                       >
@@ -137,19 +142,61 @@ export function MinimalTemplate({ shop, products, cart, onAddToCart, onUpdateQty
                       </button>
                     )}
                   </div>
-                </div>
+                </>
+              );
+              return href ? (
+                <Link key={p.id} href={href} className={cardCls}>{body}</Link>
+              ) : (
+                <div key={p.id} className={cardCls}>{body}</div>
               );
             })}
-          </div>
-        )}
+                </div>
+              )}
+            </section>
+          );
 
-        {/* About */}
-        {shop.description && (
-          <div className="pt-6 border-t border-gray-100">
-            <p className="text-xs font-black uppercase tracking-wider text-gray-300 mb-2">About</p>
-            <p className="text-sm text-gray-500">{shop.description}</p>
-          </div>
-        )}
+          const aboutBlock = shop.description ? (
+            <section key="about" className="pt-6 border-t border-gray-100">
+              <p className="text-xs font-black uppercase tracking-wider text-gray-300 mb-2">About</p>
+              <p className="text-sm text-gray-500 whitespace-pre-line">{shop.description}</p>
+            </section>
+          ) : null;
+
+          const contactBlock = (shop.phone || shop.whatsapp_number || shop.address) ? (
+            <section key="contact" className="pt-6 border-t border-gray-100 space-y-2 text-sm text-gray-600">
+              <p className="text-xs font-black uppercase tracking-wider text-gray-300 mb-2">Contact</p>
+              {shop.phone && (
+                <a href={`tel:${shop.phone}`} className="flex items-center gap-2 hover:text-gray-900">
+                  <Phone className="h-3.5 w-3.5 text-gray-400" /> {shop.phone}
+                </a>
+              )}
+              {shop.whatsapp_number && (
+                <a href={`https://wa.me/${shop.whatsapp_number.replace(/\D/g, "")}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-gray-900">
+                  <MessageCircle className="h-3.5 w-3.5 text-gray-400" /> WhatsApp · {shop.whatsapp_number}
+                </a>
+              )}
+              {shop.address && (
+                <p className="flex items-start gap-2"><MapPin className="h-3.5 w-3.5 mt-0.5 shrink-0 text-gray-400" /> {shop.address}</p>
+              )}
+              {shop.opening_time && (
+                <p className="flex items-center gap-2 text-xs text-gray-400">
+                  <Clock className="h-3 w-3" /> {shop.opening_time.slice(0, 5)} – {shop.closing_time?.slice(0, 5)}
+                </p>
+              )}
+            </section>
+          ) : null;
+
+          const blocks: Record<string, React.ReactNode> = {
+            products: productsBlock,
+            about: aboutBlock,
+            contact: contactBlock,
+          };
+
+          const requested = (shop.sections_order ?? []).filter((s) => BODY_SECTIONS.has(s));
+          const order = requested.length ? requested.slice() : DEFAULT_BODY_ORDER.slice();
+          if (!order.includes("products")) order.push("products");
+          return order.map((id) => blocks[id]).filter(Boolean);
+        })()}
       </div>
 
       {/* Cart bar */}

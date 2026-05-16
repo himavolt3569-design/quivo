@@ -34,6 +34,7 @@ import { PAYMENT_METHODS } from "@/lib/payments/constants";
 import { revalidatePath } from "next/cache";
 import { randomUUID } from "node:crypto";
 import { z } from "zod";
+import { PhoneSchema, OptionalEmailSchema, PersonNameSchema, AddressSchema as AddressTextSchema, OptionalShortText } from "@/lib/validation";
 
 interface CartItemInput {
   id: string;
@@ -68,11 +69,11 @@ const CartSchema = z.array(z.object({
   qty: z.coerce.number().positive().max(99),
 })).min(1).max(50);
 const CustomerSchema = z.object({
-  name: z.string().trim().min(1).max(120),
-  phone: z.string().trim().min(1).max(40),
-  email: z.string().trim().email().max(200).optional().or(z.literal("")),
-  address: z.string().trim().min(1).max(500),
-  notes: z.string().trim().max(1000).optional(),
+  name: PersonNameSchema,
+  phone: PhoneSchema,
+  email: OptionalEmailSchema,
+  address: AddressTextSchema,
+  notes: OptionalShortText(1000, "Notes"),
 });
 const OrderNumberSchema = z.string().trim().min(6).max(80);
 const TrackingTokenSchema = z.string().trim().regex(/^[a-f0-9]{48}$/i, "Invalid tracking token.");

@@ -1,7 +1,32 @@
 import { createClient } from "@/lib/supabase/server";
 import { getOwnerContext } from "@/lib/shop";
 import { StaffList } from "@/components/dashboard/owner/staff/StaffList";
+import { ShiftsPanel, type ShiftRow } from "@/components/dashboard/owner/staff/ShiftsPanel";
+import type { ShiftTemplateRow } from "@/components/dashboard/owner/staff/ShiftTemplatesTab";
 import Link from "next/link";
+
+interface RawShift {
+  id: string;
+  staff_id: string;
+  scheduled_start: string;
+  scheduled_end: string;
+  clocked_in_at: string | null;
+  clocked_out_at: string | null;
+  status: string;
+  notes: string | null;
+  shop_staff: { name: string } | { name: string }[] | null;
+}
+
+interface RawTemplate {
+  id: string;
+  staff_id: string;
+  day_of_week: number;
+  start_time: string;
+  end_time: string;
+  notes: string | null;
+  active: boolean;
+  shop_staff: { name: string } | { name: string }[] | null;
+}
 
 export default async function StaffPage() {
   const ctx = await getOwnerContext();
@@ -19,11 +44,65 @@ export default async function StaffPage() {
   }
 
   const supabase = await createClient();
-  const { data: staff } = await supabase
-    .from("shop_staff")
-    .select("id, name, role, phone, email, notes, status, image_url, created_at")
-    .eq("shop_id", shopId)
-    .order("created_at", { ascending: true });
+  const [{ data: staff }, { data: rawShifts }, { data: rawTemplates }] = await Promise.all([
+    supabase
+      .from("shop_staff")
+      .select("id, name, role, phone, email, notes, status, image_url, linked_user_id, created_at")
+      .eq("shop_id", shopId)
+      .order("created_at", { ascending: true }),
+    supabase
+      .from("shifts")
+      .select("id, staff_id, scheduled_start, scheduled_end, clocked_in_at, clocked_out_at, status, notes, shop_staff(name)")
+      .eq("shop_id", shopId)
+      .gte("scheduled_end", new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString())
+      .order("scheduled_start", { ascending: true }),
+    supabase
+      .from("shift_templates")
+      .select("id, staff_id, day_of_week, start_time, end_time, notes, active, shop_staff(name)")
+      .eq("shop_id", shopId)
+      .order("day_of_week", { ascending: true }),
+  ]);
 
-  return <StaffList shopId={shopId} initialStaff={staff ?? []} />;
+  const shifts: ShiftRow[] = ((rawShifts ?? []) as RawShift[]).map((s) => {
+    const staffRel = Array.isArray(s.shop_staff) ? s.shop_staff[0] : s.shop_staff;
+    return {
+      id: s.id,
+      staff_id: s.staff_id,
+      staff_name: staffRel?.name ?? null,
+      scheduled_start: s.scheduled_start,
+      scheduled_end: s.scheduled_end,
+      clocked_in_at: s.clocked_in_at,
+      clocked_out_at: s.clocked_out_at,
+      status: s.status,
+      notes: s.notes,
+    };
+  });
+
+  const templates: ShiftTemplateRow[] = ((rawTemplates ?? []) as RawTemplate[]).map((t) => {
+    const rel = Array.isArray(t.shop_staff) ? t.shop_staff[0] : t.shop_staff;
+    return {
+      id: t.id,
+      staff_id: t.staff_id,
+      staff_name: rel?.name ?? null,
+      day_of_week: t.day_of_week,
+      start_time: t.start_time,
+      end_time: t.end_time,
+      notes: t.notes,
+      active: t.active,
+    };
+  });
+
+  const staffOptions = (staff ?? []).map((m) => ({ id: m.id, name: m.name, status: m.status }));
+
+  return (
+    <div className="space-y-6">
+      <StaffList shopId={shopId} initialStaff={staff ?? []} />
+      <ShiftsPanel
+        shopId={shopId}
+        staffOptions={staffOptions}
+        initialShifts={shifts}
+        initialTemplates={templates}
+      />
+    </div>
+  );
 }

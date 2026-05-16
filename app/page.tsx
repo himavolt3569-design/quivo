@@ -1,7 +1,6 @@
 "use client";
 
 import { useLayoutEffect, useRef, useState, Suspense } from "react";
-import dynamic from "next/dynamic";
 import { Navbar } from "@/components/sections/Navbar";
 import { HeroSection } from "@/components/sections/HeroSection";
 import { Footer } from "@/components/sections/Footer";
@@ -11,93 +10,16 @@ import { popularProducts } from "@/lib/data";
 import { useSearchParams } from "next/navigation";
 import { AUTH_ERROR_MESSAGES, isAuthErrorCode } from "@/lib/auth-errors";
 
-function SectionFallback() {
-  return (
-    <section className="bg-[#F7F0E6] py-14 sm:py-20">
-      <div className="container">
-        <div className="soft-skeleton h-8 w-56 rounded-2xl" />
-        <div className="soft-skeleton mt-5 h-14 max-w-2xl rounded-3xl" />
-        <div className="mt-10 grid gap-4 md:grid-cols-3">
-          {Array.from({ length: 3 }).map((_, index) => (
-            <div
-              key={index}
-              className="soft-skeleton h-52 rounded-[1.75rem]"
-            />
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-const TrendingSection = dynamic(
-  () =>
-    import("@/components/sections/TrendingSection").then(
-      (mod) => mod.TrendingSection
-    ),
-  { loading: SectionFallback }
-);
-const FeaturesSection = dynamic(
-  () =>
-    import("@/components/sections/FeaturesSection").then(
-      (mod) => mod.FeaturesSection
-    ),
-  { loading: SectionFallback }
-);
-const ScanToOrderSection = dynamic(
-  () =>
-    import("@/components/sections/ScanToOrderSection").then(
-      (mod) => mod.ScanToOrderSection
-    ),
-  { loading: SectionFallback }
-);
-const OwnerOrdersSection = dynamic(
-  () =>
-    import("@/components/sections/OwnerOrdersSection").then(
-      (mod) => mod.OwnerOrdersSection
-    ),
-  { loading: SectionFallback }
-);
-const ProductPreviewSection = dynamic(
-  () =>
-    import("@/components/sections/ProductPreviewSection").then(
-      (mod) => mod.ProductPreviewSection
-    ),
-  { loading: SectionFallback }
-);
-const HardwareSupportSection = dynamic(
-  () =>
-    import("@/components/sections/HardwareSupportSection").then(
-      (mod) => mod.HardwareSupportSection
-    ),
-  { loading: SectionFallback }
-);
-const PricingSection = dynamic(
-  () =>
-    import("@/components/sections/PricingSection").then(
-      (mod) => mod.PricingSection
-    ),
-  { loading: SectionFallback }
-);
-const StoriesSection = dynamic(
-  () =>
-    import("@/components/sections/StoriesSection").then(
-      (mod) => mod.StoriesSection
-    ),
-  { loading: SectionFallback }
-);
-const SecuritySection = dynamic(
-  () =>
-    import("@/components/sections/SecuritySection").then(
-      (mod) => mod.SecuritySection
-    ),
-  { loading: SectionFallback }
-);
-const CTASection = dynamic(
-  () =>
-    import("@/components/sections/CTASection").then((mod) => mod.CTASection),
-  { loading: SectionFallback }
-);
+import { TrendingSection } from "@/components/sections/TrendingSection";
+import { FeaturesSection } from "@/components/sections/FeaturesSection";
+import { ScanToOrderSection } from "@/components/sections/ScanToOrderSection";
+import { OwnerOrdersSection } from "@/components/sections/OwnerOrdersSection";
+import { ProductPreviewSection } from "@/components/sections/ProductPreviewSection";
+import { HardwareSupportSection } from "@/components/sections/HardwareSupportSection";
+import { PricingSection } from "@/components/sections/PricingSection";
+import { StoriesSection } from "@/components/sections/StoriesSection";
+import { SecuritySection } from "@/components/sections/SecuritySection";
+import { CTASection } from "@/components/sections/CTASection";
 
 function scrollToSection(id: string) {
   document

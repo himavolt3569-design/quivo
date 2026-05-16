@@ -68,7 +68,7 @@ export function ChatWidget({ shopId, shopName, themeColor }: ChatWidgetProps) {
     fetch();
   }, [sessionId, sessionSecret, shopId, supabase]);
 
-  // Subscribe to realtime
+  // Subscribe to realtime — filter by session_id so we only receive our own messages
   useEffect(() => {
     if (!sessionId || !sessionSecret) return;
     const channel = supabase
@@ -79,11 +79,14 @@ export function ChatWidget({ shopId, shopName, themeColor }: ChatWidgetProps) {
           event: "INSERT",
           schema: "public",
           table: "chat_messages",
-          filter: `shop_id=eq.${shopId}`,
+          filter: `session_id=eq.${sessionId}`,
         },
         (payload) => {
-          const msg = payload.new as ChatMessage & { session_id: string };
-          if (msg.session_id === sessionId) {
+          const msg = payload.new as ChatMessage;
+          // Append directly when payload carries full row (REPLICA IDENTITY FULL)
+          if (msg && msg.id && msg.message) {
+            setMessages((prev) => prev.some((m) => m.id === msg.id) ? prev : [...prev, msg]);
+          } else {
             getCustomerChatMessages(shopId, sessionId, sessionSecret).then((res) => {
               if (res.messages) setMessages(res.messages as ChatMessage[]);
             });
@@ -93,7 +96,7 @@ export function ChatWidget({ shopId, shopName, themeColor }: ChatWidgetProps) {
       .subscribe();
 
     return () => { supabase.removeChannel(channel); };
-  }, [sessionId, sessionSecret, shopId]);
+  }, [sessionId, sessionSecret, shopId, supabase]);
 
   // Auto-scroll
   useEffect(() => {
@@ -104,8 +107,19 @@ export function ChatWidget({ shopId, shopName, themeColor }: ChatWidgetProps) {
     if (!input.trim() || !sessionId || !sessionSecret) return;
     const text = input.trim();
     setInput("");
+    const tempId = `temp_${Date.now()}`;
+    setMessages((prev) => [...prev, {
+      id: tempId, sender: "customer", message: text,
+      created_at: new Date().toISOString(), customer_name: customerName || "Customer",
+    }]);
     startTransition(async () => {
-      await sendCustomerChatMessage(shopId, sessionId, sessionSecret, customerName || "Customer", text);
+      const result = await sendCustomerChatMessage(shopId, sessionId, sessionSecret, customerName || "Customer", text);
+      if (result?.error) {
+        setMessages((prev) => prev.filter((m) => m.id !== tempId));
+        setInput(text);
+        return;
+      }
+      // Reconcile with server-issued ids; realtime may have already added it
       const res = await getCustomerChatMessages(shopId, sessionId, sessionSecret);
       if (res.messages) setMessages(res.messages as ChatMessage[]);
     });

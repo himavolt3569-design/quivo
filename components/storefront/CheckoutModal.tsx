@@ -6,6 +6,7 @@ import {
   Smartphone, Building2, Copy, Check, Loader2, ExternalLink,
 } from "lucide-react";
 import type { CartItem } from "./CartDrawer";
+import { PhoneInput, EmailInput } from "@/components/ui/validated-input";
 import { placeOrderWithPayment, getPublicShopPaymentMethods } from "@/app/actions/payments";
 import type { PaymentMethod, PublicPaymentMethods } from "@/lib/payments";
 import { PAYMENT_METHOD_LABELS, PAYMENT_METHOD_DESCRIPTIONS } from "@/lib/payments/constants";
@@ -171,29 +172,46 @@ export function CheckoutModal({
           <div className="space-y-3">
             <p className="text-xs font-black uppercase tracking-wider text-gray-400">Your Details</p>
 
-            <div className="relative">
-              <User className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-              <input required value={name} onChange={(e) => setName(e.target.value)} placeholder="Full Name *"
-                className="w-full h-12 pl-10 pr-4 bg-gray-50 border border-gray-200 rounded-xl text-sm outline-none focus:border-gray-400 transition" />
-            </div>
+            <label className="block">
+              <span className="text-[11px] font-bold text-gray-600 ml-1">Full name <span className="text-red-500">*</span></span>
+              <div className="relative mt-1">
+                <User className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <input required value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Anita Tamang"
+                  className="w-full h-12 pl-10 pr-4 bg-gray-50 border border-gray-200 rounded-xl text-sm outline-none focus:border-gray-400 transition" />
+              </div>
+            </label>
 
-            <div className="relative">
-              <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-              <input required type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Phone Number *"
-                className="w-full h-12 pl-10 pr-4 bg-gray-50 border border-gray-200 rounded-xl text-sm outline-none focus:border-gray-400 transition" />
-            </div>
+            <label className="block">
+              <span className="text-[11px] font-bold text-gray-600 ml-1">Phone <span className="text-red-500">*</span></span>
+              <div className="relative mt-1">
+                <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 z-10 pointer-events-none" />
+                <PhoneInput
+                  required
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder="98XXXXXXXX"
+                  className="h-12 pl-10 pr-4 bg-gray-50 border-gray-200 rounded-xl text-sm focus-visible:border-gray-400"
+                />
+              </div>
+            </label>
 
-            <div className="relative">
-              <MapPin className="absolute left-3.5 top-3.5 h-4 w-4 text-gray-400" />
-              <textarea required value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Delivery Address *" rows={2}
-                className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm outline-none focus:border-gray-400 transition resize-none" />
-            </div>
+            <label className="block">
+              <span className="text-[11px] font-bold text-gray-600 ml-1">Delivery address <span className="text-red-500">*</span></span>
+              <div className="relative mt-1">
+                <MapPin className="absolute left-3.5 top-3.5 h-4 w-4 text-gray-400" />
+                <textarea required value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Street, area, landmark" rows={2}
+                  className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm outline-none focus:border-gray-400 transition resize-none" />
+              </div>
+            </label>
 
-            <div className="relative">
-              <FileText className="absolute left-3.5 top-3.5 h-4 w-4 text-gray-400" />
-              <textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Special instructions (optional)" rows={2}
-                className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm outline-none focus:border-gray-400 transition resize-none" />
-            </div>
+            <label className="block">
+              <span className="text-[11px] font-bold text-gray-600 ml-1">Notes <span className="text-gray-400 font-medium">(optional)</span></span>
+              <div className="relative mt-1">
+                <FileText className="absolute left-3.5 top-3.5 h-4 w-4 text-gray-400" />
+                <textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Gate color, substitution preference…" rows={2}
+                  className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm outline-none focus:border-gray-400 transition resize-none" />
+              </div>
+            </label>
           </div>
 
           {/* Payment method selector */}

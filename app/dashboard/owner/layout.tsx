@@ -6,6 +6,12 @@ import { OwnerMobileNav } from "@/components/dashboard/owner/OwnerMobileNav";
 import { VerificationBanner } from "@/components/dashboard/owner/VerificationBanner";
 import { VerificationGate } from "@/components/dashboard/owner/VerificationGate";
 import { getOwnerContext } from "@/lib/shop";
+import {
+  getKycCompliancePolicy,
+  getKycNotificationStage,
+  sendKycComplianceEmail,
+  type VerificationStatus,
+} from "@/lib/kyc-compliance";
 
 export default async function OwnerLayout({
   children,
@@ -24,7 +30,7 @@ export default async function OwnerLayout({
   const [profileResult, ctx] = await Promise.all([
     supabase
       .from("profiles")
-      .select("role")
+      .select("role, email")
       .eq("id", user!.id)
       .maybeSingle(),
     getOwnerContext(),
@@ -50,26 +56,77 @@ export default async function OwnerLayout({
   }));
   const activeShopId = ctx.activeShop?.id ?? null;
 
-  // Fetch verification status for the active shop
-  let verificationStatus: "unverified" | "pending" | "verified" | "rejected" = "unverified";
+  let verificationStatus: VerificationStatus = "unverified";
+  let kycPolicy = getKycCompliancePolicy({
+    verificationStatus,
+    createdAt: new Date().toISOString(),
+  });
+
   if (activeShopId) {
     const { data: shopRow } = await supabase
       .from("shops")
-      .select("verification_status")
+      .select("verification_status, created_at, kyc_submitted_at, name")
       .eq("id", activeShopId)
       .maybeSingle();
+
     if (shopRow?.verification_status) {
-      verificationStatus = shopRow.verification_status as typeof verificationStatus;
+      verificationStatus = shopRow.verification_status as VerificationStatus;
+      kycPolicy = getKycCompliancePolicy({
+        verificationStatus,
+        createdAt: shopRow.created_at,
+        kycSubmittedAt: shopRow.kyc_submitted_at,
+      });
+    }
+
+    if (shopRow && profile?.email) {
+      const { data: emailState, error: emailStateError } = await supabase
+        .from("shops")
+        .select("kyc_grace_email_sent_at, kyc_warning_email_sent_at, kyc_deadline_email_sent_at")
+        .eq("id", activeShopId)
+        .maybeSingle();
+
+      if (!emailStateError && emailState) {
+        const stage = getKycNotificationStage(kycPolicy, {
+          grace: emailState.kyc_grace_email_sent_at,
+          warning: emailState.kyc_warning_email_sent_at,
+          deadline: emailState.kyc_deadline_email_sent_at,
+        });
+
+        if (stage) {
+          const emailResult = await sendKycComplianceEmail({
+            to: profile.email,
+            shopName: shopRow.name,
+            stage,
+            graceEndsAt: kycPolicy.graceEndsAt,
+            daysRemaining: kycPolicy.daysRemaining,
+          });
+
+          if ("success" in emailResult) {
+            const column =
+              stage === "grace"
+                ? "kyc_grace_email_sent_at"
+                : stage === "warning"
+                  ? "kyc_warning_email_sent_at"
+                  : "kyc_deadline_email_sent_at";
+            await supabase
+              .from("shops")
+              .update({ [column]: new Date().toISOString() })
+              .eq("id", activeShopId);
+          }
+        }
+      } else if (emailStateError && emailStateError.code !== "42703") {
+        console.error("KYC email state lookup failed", emailStateError.code, emailStateError.message);
+      }
     }
   }
 
   return (
     <div className="flex flex-col min-h-screen animate-in fade-in duration-300">
-      <VerificationBanner status={verificationStatus} />
+      <VerificationBanner status={verificationStatus} policy={kycPolicy} />
       <div className="flex flex-1">
         <OwnerSidebar shops={shops} activeShopId={activeShopId} />
         <main className="flex-1 w-full p-4 sm:p-6 lg:p-8 pb-24 lg:pb-8">
-          <VerificationGate status={verificationStatus}>
+          <VerificationGate status={verificationStatus} policy={kycPolicy}>
             {children}
           </VerificationGate>
         </main>

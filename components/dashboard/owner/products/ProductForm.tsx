@@ -12,6 +12,13 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Popover, PopoverContent, PopoverAnchor } from "@/components/ui/popover";
 import {
   Command, CommandList, CommandGroup, CommandItem, CommandSeparator,
@@ -773,14 +780,16 @@ export function ProductForm({ shopId, shopSlug, catalog }: ProductFormProps) {
                     <Label className="font-bold text-[#27324A]">
                       Category <span className="text-red-500">*</span>
                     </Label>
-                    <select
-                      name="category"
-                      defaultValue={prefill?.category ?? "Grocery"}
-                      required
-                      className="flex h-12 w-full items-center justify-between rounded-xl border border-input bg-transparent px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-ring mt-1.5"
-                    >
-                      {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
-                    </select>
+                    <Select name="category" defaultValue={prefill?.category ?? "Grocery"}>
+                      <SelectTrigger className="w-full mt-1.5">
+                        <SelectValue placeholder="Select category" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {CATEGORIES.map((c) => (
+                          <SelectItem key={c} value={c}>{c}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
 
@@ -796,13 +805,16 @@ export function ProductForm({ shopId, shopSlug, catalog }: ProductFormProps) {
                   </div>
                   <div>
                     <Label className="font-bold text-[#27324A]">Unit Type</Label>
-                    <select
-                      name="unit_type"
-                      defaultValue={prefillUnit.type}
-                      className="flex h-12 w-full items-center justify-between rounded-xl border border-input bg-transparent px-3 py-2 text-sm shadow-sm mt-1.5 outline-none focus:ring-1"
-                    >
-                      {UNIT_TYPES.map((u) => <option key={u} value={u}>{u}</option>)}
-                    </select>
+                    <Select name="unit_type" defaultValue={prefillUnit.type}>
+                      <SelectTrigger className="w-full mt-1.5">
+                        <SelectValue placeholder="Unit" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {UNIT_TYPES.map((u) => (
+                          <SelectItem key={u} value={u}>{u}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
                   <div>
                     <Label className="font-bold text-[#27324A]">

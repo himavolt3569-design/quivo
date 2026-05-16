@@ -3,14 +3,16 @@
 import { ShieldAlert, Clock, X } from "lucide-react";
 import { useState } from "react";
 import Link from "next/link";
+import type { KycCompliancePolicy } from "@/lib/kyc-compliance";
 
 type VerificationStatus = "unverified" | "pending" | "verified" | "rejected";
 
 interface VerificationBannerProps {
   status: VerificationStatus;
+  policy: KycCompliancePolicy;
 }
 
-export function VerificationBanner({ status }: VerificationBannerProps) {
+export function VerificationBanner({ status, policy }: VerificationBannerProps) {
   const [dismissed, setDismissed] = useState(false);
 
   if (status === "verified" || dismissed) return null;
@@ -18,23 +20,27 @@ export function VerificationBanner({ status }: VerificationBannerProps) {
   const configs = {
     unverified: {
       icon: <ShieldAlert className="h-4 w-4 shrink-0" />,
-      bg: "bg-red-600",
-      text: "YOUR SHOP IS NOT VERIFIED",
-      sub: "Upload your KYC documents to unlock all features.",
-      cta: "Verify now",
+      bg: policy.isBlocked ? "bg-red-700" : "bg-amber-600",
+      text: policy.isBlocked ? "KYC DOCUMENTS REQUIRED" : "KYC GRACE PERIOD ACTIVE",
+      sub: policy.isBlocked
+        ? "Upload business proof to continue using owner features."
+        : `Upload business proof within ${policy.daysRemaining} day${policy.daysRemaining === 1 ? "" : "s"}.`,
+      cta: policy.isBlocked ? "Upload now" : "Submit KYC",
     },
     pending: {
       icon: <Clock className="h-4 w-4 shrink-0" />,
       bg: "bg-amber-500",
       text: "VERIFICATION PENDING",
-      sub: "Our team is reviewing your documents. You'll be notified once approved.",
+      sub: "Your documents are under review. You can keep using your dashboard.",
       cta: null,
     },
     rejected: {
       icon: <ShieldAlert className="h-4 w-4 shrink-0" />,
-      bg: "bg-red-700",
-      text: "VERIFICATION REJECTED",
-      sub: "Your documents were not accepted. Please re-upload valid documents.",
+      bg: policy.isBlocked ? "bg-red-700" : "bg-amber-600",
+      text: policy.isBlocked ? "KYC DOCUMENTS REQUIRED" : "VERIFICATION REJECTED",
+      sub: policy.isBlocked
+        ? "Re-upload valid documents to continue using owner features."
+        : `Re-upload valid documents within ${policy.daysRemaining} day${policy.daysRemaining === 1 ? "" : "s"}.`,
       cta: "Re-upload",
     },
   };

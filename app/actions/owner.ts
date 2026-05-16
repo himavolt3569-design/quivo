@@ -4,9 +4,18 @@ import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { getSiteUrl, isSafeHttpUrl } from "@/lib/security";
+import { KYC_GRACE_DAYS, sendKycComplianceEmail } from "@/lib/kyc-compliance";
+import {
+  OptionalPhoneSchema,
+  OptionalEmailSchema,
+  ShopNameSchema,
+  PersonNameSchema,
+  OptionalAddressSchema,
+  TimeOfDaySchema,
+  OptionalShortText,
+} from "@/lib/validation";
 
 const SUBDOMAIN_REGEX = /^[a-z0-9][a-z0-9-]{1,49}$/;
-const TIME_REGEX = /^([01]\d|2[0-3]):[0-5]\d$/;
 
 const OptionalUrl = z
   .string()
@@ -17,18 +26,14 @@ const OptionalUrl = z
   .transform((v) => (v && v !== "" ? v : undefined));
 
 const CreateShopSchema = z.object({
-  name: z
-    .string()
-    .trim()
-    .min(2, "Shop name must be at least 2 characters")
-    .max(100, "Shop name is too long"),
+  name: ShopNameSchema,
   business_type: z.enum(["retailer", "wholesale"]).default("retailer"),
   category: z.enum(["kirana"]).default("kirana"),
-  phone: z.string().trim().max(20).optional(),
-  address: z.string().trim().max(300).optional(),
+  phone: OptionalPhoneSchema,
+  address: OptionalAddressSchema,
   lat: z.coerce.number().min(-90).max(90).nullable().optional(),
   lng: z.coerce.number().min(-180).max(180).nullable().optional(),
-  description: z.string().trim().max(500).optional(),
+  description: OptionalShortText(500, "Description"),
   logo_url: OptionalUrl,
   pan_document_url: OptionalUrl,
   subdomain: z
@@ -42,18 +47,8 @@ const CreateShopSchema = z.object({
     )
     .optional()
     .transform((v) => (v && v !== "" ? v : undefined)),
-  opening_time: z
-    .string()
-    .trim()
-    .regex(TIME_REGEX, "Invalid time")
-    .optional()
-    .transform((v) => (v ? v : undefined)),
-  closing_time: z
-    .string()
-    .trim()
-    .regex(TIME_REGEX, "Invalid time")
-    .optional()
-    .transform((v) => (v ? v : undefined)),
+  opening_time: TimeOfDaySchema.optional().or(z.literal("")).transform((v) => (v ? v : undefined)),
+  closing_time: TimeOfDaySchema.optional().or(z.literal("")).transform((v) => (v ? v : undefined)),
 });
 
 function slugify(input: string): string {
@@ -203,6 +198,26 @@ export async function createShop(formData: FormData) {
     .eq("id", user.id);
   if (activeError && activeError.code !== "42703") {
     console.error("createShop: could not set active_shop_id", activeError.code, activeError.message);
+  }
+
+  if (user.email) {
+    const graceEndsAt = new Date(Date.now() + KYC_GRACE_DAYS * 24 * 60 * 60 * 1000).toISOString();
+    const emailResult = await sendKycComplianceEmail({
+      to: user.email,
+      shopName: data.name,
+      stage: "grace",
+      graceEndsAt,
+      daysRemaining: KYC_GRACE_DAYS,
+    });
+    if ("success" in emailResult) {
+      const { error: emailMarkError } = await supabase
+        .from("shops")
+        .update({ kyc_grace_email_sent_at: new Date().toISOString() })
+        .eq("id", row.shop_id);
+      if (emailMarkError && emailMarkError.code !== "42703") {
+        console.error("createShop: could not mark KYC email sent", emailMarkError.code, emailMarkError.message);
+      }
+    }
   }
 
   // Burn the onboarding intent cookie so a fresh URL hit re-triggers the gate.
@@ -496,9 +511,9 @@ export async function deleteProduct(productId: string, shopId: string) {
 // ─── Customers (Shop CRM) ─────────────────────────────────────────────────────
 
 const ShopCustomerSchema = z.object({
-  name: z.string().trim().min(1, "Name required").max(100),
-  phone: z.string().trim().max(20).optional(),
-  email: z.string().trim().email().max(200).optional().or(z.literal("")),
+  name: PersonNameSchema,
+  phone: OptionalPhoneSchema,
+  email: OptionalEmailSchema,
 });
 
 export async function addShopCustomer(shopId: string, formData: FormData) {
@@ -566,12 +581,27 @@ export async function settleUdhar(customerId: string, shopId: string, amount: nu
 // ─── Suppliers ────────────────────────────────────────────────────────────────
 
 const SupplierSchema = z.object({
-  name: z.string().trim().min(1, "Name required").max(200),
-  contact_person: z.string().trim().max(100).optional(),
-  phone: z.string().trim().max(20).optional(),
-  email: z.string().trim().email().max(200).optional().or(z.literal("")),
-  address: z.string().trim().max(300).optional(),
-  category: z.string().trim().max(100).optional(),
+  name: ShopNameSchema,
+  contact_person: z.union([z.string(), z.undefined(), z.null()])
+    .transform((v) => v == null ? "" : v.trim())
+    .refine((v) => v === "" || v.length >= 2, "Contact name must be at least 2 characters")
+    .refine((v) => v.length <= 120, "Contact name is too long")
+    .transform((v) => (v === "" ? undefined : v)),
+  phone: OptionalPhoneSchema,
+  email: OptionalEmailSchema,
+  address: OptionalAddressSchema,
+  category: OptionalShortText(100, "Category"),
+  logo_url: OptionalUrl,
+  tax_id: OptionalShortText(80, "Tax ID"),
+  notes: OptionalShortText(500, "Notes"),
+  opening_balance: z.coerce.number().min(0, "Opening balance cannot be negative").max(99_999_999).default(0),
+});
+
+const SupplierLedgerEntrySchema = z.object({
+  entry_type: z.enum(["purchase", "payment", "credit_adjustment", "debit_adjustment"]),
+  amount: z.coerce.number().positive("Amount must be positive").max(99999999),
+  description: z.string().trim().max(240).optional(),
+  payment_method: z.enum(["cash", "card", "online", "udhar"]).default("cash"),
 });
 
 export async function addSupplier(shopId: string, formData: FormData) {
@@ -585,6 +615,10 @@ export async function addSupplier(shopId: string, formData: FormData) {
     email: formData.get("email")?.toString() || undefined,
     address: formData.get("address")?.toString() || undefined,
     category: formData.get("category")?.toString() || undefined,
+    logo_url: formData.get("logo_url")?.toString() || undefined,
+    tax_id: formData.get("tax_id")?.toString() || undefined,
+    notes: formData.get("notes")?.toString() || undefined,
+    opening_balance: formData.get("opening_balance")?.toString() || "0",
   });
   if (!parse.success) return { error: parse.error.issues[0].message };
 
@@ -596,6 +630,12 @@ export async function addSupplier(shopId: string, formData: FormData) {
     phone: parse.data.phone ?? null,
     email: parse.data.email || null,
     address: parse.data.address ?? null,
+    category: parse.data.category ?? null,
+    logo_url: parse.data.logo_url ?? null,
+    tax_id: parse.data.tax_id ?? null,
+    notes: parse.data.notes ?? null,
+    opening_balance: parse.data.opening_balance,
+    balance_due: parse.data.opening_balance,
   });
 
   if (error) return { error: `Could not add supplier: ${error.message}` };
@@ -640,16 +680,84 @@ export async function paySupplierDue(supplierId: string, shopId: string, amount:
   return { success: true };
 }
 
+export async function recordSupplierLedgerEntry(
+  supplierId: string,
+  shopId: string,
+  formData: FormData
+) {
+  const sidParse = ShopIdSchema.safeParse(supplierId);
+  const shopIdParse = ShopIdSchema.safeParse(shopId);
+  if (!sidParse.success || !shopIdParse.success) return { error: "Invalid ID" };
+
+  const parse = SupplierLedgerEntrySchema.safeParse({
+    entry_type: formData.get("entry_type")?.toString() ?? "purchase",
+    amount: formData.get("amount")?.toString() ?? "",
+    description: formData.get("description")?.toString() || undefined,
+    payment_method: formData.get("payment_method")?.toString() || "cash",
+  });
+  if (!parse.success) return { error: parse.error.issues[0].message };
+
+  const { supabase } = await getAuthUser();
+
+  const { data: supplier } = await supabase
+    .from("shop_suppliers")
+    .select("balance_due, name")
+    .eq("id", sidParse.data)
+    .eq("shop_id", shopIdParse.data)
+    .single();
+
+  if (!supplier) return { error: "Supplier not found" };
+
+  const isCredit = parse.data.entry_type === "purchase" || parse.data.entry_type === "credit_adjustment";
+  const currentBalance = Number(supplier.balance_due ?? 0);
+  const nextBalance = isCredit
+    ? currentBalance + parse.data.amount
+    : Math.max(0, currentBalance - parse.data.amount);
+
+  const defaultDescription =
+    parse.data.entry_type === "purchase"
+      ? `Purchase from ${supplier.name}`
+      : parse.data.entry_type === "payment"
+        ? `Payment to ${supplier.name}`
+        : parse.data.entry_type === "credit_adjustment"
+          ? `Credit adjustment for ${supplier.name}`
+          : `Debit adjustment for ${supplier.name}`;
+
+  const [updateResult, insertResult] = await Promise.all([
+    supabase
+      .from("shop_suppliers")
+      .update({ balance_due: nextBalance })
+      .eq("id", sidParse.data)
+      .eq("shop_id", shopIdParse.data),
+    supabase.from("shop_transactions").insert({
+      shop_id: shopIdParse.data,
+      amount: parse.data.amount,
+      type: isCredit ? "expense" : "supplier_payment",
+      reference_id: sidParse.data,
+      description: parse.data.description || defaultDescription,
+      payment_method: isCredit ? "udhar" : parse.data.payment_method,
+    }),
+  ]);
+
+  if (updateResult.error || insertResult.error) {
+    return { error: "Could not record supplier ledger entry." };
+  }
+
+  revalidatePath("/dashboard/owner/suppliers");
+  revalidatePath(`/dashboard/owner/suppliers/${sidParse.data}`);
+  return { success: true };
+}
+
 // ─── Staff ────────────────────────────────────────────────────────────────────
 
 const StaffRoleSchema = z.enum(["manager", "cashier", "inventory", "viewer"]);
 
 const ShopStaffSchema = z.object({
-  name: z.string().trim().min(1, "Name required").max(100),
+  name: PersonNameSchema,
   role: StaffRoleSchema.default("cashier"),
-  phone: z.string().trim().max(20).optional(),
-  email: z.string().trim().email().max(200).optional().or(z.literal("")),
-  notes: z.string().trim().max(500).optional(),
+  phone: OptionalPhoneSchema,
+  email: OptionalEmailSchema,
+  notes: OptionalShortText(500, "Notes"),
 });
 
 export async function addShopStaff(shopId: string, formData: FormData) {
@@ -757,11 +865,11 @@ export async function addExpense(shopId: string, formData: FormData) {
 // ─── Shop Settings ────────────────────────────────────────────────────────────
 
 const ShopSettingsSchema = z.object({
-  name: z.string().trim().min(2).max(100),
-  description: z.string().trim().max(500).optional(),
-  phone: z.string().trim().max(20).optional(),
-  opening_time: z.string().trim().regex(TIME_REGEX, "Invalid time").optional().transform(v => v || undefined),
-  closing_time: z.string().trim().regex(TIME_REGEX, "Invalid time").optional().transform(v => v || undefined),
+  name: ShopNameSchema,
+  description: OptionalShortText(500, "Description"),
+  phone: OptionalPhoneSchema,
+  opening_time: TimeOfDaySchema.optional().or(z.literal("")).transform((v) => v || undefined),
+  closing_time: TimeOfDaySchema.optional().or(z.literal("")).transform((v) => v || undefined),
 });
 
 export async function updateShopSettings(shopId: string, formData: FormData) {
@@ -907,4 +1015,33 @@ export async function getKYCStatus(shopId: string) {
 
   if (error) return { error: error.message };
   return { data };
+}
+
+export async function deleteShopCustomer(customerId: string, shopId: string) {
+  const idParse = ShopIdSchema.safeParse(shopId);
+  if (!idParse.success) return { error: "Invalid shop ID" };
+  
+  const { supabase } = await getAuthUser();
+  
+  // Verify customer belongs to shop
+  const { data: customer } = await supabase
+    .from("shop_customers")
+    .select("udhar_balance")
+    .eq("id", customerId)
+    .eq("shop_id", idParse.data)
+    .single();
+    
+  if (!customer) return { error: "Customer not found." };
+  if (customer.udhar_balance > 0) return { error: "Cannot delete customer with pending Udhar." };
+
+  const { error } = await supabase
+    .from("shop_customers")
+    .delete()
+    .eq("id", customerId)
+    .eq("shop_id", idParse.data);
+
+  if (error) return { error: `Could not delete customer: ${error.message}` };
+  
+  revalidatePath("/dashboard/owner/customers");
+  return { success: true };
 }

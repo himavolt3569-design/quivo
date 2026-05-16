@@ -9,6 +9,7 @@ import { updateOwnerPaymentConfig, uploadQrCodeImage } from "@/app/actions/payme
 import { PAYMENT_METHODS, PAYMENT_METHOD_LABELS } from "@/lib/payments/constants";
 import type { OwnerPaymentConfig, PaymentMethod } from "@/lib/payments";
 import { toast } from "sonner";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface Props {
   shopId: string;
@@ -149,11 +150,15 @@ export function PaymentConfigForm({ shopId, initial }: Props) {
         </div>
         <div>
           <label className="block text-xs font-black text-[#27324A] mb-1.5">Environment</label>
-          <select name="khalti_environment" defaultValue={initial.khalti_environment}
-            className="h-11 w-full px-3 rounded-xl border border-[#2E3344]/10 bg-white text-sm">
-            <option value="sandbox">Sandbox (testing)</option>
-            <option value="production">Production</option>
-          </select>
+          <Select name="khalti_environment" defaultValue={initial.khalti_environment}>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Environment" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="sandbox">Sandbox (testing)</SelectItem>
+              <SelectItem value="production">Production</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       </Section>
 

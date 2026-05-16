@@ -22,6 +22,9 @@ interface KYCFormProps {
   shopId: string;
   shopName: string;
   verificationStatus: VerificationStatus;
+  graceEndsAt: string;
+  daysRemaining: number;
+  isBlocked: boolean;
   kycSubmittedAt: string | null;
   kycRejectionReason: string | null;
   kycDocumentUrls: string[];
@@ -35,7 +38,7 @@ const STATUS_CONFIG = {
     bgClass: "bg-red-50",
     badgeClass: "bg-red-100 text-red-700",
     label: "Not Verified",
-    desc: "Your shop is not yet verified. Upload your KYC documents to get started.",
+    desc: "Your shop is live during the 30-day grace period. Upload business proof before the deadline.",
   },
   pending: {
     icon: Clock,
@@ -69,6 +72,9 @@ const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
 export function KYCForm({
   shopId,
   verificationStatus,
+  graceEndsAt,
+  daysRemaining,
+  isBlocked,
   kycSubmittedAt,
   kycRejectionReason,
   kycDocumentUrls,
@@ -82,6 +88,11 @@ export function KYCForm({
   const cfg = STATUS_CONFIG[verificationStatus];
   const StatusIcon = cfg.icon;
   const canSubmit = verificationStatus === "unverified" || verificationStatus === "rejected";
+  const dueDate = new Date(graceEndsAt).toLocaleDateString("en-NP", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selected = Array.from(e.target.files ?? []);
@@ -150,6 +161,13 @@ export function KYCForm({
               </span>
             </div>
             <p className="text-sm text-[#746E73]">{cfg.desc}</p>
+            {verificationStatus !== "verified" && verificationStatus !== "pending" && (
+              <p className={`text-xs mt-2 font-bold ${isBlocked ? "text-red-700" : "text-[#A7653A]"}`}>
+                {isBlocked
+                  ? `Documents are now required. Grace period ended on ${dueDate}.`
+                  : `Documents due by ${dueDate} (${daysRemaining} day${daysRemaining === 1 ? "" : "s"} remaining).`}
+              </p>
+            )}
             {kycSubmittedAt && verificationStatus === "pending" && (
               <p className="text-xs text-[#746E73] mt-2 font-medium">
                 Submitted {new Date(kycSubmittedAt).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" })}

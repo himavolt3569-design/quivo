@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { Lock, ShieldAlert } from "lucide-react";
 import Link from "next/link";
+import type { KycCompliancePolicy } from "@/lib/kyc-compliance";
 
 type VerificationStatus = "unverified" | "pending" | "verified" | "rejected";
 
@@ -14,15 +15,15 @@ const EXEMPT_PATHS = [
 
 interface VerificationGateProps {
   status: VerificationStatus;
+  policy: KycCompliancePolicy;
   children: React.ReactNode;
 }
 
-export function VerificationGate({ status, children }: VerificationGateProps) {
+export function VerificationGate({ status, policy, children }: VerificationGateProps) {
   const pathname = usePathname();
 
-  const isVerified = status === "verified";
   const isExempt = EXEMPT_PATHS.some((p) => pathname.startsWith(p));
-  const isBlocked = !isVerified && !isExempt;
+  const isBlocked = policy.isBlocked && !isExempt;
 
   useEffect(() => {
     if (!isBlocked) return;
@@ -32,23 +33,24 @@ export function VerificationGate({ status, children }: VerificationGateProps) {
 
   if (!isBlocked) return <>{children}</>;
 
-  const cfg = {
+  const configs: Partial<Record<VerificationStatus, { title: string; sub: string; cta: string | null }>> = {
     unverified: {
-      title: "Shop Not Verified",
-      sub: "Upload your KYC documents to unlock all features of your dashboard.",
-      cta: "Start Verification",
+      title: "Business Proof Required",
+      sub: "Your 30-day grace period has ended. Upload business documents to continue using owner features.",
+      cta: "Upload Documents",
     },
     pending: {
       title: "Verification Pending",
-      sub: "Our team is reviewing your documents. All features will unlock once approved.",
+      sub: "Your documents are under review. You can continue using Quivo while our team checks them.",
       cta: null,
     },
     rejected: {
-      title: "Verification Rejected",
-      sub: "Your documents were not accepted. Please re-upload valid documents.",
+      title: "Documents Need Action",
+      sub: "Your previous documents were not accepted and the grace period has ended. Please re-upload valid documents.",
       cta: "Re-upload Documents",
     },
-  }[status] ?? { title: "Not Verified", sub: "Your shop needs to be verified.", cta: "Verify Now" };
+  };
+  const cfg = configs[status] ?? { title: "Documents Required", sub: "Your shop needs business proof.", cta: "Verify Now" };
 
   return (
     <>

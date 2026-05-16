@@ -1,7 +1,12 @@
 "use client";
 
-import { Search, ShoppingBag, Plus, ArrowRight, MapPin, Phone } from "lucide-react";
+import Link from "next/link";
+import { Search, ShoppingBag, Plus, ArrowRight, MapPin, Phone, MessageCircle } from "lucide-react";
 import type { TemplateProps } from "./types";
+import { productHref, stopCardClick as stop } from "./cardHelpers";
+
+const BODY_SECTIONS = new Set(["featured", "products", "about", "contact"]);
+const DEFAULT_BODY_ORDER = ["products", "about", "contact"];
 
 export function BoutiqueTemplate({ shop, products, cart, onAddToCart, onUpdateQty, onOpenCart, searchQuery, setSearchQuery, activeCategory, setActiveCategory }: TemplateProps) {
   const themeColor = shop.theme_color || "#27324A";
@@ -84,20 +89,24 @@ export function BoutiqueTemplate({ shop, products, cart, onAddToCart, onUpdateQt
         </div>
       </div>
 
-      {/* Products — 2-column boutique cards */}
-      <div className="max-w-3xl mx-auto px-4 sm:px-6">
-        {filtered.length === 0 ? (
-          <div className="text-center py-16 text-gray-400" style={{ fontFamily: "DM Sans, sans-serif" }}>
-            <ShoppingBag className="h-12 w-12 mx-auto opacity-20 mb-3" />
-            <p className="font-medium">Nothing found</p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-2 gap-4 sm:gap-6">
-            {filtered.map((p) => {
+      {/* Body sections rendered in owner's chosen order */}
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 space-y-12">
+        {(() => {
+          const productsBlock = (
+            <section key="products">
+              {filtered.length === 0 ? (
+                <div className="text-center py-16 text-gray-400" style={{ fontFamily: "DM Sans, sans-serif" }}>
+                  <ShoppingBag className="h-12 w-12 mx-auto opacity-20 mb-3" />
+                  <p className="font-medium">Nothing found</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 gap-4 sm:gap-6">
+                  {filtered.map((p) => {
               const cartItem = cart.find((c) => c.id === p.id);
-              return (
-                <div key={p.id} className="bg-white border border-gray-100 shadow-sm hover:shadow-md transition flex flex-col overflow-hidden rounded-2xl group">
-                  {/* Image */}
+              const href = productHref(shop.slug, p);
+              const cardCls = "bg-white border border-gray-100 shadow-sm hover:shadow-md transition flex flex-col overflow-hidden rounded-2xl group";
+              const body = (
+                <>
                   <div className="aspect-[3/4] bg-[#f8f5ef] flex items-center justify-center font-black text-5xl text-gray-200 overflow-hidden relative">
                     {p.image_url ? (
                       <img src={p.image_url} alt={p.name} className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500" />
@@ -110,8 +119,6 @@ export function BoutiqueTemplate({ shop, products, cart, onAddToCart, onUpdateQt
                       </span>
                     )}
                   </div>
-
-                  {/* Info */}
                   <div className="p-4 flex flex-col flex-1" style={{ fontFamily: "DM Sans, sans-serif" }}>
                     {p.brand && <span className="text-[10px] uppercase tracking-widest text-gray-400 font-bold mb-1">{p.brand}</span>}
                     <h3 className="text-sm font-bold text-gray-900 line-clamp-2 flex-1">{p.name}</h3>
@@ -119,14 +126,15 @@ export function BoutiqueTemplate({ shop, products, cart, onAddToCart, onUpdateQt
                     <div className="flex items-center justify-between mt-3">
                       <span className="font-black text-gray-900">Rs. {p.price}</span>
                       {cartItem ? (
-                        <div className="flex items-center gap-1 bg-gray-50 rounded-xl border border-gray-200 p-0.5">
-                          <button onClick={() => onUpdateQty(p.id, -1)} className="h-6 w-6 rounded-lg flex items-center justify-center text-gray-500 hover:bg-gray-200 transition font-bold">−</button>
+                        <div className="flex items-center gap-1 bg-gray-50 rounded-xl border border-gray-200 p-0.5" onClick={stop}>
+                          <button type="button" onClick={(e) => { stop(e); onUpdateQty(p.id, -1); }} className="h-6 w-6 rounded-lg flex items-center justify-center text-gray-500 hover:bg-gray-200 transition font-bold">−</button>
                           <span className="text-xs font-black w-4 text-center">{cartItem.qty}</span>
-                          <button onClick={() => onUpdateQty(p.id, 1)} className="h-6 w-6 rounded-lg flex items-center justify-center text-white transition" style={{ backgroundColor: themeColor }}><Plus className="h-3 w-3" /></button>
+                          <button type="button" onClick={(e) => { stop(e); onUpdateQty(p.id, 1); }} className="h-6 w-6 rounded-lg flex items-center justify-center text-white transition" style={{ backgroundColor: themeColor }}><Plus className="h-3 w-3" /></button>
                         </div>
                       ) : (
                         <button
-                          onClick={() => onAddToCart(p)}
+                          type="button"
+                          onClick={(e) => { stop(e); onAddToCart(p); }}
                           className="px-3 py-1.5 rounded-xl text-xs font-bold text-white flex items-center gap-1 transition active:scale-95"
                           style={{ backgroundColor: themeColor }}
                         >
@@ -135,11 +143,63 @@ export function BoutiqueTemplate({ shop, products, cart, onAddToCart, onUpdateQt
                       )}
                     </div>
                   </div>
-                </div>
+                </>
+              );
+              return href ? (
+                <Link key={p.id} href={href} className={cardCls}>{body}</Link>
+              ) : (
+                <div key={p.id} className={cardCls}>{body}</div>
               );
             })}
-          </div>
-        )}
+                </div>
+              )}
+            </section>
+          );
+
+          const aboutBlock = shop.description ? (
+            <section key="about" className="text-center px-2" style={{ fontFamily: "DM Sans, sans-serif" }}>
+              <h2 className="text-[11px] uppercase tracking-[0.3em] text-gray-400 font-bold mb-3">About the house</h2>
+              <p className="text-sm leading-relaxed text-gray-700 whitespace-pre-line max-w-xl mx-auto">{shop.description}</p>
+            </section>
+          ) : null;
+
+          const contactBlock = (shop.phone || shop.whatsapp_number || shop.address) ? (
+            <section key="contact" className="border-t border-gray-100 pt-8 text-sm text-gray-700" style={{ fontFamily: "DM Sans, sans-serif" }}>
+              <h2 className="text-[11px] uppercase tracking-[0.3em] text-gray-400 font-bold mb-4 text-center">Visit us</h2>
+              <div className="grid sm:grid-cols-3 gap-4 text-center">
+                {shop.address && (
+                  <div className="flex flex-col items-center gap-1.5">
+                    <MapPin className="h-4 w-4" style={{ color: themeColor }} />
+                    <span className="text-xs">{shop.address}</span>
+                  </div>
+                )}
+                {shop.phone && (
+                  <a href={`tel:${shop.phone}`} className="flex flex-col items-center gap-1.5 hover:text-gray-900">
+                    <Phone className="h-4 w-4" style={{ color: themeColor }} />
+                    <span className="text-xs">{shop.phone}</span>
+                  </a>
+                )}
+                {shop.whatsapp_number && (
+                  <a href={`https://wa.me/${shop.whatsapp_number.replace(/\D/g, "")}`} target="_blank" rel="noopener noreferrer" className="flex flex-col items-center gap-1.5 hover:text-gray-900">
+                    <MessageCircle className="h-4 w-4" style={{ color: themeColor }} />
+                    <span className="text-xs">WhatsApp · {shop.whatsapp_number}</span>
+                  </a>
+                )}
+              </div>
+            </section>
+          ) : null;
+
+          const blocks: Record<string, React.ReactNode> = {
+            products: productsBlock,
+            about: aboutBlock,
+            contact: contactBlock,
+          };
+
+          const requested = (shop.sections_order ?? []).filter((s) => BODY_SECTIONS.has(s));
+          const order = requested.length ? requested.slice() : DEFAULT_BODY_ORDER.slice();
+          if (!order.includes("products")) order.push("products");
+          return order.map((id) => blocks[id]).filter(Boolean);
+        })()}
       </div>
 
       {/* Cart button */}
