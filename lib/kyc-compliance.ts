@@ -1,3 +1,16 @@
+/**
+ * KYC compliance policy + reminder helper.
+ *
+ * The "policy" half is pure — given a verification status, a creation time
+ * and the current clock, it derives the grace window and the next email
+ * stage. The "send" half delegates the actual transport to lib/email/send.ts
+ * so we don't reach for the Resend HTTP API in two places.
+ */
+
+import { sendEmail, type SendEmailResult } from "@/lib/email/send";
+import { renderKycComplianceEmail } from "@/emails/KycComplianceEmail";
+import type { BrandedShop } from "@/lib/email/layout";
+
 export type VerificationStatus = "unverified" | "pending" | "verified" | "rejected";
 
 export type KycNotificationStage = "grace" | "warning" | "deadline";
@@ -63,78 +76,37 @@ export function getKycNotificationStage(
   return null;
 }
 
-export async function sendKycComplianceEmail({
-  to,
-  shopName,
-  stage,
-  graceEndsAt,
-  daysRemaining,
-}: {
+export interface SendKycEmailInput {
   to: string;
   shopName: string;
   stage: KycNotificationStage;
   graceEndsAt: string;
   daysRemaining: number;
-}) {
-  const apiKey = process.env.RESEND_API_KEY;
-  const from = process.env.KYC_EMAIL_FROM ?? "Quivo <onboarding@quivo.app>";
-  const dueDate = new Date(graceEndsAt).toLocaleDateString("en-NP", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
+  brand?: BrandedShop;
+  ctaUrl?: string;
+}
+
+export async function sendKycComplianceEmail(
+  input: SendKycEmailInput
+): Promise<SendEmailResult> {
+  const rendered = renderKycComplianceEmail({
+    shopName: input.shopName,
+    stage: input.stage,
+    graceEndsAt: input.graceEndsAt,
+    daysRemaining: input.daysRemaining,
+    graceWindowDays: KYC_GRACE_DAYS,
+    brand: input.brand,
+    ctaUrl: input.ctaUrl,
   });
-
-  const subjects: Record<KycNotificationStage, string> = {
-    grace: `KYC documents due in ${KYC_GRACE_DAYS} days for ${shopName}`,
-    warning: `KYC documents due in ${daysRemaining} day${daysRemaining === 1 ? "" : "s"} for ${shopName}`,
-    deadline: `KYC documents are now required for ${shopName}`,
-  };
-
-  const intro: Record<KycNotificationStage, string> = {
-    grace: `Your shop is live. You can use Quivo for ${KYC_GRACE_DAYS} days without uploading business proof.`,
-    warning: `Your KYC grace period is almost over. Please upload your business proof before ${dueDate}.`,
-    deadline: `Your ${KYC_GRACE_DAYS}-day KYC grace period has ended. Upload documents to continue using owner features.`,
-  };
-
-  const text = `${intro[stage]}\n\nShop: ${shopName}\nDue date: ${dueDate}\n\nOpen Quivo and go to Owner Dashboard > Settings > KYC Verification.`;
-  const html = `
-    <div style="font-family:Arial,sans-serif;line-height:1.6;color:#27324A">
-      <h2 style="margin:0 0 12px">KYC verification reminder</h2>
-      <p>${intro[stage]}</p>
-      <p><strong>Shop:</strong> ${shopName}<br/><strong>Due date:</strong> ${dueDate}</p>
-      <p>Open Quivo and go to <strong>Owner Dashboard &gt; Settings &gt; KYC Verification</strong>.</p>
-    </div>
-  `;
-
-  if (!apiKey) {
-    console.info("KYC email not sent: RESEND_API_KEY is not configured", {
-      to,
-      shopName,
-      stage,
-    });
-    return { skipped: true };
-  }
-
-  const response = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      from,
-      to,
-      subject: subjects[stage],
-      text,
-      html,
-    }),
+  return sendEmail({
+    to: input.to,
+    subject: rendered.subject,
+    html: rendered.html,
+    text: rendered.text,
+    from: process.env.KYC_EMAIL_FROM ?? process.env.EMAIL_FROM,
+    tags: [
+      { name: "kind", value: "kyc_compliance" },
+      { name: "stage", value: input.stage },
+    ],
   });
-
-  if (!response.ok) {
-    const body = await response.text().catch(() => "");
-    console.error("KYC email failed", response.status, body);
-    return { error: body || `Email API returned ${response.status}` };
-  }
-
-  return { success: true };
 }

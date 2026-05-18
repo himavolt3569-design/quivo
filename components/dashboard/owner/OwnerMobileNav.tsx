@@ -12,6 +12,7 @@ import {
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
 import { OwnerSidebar } from "./OwnerSidebar";
 import type { SwitcherShop } from "./OwnerShopSwitcher";
+import type { ShopRole } from "@/lib/shop";
 
 const MOBILE_BOTTOM_ROUTES = [
   { href: "/dashboard/owner", label: "Home", icon: LayoutDashboard },
@@ -23,9 +24,10 @@ const MOBILE_BOTTOM_ROUTES = [
 interface OwnerMobileNavProps {
   shops: SwitcherShop[];
   activeShopId?: string | null;
+  role?: ShopRole | null;
 }
 
-export function OwnerMobileNav({ shops, activeShopId }: OwnerMobileNavProps) {
+export function OwnerMobileNav({ shops, activeShopId, role }: OwnerMobileNavProps) {
   const pathname = usePathname();
 
   return (
@@ -65,7 +67,7 @@ export function OwnerMobileNav({ shops, activeShopId }: OwnerMobileNavProps) {
             </SheetTrigger>
             <SheetContent side="left" className="p-0 w-[80%] max-w-[320px] bg-[#f8f8f7] border-r-0">
               <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
-              <OwnerSidebar isMobile shops={shops} activeShopId={activeShopId} />
+              <OwnerSidebar isMobile shops={shops} activeShopId={activeShopId} role={role} />
             </SheetContent>
           </Sheet>
         </div>

@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { ProfileTab } from "@/components/dashboard/customer/ProfileTab";
 import type { Address, Profile } from "@/lib/types";
+import { log } from "@/lib/log";
 
 export default async function ProfilePage() {
   const supabase = await createClient();
@@ -59,7 +60,7 @@ export default async function ProfilePage() {
   ].filter(Boolean);
 
   if (errors.length > 0) {
-    console.error("Database query failures:", errors);
+    log.error("customer/profile: database query failures", { errors });
     throw new Error("Failed to load profile data. Please try again later.");
   }
 

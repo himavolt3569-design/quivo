@@ -44,6 +44,9 @@ export default async function StaffPage() {
   }
 
   const supabase = await createClient();
+  // Server component: each request computes its own "two-weeks-ago" snapshot.
+  // eslint-disable-next-line react-hooks/purity
+  const fourteenDaysAgo = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString();
   const [{ data: staff }, { data: rawShifts }, { data: rawTemplates }] = await Promise.all([
     supabase
       .from("shop_staff")
@@ -54,7 +57,7 @@ export default async function StaffPage() {
       .from("shifts")
       .select("id, staff_id, scheduled_start, scheduled_end, clocked_in_at, clocked_out_at, status, notes, shop_staff(name)")
       .eq("shop_id", shopId)
-      .gte("scheduled_end", new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString())
+      .gte("scheduled_end", fourteenDaysAgo)
       .order("scheduled_start", { ascending: true }),
     supabase
       .from("shift_templates")

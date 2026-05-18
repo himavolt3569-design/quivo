@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { getSiteUrl, isSafeHttpUrl } from "@/lib/security";
 import { KYC_GRACE_DAYS, sendKycComplianceEmail } from "@/lib/kyc-compliance";
+import { log } from "@/lib/log";
 import {
   OptionalPhoneSchema,
   OptionalEmailSchema,
@@ -111,12 +112,11 @@ export async function createShop(formData: FormData) {
       .maybeSingle();
 
     if (lookupError) {
-      console.error(
-        "createShop: shops lookup failed",
-        lookupError.code,
-        lookupError.message,
-        lookupError.details
-      );
+      log.error("createShop: shops lookup failed", {
+        code: lookupError.code,
+        message: lookupError.message,
+        details: lookupError.details,
+      });
       if (lookupError.code === "42P01") {
         return {
           error:
@@ -157,19 +157,12 @@ export async function createShop(formData: FormData) {
   );
 
   if (rpcError) {
-    console.error(
-      "createShop RPC error",
-      JSON.stringify(
-        {
-          code: rpcError.code,
-          message: rpcError.message,
-          details: rpcError.details,
-          hint: rpcError.hint,
-        },
-        null,
-        2
-      )
-    );
+    log.error("createShop RPC error", {
+      code: rpcError.code,
+      message: rpcError.message,
+      details: rpcError.details,
+      hint: rpcError.hint,
+    });
     if (rpcError.code === "23505") {
       return { error: "A shop with that name or subdomain already exists." };
     }
@@ -186,7 +179,7 @@ export async function createShop(formData: FormData) {
 
   const row = Array.isArray(rpcData) ? rpcData[0] : rpcData;
   if (!row) {
-    console.error("createShop: RPC returned no row", rpcData);
+    log.error("createShop: RPC returned no row", { rpcData });
     return { error: "Shop creation returned no result. Check server logs." };
   }
 
@@ -197,7 +190,7 @@ export async function createShop(formData: FormData) {
     .update({ active_shop_id: row.shop_id })
     .eq("id", user.id);
   if (activeError && activeError.code !== "42703") {
-    console.error("createShop: could not set active_shop_id", activeError.code, activeError.message);
+    log.error("createShop: could not set active_shop_id", { code: activeError.code, message: activeError.message });
   }
 
   if (user.email) {
@@ -209,13 +202,13 @@ export async function createShop(formData: FormData) {
       graceEndsAt,
       daysRemaining: KYC_GRACE_DAYS,
     });
-    if ("success" in emailResult) {
+    if (emailResult.ok) {
       const { error: emailMarkError } = await supabase
         .from("shops")
         .update({ kyc_grace_email_sent_at: new Date().toISOString() })
         .eq("id", row.shop_id);
       if (emailMarkError && emailMarkError.code !== "42703") {
-        console.error("createShop: could not mark KYC email sent", emailMarkError.code, emailMarkError.message);
+        log.error("createShop: could not mark KYC email sent", { code: emailMarkError.code, message: emailMarkError.message });
       }
     }
   }
@@ -262,19 +255,12 @@ export async function setActiveShop(shopId: string) {
     .maybeSingle();
 
   if (memberError) {
-    console.error(
-      "setActiveShop: membership check failed",
-      JSON.stringify(
-        {
-          code: memberError.code,
-          message: memberError.message,
-          details: memberError.details,
-          hint: memberError.hint,
-        },
-        null,
-        2
-      )
-    );
+    log.error("setActiveShop: membership check failed", {
+      code: memberError.code,
+      message: memberError.message,
+      details: memberError.details,
+      hint: memberError.hint,
+    });
     return {
       error: `Membership check failed (${memberError.code ?? "?"}): ${memberError.message ?? "unknown"}`,
     };
@@ -287,19 +273,12 @@ export async function setActiveShop(shopId: string) {
     .eq("id", user.id);
 
   if (updateError) {
-    console.error(
-      "setActiveShop: profile update failed",
-      JSON.stringify(
-        {
-          code: updateError.code,
-          message: updateError.message,
-          details: updateError.details,
-          hint: updateError.hint,
-        },
-        null,
-        2
-      )
-    );
+    log.error("setActiveShop: profile update failed", {
+      code: updateError.code,
+      message: updateError.message,
+      details: updateError.details,
+      hint: updateError.hint,
+    });
     if (updateError.code === "42703") {
       return {
         error:

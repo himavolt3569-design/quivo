@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import {
   PhoneSchema, OptionalPhoneSchema,
   EmailSchema, OptionalEmailSchema,
-  formatPhoneForStorage, prettyPhone,
+  prettyPhone,
 } from "@/lib/validation";
 import { cn } from "@/lib/utils";
 import { AlertCircle } from "lucide-react";
@@ -42,16 +42,19 @@ export function PhoneInput({
   ...rest
 }: PhoneInputProps) {
   const isControlled = value !== undefined;
-  const [inner, setInner] = React.useState<string>(() => {
-    const raw = (isControlled ? value : defaultValue) ?? "";
+  // Local state is only used in uncontrolled mode (for format-on-blur). When
+  // controlled, the parent owns the value and we render `value` directly —
+  // no useEffect sync needed.
+  const [uncontrolledValue, setUncontrolledValue] = React.useState<string>(() => {
+    const raw = defaultValue ?? "";
     return typeof raw === "string" ? raw : String(raw);
   });
+  const displayValue = isControlled
+    ? typeof value === "string"
+      ? value
+      : String(value ?? "")
+    : uncontrolledValue;
   const [error, setError] = React.useState<string | null>(null);
-
-  // Keep internal value in sync when controlled
-  React.useEffect(() => {
-    if (isControlled) setInner(typeof value === "string" ? value : String(value ?? ""));
-  }, [isControlled, value]);
 
   const validate = React.useCallback((raw: string): { ok: boolean; canonical: string | null; err: string | null } => {
     if (!raw || raw.trim() === "") {
@@ -73,7 +76,7 @@ export function PhoneInput({
       const pretty = prettyPhone(canonical);
       if (pretty !== raw) {
         // Update both the visible value and the form's value via change event semantics.
-        if (!isControlled) setInner(pretty);
+        if (!isControlled) setUncontrolledValue(pretty);
         // Fire a synthetic change so consumers using onChange see the cleaned value.
         const ev = { ...e, target: { ...e.target, value: pretty } } as React.ChangeEvent<HTMLInputElement>;
         onChange?.(ev);
@@ -83,7 +86,7 @@ export function PhoneInput({
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!isControlled) setInner(e.target.value);
+    if (!isControlled) setUncontrolledValue(e.target.value);
     if (error) {
       // Clear the error as the user starts editing again
       const { err } = validate(e.target.value);
@@ -104,8 +107,7 @@ export function PhoneInput({
         aria-invalid={error ? true : undefined}
         aria-describedby={error ? `${rest.name ?? "phone"}-error` : undefined}
         className={cn(className)}
-        value={isControlled ? inner : undefined}
-        defaultValue={isControlled ? undefined : (defaultValue ?? "")}
+        value={isControlled ? displayValue : uncontrolledValue}
         onChange={handleChange}
         onBlur={handleBlur}
       />

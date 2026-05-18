@@ -186,6 +186,9 @@ export function ShiftsPanel({ shopId, staffOptions, initialShifts, initialTempla
     });
   }, []);
 
+  // Reading the wall clock each render is intentional — partitioning past/upcoming
+  // shifts has to use "now at paint time" rather than a frozen mount time.
+  // eslint-disable-next-line react-hooks/purity
   const now = Date.now();
   const upcoming = shifts.filter((s) => s.status !== "cancelled" && new Date(s.scheduled_end).getTime() >= now);
   const past = shifts.filter((s) => s.status === "cancelled" || new Date(s.scheduled_end).getTime() < now)

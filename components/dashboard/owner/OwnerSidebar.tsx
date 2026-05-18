@@ -19,8 +19,17 @@ import {
 } from "lucide-react";
 import { OwnerShopSwitcher, type SwitcherShop } from "./OwnerShopSwitcher";
 import { RoleModeSwitch } from "@/components/dashboard/RoleModeSwitch";
+import type { ShopRole } from "@/lib/shop";
 
-const OWNER_ROUTES = [
+// Each route declares the minimum shop_members.role required to see it.
+// Phase 0 plumbs the role prop through without filtering; Phase 1 turns this
+// allow-list into actual nav gating.
+const OWNER_ROUTES: {
+  href: string;
+  label: string;
+  icon: typeof LayoutDashboard;
+  roles?: ShopRole[];
+}[] = [
   { href: "/dashboard/owner", label: "Overview", icon: LayoutDashboard },
   { href: "/dashboard/owner/pos", label: "Point of Sale", icon: Calculator },
   { href: "/dashboard/owner/products", label: "Inventory & Products", icon: Package },
@@ -39,9 +48,15 @@ interface OwnerSidebarProps {
   isMobile?: boolean;
   shops: SwitcherShop[];
   activeShopId?: string | null;
+  /**
+   * The current user's role for the active shop. Phase 0: plumbed but not
+   * yet used to gate nav items. Phase 1 wires the filter on `route.roles`.
+   */
+  role?: ShopRole | null;
 }
 
-export function OwnerSidebar({ isMobile = false, shops, activeShopId }: OwnerSidebarProps) {
+export function OwnerSidebar({ isMobile = false, shops, activeShopId, role }: OwnerSidebarProps) {
+  void role; // reserved for Phase 1 filtering — keeps the prop in the public contract
   const pathname = usePathname();
 
   return (

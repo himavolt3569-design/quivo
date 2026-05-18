@@ -9,6 +9,7 @@ import {
 import { NextResponse } from "next/server";
 import { createHash } from "crypto";
 import { headers } from "next/headers";
+import { log } from "@/lib/log";
 
 function parseIntent(value: string | null): Role | null {
   return value === "owner" || value === "customer" ? value : null;
@@ -50,7 +51,7 @@ export async function GET(request: Request) {
 
     const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
     if (exchangeError) {
-      console.error("auth/callback: exchange failed", {
+      log.error("auth/callback: exchange failed", {
         event: "exchange_failed",
         message: exchangeError.message,
       });
@@ -86,7 +87,7 @@ export async function GET(request: Request) {
     const isFreshSignup = userAgeMs <= FRESH_SIGNUP_WINDOW_MS;
 
     if (!existingRole && !isFreshSignup) {
-      console.warn("auth/callback: returning user has no profile — revoking", {
+      log.warn("auth/callback: returning user has no profile — revoking", {
         event: "account_revoked",
         userId: user.id,
         email: user.email,
@@ -132,7 +133,7 @@ export async function GET(request: Request) {
         if (insertError.code === "23505") {
           profileCreationConflict = true;
         } else {
-          console.error("auth/callback: profile upsert failed", {
+          log.error("auth/callback: profile upsert failed", {
             event: "profile_upsert_failed",
             code: insertError.code,
             message: insertError.message,
@@ -186,13 +187,13 @@ export async function GET(request: Request) {
           p_ip_hash: ipHash,
         });
       } catch (auditErr) {
-        console.error("auth/callback: audit log failed", {
+        log.error("auth/callback: audit log failed", {
           event: "audit_log_failed",
           error: auditErr instanceof Error ? auditErr.message : String(auditErr),
         });
       }
 
-      console.warn("auth/callback: rejecting session", {
+      log.warn("auth/callback: rejecting session", {
         event: outcome.code,
         userId: user.id,
         intent,
@@ -213,7 +214,7 @@ export async function GET(request: Request) {
 
     return NextResponse.redirect(`${origin}${outcome.target}`);
   } catch (err) {
-    console.error("auth/callback: unexpected error", {
+    log.error("auth/callback: unexpected error", {
       event: "unexpected_error",
       error: err instanceof Error ? err.message : String(err),
     });

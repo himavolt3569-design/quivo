@@ -101,6 +101,9 @@ export function StaffShiftsView({ initialShifts, userName, staffIds }: Props) {
     return () => { channels.forEach((ch) => supabase.removeChannel(ch)); };
   }, [supabase, staffIds]);
 
+  // Reading the wall clock each render is intentional — the "today" / "upcoming"
+  // / "completed" partition must reflect now-at-paint, not now-at-mount.
+  // eslint-disable-next-line react-hooks/purity
   const now = Date.now();
   const partitions = useMemo(() => {
     const active = shifts.find((s) => s.status === "in_progress");

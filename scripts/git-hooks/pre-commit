@@ -1,0 +1,21 @@
+#!/usr/bin/env sh
+# Quivo pre-commit hook.
+#
+# Currently runs:
+#   1. Migration filename + collision check.
+#
+# Future phases append more checks here (eslint --fix on staged files, etc).
+#
+# Install once:
+#   bash scripts/git-hooks/install.sh
+
+set -e
+
+if ! command -v node >/dev/null 2>&1; then
+  echo "✗ pre-commit: node is not on PATH; skipping migration check." >&2
+  exit 0
+fi
+
+# Run from the repo root regardless of where git invoked us.
+ROOT="$(git rev-parse --show-toplevel)"
+node "$ROOT/scripts/check-migration-names.mjs"

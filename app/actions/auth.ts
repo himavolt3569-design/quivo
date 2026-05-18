@@ -6,6 +6,7 @@ import { z } from "zod";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { cookies } from "next/headers";
 import { getSiteUrl } from "@/lib/security";
+import { log } from "@/lib/log";
 
 const DISPOSABLE_EMAIL_DOMAINS = [
   "mailinator.com",
@@ -111,7 +112,7 @@ export async function loginWithEmail(formData: FormData) {
     .maybeSingle();
 
   if (!profile) {
-    console.warn("loginWithEmail: authenticated user has no profile — revoking", {
+    log.warn("loginWithEmail: authenticated user has no profile — revoking", {
       event: "account_revoked",
       userId: authData.user.id,
       email: authData.user.email,
@@ -227,7 +228,7 @@ export async function signInWithGoogle() {
   });
 
   if (error) {
-    console.error("Google Auth Error:", error.message);
+    log.error("Google Auth Error", { message: error.message });
     return { error: "Could not start Google sign-in. Please try again." };
   }
 
