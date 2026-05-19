@@ -194,23 +194,33 @@ export async function createShop(formData: FormData) {
     log.error("createShop: could not set active_shop_id", { code: activeError.code, message: activeError.message });
   }
 
+  // Best-effort KYC welcome email — must NEVER block shop creation. The
+  // shop is already inserted in the DB at this point; any email/network
+  // failure here is informational only.
   if (user.email) {
-    const graceEndsAt = new Date(Date.now() + KYC_GRACE_DAYS * 24 * 60 * 60 * 1000).toISOString();
-    const emailResult = await sendKycComplianceEmail({
-      to: user.email,
-      shopName: data.name,
-      stage: "grace",
-      graceEndsAt,
-      daysRemaining: KYC_GRACE_DAYS,
-    });
-    if (emailResult.ok) {
-      const { error: emailMarkError } = await supabase
-        .from("shops")
-        .update({ kyc_grace_email_sent_at: new Date().toISOString() })
-        .eq("id", row.shop_id);
-      if (emailMarkError && emailMarkError.code !== "42703") {
-        log.error("createShop: could not mark KYC email sent", { code: emailMarkError.code, message: emailMarkError.message });
+    try {
+      const graceEndsAt = new Date(Date.now() + KYC_GRACE_DAYS * 24 * 60 * 60 * 1000).toISOString();
+      const emailResult = await sendKycComplianceEmail({
+        to: user.email,
+        shopName: data.name,
+        stage: "grace",
+        graceEndsAt,
+        daysRemaining: KYC_GRACE_DAYS,
+      });
+      if (emailResult.ok) {
+        const { error: emailMarkError } = await supabase
+          .from("shops")
+          .update({ kyc_grace_email_sent_at: new Date().toISOString() })
+          .eq("id", row.shop_id);
+        if (emailMarkError && emailMarkError.code !== "42703") {
+          log.error("createShop: could not mark KYC email sent", { code: emailMarkError.code, message: emailMarkError.message });
+        }
       }
+    } catch (err) {
+      log.error("createShop: KYC welcome email threw", {
+        err: err instanceof Error ? err.message : String(err),
+      });
+      // Continue — the shop already exists.
     }
   }
 

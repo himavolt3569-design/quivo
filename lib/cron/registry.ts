@@ -66,3 +66,12 @@ registerCronJob({
     return { ok: true };
   },
 });
+
+// Phase 2: event-driven notifications.
+import { notificationsDispatchJob } from "./jobs/notifications-dispatch";
+import { lowStockDigestJob } from "./jobs/low-stock-digest";
+import { kycDeadlineJob } from "./jobs/kyc-deadline";
+
+registerCronJob(notificationsDispatchJob);
+registerCronJob(lowStockDigestJob);
+registerCronJob(kycDeadlineJob);
