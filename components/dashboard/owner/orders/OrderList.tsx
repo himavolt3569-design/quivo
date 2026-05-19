@@ -1,15 +1,18 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Search, ShoppingBag, Clock, Package } from "lucide-react";
+import { Search, ShoppingBag, Clock, Package, RotateCcw } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { updateOrderStatus } from "@/app/actions/owner";
+import { RefundModal, type RefundOrderContext, type RefundableLine } from "./RefundModal";
 
 type OrderStatus = "placed" | "confirmed" | "packing" | "out_for_delivery" | "delivered" | "cancelled";
 
 interface OrderItem {
+  id?: string;
+  product_id?: string;
   name: string;
   price: number;
   quantity?: number;
@@ -22,6 +25,8 @@ interface Order {
   customer_id: string;
   status: OrderStatus;
   total_amount: number;
+  tax_amount?: number;
+  tax_rate?: number;
   items: OrderItem[];
   notes: string | null;
   delivery_address: string | null;
@@ -67,6 +72,32 @@ export function OrderList({ shopId, initialOrders }: OrderListProps) {
   const [search, setSearch] = useState("");
   const [orders, setOrders] = useState(initialOrders);
   const [isPending, startTransition] = useTransition();
+  const [refundFor, setRefundFor] = useState<RefundOrderContext | null>(null);
+
+  const buildRefundContext = (order: Order): RefundOrderContext | null => {
+    const refundable: RefundableLine[] = (order.items ?? [])
+      .map((i) => {
+        const productId = i.product_id ?? i.id ?? null;
+        if (!productId) return null;
+        return {
+          product_id: productId,
+          name: i.name,
+          price: Number(i.price) || 0,
+          qty: Number(i.quantity ?? i.qty ?? 0) || 0,
+        };
+      })
+      .filter((l): l is RefundableLine => l !== null && l.qty > 0);
+    if (refundable.length === 0) return null;
+    return {
+      orderId: order.id,
+      shopId,
+      orderNumber: order.order_number,
+      total: Number(order.total_amount) || 0,
+      taxAmount: Number(order.tax_amount ?? 0),
+      taxRate: Number(order.tax_rate ?? 0),
+      items: refundable,
+    };
+  };
 
   const filtered = orders.filter((o) => {
     const matchesStatus = STATUS_MAP[filter]?.includes(o.status);
@@ -227,6 +258,24 @@ export function OrderList({ shopId, initialOrders }: OrderListProps) {
                     Cancel
                   </Button>
                 )}
+                {order.status === "delivered" && (
+                  <Button
+                    disabled={isPending}
+                    onClick={() => {
+                      const ctx = buildRefundContext(order);
+                      if (!ctx) {
+                        toast.error("This order's items aren't linked to products; refund manually.");
+                        return;
+                      }
+                      setRefundFor(ctx);
+                    }}
+                    variant="outline"
+                    className="flex-1 md:w-40 h-10 rounded-xl border-[#2E3344]/10 text-[#27324A] hover:bg-[#F7F0E6] text-xs font-bold flex items-center justify-center gap-1"
+                  >
+                    <RotateCcw className="h-3.5 w-3.5" />
+                    Refund
+                  </Button>
+                )}
               </div>
             </div>
           );
@@ -237,6 +286,19 @@ export function OrderList({ shopId, initialOrders }: OrderListProps) {
         <div className="text-center py-12 text-[#746E73] font-medium">
           No orders match this filter.
         </div>
+      )}
+
+      {refundFor && (
+        <RefundModal
+          order={refundFor}
+          open={true}
+          onClose={() => setRefundFor(null)}
+          onComplete={() => {
+            // The RPC has restocked + recorded the refund; the page revalidates.
+            // Reflect status nothing changes locally, but we can flag the order
+            // visually if we want — for now, just close the modal.
+          }}
+        />
       )}
     </div>
   );

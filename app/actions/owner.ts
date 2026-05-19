@@ -6,6 +6,7 @@ import { z } from "zod";
 import { getSiteUrl, isSafeHttpUrl } from "@/lib/security";
 import { KYC_GRACE_DAYS, sendKycComplianceEmail } from "@/lib/kyc-compliance";
 import { log } from "@/lib/log";
+import { emitBackground } from "@/lib/events/emit";
 import {
   OptionalPhoneSchema,
   OptionalEmailSchema,
@@ -849,11 +850,18 @@ const ShopSettingsSchema = z.object({
   phone: OptionalPhoneSchema,
   opening_time: TimeOfDaySchema.optional().or(z.literal("")).transform((v) => v || undefined),
   closing_time: TimeOfDaySchema.optional().or(z.literal("")).transform((v) => v || undefined),
+  vat_registered: z.preprocess((v) => v === "on" || v === "true" || v === true, z.boolean()).optional(),
+  vat_rate: z.coerce.number().min(0).max(100).optional(),
+  pan_number: z.string().trim().max(40).optional().or(z.literal("")).transform((v) => v || undefined),
 });
 
 export async function updateShopSettings(shopId: string, formData: FormData) {
   const idParse = ShopIdSchema.safeParse(shopId);
   if (!idParse.success) return { error: "Invalid shop ID" };
+
+  const rawVatRegistered = formData.get("vat_registered");
+  const rawVatRate = formData.get("vat_rate");
+  const rawPan = formData.get("pan_number");
 
   const parse = ShopSettingsSchema.safeParse({
     name: formData.get("name")?.toString() ?? "",
@@ -861,17 +869,25 @@ export async function updateShopSettings(shopId: string, formData: FormData) {
     phone: formData.get("phone")?.toString() || undefined,
     opening_time: formData.get("opening_time")?.toString() || undefined,
     closing_time: formData.get("closing_time")?.toString() || undefined,
+    vat_registered: rawVatRegistered === null ? undefined : rawVatRegistered.toString(),
+    vat_rate: rawVatRate === null || rawVatRate === "" ? undefined : rawVatRate.toString(),
+    pan_number: rawPan === null ? undefined : rawPan.toString(),
   });
   if (!parse.success) return { error: parse.error.issues[0].message };
 
   const { supabase } = await getAuthUser();
-  const { error } = await supabase.from("shops").update({
+  const update: Record<string, unknown> = {
     name: parse.data.name,
     description: parse.data.description ?? null,
     phone: parse.data.phone ?? null,
     opening_time: parse.data.opening_time ?? null,
     closing_time: parse.data.closing_time ?? null,
-  }).eq("id", idParse.data);
+  };
+  if (parse.data.vat_registered !== undefined) update.vat_registered = parse.data.vat_registered;
+  if (parse.data.vat_rate !== undefined) update.vat_rate = parse.data.vat_rate;
+  if (parse.data.pan_number !== undefined) update.pan_number = parse.data.pan_number ?? null;
+
+  const { error } = await supabase.from("shops").update(update).eq("id", idParse.data);
 
   if (error) return { error: `Could not save settings: ${error.message}` };
   revalidatePath("/dashboard/owner");
@@ -898,27 +914,73 @@ export async function updateStorefrontTheme(shopId: string, themeColor: string, 
 
 // ─── POS ──────────────────────────────────────────────────────────────────────
 
-export async function completePOSSale(
-  shopId: string,
-  items: Array<{ product_id: string; qty: number; name: string; price: number }>,
-  total: number,
-  paymentMethod: string,
-  notes?: string
-) {
-  const idParse = ShopIdSchema.safeParse(shopId);
+export interface POSSaleLine {
+  product_id: string;
+  qty: number;
+  name: string;
+  unit_price: number;
+  line_discount: number;
+}
+
+export interface POSSaleSplit {
+  method: "cash" | "card" | "online" | "udhar" | "wallet" | "qr";
+  amount: number;
+  reference?: string | null;
+}
+
+export interface POSSaleInput {
+  shopId: string;
+  items: POSSaleLine[];
+  subtotal: number;
+  discount: number;
+  taxRate: number;
+  taxAmount: number;
+  total: number;
+  paymentMethod: string;
+  splits?: POSSaleSplit[] | null;
+  notes?: string | null;
+}
+
+export async function completePOSSale(input: POSSaleInput) {
+  const idParse = ShopIdSchema.safeParse(input.shopId);
   if (!idParse.success) return { error: "Invalid shop ID" };
-  if (!items.length) return { error: "Cart is empty" };
+  if (!input.items?.length) return { error: "Cart is empty" };
 
   const { supabase } = await getAuthUser();
   const { data, error } = await supabase.rpc("complete_pos_sale", {
     p_shop_id: idParse.data,
-    p_items: items,
-    p_total: total,
-    p_payment_method: paymentMethod,
-    p_notes: notes ?? null,
+    p_items: input.items,
+    p_subtotal: input.subtotal,
+    p_discount: input.discount,
+    p_tax_rate: input.taxRate,
+    p_tax_amount: input.taxAmount,
+    p_total: input.total,
+    p_payment_method: input.paymentMethod,
+    p_notes: input.notes ?? null,
+    p_split_payments: input.splits && input.splits.length > 0 ? input.splits : null,
   });
 
   if (error) return { error: error.message };
+
+  // Fire-and-forget the domain event for downstream consumers (email, in-app
+  // notifications). Phase 2 wires the handler; today the row sits unprocessed.
+  if (data) {
+    emitBackground({
+      name: "transaction.completed",
+      payload: {
+        transaction_id: data as string,
+        shop_id: idParse.data,
+        total: input.total,
+        tax_amount: input.taxAmount,
+        payment_method: input.splits && input.splits.length > 0 ? "split" : input.paymentMethod,
+        item_count: input.items.length,
+      },
+      shopId: idParse.data,
+      aggregateId: data as string,
+      idempotencyKey: `pos:${data}`,
+    });
+  }
+
   revalidatePath("/dashboard/owner");
   revalidatePath("/dashboard/owner/pos");
   revalidatePath("/dashboard/owner/products");

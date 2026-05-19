@@ -26,6 +26,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getSiteUrl } from "@/lib/security";
 import { checkRateLimit } from "@/lib/rate-limit";
+import { emitBackground } from "@/lib/events/emit";
 import { initiatePaymentProvider } from "@/lib/payments";
 import type {
   InitiateContext, InitiateResult, PaymentMethod, PaymentSecrets, PublicPaymentMethods,
@@ -59,6 +60,14 @@ export interface PlaceOrderResult {
   redirectUrl?: string;
   redirectMethod?: "GET" | "POST";
   formFields?: Record<string, string>;
+  /** Authoritative server-side money breakdown (post-Phase 1). */
+  pricing?: {
+    subtotal: number;
+    taxAmount: number;
+    deliveryFee: number;
+    serviceCharge: number;
+    total: number;
+  };
 }
 
 const ShopIdSchema = z.string().uuid();
@@ -83,6 +92,10 @@ type CreatedPaymentRow = {
   payment_id: string;
   order_number: string;
   tracking_token: string;
+  subtotal: number;
+  tax_amount: number;
+  delivery_fee: number;
+  service_charge: number;
   total_amount: number;
 };
 
@@ -207,6 +220,34 @@ export async function placeOrderWithPayment(
   }
   if (!data) return { error: "Order could not be created." };
 
+  const pricing = {
+    subtotal: Number(data.subtotal ?? 0),
+    taxAmount: Number(data.tax_amount ?? 0),
+    deliveryFee: Number(data.delivery_fee ?? 0),
+    serviceCharge: Number(data.service_charge ?? 0),
+    total: Number(data.total_amount ?? 0),
+  };
+
+  emitBackground({
+    name: "order.placed",
+    payload: {
+      order_id: data.order_id,
+      order_number: data.order_number,
+      shop_id: shopParse.data,
+      payment_method: paymentMethod,
+      subtotal: pricing.subtotal,
+      tax_amount: pricing.taxAmount,
+      delivery_fee: pricing.deliveryFee,
+      service_charge: pricing.serviceCharge,
+      total: pricing.total,
+      customer_email: customerParse.data.email || null,
+      customer_phone: customerParse.data.phone,
+    },
+    shopId: shopParse.data,
+    aggregateId: data.order_id,
+    idempotencyKey: `order:${data.order_id}`,
+  });
+
   // Offline methods (cod / bank_transfer / qr_code) — no gateway initiation.
   if (paymentMethod === "cod" || paymentMethod === "bank_transfer" || paymentMethod === "qr_code") {
     revalidatePath("/dashboard/owner/orders");
@@ -216,6 +257,7 @@ export async function placeOrderWithPayment(
       paymentId: data.payment_id,
       redirectUrl: `/order/${data.order_number}?t=${data.tracking_token}`,
       redirectMethod: "GET",
+      pricing,
     };
   }
 
@@ -282,6 +324,7 @@ export async function placeOrderWithPayment(
     redirectUrl: initiateResult.redirectUrl,
     redirectMethod: initiateResult.redirectMethod ?? "GET",
     formFields: initiateResult.formFields,
+    pricing,
   };
 }
 

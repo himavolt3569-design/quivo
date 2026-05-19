@@ -15,10 +15,14 @@ interface CheckoutModalProps {
   isOpen: boolean;
   onClose: () => void;
   cart: CartItem[];
-  total: number;
+  /** Cart subtotal (sum of price * qty). Display-only; the RPC recomputes. */
+  subtotal: number;
   shopId: string;
   shopName: string;
   themeColor: string;
+  vatRegistered: boolean;
+  vatRate: number;
+  panNumber: string | null;
   onSuccess: (orderNumber: string, trackingToken: string) => void;
 }
 
@@ -60,8 +64,15 @@ function Copyable({ value, label }: { value: string; label: string }) {
 }
 
 export function CheckoutModal({
-  isOpen, onClose, cart, total, shopId, shopName, themeColor, onSuccess,
+  isOpen, onClose, cart, subtotal, shopId, shopName, themeColor, vatRegistered, vatRate, panNumber, onSuccess,
 }: CheckoutModalProps) {
+  // The grand total displayed in this modal is an estimate — the RPC is the
+  // authoritative source. We show subtotal + estimated tax (when registered).
+  const safeRate = vatRegistered ? Math.max(0, vatRate) : 0;
+  const taxEstimate = vatRegistered ? Math.round(((subtotal * safeRate) / 100) * 100) / 100 : 0;
+  const total = Math.round((subtotal + taxEstimate) * 100) / 100;
+  void themeColor; // kept in the prop contract for future theming
+  void panNumber;  // surfaced via the printed receipt, not the checkout modal
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
@@ -161,9 +172,21 @@ export function CheckoutModal({
 
         <div className="px-5 py-3 bg-gray-50 border-b border-gray-100">
           <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Order Summary</p>
-          <div className="flex justify-between items-center">
-            <span className="text-sm text-gray-600">{itemCount} item{itemCount !== 1 ? "s" : ""}</span>
-            <span className="font-black text-gray-900">Rs. {total.toLocaleString()}</span>
+          <div className="space-y-1">
+            <div className="flex justify-between items-center text-sm text-gray-600">
+              <span>{itemCount} item{itemCount !== 1 ? "s" : ""} subtotal</span>
+              <span>Rs. {subtotal.toLocaleString()}</span>
+            </div>
+            {vatRegistered && (
+              <div className="flex justify-between items-center text-xs text-gray-500">
+                <span>VAT ({safeRate.toFixed(2)}%)</span>
+                <span>Rs. {taxEstimate.toLocaleString()}</span>
+              </div>
+            )}
+            <div className="flex justify-between items-center pt-1 border-t border-gray-200">
+              <span className="text-sm font-bold text-gray-900">Total</span>
+              <span className="font-black text-gray-900">Rs. {total.toLocaleString()}</span>
+            </div>
           </div>
         </div>
 

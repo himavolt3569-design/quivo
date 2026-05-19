@@ -11,9 +11,29 @@ This plan turns that audit into an executable 11-phase incremental rollout where
 - **Deferred items kept in scope**: order tracking map, back-in-stock alerts, abandoned cart, web push — none dropped.
 - **Phase 0 scope**: maximum foundation (logger, sendEmail shell, cron route, event bus stub, migration-collision check).
 
-**Migration timestamp collisions to fix first** — same timestamp pairs exist:
-- `20260516000001_staff_shifts.sql` ↔ `20260516000001_supplier_profile_and_ledger.sql`
-- `20260516000002_kyc_grace_period_notifications.sql` ↔ `20260516000002_payroll_templates.sql`
+## Execution log
+
+| Phase | Status | Branch | Commit | Notes |
+|---|---|---|---|---|
+| 0 — Foundation | ✓ committed | `additional-features` | `3d1f04e` | See Phase 0 section. Operator follow-ups still open. |
+| 1 — Money Correctness | ✓ committed | `additional-features` | tip of branch | 8 migrations + POS + storefront + orders + settings + audit + VAT. Operator must apply migrations 000006–000013 to Supabase and smoke-test. |
+| 2–10 | pending | — | — | — |
+
+**Resume instructions for a future Claude CLI session**
+
+```
+cd /mnt/Linux-Projects/Code/Official_Projects/SaaS/Quivo/quivo_official
+git checkout additional-features          # or whichever branch holds the WIP
+claude                                    # then in chat:
+> read PLAN.md and continue execution from the first unchecked phase
+```
+
+The plan is the source of truth. Pick up at the lowest-numbered phase that still has open checkboxes.
+
+**Migration timestamp collisions** — both fixed in Phase 0:
+- ✓ `20260516000001_staff_shifts.sql` ↔ `…_supplier_profile_and_ledger.sql` → renamed supplier to `…000003_…`.
+- ✓ `20260516000002_kyc_grace_period_notifications.sql` ↔ `…_payroll_templates.sql` → renamed KYC to `…000004_…`.
+- Two legacy 2024 collisions (`…000007`, `…000012`) are grandfathered by `scripts/check-migration-names.mjs` because they have already been applied to every deployed DB.
 
 ---
 
@@ -64,10 +84,11 @@ A feature is only checked off when **all of these** are true:
 - [x] **Migration** `supabase/migrations/20260516000005_domain_events.sql` — `domain_events` table + indexes + RLS deny policies.
 - [x] **Owner sidebar role plumbing** — `OwnerSidebar` and `OwnerMobileNav` accept `role?: ShopRole`. `OwnerLayout` passes `activeShop?.role`. `OWNER_ROUTES` typed with an optional `roles?: ShopRole[]` allow-list; filtering logic lands in Phase 1.
 
-### Migration: `supabase/migrations/[next]_phase0_domain_events.sql`
+### Migration: `supabase/migrations/20260516000005_domain_events.sql` ✓ landed
 
-- `domain_events` table with RLS.
-- No realtime publication add yet.
+- `domain_events` (id, name, payload JSONB, aggregate_id, shop_id, user_id, processed_at, attempt_count, processing_error, idempotency_key, created_at).
+- Indexes: unprocessed-queue, name+created_at, shop_id+created_at, unique idempotency_key.
+- RLS deny-all for authenticated / anon (service role only). No realtime publication.
 
 ### Verification
 
@@ -84,59 +105,60 @@ A feature is only checked off when **all of these** are true:
 
 **Goal:** every receipt, order, and refund is auditable and tax-compliant. No more drift between the POS revenue path and the storefront revenue path.
 
-### Schema migrations (in this order)
+### Schema migrations (apply in this order) ✓
 
-1. `[next]_tax_columns_on_transactions.sql`
-   - `shop_transactions` adds `tax_amount NUMERIC(12,2) NOT NULL DEFAULT 0`, `tax_rate NUMERIC(5,2) NOT NULL DEFAULT 0`, `discount_amount NUMERIC(12,2) NOT NULL DEFAULT 0`, `subtotal NUMERIC(12,2)` (backfill from `amount - tax_amount + discount_amount` for legacy rows; then NOT NULL).
-   - `orders` adds `tax_amount`, `discount_amount`, `delivery_fee NUMERIC(12,2) NOT NULL DEFAULT 0`, `service_charge NUMERIC(12,2) NOT NULL DEFAULT 0`, `subtotal`, `tax_rate`.
-   - `shops` adds `vat_registered BOOLEAN NOT NULL DEFAULT false`, `vat_rate NUMERIC(5,2) NOT NULL DEFAULT 13.00`, `pan_number TEXT`.
-2. `[next]_pos_sale_v3_with_tax.sql`
-   - `CREATE OR REPLACE FUNCTION complete_pos_sale(p_shop_id UUID, p_items JSONB, p_subtotal NUMERIC, p_discount NUMERIC, p_tax_rate NUMERIC, p_tax_amount NUMERIC, p_total NUMERIC, p_payment_method TEXT, p_notes TEXT, p_split_payments JSONB DEFAULT NULL) RETURNS UUID`.
-   - Writes split_payment rows to new `transaction_splits` table when `p_split_payments` provided.
-3. `[next]_storefront_order_v2_with_tax.sql`
-   - Mirror tax/fee fields on `place_storefront_order` RPC. Keeps POS and storefront in sync.
-4. `[next]_refunds.sql`
-   - `refunds` table: id, shop_id, transaction_id NULLABLE, order_id NULLABLE (at least one required), refund_amount, tax_refunded, reason, status (`pending`|`approved`|`rejected`|`completed`), processed_by, created_at, processed_at.
-   - `refund_items` (id, refund_id, product_id, qty, line_amount) — supports partial refunds.
-   - `process_refund(p_refund_id)` RPC: validates auth, restores inventory atomically, marks refund completed, writes `domain_events` row `refund.completed`.
-   - RLS: managers/owners only.
-5. `[next]_audit_views.sql`
-   - Read-only `v_security_events_user` and `v_payment_audit_logs_shop` views that join in user names. Granted to authenticated.
+1. ✓ `supabase/migrations/20260516000006_tax_columns_on_transactions.sql` — `shop_transactions` + `orders` + `shops` tax/discount/fee columns; `transaction_splits` table; widens `shop_transactions.payment_method` CHECK to include `wallet/qr/split`. Backfill + NOT NULL on `subtotal`.
+2. ✓ `supabase/migrations/20260516000007_pos_sale_v3_with_tax.sql` — frozen `complete_pos_sale` v3 (10 args). Validates total equation to the rupee, sum-of-splits, ≤ 3 splits. Drops legacy 5-arg signature.
+3. ✓ `supabase/migrations/20260516000008_storefront_order_v2_with_tax.sql` — `place_storefront_order` v2 (17 args). Mirrors tax/fees with rupee-level total validation. Drops legacy 11-arg signature.
+4. ✓ `supabase/migrations/20260516000009_refunds.sql` — `refunds` + `refund_items` + RLS (manager+). `process_refund` SECURITY DEFINER RPC restores stock, writes offsetting negative `shop_transactions` row, emits `refund.completed` to `domain_events`.
+5. ✓ `supabase/migrations/20260516000010_held_sales.sql` — POS park & resume. Shop-member RLS for read/write/delete.
+6. ✓ `supabase/migrations/20260516000011_audit_views.sql` — `v_security_events_user` (self-only) + `v_payment_audit_logs_shop` (shop-member-only) with actor name/email joined in.
+7. ✓ `supabase/migrations/20260516000012_place_order_with_payment_v2_tax.sql` — the live storefront RPC (replaces the v1 from `20260515000001_security_hardening_followup.sql`). Reads `shops.vat_registered/vat_rate` and computes tax server-side; returns `subtotal/tax_amount/delivery_fee/service_charge/total` in the result. Drops the v1 12-arg signature.
+8. ✓ `supabase/migrations/20260516000013_get_public_shop_v2_with_tax.sql` — adds `vat_registered/vat_rate/pan_number` to the anon storefront DTO so `CheckoutModal` can display the tax line.
 
 ### UI / actions
 
-- [ ] **POSView tax + item discount + split payment** (`components/dashboard/owner/pos/POSView.tsx`):
-  - Per-line discount control on each cart row (alongside existing order-level discount).
-  - Tax line in the cart footer driven by `shop.vat_registered` flag.
-  - Split-payment picker: pick 1–3 methods that sum to total.
-  - `printBill` adds: PAN number (if set), subtotal, item discounts, order discount, tax line `13% VAT — Rs. X.XX`, grand total.
-  - Receipt re-print button on the success modal that persists past closing the modal (kept in `useState` or `sessionStorage`).
-  - Held-sale ("park") action: stores the current cart to a new `held_sales` row, restorable from a "Resume" button.
-- [ ] **Owner orders refund flow** (`app/dashboard/owner/orders/page.tsx`, `components/dashboard/owner/orders/OrderList.tsx`):
-  - "Refund" button on a paid order opens a modal: pick lines + qty, enter reason.
-  - On submit: insert `refund` + `refund_items` rows, call `process_refund` RPC, surface success/failure toast.
-- [ ] **Storefront checkout tax display** (`components/storefront/CheckoutModal.tsx`):
-  - Order summary shows subtotal, delivery, tax, total (whatever shop is configured for).
-- [ ] **Sidebar role gating** (`components/dashboard/owner/OwnerSidebar.tsx`):
-  - Filter `OWNER_ROUTES` based on `role` prop. `cashier` sees POS + Inventory + Customers only. `inventory` sees Inventory + Suppliers only. `viewer` sees Overview + Finances. Owner/admin/manager see everything.
-- [ ] **Audit log UI** at `/dashboard/owner/settings/audit`:
-  - List `payment_audit_logs` for the active shop, paginated, with date-range filter.
-  - List `security_events` for the current user.
-  - Reuse the existing `downloadCsv` pattern from `components/dashboard/owner/payroll/PayrollView.tsx`.
-- [ ] **VAT-3 monthly export** at `/dashboard/owner/payroll/vat` (or `/dashboard/owner/finances/vat`):
-  - Month picker. CSV columns: invoice no, date, customer PAN (if any), taxable amount, tax amount, total. Matches Nepal IRD VAT-3 format.
-  - Server action `getVatReport(shopId, year, month)` queries `shop_transactions` + `orders` and returns the rows.
-- [ ] **Event emit** — after every successful `complete_pos_sale` and `place_storefront_order`, server action calls `emit('transaction.completed', { transaction_id, shop_id })`. Phase 2 will consume.
+- [x] **POSView tax + item discount + split payment + park + reprint** (`components/dashboard/owner/pos/POSView.tsx` + `app/actions/pos.ts`):
+  - Per-line discount input on each cart row (capped to line subtotal); order-level discount kept (flat or %).
+  - Tax footer driven by `shop.vat_registered` and `shop.vat_rate` from the page-fetched shop row.
+  - Split-payment editor: 1–3 methods (cash/card/QR/online/wallet/udhar), live "allocated vs remaining" indicator, blocks submit until split sums to the rupee.
+  - `printBill` rewritten to include shop name, owner name (Prop:), PAN (when set), receipt #, subtotal, line-discount roll-up, order discount, `VAT (rate%)` line, grand total, split breakdown.
+  - Persistent re-print floating button bound to `lastReceiptBill` state — survives closing the success modal.
+  - Park/resume: `parkSale`, `listHeldSales`, `getHeldSale`, `deleteHeldSale` server actions in `app/actions/pos.ts`; right-side sheet lists open holds with Resume / Cancel.
+- [x] **Owner orders refund flow** (`components/dashboard/owner/orders/{OrderList,RefundModal}.tsx` + `app/actions/refunds.ts`):
+  - "Refund" button on delivered orders opens a modal with line + qty selection, reason text, pro-rated tax-refunded line.
+  - Server action `createRefund` inserts `refunds` + `refund_items` rows then calls `process_refund` atomically.
+- [x] **Storefront checkout tax display** (`components/storefront/CheckoutModal.tsx`):
+  - `vatRegistered`, `vatRate`, `panNumber` props plumbed from `StorefrontPage` (DTO updated to include them).
+  - Order summary now shows subtotal, VAT (when registered), total. RPC return shape returns authoritative `subtotal/tax/delivery/service/total` in `PlaceOrderResult.pricing`.
+- [x] **Sidebar role gating** (`components/dashboard/owner/OwnerSidebar.tsx` + `OwnerMobileNav.tsx`):
+  - Each route declares `roles?: ShopRole[]`. `visibleRoutesFor()` filters; `owner/admin/manager` always see everything.
+  - Mobile bottom-tab nav uses the same allow-list semantics.
+- [x] **Audit log UI** at `/dashboard/owner/settings/audit`:
+  - Two-tab view (Payment audit / Security events), date-range filter, search box, CSV export (shared `downloadCsv` pattern).
+  - Reads from `v_payment_audit_logs_shop` + `v_security_events_user` views.
+- [x] **VAT-3 monthly export** at `/dashboard/owner/finances/vat`:
+  - Year + month pickers, KPI cards, table with POS / online split.
+  - `app/actions/vat.ts` `getVatReport(shopId, year, month)`; CSV download with IRD-style header block (shop name, PAN, period, rate) and totals footer.
+- [x] **Settings: Tax & VAT section** in `ShopSettings.tsx`:
+  - Toggle for `vat_registered`, editable `vat_rate`, editable `pan_number`. `updateShopSettings` extended in `app/actions/owner.ts`.
+- [x] **Settings: shortcut cards** to `/dashboard/owner/settings/audit` and `/dashboard/owner/finances/vat`.
+- [x] **Event emit** — `app/actions/owner.ts#completePOSSale` and `app/actions/payments.ts#placeOrderWithPayment` now fire `transaction.completed` / `order.placed` via `emitBackground()` with idempotency keys. Phase 2 wires the consumers.
 
 ### Verification
 
-- [ ] Sell 3 items at POS as a VAT-registered shop → printed receipt shows 13% tax line, totals balance to the rupee.
-- [ ] Sell at POS as an unregistered shop → no tax line, no tax row in DB (`tax_amount = 0`).
-- [ ] Refund 1 of 3 items on an order → that product's stock goes up by exactly the refunded qty; `refund` row + `refund_items` row exist; original transaction is unchanged.
-- [ ] Split a Rs. 1000 sale: 600 cash + 400 QR. `transaction_splits` has two rows summing to 1000.
-- [ ] Hold a cart, close POS, reopen → cart restorable from a "Held sales" panel.
-- [ ] As a `cashier`-role user, owner sidebar hides Payments, Finances, Payroll, Settings.
-- [ ] VAT-3 CSV for current month opens in LibreOffice, totals tie to the finance dashboard.
+- [x] `pnpm verify` passes (typecheck + lint + migration check, 0 errors).
+- [ ] **Operator step** — apply migrations `20260516000006` through `20260516000013` in Supabase, then smoke-test:
+  - [ ] Toggle VAT on in Shop Settings (rate 13.00); sell 3 items at POS → printed receipt shows the 13% VAT line and totals balance to the rupee.
+  - [ ] Toggle VAT off → no tax line, no tax row in DB (`tax_amount = 0`).
+  - [ ] Refund 1 of 3 items on a delivered order → product stock rises by the refunded qty; `refunds` + `refund_items` rows exist; offsetting negative `shop_transactions` row appears; `domain_events.refund.completed` written.
+  - [ ] Split a Rs. 1000 sale: 600 cash + 400 QR → `transaction_splits` has two rows summing to 1000; receipt prints both lines.
+  - [ ] Park a cart, close POS, reopen → resume from "Held" sheet restores items, discounts, buyer.
+  - [ ] As a `cashier`-role user on a shop, sidebar hides Payments, Finances, Payroll, Settings, Storefront.
+  - [ ] `/dashboard/owner/finances/vat` for the current month: KPI cards reflect totals from the table; CSV opens cleanly in LibreOffice.
+  - [ ] `/dashboard/owner/settings/audit` lists `payment_audit_logs` rows for the shop and personal `security_events`; CSV export works.
+  - [ ] Place an order from the storefront → `domain_events.order.placed` row exists with `idempotency_key = order:<uuid>`.
+  - [ ] Complete a POS sale → `domain_events.transaction.completed` row exists with `idempotency_key = pos:<uuid>`.
 
 ---
 
@@ -146,11 +168,11 @@ A feature is only checked off when **all of these** are true:
 
 ### Schema migrations
 
-- `[next]_notifications.sql`
+- `supabase/migrations/20260516000014_notifications.sql`
   - `notifications` table: id, user_id, kind (enum), title, body, link_url, read_at, created_at.
-  - Adds `notifications` to `supabase_realtime` publication with `REPLICA IDENTITY FULL`.
-- `[next]_notification_preferences.sql`
-  - Per-user toggles per kind across channels (email, in-app, sms, push). Row-per-user, JSONB column for flexibility.
+  - Adds `notifications` to `supabase_realtime` publication with `REPLICA IDENTITY FULL` (guard with `pg_publication_tables`).
+- `supabase/migrations/20260516000015_notification_preferences.sql`
+  - `notification_preferences` (user_id PK, prefs JSONB) — per-user toggles per kind across channels (email, in-app, sms, push). Single row per user; JSONB structure documented in the migration header.
 
 ### Deliverables
 
@@ -194,24 +216,26 @@ A feature is only checked off when **all of these** are true:
 
 ### Schema migrations
 
-- `[next]_product_batches.sql`
+- `supabase/migrations/20260516000016_product_batches.sql`
   - `product_batches` (id, product_id, batch_no, expiry_date, received_qty, remaining_qty, cost_price, received_at, supplier_id NULLABLE).
   - Trigger keeps `products.stock = SUM(product_batches.remaining_qty)`.
-  - `complete_pos_sale` v4 picks oldest expiry first (FEFO) and decrements `remaining_qty` per batch; writes `transaction_batch_consumption` rows for audit.
-- `[next]_purchase_orders.sql`
+  - `complete_pos_sale` **v4** (separate function, not in-place edit) picks soonest expiry first (FEFO) and decrements `remaining_qty` per batch; writes `transaction_batch_consumption` rows for audit. Phase-1 v3 stays available for rollback.
+- `supabase/migrations/20260516000017_purchase_orders.sql`
   - `purchase_orders` (id, shop_id, supplier_id, status, ordered_at, expected_at, received_at, total_amount, notes).
   - `purchase_order_lines` (id, purchase_order_id, product_id, qty_ordered, qty_received, unit_cost).
-  - `receive_purchase_order(p_po_id, p_received_lines JSONB)` RPC: validates, inserts `product_batches` rows, updates PO status to `received`, updates supplier `balance_due` only if billed-after-receive.
-- `[next]_stock_takes.sql`
+  - `receive_purchase_order(p_po_id, p_received_lines JSONB)` RPC: validates, inserts `product_batches` rows, updates PO status to `received` / `partial`, updates supplier `balance_due` only if billed-after-receive.
+- `supabase/migrations/20260516000018_stock_takes.sql`
   - `stock_takes` (id, shop_id, started_at, completed_at, status, started_by, notes).
   - `stock_take_counts` (id, stock_take_id, product_id, system_qty, counted_qty, variance, variance_value).
-  - `complete_stock_take(p_id)` RPC: writes `stock_adjustments` (new table) for each variance.
-- `[next]_day_end.sql`
+  - `stock_adjustments` (id, shop_id, product_id, qty_change, reason, source_table, source_id, created_at).
+  - `complete_stock_take(p_id)` RPC writes one `stock_adjustments` row per non-zero variance, then closes the stock-take.
+- `supabase/migrations/20260516000019_day_end.sql`
   - `day_end_closes` (id, shop_id, opened_at, closed_at, opening_cash, expected_cash, counted_cash, variance, notes, closed_by).
-- `[next]_stock_transfers.sql`
+  - Unique partial index `(shop_id) WHERE closed_at IS NULL` to forbid two open days.
+- `supabase/migrations/20260516000020_stock_transfers.sql`
   - `stock_transfers` (id, from_shop_id, to_shop_id, status, created_at, completed_at).
   - `stock_transfer_lines` (id, transfer_id, product_id, qty, source_batch_id NULLABLE, target_batch_id NULLABLE).
-  - `execute_stock_transfer(p_id)` RPC: atomic move between batches.
+  - `execute_stock_transfer(p_id)` RPC: atomic move between batches inside a single transaction.
 
 ### Deliverables
 
@@ -346,9 +370,11 @@ A feature is only checked off when **all of these** are true:
 
 ### Schema migrations
 
-- `[next]_reviews.sql` — `reviews` table (id, shop_id, product_id NULL, order_id NULL, customer_id, rating 1-5, body, status `pending`|`published`|`hidden`, moderated_by, created_at). Trigger updates `products.average_rating` + `products.review_count`. RLS allows customers to insert reviews only for products they've purchased.
-- `[next]_promo_codes.sql` — `promo_codes` (id, shop_id, code, kind `percent`|`flat`, value, min_subtotal, max_uses, used_count, valid_from, valid_to, active). `apply_promo_code(p_code, p_shop_id, p_subtotal)` RPC returns discount amount + validates.
-- `[next]_loyalty_redemption.sql` — `redeem_wallet_points(p_user_id, p_shop_id, p_points)` RPC that decrements wallet and returns rupee value (rate stored per shop).
+- `supabase/migrations/20260516000021_reviews.sql` — `reviews` table (id, shop_id, product_id NULL, order_id NULL, customer_id, rating 1-5, body, status `pending`|`published`|`hidden`, moderated_by, created_at). Trigger updates `products.average_rating` + `products.review_count`. RLS allows customers to insert reviews only for products they have an `orders.status='delivered'` line for.
+- `supabase/migrations/20260516000022_promo_codes.sql` — `promo_codes` (id, shop_id, code, kind `percent`|`flat`, value, min_subtotal, max_uses, used_count, valid_from, valid_to, active). `apply_promo_code(p_code, p_shop_id, p_subtotal)` RPC returns discount amount + validates window/cap/min.
+- `supabase/migrations/20260516000023_loyalty_redemption.sql` — `redeem_wallet_points(p_user_id, p_shop_id, p_points)` RPC that decrements wallet and returns rupee value (rate stored per shop in a new `wallet_redemption_rate NUMERIC(8,4)` column on `shops`).
+- `supabase/migrations/20260516000024_carts.sql` — `carts` table (id, customer_id, shop_id, items JSONB, updated_at). RLS lets the owning customer read/write own row. Phase 7 reuses this for server-side cart persistence.
+- `supabase/migrations/20260516000025_delivery_locations.sql` — `delivery_locations` (id, order_id, lat, lng, captured_at). Streams from a future courier app; Phase 6 only renders the most-recent row on the tracking page.
 
 ### Deliverables
 
@@ -393,10 +419,10 @@ A feature is only checked off when **all of these** are true:
 
 ### Schema migrations
 
-- `[next]_chat_order_thread.sql` — `chat_messages` gains `order_id UUID NULL REFERENCES orders(id)`. Existing rows leave it null; new chats from an order detail page populate it.
-- `[next]_announcements.sql` — `announcements` (id, shop_id, body, audience `all`|`recent_30d`|`saved_shop`, sent_at, recipient_count).
-- `[next]_sms_log.sql` — `sms_log` table for delivery receipts.
-- `[next]_server_carts.sql` — `carts` table (already created in Phase 6 if not; if already there, reuse).
+- `supabase/migrations/20260516000026_chat_order_thread.sql` — `chat_messages` gains `order_id UUID NULL REFERENCES orders(id)`. Existing rows leave it null; new chats from an order detail page populate it.
+- `supabase/migrations/20260516000027_announcements.sql` — `announcements` (id, shop_id, body, audience `all`|`recent_30d`|`saved_shop`, sent_at, recipient_count).
+- `supabase/migrations/20260516000028_sms_log.sql` — `sms_log` (id, to_phone, body, provider, provider_message_id, status, delivered_at, error, created_at) for delivery receipts.
+- `carts` was already created in Phase 6 (`20260516000024_carts.sql`); Phase 7 only wires the client.
 
 ### Deliverables
 
@@ -516,22 +542,27 @@ A feature is only checked off when **all of these** are true:
 Files that will be touched repeatedly across phases — agree on conventions before forking:
 
 - `lib/validation.ts` — every new form validator goes here.
-- `lib/email/send.ts` (Phase 0) — every new transactional email goes through this.
-- `lib/cron/registry.ts` (Phase 0) — every scheduled job is registered here.
-- `lib/events/emit.ts` and `lib/events/handlers/` (Phase 0+) — fan-out for cross-cutting reactions.
-- `lib/log.ts` (Phase 0) — every new module uses this, never `console.*`.
+- `lib/email/send.ts` ✓ Phase 0 — every new transactional email goes through this. Templates live under `emails/` (pattern: `emails/<Name>.ts`).
+- `lib/email/layout.ts` ✓ Phase 0 — shared shop-branded HTML scaffold; every template calls `renderEmailLayout()`.
+- `lib/cron/registry.ts` ✓ Phase 0 — every scheduled job is registered here via `registerCronJob({ name, description, handler, timeoutMs? })`.
+- `lib/events/emit.ts` ✓ Phase 0 — fan-out for cross-cutting reactions. Handlers will land in `lib/events/handlers/` from Phase 2.
+- `lib/log.ts` ✓ Phase 0 — every new module uses `log.info/warn/error/fatal/debug`. Never `console.*`. Use `log.child({ requestId, userId })` for request-scoped binding.
+- `lib/sentry.ts` ✓ Phase 0 — `captureException` / `captureMessage`. No-op until `@sentry/nextjs` is installed.
+- `middleware.ts` ✓ Phase 0 — stamps `x-request-id` on every request.
 - `lib/reports/csv.ts` + `lib/reports/pdf.ts` (Phase 5) — all exports go through these.
-- `components/dashboard/owner/pos/POSView.tsx` — cart/tax/discount/split/print state machine; freeze its `complete_pos_sale` contract at end of Phase 1.
-- `components/dashboard/owner/OwnerSidebar.tsx` — role-aware nav.
-- `supabase/migrations/` — strict timestamp + descriptive name. Pre-commit hook (Phase 0) enforces uniqueness.
+- `components/dashboard/owner/pos/POSView.tsx` — cart/tax/discount/split/print state machine. After Phase 1 lands, freeze its `complete_pos_sale` contract; Phase 3's FEFO variant adds v4 alongside, never edits v3.
+- `components/dashboard/owner/OwnerSidebar.tsx` — role-aware nav. Phase 0 plumbed `role`; Phase 1 enables filtering.
+- `supabase/migrations/` — strict timestamp + descriptive name. Migration-collision check (Phase 0) enforces uniqueness.
 
 ## Migration Hygiene Going Forward
 
 - Name: `YYYYMMDDHHMMSS_short_snake_case.sql`. Always include `HHMMSS`, not just `_NNN`.
-- Each migration is forward-only and idempotent (`CREATE TABLE IF NOT EXISTS`, `ADD COLUMN IF NOT EXISTS`).
-- Functions use `CREATE OR REPLACE FUNCTION`; never rename a function in place — create vN+1 alongside vN.
-- Realtime publication adds are guarded by `pg_publication_tables` check (pattern already in `20240101000019_storefront_v2.sql`).
-- New tables get RLS on day one; policies tested in the migration's verification section.
+- Each migration is forward-only and idempotent (`CREATE TABLE IF NOT EXISTS`, `ADD COLUMN IF NOT EXISTS`, `CREATE OR REPLACE FUNCTION`).
+- Never rename a function in place — create vN+1 alongside vN, then drop vN in a later phase when no caller remains.
+- Realtime publication adds are guarded by `pg_publication_tables` check (pattern in `20240101000019_storefront_v2.sql`).
+- New tables get RLS on day one; deny-by-default for unauthenticated/anon roles. Policies tested in the migration's verification section.
+- Money columns: `NUMERIC(12,2)`. Timestamps: `TIMESTAMPTZ` stored UTC.
+- `supabase/` is currently in `.gitignore`; new migrations must be `git add -f` or the gitignore rule needs removal. CI will not see local-only migrations.
 
 ## Estimated Effort (single engineer, sequential)
 
@@ -556,9 +587,10 @@ Two engineers reduce this by ~35% (more in middle phases that parallelize well, 
 
 After each phase, run this sanity loop:
 
-1. `pnpm install && npx tsc --noEmit` — zero errors anywhere.
-2. `pnpm lint` — zero errors.
-3. `supabase db reset && supabase db push` — every migration applies cleanly from scratch.
+1. `pnpm install` — pick up any new deps the phase added.
+2. `pnpm verify` — wraps `pnpm check:migrations && pnpm typecheck && pnpm lint`. Must exit 0.
+3. `supabase db reset && supabase db push` — every migration applies cleanly from scratch. Resolves the local-only migration question before shipping.
 4. `pnpm dev` — boot the app, complete the phase-specific verification checklist above.
-5. Smoke test the previous phase's flow — nothing should have regressed.
-6. Update the checkboxes in this file with `[x]` for done items; merge.
+5. Smoke-test the previous phase's golden path — nothing should have regressed.
+6. Update the checkboxes in this file with `[x]` for done items.
+7. Commit on the working branch with a message describing the slice (`feat: Phase N — <goal>`). The CI workflow re-runs `pnpm verify` on every push.

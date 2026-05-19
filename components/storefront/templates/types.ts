@@ -37,6 +37,9 @@ export interface ShopData {
   sections_order: string[];
   whatsapp_number: string | null;
   featured_product_ids: string[] | null;
+  vat_registered: boolean;
+  vat_rate: number;
+  pan_number: string | null;
 }
 
 export interface TemplateProps {

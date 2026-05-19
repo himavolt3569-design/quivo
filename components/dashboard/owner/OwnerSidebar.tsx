@@ -21,43 +21,53 @@ import { OwnerShopSwitcher, type SwitcherShop } from "./OwnerShopSwitcher";
 import { RoleModeSwitch } from "@/components/dashboard/RoleModeSwitch";
 import type { ShopRole } from "@/lib/shop";
 
-// Each route declares the minimum shop_members.role required to see it.
-// Phase 0 plumbs the role prop through without filtering; Phase 1 turns this
-// allow-list into actual nav gating.
+// Each route declares the shop_members.role values that may see it. Absent
+// `roles` ⇒ every role sees the route. Owner, admin and manager always see
+// everything regardless of the allow-list (they're full-access roles).
+const FULL_ACCESS_ROLES: readonly ShopRole[] = ["owner", "admin", "manager"];
+
 const OWNER_ROUTES: {
   href: string;
   label: string;
   icon: typeof LayoutDashboard;
   roles?: ShopRole[];
 }[] = [
-  { href: "/dashboard/owner", label: "Overview", icon: LayoutDashboard },
-  { href: "/dashboard/owner/pos", label: "Point of Sale", icon: Calculator },
-  { href: "/dashboard/owner/products", label: "Inventory & Products", icon: Package },
-  { href: "/dashboard/owner/orders", label: "Online Orders", icon: ShoppingCart },
-  { href: "/dashboard/owner/payments", label: "Payments", icon: CreditCard },
-  { href: "/dashboard/owner/customers", label: "Customers & Udhar", icon: Users },
-  { href: "/dashboard/owner/suppliers", label: "Suppliers", icon: Truck },
-  { href: "/dashboard/owner/finances", label: "Finances & Reports", icon: BarChart3 },
-  { href: "/dashboard/owner/staff", label: "Staff & Roles", icon: Shield },
-  { href: "/dashboard/owner/payroll", label: "Payroll", icon: Banknote },
-  { href: "/dashboard/owner/storefront", label: "Storefront & QR", icon: QrCode },
-  { href: "/dashboard/owner/settings", label: "Shop Settings", icon: Settings },
+  { href: "/dashboard/owner", label: "Overview", icon: LayoutDashboard, roles: ["owner", "admin", "manager", "viewer"] },
+  { href: "/dashboard/owner/pos", label: "Point of Sale", icon: Calculator, roles: ["owner", "admin", "manager", "cashier"] },
+  { href: "/dashboard/owner/products", label: "Inventory & Products", icon: Package, roles: ["owner", "admin", "manager", "cashier", "inventory"] },
+  { href: "/dashboard/owner/orders", label: "Online Orders", icon: ShoppingCart, roles: ["owner", "admin", "manager", "cashier"] },
+  { href: "/dashboard/owner/payments", label: "Payments", icon: CreditCard, roles: ["owner", "admin", "manager"] },
+  { href: "/dashboard/owner/customers", label: "Customers & Udhar", icon: Users, roles: ["owner", "admin", "manager", "cashier"] },
+  { href: "/dashboard/owner/suppliers", label: "Suppliers", icon: Truck, roles: ["owner", "admin", "manager", "inventory"] },
+  { href: "/dashboard/owner/finances", label: "Finances & Reports", icon: BarChart3, roles: ["owner", "admin", "manager", "viewer"] },
+  { href: "/dashboard/owner/staff", label: "Staff & Roles", icon: Shield, roles: ["owner", "admin", "manager"] },
+  { href: "/dashboard/owner/payroll", label: "Payroll", icon: Banknote, roles: ["owner", "admin", "manager"] },
+  { href: "/dashboard/owner/storefront", label: "Storefront & QR", icon: QrCode, roles: ["owner", "admin", "manager"] },
+  { href: "/dashboard/owner/settings", label: "Shop Settings", icon: Settings, roles: ["owner", "admin", "manager"] },
 ];
+
+function visibleRoutesFor(role: ShopRole | null | undefined): typeof OWNER_ROUTES {
+  // Default to the most permissive view when the role hasn't loaded yet —
+  // server-side route guards still enforce the real boundary.
+  if (!role) return OWNER_ROUTES;
+  if (FULL_ACCESS_ROLES.includes(role)) return OWNER_ROUTES;
+  return OWNER_ROUTES.filter((r) => !r.roles || r.roles.includes(role));
+}
 
 interface OwnerSidebarProps {
   isMobile?: boolean;
   shops: SwitcherShop[];
   activeShopId?: string | null;
   /**
-   * The current user's role for the active shop. Phase 0: plumbed but not
-   * yet used to gate nav items. Phase 1 wires the filter on `route.roles`.
+   * The current user's role for the active shop. Drives the visible nav list.
+   * Server-side route protection is independent of this UI gating.
    */
   role?: ShopRole | null;
 }
 
 export function OwnerSidebar({ isMobile = false, shops, activeShopId, role }: OwnerSidebarProps) {
-  void role; // reserved for Phase 1 filtering — keeps the prop in the public contract
   const pathname = usePathname();
+  const routes = visibleRoutesFor(role);
 
   return (
     <aside
@@ -71,7 +81,7 @@ export function OwnerSidebar({ isMobile = false, shops, activeShopId, role }: Ow
         <OwnerShopSwitcher shops={shops} activeShopId={activeShopId} />
       </div>
       <nav className="flex-1 overflow-y-auto p-4 space-y-1">
-        {OWNER_ROUTES.map((route) => {
+        {routes.map((route) => {
           const isActive = pathname === route.href || (route.href !== "/dashboard/owner" && pathname.startsWith(route.href + "/"));
           return (
             <Link
