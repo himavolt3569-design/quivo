@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { AUTH_ERROR_CODES } from "@/lib/auth-errors";
 import { createHash } from "crypto";
 import { headers } from "next/headers";
+import { log } from "@/lib/log";
 
 /**
  * Account-revocation termination point.
@@ -45,13 +46,13 @@ export async function GET(request: Request) {
           p_ip_hash: ipHash,
         });
       } catch (auditErr) {
-        console.error("auth/revoked: audit failed", {
+        log.error("auth/revoked: audit failed", {
           event: "audit_log_failed",
           error: auditErr instanceof Error ? auditErr.message : String(auditErr),
         });
       }
 
-      console.warn("auth/revoked: terminating session", {
+      log.warn("auth/revoked: terminating session", {
         event: "account_revoked",
         userId: user.id,
         email: user.email,
@@ -62,7 +63,7 @@ export async function GET(request: Request) {
       await supabase.auth.signOut({ scope: "global" });
     }
   } catch (err) {
-    console.error("auth/revoked: unexpected error", {
+    log.error("auth/revoked: unexpected error", {
       event: "unexpected_error",
       error: err instanceof Error ? err.message : String(err),
     });

@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import Link from "next/link";
 import { AlertTriangle, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { log } from "@/lib/log";
 
 export default function Error({
   error,
@@ -13,7 +14,7 @@ export default function Error({
   unstable_retry: () => void;
 }) {
   useEffect(() => {
-    console.error(error);
+    log.error(error, "route-level error boundary triggered");
   }, [error]);
 
   return (

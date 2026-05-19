@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { OrdersTab } from "@/components/dashboard/customer/OrdersTab";
 import type { Order } from "@/lib/types";
+import { log } from "@/lib/log";
 
 export default async function OrdersPage() {
   const supabase = await createClient();
@@ -23,7 +24,7 @@ export default async function OrdersPage() {
     .returns<Order[]>();
 
   if (ordersError) {
-    console.error("Database query failure:", ordersError);
+    log.error("customer/orders: database query failure", { ordersError });
     throw new Error("Failed to load orders. Please try again later.");
   }
 

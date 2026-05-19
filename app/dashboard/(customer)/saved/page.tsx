@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { SavedItems } from "@/components/dashboard/customer/SavedItems";
 import type { SavedShop, SavedProduct } from "@/lib/types";
+import { log } from "@/lib/log";
 
 export default async function SavedPage() {
   const supabase = await createClient();
@@ -34,7 +35,7 @@ export default async function SavedPage() {
   ]);
 
   if (shopsError || productsError) {
-    console.error("Database query failures:", { shopsError, productsError });
+    log.error("customer/saved: database query failures", { shopsError, productsError });
     throw new Error("Failed to load saved items. Please try again later.");
   }
 

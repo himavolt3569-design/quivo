@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { getOwnerContext } from "@/lib/shop";
 import { POSView } from "@/components/dashboard/owner/pos/POSView";
+import { listHeldSales } from "@/app/actions/pos";
 import Link from "next/link";
 
 export default async function POSPage() {
@@ -20,7 +21,12 @@ export default async function POSPage() {
 
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  const [{ data: products }, { data: profile }] = await Promise.all([
+  const [
+    { data: products },
+    { data: profile },
+    { data: shopRow },
+    held,
+  ] = await Promise.all([
     supabase
       .from("products")
       .select("id, name, brand, unit, variant, category, price, stock, image_url")
@@ -32,6 +38,12 @@ export default async function POSPage() {
     user
       ? supabase.from("profiles").select("full_name").eq("id", user.id).maybeSingle()
       : Promise.resolve({ data: null }),
+    supabase
+      .from("shops")
+      .select("vat_registered, vat_rate, pan_number")
+      .eq("id", activeShop.id)
+      .maybeSingle(),
+    listHeldSales(activeShop.id),
   ]);
 
   return (
@@ -40,6 +52,10 @@ export default async function POSPage() {
       shopName={activeShop.name}
       ownerName={profile?.full_name ?? ""}
       catalogProducts={products ?? []}
+      shopVatRegistered={Boolean(shopRow?.vat_registered)}
+      shopVatRate={Number(shopRow?.vat_rate ?? 13)}
+      shopPanNumber={(shopRow?.pan_number as string | null) ?? null}
+      initialHeldSales={held.rows ?? []}
     />
   );
 }

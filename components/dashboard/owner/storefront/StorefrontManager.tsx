@@ -238,6 +238,7 @@ export function StorefrontManager({
   // Realtime: subscribe once for the shop. Inserts trigger session list refresh
   // and, if the message belongs to the currently open thread, append it live.
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     loadChatSessions();
 
     const channel = supabase

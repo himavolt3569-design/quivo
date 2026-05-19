@@ -1,7 +1,9 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { log } from "@/lib/log";
 
 const isDev = process.env.NODE_ENV === "development";
+const REQUEST_ID_HEADER = "x-request-id";
 
 const SCRIPT_SRC = isDev
   ? "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net"
@@ -27,8 +29,9 @@ function isProtectedPath(pathname: string) {
   return pathname.startsWith("/dashboard") || pathname.startsWith("/onboarding/owner");
 }
 
-function makeResponse(requestHeaders: Headers) {
+function makeResponse(requestHeaders: Headers, requestId: string) {
   requestHeaders.set("Content-Security-Policy", CSP);
+  requestHeaders.set(REQUEST_ID_HEADER, requestId);
 
   const response = NextResponse.next({
     request: {
@@ -36,16 +39,22 @@ function makeResponse(requestHeaders: Headers) {
     },
   });
   response.headers.set("Content-Security-Policy", CSP);
+  response.headers.set(REQUEST_ID_HEADER, requestId);
   return response;
 }
 
 export async function proxy(request: NextRequest) {
   const requestHeaders = new Headers(request.headers);
+  const incomingRequestId = request.headers.get(REQUEST_ID_HEADER);
+  const requestId =
+    incomingRequestId && incomingRequestId.length <= 64
+      ? incomingRequestId
+      : crypto.randomUUID();
 
-  let response = makeResponse(requestHeaders);
+  let response = makeResponse(requestHeaders, requestId);
 
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
-    console.warn("Supabase environment variables are missing. Skipping auth proxy.");
+    log.warn("proxy: Supabase env vars missing — skipping auth check", { requestId });
 
     if (isProtectedPath(request.nextUrl.pathname)) {
       return NextResponse.redirect(new URL("/?login=true", request.url));
@@ -65,7 +74,7 @@ export async function proxy(request: NextRequest) {
           },
           setAll(cookiesToSet) {
             cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
-            response = makeResponse(requestHeaders);
+            response = makeResponse(requestHeaders, requestId);
             cookiesToSet.forEach(({ name, value, options }) => {
               response.cookies.set(name, value, options);
             });
@@ -80,7 +89,10 @@ export async function proxy(request: NextRequest) {
       return NextResponse.redirect(new URL("/?login=true", request.url));
     }
   } catch (error) {
-    console.error("Proxy Auth Error:", error);
+    log.error("proxy: auth check failed", {
+      requestId,
+      err: error instanceof Error ? error.message : String(error),
+    });
     if (isProtectedPath(request.nextUrl.pathname)) {
       return NextResponse.redirect(new URL("/?login=true", request.url));
     }

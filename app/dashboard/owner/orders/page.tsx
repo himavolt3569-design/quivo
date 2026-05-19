@@ -21,7 +21,7 @@ export default async function OrdersPage() {
   const supabase = await createClient();
   const { data: orders } = await supabase
     .from("orders")
-    .select("id, order_number, customer_id, status, total_amount, items, notes, delivery_address, created_at")
+    .select("id, order_number, customer_id, status, total_amount, tax_amount, tax_rate, items, notes, delivery_address, created_at")
     .eq("shop_id", shopId)
     .order("created_at", { ascending: false })
     .limit(100);

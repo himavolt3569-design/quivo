@@ -116,10 +116,13 @@ export function StorefrontPage({ shop, products }: StorefrontPageProps) {
         isOpen={isCheckoutOpen}
         onClose={() => setIsCheckoutOpen(false)}
         cart={cart}
-        total={cart.reduce((a, b) => a + b.price * b.qty, 0)}
+        subtotal={cart.reduce((a, b) => a + b.price * b.qty, 0)}
         shopId={shop.id}
         shopName={shop.name}
         themeColor={themeColor}
+        vatRegistered={Boolean(shop.vat_registered)}
+        vatRate={Number(shop.vat_rate ?? 0)}
+        panNumber={shop.pan_number ?? null}
         onSuccess={handleOrderSuccess}
       />
 

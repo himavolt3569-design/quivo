@@ -30,6 +30,8 @@ interface ShopData {
   closing_time?: string | null;
   pan_number?: string | null;
   logo_url?: string | null;
+  vat_registered?: boolean | null;
+  vat_rate?: number | null;
 }
 
 interface ShopSettingsProps {
@@ -61,6 +63,13 @@ export function ShopSettings({ shopId, initialData }: ShopSettingsProps) {
       ? initialData.closing_time.slice(0, 5)
       : "21:00"
   );
+  const [vatRegistered, setVatRegistered] = useState(Boolean(initialData.vat_registered));
+  const [vatRate, setVatRate] = useState<string>(
+    initialData.vat_rate !== undefined && initialData.vat_rate !== null
+      ? String(initialData.vat_rate)
+      : "13.00"
+  );
+  const [panNumber, setPanNumber] = useState<string>(initialData.pan_number ?? "");
 
   const handleUpdateFontSize = async (size: (typeof FONT_SIZES)[number]["id"]) => {
     setUpdatingFontSize(true);
@@ -95,6 +104,9 @@ export function ShopSettings({ shopId, initialData }: ShopSettingsProps) {
     formData.set("phone", phone);
     formData.set("opening_time", openingTime);
     formData.set("closing_time", closingTime);
+    formData.set("vat_registered", vatRegistered ? "true" : "false");
+    formData.set("vat_rate", vatRate);
+    formData.set("pan_number", panNumber);
 
     startTransition(async () => {
       const result = await updateShopSettings(shopId, formData);
@@ -159,18 +171,60 @@ export function ShopSettings({ shopId, initialData }: ShopSettingsProps) {
                   placeholder="98XXXXXXXX"
                 />
               </div>
-              {initialData.pan_number && (
-                <div>
-                  <Label className="font-bold text-[#27324A]">PAN Number</Label>
-                  <Input
-                    defaultValue={initialData.pan_number}
-                    className="h-12 rounded-xl mt-1.5 bg-[#f8f8f7]"
-                    readOnly
-                  />
-                </div>
-              )}
+              <div>
+                <Label className="font-bold text-[#27324A]">PAN Number</Label>
+                <Input
+                  value={panNumber}
+                  onChange={(e) => setPanNumber(e.target.value)}
+                  placeholder="9-digit PAN"
+                  className="h-12 rounded-xl mt-1.5"
+                />
+              </div>
             </div>
           </div>
+        </div>
+
+        {/* Tax & VAT */}
+        <div className="bg-white p-6 rounded-[2rem] border border-[#2E3344]/8 shadow-sm space-y-5">
+          <h2 className="text-sm font-black uppercase tracking-widest text-[#746E73] border-b border-[#2E3344]/5 pb-3 flex items-center gap-2">
+            <Type className="h-4 w-4" /> Tax &amp; VAT
+          </h2>
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <p className="font-bold text-[#27324A] text-sm">VAT registered shop</p>
+              <p className="text-xs text-[#746E73] mt-0.5">
+                When enabled, every POS receipt and storefront order itemises the configured VAT rate. Required for Nepal IRD VAT-3 filing.
+              </p>
+            </div>
+            <label className="inline-flex items-center cursor-pointer shrink-0 mt-1">
+              <input
+                type="checkbox"
+                className="sr-only peer"
+                checked={vatRegistered}
+                onChange={(e) => setVatRegistered(e.target.checked)}
+              />
+              <div className="relative w-12 h-6 bg-[#E8E3D1] rounded-full peer-checked:bg-[#27324A] transition">
+                <div className={`absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white shadow transition ${vatRegistered ? "translate-x-6" : ""}`} />
+              </div>
+            </label>
+          </div>
+          {vatRegistered && (
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label className="font-bold text-[#27324A]">VAT Rate (%)</Label>
+                <Input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  max="100"
+                  value={vatRate}
+                  onChange={(e) => setVatRate(e.target.value)}
+                  className="h-12 rounded-xl mt-1.5"
+                />
+                <p className="text-[10px] text-[#746E73] mt-1">Standard Nepal rate: 13.00%</p>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Operations */}

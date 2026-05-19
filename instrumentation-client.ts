@@ -36,3 +36,32 @@ if (typeof performance !== "undefined") {
     }
   };
 }
+
+// ─── Sentry browser init ─────────────────────────────────────────────────────
+// Activated only when both @sentry/nextjs is installed and NEXT_PUBLIC_SENTRY_DSN
+// is set. The dynamic import is hidden from static analysis so the bundle
+// builds without the dep being present.
+type SentryBrowserLike = {
+  init(opts: Record<string, unknown>): void;
+};
+
+const sentryDsn = process.env.NEXT_PUBLIC_SENTRY_DSN;
+if (sentryDsn) {
+  const moduleName = "@sentry/nextjs";
+  const dyn = Function("m", "return import(m)") as (m: string) => Promise<unknown>;
+  dyn(moduleName)
+    .then((mod) => {
+      const sdk = mod as SentryBrowserLike;
+      sdk.init({
+        dsn: sentryDsn,
+        environment: process.env.NEXT_PUBLIC_VERCEL_ENV ?? "development",
+        release: process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_SHA ?? undefined,
+        tracesSampleRate: 0.1,
+        replaysSessionSampleRate: 0.05,
+        replaysOnErrorSampleRate: 1.0,
+      });
+    })
+    .catch(() => {
+      // @sentry/nextjs not installed yet — silent no-op.
+    });
+}
