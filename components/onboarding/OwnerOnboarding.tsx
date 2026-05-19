@@ -288,8 +288,12 @@ export function OwnerOnboarding() {
       setCurrentStep(3);
       toast.success("Shop created successfully!");
     } catch (e) {
-      console.error(e);
-      toast.error("Something went wrong. Please try again.");
+      console.error("createShop threw", e);
+      const message =
+        e instanceof Error && e.message
+          ? e.message
+          : "Something went wrong. Please try again.";
+      toast.error(message);
     } finally {
       setSubmitting(false);
     }

@@ -4,6 +4,7 @@ import { LogOut } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { signOut } from "@/app/actions/auth";
 import { FontProvider } from "@/components/FontProvider";
+import { NotificationBell } from "@/components/dashboard/NotificationBell";
 import type { Profile } from "@/lib/types";
 
 export default async function DashboardLayout({
@@ -26,6 +27,15 @@ export default async function DashboardLayout({
     .eq("id", user.id)
     .single<Pick<Profile, "full_name" | "avatar_url" | "font_size" | "owner_font_size">>() : { data: null };
 
+  const { data: notifications } = user
+    ? await supabase
+        .from("notifications")
+        .select("id, kind, title, body, link_url, data, read_at, created_at")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false })
+        .limit(20)
+    : { data: null };
+
   return (
     <FontProvider 
       initialCustomerFontSize={profile?.font_size ?? "standard"}
@@ -43,6 +53,7 @@ export default async function DashboardLayout({
               </span>
             </Link>
             <div className="flex items-center gap-4">
+              {user && <NotificationBell initial={notifications ?? []} />}
               <div className="flex items-center gap-3">
                 {profile?.avatar_url ? (
                   <img src={profile.avatar_url} alt="Profile" className="h-8 w-8 rounded-full object-cover border border-[#2E3344]/10" />

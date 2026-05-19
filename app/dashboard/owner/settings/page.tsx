@@ -2,7 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getOwnerContext } from "@/lib/shop";
 import { ShopSettings } from "@/components/dashboard/owner/settings/ShopSettings";
 import Link from "next/link";
-import { ShieldCheck, FileSpreadsheet } from "lucide-react";
+import { ShieldCheck, FileSpreadsheet, Bell } from "lucide-react";
 
 export default async function SettingsPage() {
   const ctx = await getOwnerContext();
@@ -29,7 +29,7 @@ export default async function SettingsPage() {
   return (
     <div className="space-y-6">
       {/* Compliance & audit shortcuts */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-4xl mx-auto">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-4xl mx-auto">
         <Link
           href="/dashboard/owner/settings/audit"
           className="bg-white p-4 rounded-2xl border border-[#2E3344]/8 shadow-sm hover:shadow-md transition flex items-center gap-3"
@@ -52,6 +52,18 @@ export default async function SettingsPage() {
           <div>
             <p className="font-bold text-[#27324A] text-sm">VAT-3 export</p>
             <p className="text-[11px] text-[#746E73]">Monthly IRD-format report for VAT-registered shops.</p>
+          </div>
+        </Link>
+        <Link
+          href="/dashboard/owner/settings/notifications"
+          className="bg-white p-4 rounded-2xl border border-[#2E3344]/8 shadow-sm hover:shadow-md transition flex items-center gap-3"
+        >
+          <span className="h-10 w-10 rounded-xl bg-[#F7F0E6] text-[#A7653A] flex items-center justify-center">
+            <Bell className="h-5 w-5" />
+          </span>
+          <div>
+            <p className="font-bold text-[#27324A] text-sm">Notifications</p>
+            <p className="text-[11px] text-[#746E73]">Pick which updates land where (in-app, email).</p>
           </div>
         </Link>
       </div>

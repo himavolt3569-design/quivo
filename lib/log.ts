@@ -106,61 +106,82 @@ function shouldEmit(level: LogLevel): boolean {
   return LEVEL_RANK[level] >= LEVEL_RANK[minLevel];
 }
 
+function safeStringify(value: unknown): string {
+  try {
+    return JSON.stringify(value);
+  } catch {
+    // Circular ref, BigInt, or other JSON failure — fall back to a coarse
+    // string so emit() never throws.
+    try {
+      return String(value);
+    } catch {
+      return "[unserialisable]";
+    }
+  }
+}
+
 function emit(level: LogLevel, bindings: ChildBindings, msgOrObj: unknown, extra?: unknown) {
   if (!shouldEmit(level)) return;
 
-  let msg = "";
-  let data: Record<string, unknown> = {};
-  if (typeof msgOrObj === "string") {
-    msg = msgOrObj;
-    if (extra && typeof extra === "object") {
-      data = extra as Record<string, unknown>;
-    } else if (extra !== undefined) {
-      data = { extra };
+  try {
+    let msg = "";
+    let data: Record<string, unknown> = {};
+    if (typeof msgOrObj === "string") {
+      msg = msgOrObj;
+      if (extra && typeof extra === "object") {
+        data = extra as Record<string, unknown>;
+      } else if (extra !== undefined) {
+        data = { extra };
+      }
+    } else if (msgOrObj instanceof Error) {
+      msg = msgOrObj.message;
+      data = { err: msgOrObj };
+    } else if (msgOrObj && typeof msgOrObj === "object") {
+      const obj = msgOrObj as Record<string, unknown>;
+      const { msg: m, ...rest } = obj;
+      msg = typeof m === "string" ? m : "";
+      data = rest;
+    } else {
+      msg = String(msgOrObj ?? "");
     }
-  } else if (msgOrObj instanceof Error) {
-    msg = msgOrObj.message;
-    data = { err: msgOrObj };
-  } else if (msgOrObj && typeof msgOrObj === "object") {
-    const obj = msgOrObj as Record<string, unknown>;
-    const { msg: m, ...rest } = obj;
-    msg = typeof m === "string" ? m : "";
-    data = rest;
-  } else {
-    msg = String(msgOrObj ?? "");
+
+    const record: LogRecord = {
+      level,
+      time: new Date().toISOString(),
+      msg,
+      ...bindings,
+      ...(getRequestContext() ?? {}),
+      ...(redact(data) as Record<string, unknown>),
+    };
+
+    if (isProd || !isServer) {
+      const line = safeStringify(record);
+      const fn = level === "error" || level === "fatal" ? console.error : level === "warn" ? console.warn : level === "debug" ? console.debug : console.log;
+      fn(line);
+      return;
+    }
+
+    const palette: Record<LogLevel, string> = {
+      debug: "\x1b[90m",
+      info: "\x1b[36m",
+      warn: "\x1b[33m",
+      error: "\x1b[31m",
+      fatal: "\x1b[35m",
+    };
+    const reset = "\x1b[0m";
+    const ts = record.time.slice(11, 23);
+    const ctx = bindings.requestId || record.requestId ? `[${(bindings.requestId ?? record.requestId) as string}]` : "";
+    const tail = Object.keys(data).length > 0 ? ` ${safeStringify(redact(data))}` : "";
+    const stream = level === "error" || level === "fatal" ? console.error : level === "warn" ? console.warn : console.log;
+    stream(`${palette[level]}${level.toUpperCase().padEnd(5)}${reset} ${ts} ${ctx} ${msg}${tail}`);
+  } catch (err) {
+    // A logger that throws is worse than no logger. Eat the failure.
+    try {
+      console.error("[log.emit] threw", err instanceof Error ? err.message : String(err));
+    } catch {
+      /* nothing else we can do */
+    }
   }
-
-  const record: LogRecord = {
-    level,
-    time: new Date().toISOString(),
-    msg,
-    ...bindings,
-    ...(getRequestContext() ?? {}),
-    ...(redact(data) as Record<string, unknown>),
-  };
-
-  if (isProd || !isServer) {
-    // Always JSON in prod and in the browser (devtools renders JSON well).
-    const line = JSON.stringify(record);
-    const fn = level === "error" || level === "fatal" ? console.error : level === "warn" ? console.warn : level === "debug" ? console.debug : console.log;
-    fn(line);
-    return;
-  }
-
-  // Server dev: pretty single-line.
-  const palette: Record<LogLevel, string> = {
-    debug: "\x1b[90m",
-    info: "\x1b[36m",
-    warn: "\x1b[33m",
-    error: "\x1b[31m",
-    fatal: "\x1b[35m",
-  };
-  const reset = "\x1b[0m";
-  const ts = record.time.slice(11, 23);
-  const ctx = bindings.requestId || record.requestId ? `[${(bindings.requestId ?? record.requestId) as string}]` : "";
-  const tail = Object.keys(data).length > 0 ? ` ${JSON.stringify(redact(data))}` : "";
-  const stream = level === "error" || level === "fatal" ? console.error : level === "warn" ? console.warn : console.log;
-  stream(`${palette[level]}${level.toUpperCase().padEnd(5)}${reset} ${ts} ${ctx} ${msg}${tail}`);
 }
 
 export interface Logger {
