@@ -47,6 +47,7 @@ export default async function ProductsPage({
       shopSlug={shop.slug}
       initialProducts={products ?? []}
       initialFilter={filter}
+      hasMultipleShops={ctx.shops.length >= 2}
     />
   );
 }

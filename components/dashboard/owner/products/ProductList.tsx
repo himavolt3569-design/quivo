@@ -47,6 +47,8 @@ interface ProductListProps {
   shopSlug: string;
   initialProducts: Product[];
   initialFilter?: FilterId;
+  /** True when the owner has ≥ 2 shops — gates the "Transfer" button. */
+  hasMultipleShops?: boolean;
 }
 
 interface BarcodeModal {
@@ -55,7 +57,7 @@ interface BarcodeModal {
   productUrl: string;
 }
 
-export function ProductList({ shopId, shopSlug, initialProducts, initialFilter }: ProductListProps) {
+export function ProductList({ shopId, shopSlug, initialProducts, initialFilter, hasMultipleShops }: ProductListProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [products, setProducts] = useState(initialProducts);
   const [filter, setFilter] = useState<FilterId>(initialFilter ?? "all");
@@ -149,7 +151,19 @@ export function ProductList({ shopId, shopSlug, initialProducts, initialFilter }
             <h1 className="text-2xl font-black text-[#27324A]">Inventory & Products</h1>
             <p className="text-sm font-medium text-[#746E73] mt-1">Manage your catalog, stock levels, and barcodes.</p>
           </div>
-          <div className="flex gap-2 w-full sm:w-auto">
+          <div className="flex gap-2 w-full sm:w-auto flex-wrap">
+            <Link href="/dashboard/owner/products/import" className="flex-1 sm:flex-initial">
+              <Button variant="outline" className="rounded-xl h-11 border-[#27324A]/15 text-[#27324A] font-bold w-full sm:w-auto">
+                Import CSV
+              </Button>
+            </Link>
+            {hasMultipleShops && (
+              <Link href="/dashboard/owner/products/transfers" className="flex-1 sm:flex-initial">
+                <Button variant="outline" className="rounded-xl h-11 border-[#27324A]/15 text-[#27324A] font-bold w-full sm:w-auto">
+                  Transfer
+                </Button>
+              </Link>
+            )}
             <Link href="/dashboard/owner/products/stock-take" className="flex-1 sm:flex-initial">
               <Button variant="outline" className="rounded-xl h-11 border-[#27324A]/15 text-[#27324A] font-bold w-full sm:w-auto">
                 Stock take
