@@ -40,10 +40,13 @@ interface Product {
   created_at: string;
 }
 
+type FilterId = "all" | "low_stock" | "out_of_stock" | "active";
+
 interface ProductListProps {
   shopId: string;
   shopSlug: string;
   initialProducts: Product[];
+  initialFilter?: FilterId;
 }
 
 interface BarcodeModal {
@@ -52,14 +55,20 @@ interface BarcodeModal {
   productUrl: string;
 }
 
-export function ProductList({ shopId, shopSlug, initialProducts }: ProductListProps) {
+export function ProductList({ shopId, shopSlug, initialProducts, initialFilter }: ProductListProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [products, setProducts] = useState(initialProducts);
+  const [filter, setFilter] = useState<FilterId>(initialFilter ?? "all");
   const [isPending, startTransition] = useTransition();
   const [barcodeModal, setBarcodeModal] = useState<BarcodeModal | null>(null);
   const [stockAdjust, setStockAdjust] = useState<Record<string, number>>({});
 
   const filtered = products.filter((p) => {
+    const threshold = p.low_stock_threshold ?? 5;
+    if (filter === "low_stock" && p.stock > threshold) return false;
+    if (filter === "out_of_stock" && p.stock > 0) return false;
+    if (filter === "active" && p.status !== "active") return false;
+
     if (!searchTerm) return true;
     const q = searchTerm.toLowerCase();
     return (
@@ -69,6 +78,9 @@ export function ProductList({ shopId, shopSlug, initialProducts }: ProductListPr
       (p.category ?? "").toLowerCase().includes(q)
     );
   });
+
+  const lowStockCount = products.filter((p) => p.stock <= (p.low_stock_threshold ?? 5)).length;
+  const outOfStockCount = products.filter((p) => p.stock <= 0).length;
 
   const handleDelete = (id: string) => {
     startTransition(async () => {
@@ -137,15 +149,22 @@ export function ProductList({ shopId, shopSlug, initialProducts }: ProductListPr
             <h1 className="text-2xl font-black text-[#27324A]">Inventory & Products</h1>
             <p className="text-sm font-medium text-[#746E73] mt-1">Manage your catalog, stock levels, and barcodes.</p>
           </div>
-          <Link href="/dashboard/owner/products/add">
-            <Button className="rounded-xl h-11 bg-[#A7653A] hover:bg-[#8D5132] text-white font-bold w-full sm:w-auto">
-              <Plus className="h-4 w-4 mr-2" /> Add Product
-            </Button>
-          </Link>
+          <div className="flex gap-2 w-full sm:w-auto">
+            <Link href="/dashboard/owner/products/stock-take" className="flex-1 sm:flex-initial">
+              <Button variant="outline" className="rounded-xl h-11 border-[#27324A]/15 text-[#27324A] font-bold w-full sm:w-auto">
+                Stock take
+              </Button>
+            </Link>
+            <Link href="/dashboard/owner/products/add" className="flex-1 sm:flex-initial">
+              <Button className="rounded-xl h-11 bg-[#A7653A] hover:bg-[#8D5132] text-white font-bold w-full">
+                <Plus className="h-4 w-4 mr-2" /> Add Product
+              </Button>
+            </Link>
+          </div>
         </div>
 
-        {/* Search */}
-        <div className="bg-white p-4 rounded-[1.5rem] border border-[#2E3344]/8 shadow-sm">
+        {/* Search + filter chips */}
+        <div className="bg-white p-4 rounded-[1.5rem] border border-[#2E3344]/8 shadow-sm space-y-3">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#746E73]" />
             <Input
@@ -154,6 +173,36 @@ export function ProductList({ shopId, shopSlug, initialProducts }: ProductListPr
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
+          </div>
+          <div className="flex gap-2 overflow-x-auto hide-scrollbar -mx-1 px-1">
+            {([
+              { id: "all", label: `All`, count: products.length, accent: "bg-[#27324A] text-white" },
+              { id: "low_stock", label: `Low stock`, count: lowStockCount, accent: "bg-[#A7653A] text-white" },
+              { id: "out_of_stock", label: `Out of stock`, count: outOfStockCount, accent: "bg-red-600 text-white" },
+              { id: "active", label: `Active only`, count: products.filter((p) => p.status === "active").length, accent: "bg-emerald-600 text-white" },
+            ] as { id: FilterId; label: string; count: number; accent: string }[]).map((chip) => (
+              <button
+                key={chip.id}
+                type="button"
+                onClick={() => setFilter(chip.id)}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition flex items-center gap-2 ${
+                  filter === chip.id ? chip.accent : "bg-[#f8f8f7] text-[#27324A] hover:bg-[#F7F0E6]"
+                }`}
+              >
+                {chip.label}
+                <span className={`text-[10px] font-black ${filter === chip.id ? "opacity-80" : "opacity-50"}`}>
+                  {chip.count}
+                </span>
+              </button>
+            ))}
+            {filter === "low_stock" && lowStockCount > 0 && (
+              <Link
+                href="/dashboard/owner/suppliers"
+                className="ml-auto px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap bg-[#27324A] text-white hover:bg-[#1b2333] transition flex items-center gap-1"
+              >
+                Create PO →
+              </Link>
+            )}
           </div>
         </div>
 

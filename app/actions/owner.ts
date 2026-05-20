@@ -957,7 +957,9 @@ export async function completePOSSale(input: POSSaleInput) {
   if (!input.items?.length) return { error: "Cart is empty" };
 
   const { supabase } = await getAuthUser();
-  const { data, error } = await supabase.rpc("complete_pos_sale", {
+  // Phase 3: prefer FEFO v4 (drains soonest-expiry batch first); falls back
+  // to legacy products.stock for products without batches.
+  const { data, error } = await supabase.rpc("complete_pos_sale_v4", {
     p_shop_id: idParse.data,
     p_items: input.items,
     p_subtotal: input.subtotal,
