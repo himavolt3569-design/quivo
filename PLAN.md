@@ -1,5 +1,7 @@
 # Quivo — Production Feature Rollout Plan
 
+> **Status as of 2026-05-20:** Phases 0–3 shipped on `additional-features` (latest commit `4860c20`); Phase 4 is the next slice. See the **Execution log** table below for per-phase commits, the migration window in use (next free timestamp is `20260516000025_…`), and the list of files the user has hand-tuned that future edits must preserve.
+
 ## Context
 
 A full-session audit of the Quivo codebase (Next.js 16 + Supabase, Nepal-first POS / e-commerce SaaS for kirana shops) surfaced ~50 feature gaps spanning compliance (VAT, refunds), operations (bulk import, expiry tracking, day-end close), production readiness (PWA, offline POS, error monitoring), customer growth (reviews, tracking, loyalty), and identity (2FA, account deletion, audit log UI). Several supporting tables already exist with no UI (security_events, payment_audit_logs, wallet_transactions, saved_products, kyc_*_email_sent_at columns) — meaning a meaningful share of the work is "wire up the rest" rather than greenfield.
@@ -15,9 +17,18 @@ This plan turns that audit into an executable 11-phase incremental rollout where
 
 | Phase | Status | Branch | Commit | Notes |
 |---|---|---|---|---|
-| 0 — Foundation | ✓ committed | `additional-features` | `3d1f04e` | See Phase 0 section. Operator follow-ups still open. |
-| 1 — Money Correctness | ✓ committed | `additional-features` | tip of branch | 8 migrations + POS + storefront + orders + settings + audit + VAT. Operator must apply migrations 000006–000013 to Supabase and smoke-test. |
-| 2–10 | pending | — | — | — |
+| 0 — Foundation | ✓ committed | `additional-features` | `3d1f04e` | Operator follow-ups still open. |
+| 1 — Money Correctness | ✓ committed | `additional-features` | `10f3f1d` | 8 migrations (000006–000013). |
+| 2 — Email + Notifications | ✓ committed | `additional-features` | `f414833` | Migrations 000014–000015 + cron jobs + bell + prefs UI. Also defensive `createShop` hardening. |
+| 3 — Inventory Ops (slice 1) | ✓ committed | `additional-features` | `a1d0304` | Migrations 000017–000021 (batches/FEFO, POs, stock takes, day end, transfers). |
+| 3 — Inventory Ops (slice 2) | ✓ committed | `additional-features` | `a78ffc2` | Stock transfer UI + bulk product CSV import. |
+| 3.5 — pgcrypto + map fix | ✓ committed | `additional-features` | `4860c20` | Migrations 000022–000023 (random_hex helper + orders coords + checkout pin + DeliveryMap on tracking page). |
+| 4 — Production Readiness | pending | — | — | Next up. |
+| 5–10 | pending | — | — | — |
+
+User-written migrations co-existing on the branch:
+- `20260516000016_fix_create_shop_owner_id.sql` — restores `owner_id` insert in `create_shop_with_owner`. Apply before any later migration on an old DB.
+- `20260516000024_repair_payment_audit_logs_contract.sql` — forward-only repair to align prod's `payment_audit_logs` with the audit schema. Idempotent.
 
 **Resume instructions for a future Claude CLI session**
 
@@ -28,12 +39,18 @@ claude                                    # then in chat:
 > read PLAN.md and continue execution from the first unchecked phase
 ```
 
-The plan is the source of truth. Pick up at the lowest-numbered phase that still has open checkboxes.
+The plan is the source of truth. Pick up at the lowest-numbered phase that still has open checkboxes. Next available migration timestamp is **`20260516000025_…`**.
 
 **Migration timestamp collisions** — both fixed in Phase 0:
 - ✓ `20260516000001_staff_shifts.sql` ↔ `…_supplier_profile_and_ledger.sql` → renamed supplier to `…000003_…`.
 - ✓ `20260516000002_kyc_grace_period_notifications.sql` ↔ `…_payroll_templates.sql` → renamed KYC to `…000004_…`.
 - Two legacy 2024 collisions (`…000007`, `…000012`) are grandfathered by `scripts/check-migration-names.mjs` because they have already been applied to every deployed DB.
+
+**Files the user has hand-tuned** (don't revert when editing):
+- `components/onboarding/OwnerOnboarding.tsx` — adds AddressPinPicker + Nominatim reverse-geocode on the Location step.
+- `components/dashboard/owner/OwnerSidebar.tsx` — collapsing icon rail on `md`, full layout on `lg`.
+- `components/dashboard/owner/OwnerMobileNav.tsx` — bottom tab label sizing.
+- `components/dashboard/NotificationBell.tsx` — memoised client + stable channel id.
 
 ---
 
