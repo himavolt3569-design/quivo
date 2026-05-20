@@ -50,6 +50,9 @@ interface CustomerInfo {
   email?: string;
   address: string;
   notes?: string;
+  /** Customer-picked drop coords (optional but strongly preferred for delivery accuracy). */
+  deliveryLat?: number | null;
+  deliveryLng?: number | null;
 }
 
 export interface PlaceOrderResult {
@@ -83,6 +86,8 @@ const CustomerSchema = z.object({
   email: OptionalEmailSchema,
   address: AddressTextSchema,
   notes: OptionalShortText(1000, "Notes"),
+  deliveryLat: z.coerce.number().min(-90).max(90).nullable().optional(),
+  deliveryLng: z.coerce.number().min(-180).max(180).nullable().optional(),
 });
 const OrderNumberSchema = z.string().trim().min(6).max(80);
 const TrackingTokenSchema = z.string().trim().regex(/^[a-f0-9]{48}$/i, "Invalid tracking token.");
@@ -204,6 +209,8 @@ export async function placeOrderWithPayment(
       p_payment_method: paymentMethod,
       p_transaction_reference: transactionReference,
       p_notes: customerParse.data.notes || null,
+      p_delivery_lat: customerParse.data.deliveryLat ?? null,
+      p_delivery_lng: customerParse.data.deliveryLng ?? null,
     })
     .single<CreatedPaymentRow>();
 
@@ -431,6 +438,35 @@ export async function getOrderByNumberWithToken(orderNumber: string, trackingTok
   if (error) return { error: error.message };
   if (!data) return { error: "Order not found." };
   return { order: data };
+}
+
+export interface OrderCoords {
+  order_number: string;
+  delivery_lat: number | null;
+  delivery_lng: number | null;
+  delivery_address: string | null;
+  shop_lat: number | null;
+  shop_lng: number | null;
+  shop_name: string | null;
+  shop_slug: string | null;
+}
+
+/** Coords-only lookup for the tracking-page delivery map. Separate from
+ *  getOrderByNumberWithToken so we don't change that function's shape. */
+export async function getOrderCoords(orderNumber: string, trackingToken: string) {
+  const orderParse = OrderNumberSchema.safeParse(orderNumber);
+  const tokenParse = TrackingTokenSchema.safeParse(trackingToken);
+  if (!orderParse.success || !tokenParse.success) return { error: "Order not found." };
+
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .rpc("get_order_coords", {
+      p_order_number: orderParse.data,
+      p_tracking_token: tokenParse.data,
+    })
+    .maybeSingle<OrderCoords>();
+  if (error) return { error: error.message };
+  return { coords: (data as OrderCoords | null) ?? null };
 }
 
 /** Anon-safe: returns enabled methods + bank/QR display fields, NEVER secrets. */

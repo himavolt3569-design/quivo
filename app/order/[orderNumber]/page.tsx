@@ -1,9 +1,10 @@
-import { getOrderByNumberWithToken, getPublicShopPaymentMethods } from "@/app/actions/payments";
+import { getOrderByNumberWithToken, getPublicShopPaymentMethods, getOrderCoords } from "@/app/actions/payments";
 import { PAYMENT_METHOD_LABELS, PAYMENT_STATUS_LABELS } from "@/lib/payments/constants";
 import type { PaymentMethod, PaymentStatus, PublicPaymentMethods } from "@/lib/payments";
 import { ReceiptUploader } from "@/components/storefront/ReceiptUploader";
+import { DeliveryMap } from "@/components/storefront/DeliveryMap";
 import Link from "next/link";
-import { ArrowLeft, CheckCircle2, XCircle, Clock, AlertTriangle, Package } from "lucide-react";
+import { ArrowLeft, CheckCircle2, XCircle, Clock, AlertTriangle, Package, MapPin } from "lucide-react";
 
 interface OrderViewRow {
   order_id: string;
@@ -68,6 +69,14 @@ export default async function OrderPage({
   if (needsReceipt) {
     const m = await getPublicShopPaymentMethods(order.shop_id);
     methods = m.methods ?? null;
+  }
+
+  // Fetch coords for the delivery map (separate RPC; not present until the
+  // Phase 3.5 migrations land).
+  let coords: Awaited<ReturnType<typeof getOrderCoords>>["coords"] = null;
+  if (trackingToken) {
+    const c = await getOrderCoords(orderNumber, trackingToken);
+    coords = c.coords ?? null;
   }
 
   return (
@@ -169,6 +178,32 @@ export default async function OrderPage({
           {order.customer_phone && <p><span className="text-gray-500">Phone:</span> <span className="font-bold text-gray-900">{order.customer_phone}</span></p>}
           {order.delivery_address && <p><span className="text-gray-500">Address:</span> <span className="font-bold text-gray-900">{order.delivery_address}</span></p>}
         </div>
+
+        {/* Delivery map */}
+        {coords && ((coords.delivery_lat != null && coords.delivery_lng != null) || (coords.shop_lat != null && coords.shop_lng != null)) && (
+          <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+            <div className="px-5 py-3 border-b border-gray-100 flex items-center gap-2">
+              <MapPin className="h-4 w-4 text-[#A7653A]" />
+              <p className="text-xs font-black uppercase tracking-wider text-gray-500">Delivery location</p>
+              {coords.delivery_lat == null && (
+                <span className="ml-auto text-[10px] font-bold text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full">
+                  Customer didn&apos;t pin a location
+                </span>
+              )}
+            </div>
+            <div className="p-3">
+              <DeliveryMap
+                shopLat={coords.shop_lat}
+                shopLng={coords.shop_lng}
+                shopName={coords.shop_name ?? order.shop_name}
+                deliveryLat={coords.delivery_lat}
+                deliveryLng={coords.delivery_lng}
+                deliveryAddress={coords.delivery_address ?? order.delivery_address ?? null}
+                className="w-full h-[320px]"
+              />
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
