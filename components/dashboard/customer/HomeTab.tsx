@@ -18,10 +18,12 @@ import type { User as SupabaseUser } from "@supabase/supabase-js";
 import { toggleSavedShop, toggleSavedProduct, placeOrder } from "@/app/actions/customer";
 import type { Order, Profile, SavedShop, SavedProduct, TrendingProduct, NearbyShop } from "@/lib/types";
 
-import { BarcodeScanner } from "./BarcodeScanner";
 import { OrderCard } from "./OrderCard";
 import { ReceiptSheet } from "./ReceiptSheet";
+import { BarcodeScanner } from "./BarcodeScanner";
 import { WalletSection } from "./WalletSection";
+import { EmptyState } from "./EmptyState";
+import { Search, Store as StoreIcon } from "lucide-react";
 import type { OrderItem, Transaction } from "@/lib/types";
 
 interface HomeTabProps {
@@ -132,7 +134,7 @@ export function HomeTab({
       {/* ── Top Bento Grid Header ───────────────────────────────────── */}
       <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
         {/* Welcome Card */}
-        <div className="md:col-span-8 flex flex-col justify-between rounded-[2.5rem] bg-white border border-[#2E3344]/8 p-8 relative overflow-hidden shadow-sm group">
+        <div className="md:col-span-8 flex flex-col justify-between rounded-[2rem] bg-white border border-[#2E3344]/8 p-6 md:p-8 relative overflow-hidden shadow-sm group">
           <div className="absolute top-0 right-0 p-8 opacity-[0.03] group-hover:opacity-[0.05] transition-opacity">
              <Barcode className="h-32 w-32 rotate-12" />
           </div>
@@ -183,7 +185,7 @@ export function HomeTab({
           
           {/* Active Orders Horizontal */}
           {activeOrders.length > 0 && (
-            <section className="rounded-[2rem] bg-[#F7F0E6]/40 border border-[#A7653A]/10 p-6">
+            <section className="rounded-[2rem] bg-[#F7F0E6]/40 border border-[#A7653A]/10 p-6 md:p-8">
               <div className="mb-4 flex items-center justify-between px-2">
                 <h2 className="text-sm font-bold uppercase tracking-[0.14em] text-[#8D5132]">
                   Live Shipments
@@ -198,6 +200,7 @@ export function HomeTab({
                     key={order.id}
                     order={order}
                     isActive
+                    compact
                     onViewReceipt={setReceiptOrder}
                   />
                 ))}
@@ -223,7 +226,7 @@ export function HomeTab({
                 {topReorderItems.map(({ item, count }) => (
                   <div
                     key={`${item.name}::${item.shop}`}
-                    className="flex min-w-[180px] max-w-[180px] snap-start flex-col rounded-[1.75rem] border border-[#2E3344]/8 bg-white p-4 shadow-sm hover:shadow-md transition"
+                    className="flex min-w-[180px] max-w-[180px] snap-start flex-col rounded-2xl border border-[#2E3344]/8 bg-white p-4 shadow-sm hover:shadow-md transition"
                   >
                     <div className="mb-3">
                        <span className="rounded-full bg-[#F7F0E6] px-2.5 py-1 text-[10px] font-bold text-[#A7653A]">
@@ -256,9 +259,11 @@ export function HomeTab({
                 Trending Nearby
               </h2>
               {trendingProducts.length === 0 ? (
-                <div className="rounded-[1.5rem] border border-dashed border-[#2E3344]/10 bg-white p-6 text-center">
-                  <p className="text-xs text-[#746E73]">Products will appear here once shops add their catalog.</p>
-                </div>
+                <EmptyState
+                  icon={Search}
+                  title="No trends yet"
+                  description="Products will appear here once local shops add their catalog."
+                />
               ) : (
                 <div className="grid grid-cols-2 gap-3">
                   {trendingProducts.slice(0, 4).map((product) => {
@@ -266,7 +271,7 @@ export function HomeTab({
                     return (
                       <div
                         key={product.id}
-                        className="group flex flex-col rounded-[1.5rem] border border-[#2E3344]/8 bg-white p-3 shadow-sm hover:shadow-md transition"
+                        className="group flex flex-col rounded-2xl border border-[#2E3344]/8 bg-white p-3 shadow-sm hover:shadow-md transition"
                       >
                         <div className="relative mb-2 h-24 w-full overflow-hidden rounded-xl bg-[#F7F0E6]">
                           {product.image_url ? (
@@ -304,9 +309,11 @@ export function HomeTab({
                 Verified Shops
               </h2>
               {nearbyShops.length === 0 ? (
-                <div className="rounded-[1.5rem] border border-dashed border-[#2E3344]/10 bg-white p-6 text-center">
-                  <p className="text-xs text-[#746E73]">Shops will appear here once they are verified.</p>
-                </div>
+                <EmptyState
+                  icon={StoreIcon}
+                  title="No shops yet"
+                  description="Shops will appear here once they join the neighborhood."
+                />
               ) : (
                 <div className="space-y-2">
                   {nearbyShops.slice(0, 3).map((shop) => {
@@ -348,7 +355,7 @@ export function HomeTab({
         {/* Manage Sidebar - Right Column */}
         <aside className="lg:col-span-4 space-y-6">
            {/* Quick Actions Panel */}
-           <div className="rounded-[2.5rem] bg-[#27324A] p-6 text-white shadow-xl shadow-[#27324A]/10">
+           <div className="rounded-[2rem] bg-[#27324A] p-6 md:p-8 text-white shadow-xl shadow-[#27324A]/10">
               <h2 className="text-xs font-bold uppercase tracking-widest text-[#D8C99A] mb-5">
                 Quick Actions
               </h2>
@@ -372,7 +379,7 @@ export function HomeTab({
            </div>
 
            {/* Membership / Stats Badge */}
-           <div className="rounded-[2.5rem] bg-gradient-to-br from-[#F7F0E6] to-[#EFE5D6] p-6 border border-[#2E3344]/5">
+           <div className="rounded-[2rem] bg-gradient-to-br from-[#F7F0E6] to-[#EFE5D6] p-6 md:p-8 border border-[#2E3344]/5">
               <div className="flex items-center gap-3">
                 <div className="h-10 w-10 rounded-xl bg-white flex items-center justify-center shadow-sm">
                   <Package className="h-5 w-5 text-[#A7653A]" />
@@ -446,7 +453,7 @@ function ReorderButton({
     <button
       onClick={handleReorder}
       disabled={loading}
-      className="mt-2.5 w-full rounded-full bg-[#F7F0E6] py-1.5 text-xs font-semibold text-[#27324A] transition hover:bg-[#A7653A] hover:text-white disabled:opacity-50 active:scale-95"
+      className="mt-2.5 w-full rounded-xl bg-[#F7F0E6] py-2 text-xs font-semibold text-[#27324A] transition hover:bg-[#A7653A] hover:text-white disabled:opacity-50 active:scale-95"
     >
       {loading ? "Ordering…" : "Order again"}
     </button>

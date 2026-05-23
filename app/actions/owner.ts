@@ -854,6 +854,14 @@ export async function addExpense(shopId: string, formData: FormData) {
 
 // ─── Shop Settings ────────────────────────────────────────────────────────────
 
+// IANA timezone names — short whitelist; UI ships a select restricted to these.
+const TimezoneSchema = z
+  .string()
+  .trim()
+  .min(2)
+  .max(60)
+  .refine((v) => /^[A-Za-z_]+\/[A-Za-z_+/-]+$|^UTC$/.test(v), "Invalid timezone");
+
 const ShopSettingsSchema = z.object({
   name: ShopNameSchema,
   description: OptionalShortText(500, "Description"),
@@ -863,6 +871,7 @@ const ShopSettingsSchema = z.object({
   vat_registered: z.preprocess((v) => v === "on" || v === "true" || v === true, z.boolean()).optional(),
   vat_rate: z.coerce.number().min(0).max(100).optional(),
   pan_number: z.string().trim().max(40).optional().or(z.literal("")).transform((v) => v || undefined),
+  timezone: TimezoneSchema.optional(),
 });
 
 export async function updateShopSettings(shopId: string, formData: FormData) {
@@ -872,6 +881,7 @@ export async function updateShopSettings(shopId: string, formData: FormData) {
   const rawVatRegistered = formData.get("vat_registered");
   const rawVatRate = formData.get("vat_rate");
   const rawPan = formData.get("pan_number");
+  const rawTz = formData.get("timezone");
 
   const parse = ShopSettingsSchema.safeParse({
     name: formData.get("name")?.toString() ?? "",
@@ -882,6 +892,7 @@ export async function updateShopSettings(shopId: string, formData: FormData) {
     vat_registered: rawVatRegistered === null ? undefined : rawVatRegistered.toString(),
     vat_rate: rawVatRate === null || rawVatRate === "" ? undefined : rawVatRate.toString(),
     pan_number: rawPan === null ? undefined : rawPan.toString(),
+    timezone: rawTz === null || rawTz === "" ? undefined : rawTz.toString(),
   });
   if (!parse.success) return { error: parse.error.issues[0].message };
 
@@ -896,6 +907,7 @@ export async function updateShopSettings(shopId: string, formData: FormData) {
   if (parse.data.vat_registered !== undefined) update.vat_registered = parse.data.vat_registered;
   if (parse.data.vat_rate !== undefined) update.vat_rate = parse.data.vat_rate;
   if (parse.data.pan_number !== undefined) update.pan_number = parse.data.pan_number ?? null;
+  if (parse.data.timezone !== undefined) update.timezone = parse.data.timezone;
 
   const { error } = await supabase.from("shops").update(update).eq("id", idParse.data);
 

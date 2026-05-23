@@ -32,6 +32,8 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
 import { toast } from "sonner";
 import { completePOSSale } from "@/app/actions/owner";
+import { enqueue as enqueueOffline, notifyQueueChanged } from "@/lib/offline/pos-queue";
+import { OfflineSync } from "./OfflineSync";
 import {
   parkSale,
   getHeldSale,
@@ -579,19 +581,46 @@ export function POSView({
       return;
     }
 
-    startTransition(async () => {
-      const result = await completePOSSale({
-        shopId,
-        items: buildLines(),
-        subtotal,
-        discount: round2(lineDiscountTotal + orderDiscount),
-        taxRate,
-        taxAmount,
-        total,
-        paymentMethod: paymentMethod === "split" ? "split" : paymentMethod,
-        splits: splitsForRpc,
-        notes: buildNotes(paymentMethod, finalBuyer),
+    const posInput = {
+      shopId,
+      items: buildLines(),
+      subtotal,
+      discount: round2(lineDiscountTotal + orderDiscount),
+      taxRate,
+      taxAmount,
+      total,
+      paymentMethod: paymentMethod === "split" ? "split" : paymentMethod,
+      splits: splitsForRpc,
+      notes: buildNotes(paymentMethod, finalBuyer),
+    };
+
+    // Offline path: stash the sale locally and let OfflineSync replay it
+    // when the network is back. Receipt prints just fine since the bill
+    // record is built from local state.
+    if (typeof navigator !== "undefined" && navigator.onLine === false) {
+      startTransition(async () => {
+        try {
+          await enqueueOffline({
+            tempId: `pos-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+            shopId,
+            input: posInput,
+          });
+          notifyQueueChanged();
+          const bill = buildBillRecord(paymentMethod, finalBuyer, splitsForRpc);
+          setCompletedBill(bill);
+          setLastReceiptBill(bill);
+          setIsMobileCartOpen(false);
+          resetCart();
+          toast.success("Sale queued — will sync when online.");
+        } catch (err) {
+          toast.error(err instanceof Error ? err.message : "Could not queue sale.");
+        }
       });
+      return;
+    }
+
+    startTransition(async () => {
+      const result = await completePOSSale(posInput);
 
       if (result.error) {
         toast.error(result.error);
@@ -679,6 +708,7 @@ export function POSView({
 
   return (
     <>
+      <OfflineSync />
       <div className="h-[calc(100vh-6rem)] flex flex-col lg:flex-row gap-6 animate-in fade-in duration-500 pb-16 lg:pb-0">
         {/* Left: Product Search & Catalog */}
         <div className="flex-1 flex flex-col bg-white lg:rounded-[2rem] border border-[#2E3344]/8 shadow-sm overflow-hidden -mx-4 sm:-mx-6 lg:mx-0">

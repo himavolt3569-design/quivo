@@ -32,7 +32,19 @@ interface ShopData {
   logo_url?: string | null;
   vat_registered?: boolean | null;
   vat_rate?: number | null;
+  timezone?: string | null;
 }
+
+const COMMON_TIMEZONES: { id: string; label: string }[] = [
+  { id: "Asia/Kathmandu",    label: "Asia / Kathmandu (Nepal)" },
+  { id: "Asia/Kolkata",      label: "Asia / Kolkata (India)" },
+  { id: "Asia/Dhaka",        label: "Asia / Dhaka (Bangladesh)" },
+  { id: "Asia/Karachi",      label: "Asia / Karachi (Pakistan)" },
+  { id: "Asia/Colombo",      label: "Asia / Colombo (Sri Lanka)" },
+  { id: "Asia/Singapore",    label: "Asia / Singapore" },
+  { id: "Asia/Dubai",        label: "Asia / Dubai (UAE)" },
+  { id: "UTC",               label: "UTC" },
+];
 
 interface ShopSettingsProps {
   shopId: string;
@@ -70,6 +82,7 @@ export function ShopSettings({ shopId, initialData }: ShopSettingsProps) {
       : "13.00"
   );
   const [panNumber, setPanNumber] = useState<string>(initialData.pan_number ?? "");
+  const [timezone, setTimezone] = useState<string>(initialData.timezone ?? "Asia/Kathmandu");
 
   const handleUpdateFontSize = async (size: (typeof FONT_SIZES)[number]["id"]) => {
     setUpdatingFontSize(true);
@@ -105,6 +118,7 @@ export function ShopSettings({ shopId, initialData }: ShopSettingsProps) {
     formData.set("opening_time", openingTime);
     formData.set("closing_time", closingTime);
     formData.set("vat_registered", vatRegistered ? "true" : "false");
+    formData.set("timezone", timezone);
     formData.set("vat_rate", vatRate);
     formData.set("pan_number", panNumber);
 
@@ -250,6 +264,19 @@ export function ShopSettings({ shopId, initialData }: ShopSettingsProps) {
                 onChange={(e) => setClosingTime(e.target.value)}
                 className="h-12 rounded-xl mt-1.5"
               />
+            </div>
+            <div className="col-span-2">
+              <Label className="font-bold text-[#27324A]">Time zone</Label>
+              <select
+                value={timezone}
+                onChange={(e) => setTimezone(e.target.value)}
+                className="h-12 w-full px-3 rounded-xl border border-[#2E3344]/15 bg-white text-sm font-bold mt-1.5"
+              >
+                {COMMON_TIMEZONES.map((tz) => (
+                  <option key={tz.id} value={tz.id}>{tz.label}</option>
+                ))}
+              </select>
+              <p className="text-[10px] text-[#746E73] mt-1">Used by scheduled jobs (e.g. low-stock digest fires at 08:00 in your zone).</p>
             </div>
           </div>
         </div>

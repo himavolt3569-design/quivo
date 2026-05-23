@@ -84,5 +84,37 @@ export default async function ProductPage({ params }: Props) {
     barcode: string; match_score: number;
   }>;
 
-  return <ProductView product={product} shop={shop} similar={similarProducts} />;
+  // Product JSON-LD for Google Merchant + rich results.
+  const productImage = product.images?.[0] ?? product.image_url ?? null;
+  const jsonLd = {
+    "@context": "https://schema.org/",
+    "@type": "Product",
+    name: product.name,
+    brand: product.brand ? { "@type": "Brand", name: product.brand } : undefined,
+    description: product.description ?? `${product.name} at ${shop.name}.`,
+    gtin: product.barcode,
+    sku: product.barcode,
+    image: productImage ?? undefined,
+    offers: {
+      "@type": "Offer",
+      priceCurrency: "NPR",
+      price: product.price,
+      availability:
+        Number(product.stock ?? 0) > 0
+          ? "https://schema.org/InStock"
+          : "https://schema.org/OutOfStock",
+      seller: { "@type": "Organization", name: shop.name },
+    },
+  };
+
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        // eslint-disable-next-line react/no-danger
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <ProductView product={product} shop={shop} similar={similarProducts} />
+    </>
+  );
 }
