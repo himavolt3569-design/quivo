@@ -1,6 +1,6 @@
 # Quivo — Production Feature Rollout Plan
 
-> **Status as of 2026-05-20:** Phases 0–3 shipped on `additional-features` (latest commit `4860c20`); Phase 4 is the next slice. See the **Execution log** table below for per-phase commits, the migration window in use (next free timestamp is `20260516000025_…`), and the list of files the user has hand-tuned that future edits must preserve.
+> **Status as of 2026-05-23:** Phases 0–4 shipped on `additional-features` (latest commit `502c950`); Phase 5 (Reporting & Analytics) is next. See the **Execution log** table below for per-phase commits, the migration window in use (next free timestamp is `20260516000027_…`), and the list of files the user has hand-tuned that future edits must preserve.
 
 ## Context
 
@@ -23,8 +23,9 @@ This plan turns that audit into an executable 11-phase incremental rollout where
 | 3 — Inventory Ops (slice 1) | ✓ committed | `additional-features` | `a1d0304` | Migrations 000017–000021 (batches/FEFO, POs, stock takes, day end, transfers). |
 | 3 — Inventory Ops (slice 2) | ✓ committed | `additional-features` | `a78ffc2` | Stock transfer UI + bulk product CSV import. |
 | 3.5 — pgcrypto + map fix | ✓ committed | `additional-features` | `4860c20` | Migrations 000022–000023 (random_hex helper + orders coords + checkout pin + DeliveryMap on tracking page). |
-| 4 — Production Readiness | pending | — | — | Next up. |
-| 5–10 | pending | — | — | — |
+| 4 — Production Readiness | ✓ committed | `additional-features` | `502c950` | Migrations 000025–000026; PWA manifest + SW + offline POS queue; SEO scaffolding (sitemap, robots, OG image, Product JSON-LD); image moderation + ShopImage; web push (VAPID) scaffolding; /api/health; shops.timezone. |
+| 5 — Reporting | pending | — | — | Next up. |
+| 6–10 | pending | — | — | — |
 
 User-written migrations co-existing on the branch:
 - `20260516000016_fix_create_shop_owner_id.sql` — restores `owner_id` insert in `create_shop_with_owner`. Apply before any later migration on an old DB.
@@ -39,7 +40,7 @@ claude                                    # then in chat:
 > read PLAN.md and continue execution from the first unchecked phase
 ```
 
-The plan is the source of truth. Pick up at the lowest-numbered phase that still has open checkboxes. Next available migration timestamp is **`20260516000025_…`**.
+The plan is the source of truth. Pick up at the lowest-numbered phase that still has open checkboxes. Next available migration timestamp is **`20260516000027_…`**.
 
 **Migration timestamp collisions** — both fixed in Phase 0:
 - ✓ `20260516000001_staff_shifts.sql` ↔ `…_supplier_profile_and_ledger.sql` → renamed supplier to `…000003_…`.
