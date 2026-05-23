@@ -52,7 +52,7 @@ export default async function CustomerLayout({
     <div className="animate-in fade-in duration-300">
       <DashboardNav activeOrderCount={activeOrderCountResult.count ?? 0} />
       {isOwner && <RoleModeSwitch variant="pill" targetMode="owner" />}
-      <main className="container px-4 pb-28 pt-8 sm:px-6 sm:pb-10 lg:pt-10">
+      <main className="container px-4 pb-32 pt-8 sm:px-6 sm:pb-10 lg:pt-10">
         <div className="mx-auto max-w-5xl">
           {children}
         </div>

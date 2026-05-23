@@ -74,7 +74,7 @@ export function OwnerSidebar({ isMobile = false, shops, activeShopId, role }: Ow
       className={`${
         isMobile
           ? "flex w-full h-full flex-col bg-[#f8f8f7]"
-          : "hidden lg:flex w-64 flex-col border-r border-[#2E3344]/8 bg-white/50 backdrop-blur-xl h-[calc(100vh-4rem)] sticky top-16"
+          : "hidden md:flex md:w-20 lg:w-64 flex-col border-r border-[#2E3344]/8 bg-white/50 backdrop-blur-xl h-[calc(100vh-4rem)] sticky top-16 transition-all duration-300"
       }`}
     >
       <div className="p-4 border-b border-[#2E3344]/8">
@@ -91,10 +91,11 @@ export function OwnerSidebar({ isMobile = false, shops, activeShopId, role }: Ow
                 isActive
                   ? "bg-[#27324A] text-white shadow-md shadow-[#27324A]/10"
                   : "text-[#746E73] hover:bg-[#F7F0E6] hover:text-[#27324A]"
-              }`}
+              } ${isMobile ? "" : "md:justify-center lg:justify-start"}`}
+              title={route.label}
             >
-              <route.icon className={`h-4 w-4 ${isActive ? "text-[#D8C99A]" : ""}`} />
-              {route.label}
+              <route.icon className={`h-4 w-4 shrink-0 ${isActive ? "text-[#D8C99A]" : ""}`} />
+              <span className={isMobile ? "" : "hidden lg:block"}>{route.label}</span>
             </Link>
           );
         })}
@@ -111,12 +112,14 @@ export function OwnerSidebar({ isMobile = false, shops, activeShopId, role }: Ow
             : undefined
         }
       >
-        <RoleModeSwitch variant="sidebar" targetMode="customer" />
+        <div className={isMobile ? "" : "hidden lg:block"}>
+          <RoleModeSwitch variant="sidebar" targetMode="customer" />
+        </div>
         <div
           className={`relative overflow-hidden rounded-2xl p-4 text-center ${
             isMobile
               ? "bg-gradient-to-br from-[#E8E3D1] to-[#F7F0E6] border border-[#A7653A]/20 shadow-sm"
-              : "bg-[#E8E3D1]/50"
+              : "bg-[#E8E3D1]/50 hidden lg:block"
           }`}
         >
           <div className="flex items-center justify-center gap-2 mb-1">

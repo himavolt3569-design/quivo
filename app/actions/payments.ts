@@ -312,6 +312,7 @@ export async function placeOrderWithPayment(
       const admin = createAdminClient();
       await admin.from("payment_audit_logs").insert({
         payment_id: data.payment_id,
+        order_id: data.order_id,
         shop_id: shopParse.data,
         action: "failed",
         actor_type: "system",

@@ -67,7 +67,10 @@ export function CartDrawer({ isOpen, onClose, cart, onUpdateQty, onCheckout, the
             <div className="h-full flex flex-col items-center justify-center text-gray-400 gap-3">
               <ShoppingBag className="h-16 w-16 opacity-20" />
               <p className="font-medium">Your cart is empty</p>
-              <p className="text-sm">Browse products and add items to get started</p>
+              <p className="text-sm text-center px-6">Browse products and add items to get started</p>
+              <button onClick={onClose} className="mt-4 px-6 py-2.5 rounded-full bg-gray-100 text-gray-900 font-bold text-sm hover:bg-gray-200 transition">
+                Continue Shopping
+              </button>
             </div>
           ) : (
             cart.map((item) => (
@@ -77,7 +80,7 @@ export function CartDrawer({ isOpen, onClose, cart, onUpdateQty, onCheckout, the
                   {item.image_url ? (
                     <img src={item.image_url} alt={item.name} className="h-full w-full object-cover" />
                   ) : (
-                    item.name[0]
+                    <span className="text-gray-300 opacity-50"><ShoppingBag className="h-6 w-6" /></span>
                   )}
                 </div>
 

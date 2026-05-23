@@ -62,7 +62,7 @@ export function OwnerMobileNav({ shops, activeShopId, role }: OwnerMobileNavProp
                 <div className={`relative flex items-center justify-center w-8 h-8 rounded-full transition-colors ${isActive ? "bg-[#F7F0E6]" : ""}`}>
                   <route.icon className={`h-5 w-5 ${isActive ? "text-[#A7653A]" : "text-[#746E73]"}`} />
                 </div>
-                <span className={`text-[9px] font-bold ${isActive ? "text-[#A7653A]" : ""}`}>
+                <span className={`text-[11px] font-bold ${isActive ? "text-[#A7653A]" : ""}`}>
                   {route.label}
                 </span>
               </Link>
@@ -76,7 +76,7 @@ export function OwnerMobileNav({ shops, activeShopId, role }: OwnerMobileNavProp
                 <div className="relative flex items-center justify-center w-8 h-8 rounded-full">
                   <Menu className="h-5 w-5" />
                 </div>
-                <span className="text-[9px] font-bold">More</span>
+                <span className="text-[11px] font-bold">More</span>
               </button>
             </SheetTrigger>
             <SheetContent side="left" className="p-0 w-[80%] max-w-[320px] bg-[#f8f8f7] border-r-0">

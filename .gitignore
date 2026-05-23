@@ -30,8 +30,9 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
+# env files — ignore real envs, keep .env.example template tracked
 .env*
+!.env.example
 
 # vercel
 .vercel
@@ -43,3 +44,6 @@ supabase
 .claude
 AGENTS.md
 fix_backticks.py
+
+# tool artifacts
+.antigravitycli/

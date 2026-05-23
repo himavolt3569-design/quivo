@@ -122,6 +122,9 @@ export function OwnerOnboarding() {
   const [currentStep, setCurrentStep] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const [result, setResult] = useState<ShopResult | null>(null);
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
+
+  const handleBlur = (field: string) => setTouched((p) => ({ ...p, [field]: true }));
 
   // Step 0
   const [businessType, setBusinessType] = useState<"retailer" | "wholesale">("retailer");
@@ -374,8 +377,8 @@ export function OwnerOnboarding() {
                   onClick={() => setBusinessType("retailer")}
                   className={`rounded-2xl border-2 p-4 sm:p-5 text-left transition-all ${
                     businessType === "retailer"
-                      ? "border-[#A7653A] bg-[#F7F0E6]"
-                      : "border-[#2E3344]/10 hover:border-[#A7653A]/40 hover:bg-[#F7F0E6]/40"
+                      ? "border-[#A7653A] bg-[#F7F0E6] shadow-sm"
+                      : "border-[#2E3344]/10 hover:border-[#A7653A]/40 hover:bg-[#F7F0E6]/40 hover:shadow-md hover:-translate-y-0.5"
                   }`}
                 >
                   <div className="flex items-center justify-between mb-3">
@@ -408,8 +411,8 @@ export function OwnerOnboarding() {
                   onClick={() => setBusinessType("wholesale")}
                   className={`rounded-2xl border-2 p-4 sm:p-5 text-left transition-all ${
                     businessType === "wholesale"
-                      ? "border-[#27324A] bg-[#27324A]/5"
-                      : "border-[#2E3344]/10 hover:border-[#27324A]/40 hover:bg-[#27324A]/5"
+                      ? "border-[#27324A] bg-[#27324A]/5 shadow-sm"
+                      : "border-[#2E3344]/10 hover:border-[#27324A]/40 hover:bg-[#27324A]/5 hover:shadow-md hover:-translate-y-0.5"
                   }`}
                 >
                   <div className="flex items-center justify-between mb-3">
@@ -443,7 +446,7 @@ export function OwnerOnboarding() {
                   Shop Category <span className="text-red-500">*</span>
                 </h2>
                 <p className="text-xs text-[#746E73] mb-3">What best describes your store?</p>
-                <div className="grid grid-cols-4 gap-2">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                   {CATEGORIES.map((cat) => (
                     <button
                       key={cat.id}
@@ -470,9 +473,8 @@ export function OwnerOnboarding() {
             </div>
           )}
 
-          {/* ── Step 1: Shop Profile ── */}
           {currentStep === 1 && (
-            <div className="space-y-4 sm:space-y-5 animate-in fade-in slide-in-from-right-4">
+            <div className="space-y-6 sm:space-y-8 animate-in fade-in slide-in-from-right-4">
               <div>
                 <h2 className="text-xl sm:text-2xl font-black text-[#27324A]">Shop Profile</h2>
                 <p className="text-sm text-[#746E73] mt-1">All fields are required.</p>
@@ -485,8 +487,9 @@ export function OwnerOnboarding() {
                 <Input
                   value={storeName}
                   onChange={(e) => setStoreName(e.target.value)}
+                  onBlur={() => handleBlur('storeName')}
                   placeholder="e.g. Maitidevi Fresh Mart"
-                  className="h-12 rounded-xl mt-1.5"
+                  className={`h-12 rounded-xl mt-1.5 ${touched.storeName && !storeName.trim() ? "border-red-500 focus-visible:ring-red-500" : ""}`}
                 />
               </div>
 
@@ -494,15 +497,16 @@ export function OwnerOnboarding() {
                 <Label className="text-[#27324A] font-bold text-sm">
                   Public Web Address <span className="text-red-500">*</span>
                 </Label>
-                <div className="flex items-stretch mt-1.5">
+                <div className={`flex items-stretch mt-1.5 focus-within:ring-2 focus-within:ring-[#A7653A] focus-within:ring-offset-2 rounded-xl transition-all ${touched.slug && !slug.trim() ? "border border-red-500 focus-within:ring-red-500" : ""}`}>
                   <div className="h-12 px-2.5 sm:px-3 bg-[#f0ede8] border border-r-0 border-[#2E3344]/10 rounded-l-xl flex items-center text-[#746E73] font-mono whitespace-nowrap text-[10px] sm:text-xs">
                     <span className="hidden sm:inline">quivo.com</span>/s/
                   </div>
                   <Input
                     value={slug}
                     onChange={handleSlugChange}
+                    onBlur={() => handleBlur('slug')}
                     placeholder="your-shop-name"
-                    className="h-12 rounded-l-none rounded-r-xl font-mono text-sm flex-1 min-w-0"
+                    className="h-12 rounded-l-none rounded-r-xl font-mono text-sm flex-1 min-w-0 border-l-0 focus-visible:ring-0 focus-visible:ring-offset-0"
                   />
                 </div>
                 <p className="text-[10px] text-[#746E73] font-medium mt-1.5 flex items-center gap-1">
@@ -520,8 +524,9 @@ export function OwnerOnboarding() {
                   name="phone"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
+                  onBlur={() => handleBlur('phone')}
                   placeholder="98XXXXXXXX"
-                  className="h-12 rounded-xl mt-1.5"
+                  className={`h-12 rounded-xl mt-1.5 ${touched.phone && !phone.trim() ? "border-red-500 focus-within:ring-red-500" : ""}`}
                 />
               </div>
 
@@ -532,8 +537,9 @@ export function OwnerOnboarding() {
                 <Textarea
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
+                  onBlur={() => handleBlur('description')}
                   placeholder="Tell customers what you sell and what makes your shop special…"
-                  className="mt-1.5 rounded-xl resize-none"
+                  className={`mt-1.5 rounded-xl resize-none ${touched.description && !description.trim() ? "border-red-500 focus-visible:ring-red-500" : ""}`}
                   rows={3}
                 />
               </div>
@@ -574,7 +580,7 @@ export function OwnerOnboarding() {
 
           {/* ── Step 2: Location & KYC ── */}
           {currentStep === 2 && (
-            <div className="space-y-5 sm:space-y-6 animate-in fade-in slide-in-from-right-4">
+            <div className="space-y-6 sm:space-y-8 animate-in fade-in slide-in-from-right-4">
               <div>
                 <h2 className="text-xl sm:text-2xl font-black text-[#27324A]">Location & KYC</h2>
                 <p className="text-sm text-[#746E73] mt-1">
@@ -630,8 +636,9 @@ export function OwnerOnboarding() {
                 <Textarea
                   value={address}
                   onChange={(e) => { setAddress(e.target.value); setAddressFromPin(false); }}
+                  onBlur={() => handleBlur('address')}
                   placeholder="Move the pin above — address fills automatically"
-                  className="rounded-xl resize-none"
+                  className={`rounded-xl resize-none mt-1.5 ${touched.address && !address.trim() ? "border-red-500 focus-visible:ring-red-500" : ""}`}
                   rows={2}
                 />
               </div>
@@ -654,7 +661,7 @@ export function OwnerOnboarding() {
 
           {/* ── Step 3: Review & Create ── */}
           {currentStep === 3 && !result && (
-            <div className="space-y-5 sm:space-y-6 animate-in fade-in slide-in-from-right-4">
+            <div className="space-y-6 sm:space-y-8 animate-in fade-in slide-in-from-right-4">
               <div>
                 <h2 className="text-xl sm:text-2xl font-black text-[#27324A]">Review & Launch</h2>
                 <p className="text-sm text-[#746E73] mt-1">Everything look correct? Create your shop to go live.</p>

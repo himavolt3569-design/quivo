@@ -110,13 +110,13 @@ export function OwnerShopSwitcher({ shops, activeShopId }: OwnerShopSwitcherProp
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-full justify-between h-14 rounded-2xl border-[#2E3344]/10 bg-white hover:bg-[#F7F0E6]/50 hover:text-[#27324A] transition-all"
+          className="w-full justify-between md:justify-center lg:justify-between h-14 rounded-2xl border-[#2E3344]/10 bg-white hover:bg-[#F7F0E6]/50 hover:text-[#27324A] transition-all"
         >
           <div className="flex items-center gap-3 overflow-hidden">
             <div className="h-8 w-8 rounded-lg bg-[#27324A] text-white flex items-center justify-center shrink-0">
               <Store className="h-4 w-4 text-[#D8C99A]" />
             </div>
-            <div className="flex flex-col items-start truncate">
+            <div className="flex flex-col items-start truncate md:hidden lg:flex">
               <span className="text-sm font-bold truncate text-[#27324A]">
                 {selectedShop.name}
               </span>
@@ -128,11 +128,11 @@ export function OwnerShopSwitcher({ shops, activeShopId }: OwnerShopSwitcherProp
           {switching ? (
             <Loader2 className="ml-2 h-4 w-4 shrink-0 animate-spin text-[#A7653A]" />
           ) : (
-            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50 md:hidden lg:block" />
           )}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[240px] p-0 rounded-2xl border-[#2E3344]/10 shadow-xl">
+      <PopoverContent className="w-[var(--radix-popover-trigger-width)] min-w-[200px] p-0 rounded-2xl border-[#2E3344]/10 shadow-xl">
         <Command>
           <CommandInput placeholder="Search shop..." className="h-11" />
           <CommandList>

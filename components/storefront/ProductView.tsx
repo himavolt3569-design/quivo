@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, ShoppingCart, Phone, ChevronLeft, ChevronRight, Package, PackageX } from "lucide-react";
+import { toast } from "sonner";
 
 interface ProductData {
   product_id: string;
@@ -203,14 +204,24 @@ export function ProductView({ product, shop, similar = [] }: ProductViewProps) {
 
             <div className="space-y-3 pt-1">
               {/* Full storefront order */}
-              <Link
-                href={`/s/${shop.slug}?add=${product.product_id}&qty=${qty}`}
-                className="flex items-center justify-center gap-2 w-full h-13 py-3.5 rounded-2xl font-black text-white text-sm transition hover:opacity-90"
-                style={{ backgroundColor: color }}
-              >
-                <ShoppingCart className="h-5 w-5" />
-                Order from {shop.name}
-              </Link>
+              <div className="flex gap-3">
+                <Link
+                  href={`/s/${shop.slug}?add=${product.product_id}&qty=${qty}`}
+                  onClick={() => toast.success("Added to cart")}
+                  className="flex flex-1 items-center justify-center gap-2 h-13 py-3.5 rounded-2xl font-black text-sm transition border-2 hover:bg-black/5"
+                  style={{ borderColor: color, color }}
+                >
+                  <ShoppingCart className="h-5 w-5" />
+                  Add to Cart
+                </Link>
+                <Link
+                  href={`/s/${shop.slug}?add=${product.product_id}&qty=${qty}&checkout=true`}
+                  className="flex flex-1 items-center justify-center gap-2 h-13 py-3.5 rounded-2xl font-black text-white text-sm transition hover:opacity-90 shadow-sm"
+                  style={{ backgroundColor: color }}
+                >
+                  Buy Now
+                </Link>
+              </div>
 
               {/* WhatsApp shortcut */}
               {whatsappNumber && (

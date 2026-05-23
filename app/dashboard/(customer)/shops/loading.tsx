@@ -4,7 +4,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export default function ShopsLoading() {
   return (
-    <div className="space-y-8 max-w-7xl mx-auto animate-in fade-in duration-500 pt-6 px-4 sm:px-6">
+    <div className="space-y-8 animate-in fade-in duration-500">
       {/* Header skeleton */}
       <div className="rounded-[2.5rem] bg-white border border-[#2E3344]/8 p-8 shadow-sm">
         <Skeleton className="h-8 w-48 rounded-full mb-3" />

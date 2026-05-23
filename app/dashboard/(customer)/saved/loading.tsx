@@ -4,7 +4,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export default function SavedLoading() {
   return (
-    <div className="space-y-6 max-w-4xl mx-auto animate-in fade-in duration-500 pt-6 px-4 sm:px-6">
+    <div className="space-y-6 animate-in fade-in duration-500">
       {/* ── Saved Header Skeleton ──────────────────────────────────── */}
       <div className="h-[180px] rounded-[2.5rem] bg-white border border-[#2E3344]/8 p-8 shadow-sm flex flex-col justify-between overflow-hidden">
         <div className="space-y-3">

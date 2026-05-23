@@ -4,7 +4,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export default function OrdersLoading() {
   return (
-    <div className="space-y-6 max-w-4xl mx-auto animate-in fade-in duration-500 pt-6 px-4 sm:px-6">
+    <div className="space-y-6 animate-in fade-in duration-500">
       {/* ── Orders Bento Header Skeleton ────────────────────────────── */}
       <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
         {/* Main Stats Card Skeleton */}

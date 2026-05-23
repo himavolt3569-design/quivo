@@ -173,7 +173,7 @@ export function CheckoutModal({
     <div className="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 backdrop-blur-sm">
       <form ref={formPostRef} className="hidden" />
 
-      <div className="bg-white w-full sm:max-w-lg rounded-t-3xl sm:rounded-3xl shadow-2xl max-h-[95vh] flex flex-col">
+      <div className="bg-white w-full h-full sm:h-auto sm:max-h-[90vh] sm:max-w-lg sm:rounded-3xl shadow-2xl flex flex-col">
         <div className="flex items-center justify-between p-5 border-b border-gray-100">
           <h2 className="font-black text-gray-900 text-lg">Complete Your Order</h2>
           <button onClick={onClose} className="h-9 w-9 rounded-full bg-gray-100 flex items-center justify-center">
@@ -236,18 +236,22 @@ export function CheckoutModal({
                 <textarea required value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Street, area, landmark" rows={2}
                   className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm outline-none focus:border-gray-400 transition resize-none" />
               </div>
-              <div className="mt-2 flex items-center justify-between gap-2 text-[11px]">
-                <span className="text-gray-500">
-                  {pin
-                    ? <>Drop pin: <span className="font-mono text-gray-900">{pin.lat.toFixed(5)}, {pin.lng.toFixed(5)}</span></>
-                    : <>No pin yet — strongly recommended so the driver knows where to go.</>}
-                </span>
+              <div className="mt-3 flex items-center justify-between gap-3 text-xs bg-gray-50 p-3 rounded-xl border border-gray-200">
+                <div className="flex items-center gap-2 text-gray-600 flex-1 min-w-0">
+                  <MapPin className="h-4 w-4 shrink-0" style={{ color: themeColor }} />
+                  {pin ? (
+                    <span className="truncate">Pin set: <span className="font-mono text-gray-900 font-bold">{pin.lat.toFixed(4)}, {pin.lng.toFixed(4)}</span></span>
+                  ) : (
+                    <span className="truncate">Pin exact location (recommended)</span>
+                  )}
+                </div>
                 <button
                   type="button"
                   onClick={() => setShowMap((v) => !v)}
-                  className="font-bold text-[#A7653A] hover:underline shrink-0"
+                  className="shrink-0 px-4 py-2 rounded-lg font-bold text-white shadow-sm transition active:scale-95"
+                  style={{ backgroundColor: themeColor }}
                 >
-                  {showMap ? "Hide map" : pin ? "Edit pin" : "Pin on map"}
+                  {showMap ? "Done" : pin ? "Edit" : "Add Pin"}
                 </button>
               </div>
               {showMap && (
