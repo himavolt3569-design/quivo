@@ -1,5 +1,3 @@
-import { Skeleton } from "@/components/ui/skeleton";
-
 type PageLoadingSkeletonVariant =
   | "default"
   | "dashboard"
@@ -76,172 +74,34 @@ function InnerPageSkeleton() {
   );
 }
 
-function DashboardSkeleton() {
+function BrandSpinner() {
   return (
-    <div className="space-y-6 animate-in fade-in duration-500">
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-5">
-        <div className="md:col-span-8 h-[240px] rounded-[2.5rem] bg-white border border-[#2E3344]/8 p-8 shadow-sm flex flex-col justify-between">
-          <div className="space-y-4">
-            <Block className="h-10 w-48 rounded-xl" />
-            <Block className="h-4 w-64 rounded-lg" />
-          </div>
-          <div className="flex gap-3">
-            <Block className="h-14 w-32 rounded-2xl" />
-            <Block className="h-14 w-32 rounded-2xl" />
-          </div>
-        </div>
-
-        {/* Wallet Card Skeleton - Premium split layout */}
-        <div className="md:col-span-4 rounded-[1.5rem] border border-[#2E3344]/8 shadow-sm bg-white overflow-hidden flex flex-col justify-between h-[240px]">
-          {/* Dark Blue Header Banner */}
-          <div className="bg-[#27324A] p-5 flex flex-col justify-between flex-1">
-            <div className="flex justify-between items-start">
-              <div className="space-y-2">
-                <Block className="h-3.5 w-24 rounded-md bg-white/15 border-none animate-pulse" />
-                <Block className="h-7 w-36 rounded-lg bg-white/20 border-none animate-pulse" />
-              </div>
-              <Block className="h-10 w-10 rounded-2xl bg-white/10 border-none shrink-0" />
-            </div>
-            {/* Coins badge */}
-            <Block className="h-7 w-40 rounded-xl bg-white/10 border-none mt-2 shrink-0" />
-          </div>
-          {/* Earn tips row */}
-          <div className="border-b border-[#2E3344]/8 bg-[#F7F0E6]/50 px-5 py-3 flex items-center gap-2">
-            <Block className="h-4 w-4 rounded-full shrink-0" />
-            <Block className="h-3 w-5/6 rounded-md" />
-          </div>
-          {/* Recent list row */}
-          <div className="px-5 py-3 flex items-center gap-3">
-            <Block className="h-8 w-8 rounded-xl shrink-0" />
-            <div className="space-y-1.5 flex-1">
-              <Block className="h-3 w-24 rounded-md" />
-              <Block className="h-2.5 w-16 rounded-sm" />
-            </div>
-            <Block className="h-3 w-12 rounded-md shrink-0" />
-          </div>
-        </div>
-      </div>
-
-      <div className="space-y-4 mt-8">
-        <div className="flex items-center justify-between px-2">
-          <Block className="h-4 w-40 rounded-lg" />
-          <Block className="h-8 w-24 rounded-full" />
-        </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="h-[200px] rounded-[2rem] bg-white border border-[#2E3344]/8 p-4 flex flex-col gap-3">
-              <Block className="h-24 w-full rounded-2xl" />
-              <Block className="h-4 w-3/4 rounded-lg" />
-              <Block className="h-8 w-full rounded-full" />
-            </div>
-          ))}
-        </div>
-      </div>
+    <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 animate-in fade-in duration-300">
+      <span
+        aria-hidden="true"
+        className="grid h-14 w-14 place-items-center rounded-2xl bg-[#27324A] text-2xl font-bold text-white shadow-lg shadow-[#27324A]/15 animate-[brand-pulse_1.6s_ease-in-out_infinite] motion-reduce:animate-none"
+      >
+        Q
+      </span>
+      <span className="text-xs font-semibold uppercase tracking-[0.18em] text-[#7A7378]">
+        Loading
+      </span>
+      <style>{`
+        @keyframes brand-pulse {
+          0%, 100% { transform: scale(1); opacity: 0.95; }
+          50% { transform: scale(1.06); opacity: 1; }
+        }
+      `}</style>
     </div>
   );
 }
 
+function DashboardSkeleton() {
+  return <BrandSpinner />;
+}
+
 function OwnerSkeleton() {
-  return (
-    <div className="space-y-6 max-w-7xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500 fill-mode-both pb-10">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 bg-white p-6 rounded-[2rem] border border-[#2E3344]/8 shadow-sm">
-        <div className="space-y-3 w-full max-w-md">
-          <Block className="h-10 w-48 rounded-xl" />
-          <Block className="h-4 w-72 max-w-full rounded-lg" />
-        </div>
-        <Block className="h-8 w-28 rounded-xl self-start sm:self-auto" />
-      </div>
-
-      {/* KPI Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3">
-        {[1, 2, 3, 4, 5].map((i) => (
-          <div key={i} className="p-5 rounded-[1.5rem] bg-white border border-[#2E3344]/8 shadow-sm flex flex-col justify-between h-32">
-            <Block className="h-10 w-10 rounded-xl" />
-            <div className="mt-4 space-y-2">
-              <Block className="h-6 w-24 rounded-md" />
-              <Block className="h-3 w-16 rounded-sm" />
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Quick Actions */}
-      <div>
-        <Block className="h-3 w-32 mb-4 rounded-md ml-2" />
-        <div className="flex overflow-hidden gap-2">
-          {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-            <Block key={i} className="h-20 w-[90px] sm:flex-1 rounded-2xl shrink-0" />
-          ))}
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mt-6">
-        <div className="lg:col-span-8 space-y-6">
-          <div className="bg-white rounded-[2rem] border border-[#2E3344]/8 p-6 shadow-sm h-[360px]">
-            <div className="flex justify-between mb-8">
-              <div className="space-y-2">
-                <Block className="h-6 w-40 rounded-lg" />
-                <Block className="h-3 w-32 rounded-md" />
-              </div>
-              <Block className="h-4 w-20 rounded-md" />
-            </div>
-            <Block className="h-[220px] w-full rounded-xl" />
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="bg-white rounded-[2rem] border border-[#2E3344]/8 p-6 shadow-sm h-[320px]">
-              <div className="flex gap-3 mb-6">
-                <Block className="h-10 w-10 rounded-xl" />
-                <div className="space-y-2">
-                  <Block className="h-5 w-32 rounded-md" />
-                  <Block className="h-3 w-20 rounded-sm" />
-                </div>
-              </div>
-              <div className="space-y-3">
-                {[1, 2, 3].map((i) => <Block key={i} className="h-12 w-full rounded-xl" />)}
-              </div>
-            </div>
-            <div className="bg-white rounded-[2rem] border border-[#2E3344]/8 p-6 shadow-sm h-[320px]">
-              <div className="flex gap-3 mb-6">
-                <Block className="h-10 w-10 rounded-xl" />
-                <div className="space-y-2">
-                  <Block className="h-5 w-32 rounded-md" />
-                  <Block className="h-3 w-20 rounded-sm" />
-                </div>
-              </div>
-              <div className="space-y-3">
-                {[1, 2, 3].map((i) => <Block key={i} className="h-12 w-full rounded-xl" />)}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <aside className="lg:col-span-4 space-y-6">
-          <div className="rounded-[2rem] bg-white border border-[#2E3344]/8 p-6 h-[360px]">
-            <div className="flex justify-between mb-6">
-              <Block className="h-4 w-32 rounded-md" />
-              <Block className="h-6 w-6 rounded-full" />
-            </div>
-            <div className="space-y-3">
-              {[1, 2].map((i) => <Block key={i} className="h-28 w-full rounded-[1.25rem]" />)}
-            </div>
-          </div>
-          
-          {/* Supplier Dues card skeleton */}
-          <div className="rounded-[2rem] bg-[#27324A] p-6 h-48 shadow-xl flex flex-col justify-between">
-            <div className="flex items-center gap-3">
-              <Block className="h-4 w-4 rounded-full bg-white/15 border-none shrink-0 animate-pulse" />
-              <Block className="h-3.5 w-28 rounded-md bg-white/10 border-none" />
-            </div>
-            <Block className="h-9 w-40 rounded-xl bg-white/15 border-none mt-2 animate-pulse" />
-            <Block className="h-3 w-4/5 rounded-md bg-white/10 border-none" />
-            <Block className="h-11 w-full rounded-xl bg-white/10 border-none mt-4 animate-pulse" />
-          </div>
-        </aside>
-      </div>
-    </div>
-  );
+  return <BrandSpinner />;
 }
 
 function StorefrontSkeleton() {

@@ -128,7 +128,7 @@ export default async function OwnerLayout({
       <div className="flex flex-1">
         <OwnerSidebar shops={shops} activeShopId={activeShopId} role={activeShopRole} />
         <main className="flex-1 w-full p-4 sm:p-6 lg:p-8 pb-24 lg:pb-8">
-          <VerificationGate status={verificationStatus} policy={kycPolicy}>
+          <VerificationGate key={activeShopId ?? "none"} status={verificationStatus} policy={kycPolicy}>
             {children}
           </VerificationGate>
         </main>

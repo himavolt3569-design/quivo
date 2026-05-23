@@ -265,6 +265,50 @@
     }
   }
 
+  /* Link click feedback (next/link `useLinkStatus`).
+     Fixed-size, visibility-hidden by default so it never causes layout shift.
+     Fades in only after a 100 ms delay so prefetched/fast navigations skip it
+     entirely — the dot only appears when the user is actually waiting. */
+  .nav-pending-dot {
+    display: inline-block;
+    width: 0.4rem;
+    height: 0.4rem;
+    margin-left: 0.25rem;
+    border-radius: 9999px;
+    background: currentColor;
+    opacity: 0;
+    visibility: hidden;
+  }
+
+  .nav-pending-dot[data-pending="true"] {
+    visibility: visible;
+    animation-name: nav-pending-fadein, nav-pending-pulse;
+    animation-duration: 200ms, 1s;
+    animation-delay: 100ms, 100ms;
+    animation-timing-function: ease, ease-in-out;
+    animation-iteration-count: 1, infinite;
+    animation-fill-mode: forwards, none;
+  }
+
+  @keyframes nav-pending-fadein {
+    to {
+      opacity: 0.7;
+    }
+  }
+
+  @keyframes nav-pending-pulse {
+    50% {
+      opacity: 0.2;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .nav-pending-dot[data-pending="true"] {
+      animation: none;
+      opacity: 0.6;
+    }
+  }
+
   .container {
     width: 100%;
     margin-left: auto;

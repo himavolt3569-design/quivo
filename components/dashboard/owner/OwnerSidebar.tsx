@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { OwnerShopSwitcher, type SwitcherShop } from "./OwnerShopSwitcher";
 import { RoleModeSwitch } from "@/components/dashboard/RoleModeSwitch";
+import { NavPendingDot } from "@/components/NavPendingDot";
 import type { ShopRole } from "@/lib/shop";
 
 // Each route declares the shop_members.role values that may see it. Absent
@@ -96,6 +97,7 @@ export function OwnerSidebar({ isMobile = false, shops, activeShopId, role }: Ow
             >
               <route.icon className={`h-4 w-4 shrink-0 ${isActive ? "text-[#D8C99A]" : ""}`} />
               <span className={isMobile ? "" : "hidden lg:block"}>{route.label}</span>
+              <NavPendingDot className={isMobile ? "ml-auto" : "ml-auto hidden lg:inline-block"} />
             </Link>
           );
         })}
