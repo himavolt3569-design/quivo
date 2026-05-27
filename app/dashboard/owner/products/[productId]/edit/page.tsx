@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getOwnerContext } from "@/lib/shop";
 import { notFound } from "next/navigation";
 import { EditProductForm } from "@/components/dashboard/owner/products/EditProductForm";
+import { BatchesPanel } from "@/components/dashboard/owner/products/BatchesPanel";
 import Link from "next/link";
 
 interface Props {
@@ -25,21 +26,41 @@ export default async function EditProductPage({ params }: Props) {
   }
 
   const supabase = await createClient();
-  const { data: product } = await supabase
-    .from("products")
-    .select("id, name, brand, category, unit, variant, description, price, cost_price, stock, low_stock_threshold, barcode, status, image_url, images")
-    .eq("id", productId)
-    .eq("shop_id", shop.id)
-    .neq("status", "archived")
-    .single();
+  const [{ data: product }, { data: batches }] = await Promise.all([
+    supabase
+      .from("products")
+      .select("id, name, brand, category, unit, variant, description, price, cost_price, stock, low_stock_threshold, barcode, status, image_url, images")
+      .eq("id", productId)
+      .eq("shop_id", shop.id)
+      .neq("status", "archived")
+      .single(),
+    supabase
+      .from("product_batches")
+      .select("id, batch_no, expiry_date, received_qty, remaining_qty, cost_price, received_at")
+      .eq("product_id", productId)
+      .eq("shop_id", shop.id)
+      .order("expiry_date", { ascending: true, nullsFirst: false })
+      .order("received_at", { ascending: false })
+      .limit(60),
+  ]);
 
   if (!product) notFound();
 
   return (
-    <EditProductForm
-      shopId={shop.id}
-      shopSlug={shop.slug}
-      product={product as Parameters<typeof EditProductForm>[0]["product"]}
-    />
+    <div className="space-y-6">
+      <EditProductForm
+        shopId={shop.id}
+        shopSlug={shop.slug}
+        product={product as Parameters<typeof EditProductForm>[0]["product"]}
+      />
+      <div className="max-w-4xl mx-auto">
+        <BatchesPanel
+          shopId={shop.id}
+          productId={productId}
+          productName={(product.name as string) ?? "Product"}
+          initialBatches={(batches ?? []) as Parameters<typeof BatchesPanel>[0]["initialBatches"]}
+        />
+      </div>
+    </div>
   );
 }

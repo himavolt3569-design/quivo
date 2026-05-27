@@ -9,6 +9,7 @@ import {
   type ChannelPrefs,
   type NotificationPrefs,
 } from "@/app/actions/notifications";
+import { PushSubscribeButton } from "@/components/dashboard/PushSubscribeButton";
 
 interface Props {
   backHref: string;
@@ -40,7 +41,8 @@ const CHANNELS: Array<{ id: keyof ChannelPrefs; label: string; icon: typeof Bell
 ];
 
 // Push + SMS land in later phases. Disable the controls but leave the slot.
-const DISABLED_CHANNELS: Set<keyof ChannelPrefs> = new Set(["push", "sms"]);
+// Push is wired (Phase 4); SMS lands in Phase 7.
+const DISABLED_CHANNELS: Set<keyof ChannelPrefs> = new Set(["sms"]);
 
 function isOn(prefs: NotificationPrefs, kind: string, channel: keyof ChannelPrefs): boolean {
   const k = prefs[kind];
@@ -97,6 +99,14 @@ export function NotificationPreferencesView({ backHref, initialPrefs }: Props) {
         >
           <Save className="h-4 w-4" /> {isPending ? "Saving…" : "Save changes"}
         </button>
+      </div>
+
+      <div className="bg-white rounded-2xl border border-[#2E3344]/8 shadow-sm p-5">
+        <p className="text-xs font-black uppercase tracking-widest text-[#746E73] mb-2">Push on this device</p>
+        <p className="text-xs text-[#746E73] mb-3">
+          Subscribes the current browser so push notifications can reach you even when Quivo isn&apos;t open.
+        </p>
+        <PushSubscribeButton />
       </div>
 
       <div className="bg-white rounded-2xl border border-[#2E3344]/8 shadow-sm overflow-hidden">

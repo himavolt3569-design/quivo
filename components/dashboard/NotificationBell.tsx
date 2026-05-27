@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, useTransition } from "react";
+import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import Link from "next/link";
 import { Bell, CheckCheck, X } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
@@ -34,7 +34,7 @@ function timeAgo(iso: string): string {
 }
 
 export function NotificationBell({ initial }: NotificationBellProps) {
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
   const [items, setItems] = useState<Notification[]>(initial);
   const [open, setOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
@@ -42,23 +42,26 @@ export function NotificationBell({ initial }: NotificationBellProps) {
 
   // Realtime subscription to new rows for the current user.
   useEffect(() => {
-    let userId: string | null = null;
+    let cancelled = false;
     let channel: ReturnType<typeof supabase.channel> | null = null;
 
     (async () => {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-      userId = user.id;
+      if (!user || cancelled) return;
+      const channelInstanceId =
+        typeof crypto !== "undefined" && "randomUUID" in crypto
+          ? crypto.randomUUID()
+          : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
 
       channel = supabase
-        .channel(`notifications:${userId}`)
+        .channel(`notifications:${user.id}:${channelInstanceId}`)
         .on(
           "postgres_changes",
           {
             event: "INSERT",
             schema: "public",
             table: "notifications",
-            filter: `user_id=eq.${userId}`,
+            filter: `user_id=eq.${user.id}`,
           },
           (payload) => {
             const row = payload.new as Notification;
@@ -72,15 +75,14 @@ export function NotificationBell({ initial }: NotificationBellProps) {
     })();
 
     return () => {
+      cancelled = true;
       if (channel) {
         supabase.removeChannel(channel).catch((err) => {
           log.warn("NotificationBell: removeChannel failed", { err: err instanceof Error ? err.message : String(err) });
         });
       }
     };
-    // supabase is a stable client; suppress exhaustive deps warning.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [supabase]);
 
   // Close on outside click.
   useEffect(() => {

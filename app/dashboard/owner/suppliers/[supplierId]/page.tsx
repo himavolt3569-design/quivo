@@ -45,12 +45,22 @@ export default async function SupplierLedgerPage({ params }: Props) {
   if (!supplier) notFound();
 
   return (
-    <SupplierLedgerView
-      shopId={shop.id}
-      shopName={shop.name}
-      supplier={supplier}
-      transactions={(transactions ?? []) as Parameters<typeof SupplierLedgerView>[0]["transactions"]}
-      generatedAt={new Date().toISOString()}
-    />
+    <div className="space-y-4">
+      <div className="max-w-6xl mx-auto px-1 flex justify-end">
+        <Link
+          href={`/dashboard/owner/suppliers/${supplierId}/purchase-orders`}
+          className="h-10 px-4 rounded-xl bg-[#27324A] hover:bg-[#1b2333] text-white font-bold text-sm inline-flex items-center gap-2"
+        >
+          Purchase orders →
+        </Link>
+      </div>
+      <SupplierLedgerView
+        shopId={shop.id}
+        shopName={shop.name}
+        supplier={supplier}
+        transactions={(transactions ?? []) as Parameters<typeof SupplierLedgerView>[0]["transactions"]}
+        generatedAt={new Date().toISOString()}
+      />
+    </div>
   );
 }

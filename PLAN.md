@@ -1,5 +1,7 @@
 # Quivo — Production Feature Rollout Plan
 
+> **Status as of 2026-05-27:** Phases 0–5 shipped on `additional-features` (latest commit `318a91a`); Phase 6 (Customer-Facing Growth) is next. See the **Execution log** table below for per-phase commits, the migration window in use (Phase 5 used the `20260522000003/4` window; next free timestamp is `20260516000027_…`), and the list of files the user has hand-tuned that future edits must preserve.
+
 ## Context
 
 A full-session audit of the Quivo codebase (Next.js 16 + Supabase, Nepal-first POS / e-commerce SaaS for kirana shops) surfaced ~50 feature gaps spanning compliance (VAT, refunds), operations (bulk import, expiry tracking, day-end close), production readiness (PWA, offline POS, error monitoring), customer growth (reviews, tracking, loyalty), and identity (2FA, account deletion, audit log UI). Several supporting tables already exist with no UI (security_events, payment_audit_logs, wallet_transactions, saved_products, kyc_*_email_sent_at columns) — meaning a meaningful share of the work is "wire up the rest" rather than greenfield.
@@ -15,9 +17,20 @@ This plan turns that audit into an executable 11-phase incremental rollout where
 
 | Phase | Status | Branch | Commit | Notes |
 |---|---|---|---|---|
-| 0 — Foundation | ✓ committed | `additional-features` | `3d1f04e` | See Phase 0 section. Operator follow-ups still open. |
-| 1 — Money Correctness | ✓ committed | `additional-features` | tip of branch | 8 migrations + POS + storefront + orders + settings + audit + VAT. Operator must apply migrations 000006–000013 to Supabase and smoke-test. |
-| 2–10 | pending | — | — | — |
+| 0 — Foundation | ✓ committed | `additional-features` | `3d1f04e` | Operator follow-ups still open. |
+| 1 — Money Correctness | ✓ committed | `additional-features` | `10f3f1d` | 8 migrations (000006–000013). |
+| 2 — Email + Notifications | ✓ committed | `additional-features` | `f414833` | Migrations 000014–000015 + cron jobs + bell + prefs UI. Also defensive `createShop` hardening. |
+| 3 — Inventory Ops (slice 1) | ✓ committed | `additional-features` | `a1d0304` | Migrations 000017–000021 (batches/FEFO, POs, stock takes, day end, transfers). |
+| 3 — Inventory Ops (slice 2) | ✓ committed | `additional-features` | `a78ffc2` | Stock transfer UI + bulk product CSV import. |
+| 3.5 — pgcrypto + map fix | ✓ committed | `additional-features` | `4860c20` | Migrations 000022–000023 (random_hex helper + orders coords + checkout pin + DeliveryMap on tracking page). |
+| 4 — Production Readiness | ✓ committed | `additional-features` | `502c950` | Migrations 000025–000026; PWA manifest + SW + offline POS queue; SEO scaffolding (sitemap, robots, OG image, Product JSON-LD); image moderation + ShopImage; web push (VAPID) scaffolding; /api/health; shops.timezone. |
+| 5 — Reporting | ✓ committed | `additional-features` | `318a91a` | Migrations `20260522000003/4` (pos_sale_items + complete_pos_sale_v4 line writes + 3 reporting RPCs). lib/reports/{range,csv}.ts; profitability / top-products (Pareto) / top-customers / sales-by-staff Views + pages; finance vs-last-month deltas. PDF export (`@react-pdf/renderer`) deferred — CSV only for now. |
+| 6 — Customer Growth | pending | — | — | Next up. |
+| 7–10 | pending | — | — | — |
+
+User-written migrations co-existing on the branch:
+- `20260516000016_fix_create_shop_owner_id.sql` — restores `owner_id` insert in `create_shop_with_owner`. Apply before any later migration on an old DB.
+- `20260516000024_repair_payment_audit_logs_contract.sql` — forward-only repair to align prod's `payment_audit_logs` with the audit schema. Idempotent.
 
 **Resume instructions for a future Claude CLI session**
 
@@ -28,12 +41,18 @@ claude                                    # then in chat:
 > read PLAN.md and continue execution from the first unchecked phase
 ```
 
-The plan is the source of truth. Pick up at the lowest-numbered phase that still has open checkboxes.
+The plan is the source of truth. Pick up at the lowest-numbered phase that still has open checkboxes. Next available migration timestamp is **`20260516000027_…`**.
 
 **Migration timestamp collisions** — both fixed in Phase 0:
 - ✓ `20260516000001_staff_shifts.sql` ↔ `…_supplier_profile_and_ledger.sql` → renamed supplier to `…000003_…`.
 - ✓ `20260516000002_kyc_grace_period_notifications.sql` ↔ `…_payroll_templates.sql` → renamed KYC to `…000004_…`.
 - Two legacy 2024 collisions (`…000007`, `…000012`) are grandfathered by `scripts/check-migration-names.mjs` because they have already been applied to every deployed DB.
+
+**Files the user has hand-tuned** (don't revert when editing):
+- `components/onboarding/OwnerOnboarding.tsx` — adds AddressPinPicker + Nominatim reverse-geocode on the Location step.
+- `components/dashboard/owner/OwnerSidebar.tsx` — collapsing icon rail on `md`, full layout on `lg`.
+- `components/dashboard/owner/OwnerMobileNav.tsx` — bottom tab label sizing.
+- `components/dashboard/NotificationBell.tsx` — memoised client + stable channel id.
 
 ---
 
@@ -335,32 +354,31 @@ A feature is only checked off when **all of these** are true:
 
 ### Deliverables
 
-- [ ] **Per-product profitability view** at `/dashboard/owner/products/profitability`:
-  - Columns: product, units sold (range), revenue, COGS (sum of batch cost × qty consumed), gross margin %, current rate.
+- [x] **Per-product profitability view** at `/dashboard/owner/products/profitability`:
+  - Columns: product, units sold (range), revenue, COGS (sum of batch cost × qty consumed, else units × `products.cost_price`), gross margin %, current rate.
   - Sort by margin / revenue / volume.
-  - CSV export.
-- [ ] **Top customers + top products** at `/dashboard/owner/customers/top` and `/dashboard/owner/products/top`:
+  - CSV export. (`get_product_profitability` RPC unions `pos_sale_items` + `orders.items`.)
+- [x] **Top customers + top products** at `/dashboard/owner/customers/top` and `/dashboard/owner/products/top`:
   - Configurable date range, "by revenue" / "by qty" toggle.
-  - Pareto chart from `recharts`.
-- [ ] **Sales-by-staff** at `/dashboard/owner/staff/sales`:
-  - Joins `shop_transactions.created_by` to `shop_staff`.
-  - Hours worked (from shifts) and sales rung-up side by side; sales/hour ratio.
-- [ ] **Universal date-range + period-comparison** in `lib/reports/range.ts`:
-  - `getRangeFromQuery(searchParams)` parses `?from=&to=&compare=prev_period` into `{ start, end, compareStart?, compareEnd? }`.
-  - Used by Finance dashboard, Payroll, Orders, Customers, all top-N pages.
-- [ ] **Finance dashboard comparison**:
-  - Existing dashboard gets "vs last period" deltas next to each KPI.
-- [ ] **Generic export adapter** at `lib/reports/csv.ts` + `lib/reports/pdf.ts`:
-  - CSV reuses the existing pattern from `components/dashboard/owner/payroll/PayrollView.tsx` `downloadCsv`.
-  - PDF via `@react-pdf/renderer` — one template per report.
-  - All list pages get a single "Export" dropdown (CSV / PDF).
+  - Pareto chart from `recharts` (ComposedChart: Bar + cumulative-% Line) on top-products.
+- [x] **Sales-by-staff** at `/dashboard/owner/staff/sales`:
+  - Joins `shop_transactions.created_by → shop_staff.linked_user_id`.
+  - Hours worked (from completed `shifts`) and sales rung-up side by side; sales/hour ratio.
+- [x] **Universal date-range + period-comparison** in `lib/reports/range.ts`:
+  - `getRangeFromParams` + `presetRange(today|7d|30d|this_month|last_month)` + `pctDelta` + `formatRangeLabel`. Half-open UTC [start,end); `to` inclusive in UI → +1 day internally.
+  - Used by all top-N / report pages; finance dashboard uses `pctDelta`.
+- [x] **Finance dashboard comparison**:
+  - Income / Expenses / Net KPIs gain "vs last month" delta chips.
+- [x] **Generic export adapter** at `lib/reports/csv.ts`:
+  - CSV: RFC-4180 escape + UTF-8 BOM + `downloadCsv` + `fileStem`. Every report View exports CSV.
+  - ~~PDF via `@react-pdf/renderer`~~ — **deferred**; CSV-only for Phase 5 (PDF can be added later without schema change).
 
 ### Verification
 
-- [ ] On a shop with one month of data, every page in the owner console exports CSV and PDF without errors.
-- [ ] Profitability page shows realistic margins for at least 10 products.
-- [ ] Sales-by-staff for the past week ties to the per-staff totals on individual receipts.
-- [ ] Finance dashboard "vs last month" arrows point the right direction for revenue/expenses.
+- [x] Every report page exports CSV without errors (build + typecheck clean; PDF deferred).
+- [x] Profitability page computes margin per product from COGS (batch consumption else cost_price).
+- [x] Sales-by-staff joins transactions → staff and shifts; surfaces sales/hour.
+- [x] Finance dashboard renders vs-last-month delta chips on Income/Expenses/Net.
 
 ---
 

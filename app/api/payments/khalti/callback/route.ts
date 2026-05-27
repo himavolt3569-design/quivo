@@ -88,7 +88,7 @@ export async function GET(request: Request) {
 
   if (!pidx || !PIDX_RE.test(pidx)) {
     await admin.from("payment_audit_logs").insert({
-      payment_id: payment.id, shop_id: payment.shop_id,
+      payment_id: payment.id, order_id: payment.order_id, shop_id: payment.shop_id,
       action: "callback_ignored", actor_type: "gateway",
       from_status: payment.payment_status, to_status: payment.payment_status,
       metadata: { status, reason: pidx ? "invalid_pidx" : "missing_pidx" },
@@ -98,7 +98,7 @@ export async function GET(request: Request) {
 
   if (payment.gateway_transaction_id && payment.gateway_transaction_id !== pidx) {
     await admin.from("payment_audit_logs").insert({
-      payment_id: payment.id, shop_id: payment.shop_id,
+      payment_id: payment.id, order_id: payment.order_id, shop_id: payment.shop_id,
       action: "callback_ignored", actor_type: "gateway",
       from_status: payment.payment_status, to_status: payment.payment_status,
       metadata: { status, reason: "pidx_mismatch", pidx },
@@ -128,7 +128,7 @@ export async function GET(request: Request) {
 
   if (!verifyResult.ok) {
     await admin.from("payment_audit_logs").insert({
-      payment_id: payment.id, shop_id: payment.shop_id,
+      payment_id: payment.id, order_id: payment.order_id, shop_id: payment.shop_id,
       action: "verification_failed", actor_type: "gateway",
       from_status: payment.payment_status, to_status: payment.payment_status,
       metadata: { reason: verifyResult.reason ?? "verification_failed", pidx, status },
@@ -164,7 +164,7 @@ export async function GET(request: Request) {
       .eq("status", "placed");
 
     await admin.from("payment_audit_logs").insert({
-      payment_id: payment.id, shop_id: payment.shop_id,
+      payment_id: payment.id, order_id: payment.order_id, shop_id: payment.shop_id,
       action: "verified", actor_type: "gateway",
       from_status: payment.payment_status, to_status: "payment_verified",
       metadata: { pidx, gateway_transaction_id: verifyResult.gatewayTransactionId },

@@ -23,6 +23,27 @@ interface FinanceDashboardProps {
   monthlyIncome: number;
   monthlyExpenses: number;
   recentTransactions: Transaction[];
+  /** Previous-period figures for "vs last month" deltas (optional). */
+  prevIncome?: number;
+  prevExpenses?: number;
+}
+
+/** Signed % change vs previous; null when previous is 0 (no baseline). */
+function pctDelta(current: number, previous: number): number | null {
+  if (previous === 0) return current === 0 ? 0 : null;
+  return Math.round(((current - previous) / Math.abs(previous)) * 1000) / 10;
+}
+
+function DeltaChip({ delta, goodWhenUp = true }: { delta: number | null; goodWhenUp?: boolean }) {
+  if (delta === null) return <span className="text-[11px] font-bold text-[#746E73]">— new</span>;
+  const up = delta > 0;
+  const good = up === goodWhenUp;
+  const color = delta === 0 ? "text-[#746E73]" : good ? "text-emerald-600" : "text-red-600";
+  return (
+    <span className={`text-[11px] font-bold ${color}`}>
+      {up ? "▲" : delta < 0 ? "▼" : "•"} {Math.abs(delta)}% vs last month
+    </span>
+  );
 }
 
 function timeAgo(date: string) {
@@ -42,7 +63,7 @@ const TYPE_LABEL: Record<string, string> = {
   supplier_payment: "Supplier Payment",
 };
 
-export function FinanceDashboard({ shopId, monthlyIncome, monthlyExpenses, recentTransactions }: FinanceDashboardProps) {
+export function FinanceDashboard({ shopId, monthlyIncome, monthlyExpenses, recentTransactions, prevIncome, prevExpenses }: FinanceDashboardProps) {
   const [isPending, startTransition] = useTransition();
   const [showExpenseModal, setShowExpenseModal] = useState(false);
   const [expenseAmount, setExpenseAmount] = useState("");
@@ -51,6 +72,10 @@ export function FinanceDashboard({ shopId, monthlyIncome, monthlyExpenses, recen
   const [localTransactions, setLocalTransactions] = useState(recentTransactions);
 
   const netProfit = monthlyIncome - monthlyExpenses;
+  const incomeDelta = prevIncome === undefined ? undefined : pctDelta(monthlyIncome, prevIncome);
+  const expenseDelta = prevExpenses === undefined ? undefined : pctDelta(monthlyExpenses, prevExpenses);
+  const prevNet = prevIncome !== undefined && prevExpenses !== undefined ? prevIncome - prevExpenses : undefined;
+  const netDelta = prevNet === undefined ? undefined : pctDelta(netProfit, prevNet);
 
   const handleAddExpense = () => {
     const formData = new FormData();
@@ -96,6 +121,7 @@ export function FinanceDashboard({ shopId, monthlyIncome, monthlyExpenses, recen
           ) : (
             <p className="text-lg font-bold text-[#746E73] mt-4">No sales yet</p>
           )}
+          {incomeDelta !== undefined && <div className="mt-1"><DeltaChip delta={incomeDelta} goodWhenUp /></div>}
         </div>
 
         <div className="bg-white p-6 rounded-[2rem] border border-[#2E3344]/8 shadow-sm">
@@ -110,6 +136,7 @@ export function FinanceDashboard({ shopId, monthlyIncome, monthlyExpenses, recen
           <p className="text-3xl font-black text-[#27324A] mt-4">
             Rs. {monthlyExpenses.toLocaleString()}
           </p>
+          {expenseDelta !== undefined && <div className="mt-1"><DeltaChip delta={expenseDelta} goodWhenUp={false} /></div>}
         </div>
 
         <div className={`p-6 rounded-[2rem] shadow-xl ${netProfit >= 0 ? "bg-[#27324A]" : "bg-red-700"} text-white`}>
@@ -122,6 +149,13 @@ export function FinanceDashboard({ shopId, monthlyIncome, monthlyExpenses, recen
           <p className="text-3xl font-black mt-4">
             {netProfit >= 0 ? "+" : ""}Rs. {netProfit.toLocaleString()}
           </p>
+          {netDelta !== undefined && (
+            <div className="mt-1">
+              <span className={`text-[11px] font-bold ${netDelta === null ? "text-[#D8C99A]" : netDelta >= 0 ? "text-emerald-300" : "text-red-300"}`}>
+                {netDelta === null ? "— new" : `${netDelta > 0 ? "▲" : netDelta < 0 ? "▼" : "•"} ${Math.abs(netDelta)}% vs last month`}
+              </span>
+            </div>
+          )}
         </div>
       </div>
 

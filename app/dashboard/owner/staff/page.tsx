@@ -99,6 +99,14 @@ export default async function StaffPage() {
 
   return (
     <div className="space-y-6">
+      <div className="flex justify-end max-w-6xl mx-auto px-1">
+        <Link
+          href="/dashboard/owner/staff/sales"
+          className="h-9 px-3 rounded-xl bg-white border border-[#2E3344]/10 text-xs font-bold text-[#27324A] hover:bg-[#F7F0E6] inline-flex items-center gap-1"
+        >
+          Sales by staff →
+        </Link>
+      </div>
       <StaffList shopId={shopId} initialStaff={staff ?? []} />
       <ShiftsPanel
         shopId={shopId}

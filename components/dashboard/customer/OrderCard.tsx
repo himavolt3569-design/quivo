@@ -40,6 +40,7 @@ interface OrderCardProps {
   deliveryLng?: number | null;
   shopLat?: number | null;
   shopLng?: number | null;
+  compact?: boolean;
 }
 
 export function OrderCard({
@@ -50,6 +51,7 @@ export function OrderCard({
   deliveryLng,
   shopLat,
   shopLng,
+  compact = false,
 }: OrderCardProps) {
   const items = order.items as OrderItem[];
   const stepIndex = getStepIndex(order.status);
@@ -63,7 +65,7 @@ export function OrderCard({
       layout
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className={`rounded-[1.5rem] border bg-white shadow-sm transition-shadow hover:shadow-md ${
+      className={`rounded-2xl border bg-white shadow-sm transition-shadow hover:shadow-md ${
         isCancelled
           ? "border-red-100"
           : isDelivered
@@ -78,7 +80,7 @@ export function OrderCard({
         <div className="mb-4 flex items-start justify-between gap-3">
           <div className="flex items-center gap-3">
             <div
-              className={`grid h-11 w-11 flex-shrink-0 place-items-center rounded-2xl ${
+              className={`grid h-11 w-11 flex-shrink-0 place-items-center rounded-xl ${
                 isCancelled
                   ? "bg-red-50 text-red-400"
                   : isDelivered
@@ -127,7 +129,7 @@ export function OrderCard({
         </div>
 
         {/* Status stepper — active orders only */}
-        {isActive && !isCancelled && stepIndex >= 0 && (
+        {isActive && !isCancelled && stepIndex >= 0 && !compact && (
           <div className="mb-4 overflow-hidden">
             <div className="flex items-center">
               {STATUS_STEPS.map((step, i) => (

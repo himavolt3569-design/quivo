@@ -97,7 +97,7 @@ export async function GET(request: Request) {
   // Customer cancelled / eSewa reported failure.
   if (result === "failure" || !data) {
     await admin.from("payment_audit_logs").insert({
-      payment_id: payment.id, shop_id: payment.shop_id,
+      payment_id: payment.id, order_id: payment.order_id, shop_id: payment.shop_id,
       action: "callback_ignored", actor_type: "gateway",
       from_status: payment.payment_status, to_status: payment.payment_status,
       metadata: { result, reason: "no_data_or_failure" },
@@ -124,7 +124,7 @@ export async function GET(request: Request) {
 
   if (!verifyResult.ok) {
     await admin.from("payment_audit_logs").insert({
-      payment_id: payment.id, shop_id: payment.shop_id,
+      payment_id: payment.id, order_id: payment.order_id, shop_id: payment.shop_id,
       action: "verification_failed", actor_type: "gateway",
       from_status: payment.payment_status, to_status: payment.payment_status,
       metadata: { reason: verifyResult.reason ?? "verification_failed" },
@@ -164,7 +164,7 @@ export async function GET(request: Request) {
       .eq("status", "placed");
 
     await admin.from("payment_audit_logs").insert({
-      payment_id: payment.id, shop_id: payment.shop_id,
+      payment_id: payment.id, order_id: payment.order_id, shop_id: payment.shop_id,
       action: "verified", actor_type: "gateway",
       from_status: payment.payment_status, to_status: "payment_verified",
       metadata: { gateway_transaction_id: verifyResult.gatewayTransactionId },

@@ -102,7 +102,7 @@ export function PhoneInput({
         type="tel"
         inputMode="tel"
         autoComplete="tel"
-        pattern="[\+\d\s\-()]{7,20}"
+        pattern="[+\d\s()0-9-]{7,20}"
         maxLength={20}
         aria-invalid={error ? true : undefined}
         aria-describedby={error ? `${rest.name ?? "phone"}-error` : undefined}

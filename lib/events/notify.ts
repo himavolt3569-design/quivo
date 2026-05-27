@@ -2,6 +2,7 @@ import "server-only";
 
 import { createAdminClient } from "@/lib/supabase/admin";
 import { sendEmail, type SendEmailInput } from "@/lib/email/send";
+import { sendPushToUser, type PushPayload } from "@/lib/push/send";
 import { log } from "@/lib/log";
 
 /**
@@ -38,6 +39,8 @@ export interface NotifyInput {
     data?: Record<string, unknown>;
   };
   email?: SendEmailInput;
+  /** Optional override for the push notification body; otherwise inApp.* is reused. */
+  push?: PushPayload;
 }
 
 interface PrefDoc {
@@ -104,6 +107,24 @@ export async function notifyUser(input: NotifyInput): Promise<{ inAppId?: string
         userId: input.userId,
         kind: input.kind,
         error: "error" in send ? send.error : "unknown",
+      });
+    }
+  }
+
+  // ─── Web push ─────────────────────────────────────────────────────────────
+  // Defaults from inApp so handlers don't have to repeat the message twice.
+  const pushPayload: PushPayload | null =
+    input.push ??
+    (input.inApp
+      ? { title: input.inApp.title, body: input.inApp.body, url: input.inApp.linkUrl, data: input.inApp.data }
+      : null);
+  if (pushPayload && isOptedIn(prefs, input.kind, "push")) {
+    try {
+      await sendPushToUser(input.userId, pushPayload);
+    } catch (err) {
+      log.warn("notify: push delivery failed", {
+        userId: input.userId,
+        err: err instanceof Error ? err.message : String(err),
       });
     }
   }

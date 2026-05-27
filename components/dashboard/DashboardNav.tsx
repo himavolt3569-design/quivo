@@ -16,7 +16,7 @@ const TABS = [
   { href: "/dashboard/profile", label: "Profile", Icon: User },
 ] as const;
 
-const MOBILE_TABS = TABS.filter((t) => t.href !== "/dashboard/shops");
+const MOBILE_TABS = TABS;
 
 export function DashboardNav({ activeOrderCount }: { activeOrderCount: number }) {
   const pathname = usePathname();

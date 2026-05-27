@@ -22,7 +22,7 @@ export default async function SettingsPage() {
   const supabase = await createClient();
   const { data: shop } = await supabase
     .from("shops")
-    .select("id, name, description, phone, address, opening_time, closing_time, pan_number, logo_url, vat_registered, vat_rate")
+    .select("id, name, description, phone, address, opening_time, closing_time, pan_number, logo_url, vat_registered, vat_rate, timezone")
     .eq("id", activeShop.id)
     .single();
 

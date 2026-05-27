@@ -4,7 +4,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export default function ProfileLoading() {
   return (
-    <div className="space-y-6 max-w-4xl mx-auto animate-in fade-in duration-500 pt-6 px-4 sm:px-6">
+    <div className="space-y-6 animate-in fade-in duration-500">
       {/* ── Profile Header Skeleton ────────────────────────────────── */}
       <div className="relative rounded-[2.5rem] overflow-hidden bg-white border border-[#2E3344]/8 shadow-sm">
         {/* Cover Banner Skeleton */}

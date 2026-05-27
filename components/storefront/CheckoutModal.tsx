@@ -1,5 +1,6 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import {
   X, CheckCircle2, Banknote, QrCode, MapPin, Phone, User, FileText,
@@ -10,6 +11,12 @@ import { PhoneInput, EmailInput } from "@/components/ui/validated-input";
 import { placeOrderWithPayment, getPublicShopPaymentMethods } from "@/app/actions/payments";
 import type { PaymentMethod, PublicPaymentMethods } from "@/lib/payments";
 import { PAYMENT_METHOD_LABELS, PAYMENT_METHOD_DESCRIPTIONS } from "@/lib/payments/constants";
+
+// Leaflet picker — client-only to avoid SSR window references.
+const AddressPinPicker = dynamic(
+  () => import("@/components/dashboard/customer/AddressPinPicker").then((m) => m.AddressPinPicker),
+  { ssr: false, loading: () => <div className="h-[260px] rounded-2xl bg-gray-100 animate-pulse" /> }
+);
 
 interface CheckoutModalProps {
   isOpen: boolean;
@@ -78,6 +85,8 @@ export function CheckoutModal({
   const [email, setEmail] = useState("");
   const [address, setAddress] = useState("");
   const [notes, setNotes] = useState("");
+  const [pin, setPin] = useState<{ lat: number; lng: number } | null>(null);
+  const [showMap, setShowMap] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("cod");
   const [methods, setMethods] = useState<PublicPaymentMethods | null>(null);
   const [loadingMethods, setLoadingMethods] = useState(false);
@@ -122,6 +131,8 @@ export function CheckoutModal({
     startTransition(async () => {
       const result = await placeOrderWithPayment(shopId, shopName, cart, paymentMethod, {
         name, phone, email, address, notes,
+        deliveryLat: pin?.lat ?? null,
+        deliveryLng: pin?.lng ?? null,
       });
       if (result.error || !result.orderNumber) {
         setError(result.error ?? "Failed to place order.");
@@ -162,7 +173,7 @@ export function CheckoutModal({
     <div className="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 backdrop-blur-sm">
       <form ref={formPostRef} className="hidden" />
 
-      <div className="bg-white w-full sm:max-w-lg rounded-t-3xl sm:rounded-3xl shadow-2xl max-h-[95vh] flex flex-col">
+      <div className="bg-white w-full h-full sm:h-auto sm:max-h-[90vh] sm:max-w-lg sm:rounded-3xl shadow-2xl flex flex-col">
         <div className="flex items-center justify-between p-5 border-b border-gray-100">
           <h2 className="font-black text-gray-900 text-lg">Complete Your Order</h2>
           <button onClick={onClose} className="h-9 w-9 rounded-full bg-gray-100 flex items-center justify-center">
@@ -225,6 +236,36 @@ export function CheckoutModal({
                 <textarea required value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Street, area, landmark" rows={2}
                   className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm outline-none focus:border-gray-400 transition resize-none" />
               </div>
+              <div className="mt-3 flex items-center justify-between gap-3 text-xs bg-gray-50 p-3 rounded-xl border border-gray-200">
+                <div className="flex items-center gap-2 text-gray-600 flex-1 min-w-0">
+                  <MapPin className="h-4 w-4 shrink-0" style={{ color: themeColor }} />
+                  {pin ? (
+                    <span className="truncate">Pin set: <span className="font-mono text-gray-900 font-bold">{pin.lat.toFixed(4)}, {pin.lng.toFixed(4)}</span></span>
+                  ) : (
+                    <span className="truncate">Pin exact location (recommended)</span>
+                  )}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowMap((v) => !v)}
+                  className="shrink-0 px-4 py-2 rounded-lg font-bold text-white shadow-sm transition active:scale-95"
+                  style={{ backgroundColor: themeColor }}
+                >
+                  {showMap ? "Done" : pin ? "Edit" : "Add Pin"}
+                </button>
+              </div>
+              {showMap && (
+                <div className="mt-2 rounded-2xl overflow-hidden border border-gray-200">
+                  <AddressPinPicker
+                    value={pin}
+                    onChange={(p) => setPin(p)}
+                    onAddressFound={(addr) => {
+                      // Pre-fill the textarea only when it's empty so we don't clobber user input.
+                      if (!address.trim()) setAddress(addr);
+                    }}
+                  />
+                </div>
+              )}
             </label>
 
             <label className="block">
