@@ -25,5 +25,17 @@ export default async function CustomersPage() {
     .eq("shop_id", shopId)
     .order("udhar_balance", { ascending: false });
 
-  return <CustomerList shopId={shopId} initialCustomers={customers ?? []} />;
+  return (
+    <div className="space-y-6">
+      <div className="flex justify-end max-w-6xl mx-auto px-1">
+        <Link
+          href="/dashboard/owner/customers/top"
+          className="h-9 px-3 rounded-xl bg-white border border-[#2E3344]/10 text-xs font-bold text-[#27324A] hover:bg-[#F7F0E6] inline-flex items-center gap-1"
+        >
+          Top customers →
+        </Link>
+      </div>
+      <CustomerList shopId={shopId} initialCustomers={customers ?? []} />
+    </div>
+  );
 }
