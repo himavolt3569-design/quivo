@@ -79,7 +79,9 @@ export async function bulkImportProducts(input: z.infer<typeof BulkSchema>): Pro
     const updates: Array<{ id: string; patch: Record<string, unknown> }> = [];
 
     data.rows.forEach((r, idx) => {
-      const base = {
+      // Shared field set, WITHOUT status — status is only set on insert so an
+      // import never silently reactivates a paused/archived product.
+      const fields = {
         shop_id: data.shopId,
         name: r.name,
         brand: r.brand ?? null,
@@ -92,13 +94,12 @@ export async function bulkImportProducts(input: z.infer<typeof BulkSchema>): Pro
         stock: r.stock ?? 0,
         low_stock_threshold: r.low_stock_threshold ?? null,
         barcode: r.barcode ?? null,
-        status: "active" as const,
       };
       const existingId = r.barcode ? existingByBarcode.get(r.barcode) : undefined;
       if (existingId && data.upsertByBarcode) {
-        updates.push({ id: existingId, patch: base });
+        updates.push({ id: existingId, patch: fields });
       } else {
-        toInsert.push(base);
+        toInsert.push({ ...fields, status: "active" as const });
       }
       void idx;
     });

@@ -18,6 +18,9 @@ export default function manifest(): MetadataRoute.Manifest {
     orientation: "portrait-primary",
     categories: ["business", "productivity", "shopping"],
     lang: "en-NP",
+    // SVG icons scale to any size and ship today without a raster pipeline.
+    // For best iOS/Android home-screen fidelity, drop in 192/512 PNGs later
+    // (icon-192.png, icon-512.png, icon-maskable-512.png) and add them here.
     icons: [
       {
         src: "/favicon.ico",
@@ -25,21 +28,15 @@ export default function manifest(): MetadataRoute.Manifest {
         type: "image/x-icon",
       },
       {
-        src: "/icon-192.png",
-        sizes: "192x192",
-        type: "image/png",
+        src: "/icon.svg",
+        sizes: "any",
+        type: "image/svg+xml",
         purpose: "any",
       },
       {
-        src: "/icon-512.png",
-        sizes: "512x512",
-        type: "image/png",
-        purpose: "any",
-      },
-      {
-        src: "/icon-maskable-512.png",
-        sizes: "512x512",
-        type: "image/png",
+        src: "/icon-maskable.svg",
+        sizes: "any",
+        type: "image/svg+xml",
         purpose: "maskable",
       },
     ],
