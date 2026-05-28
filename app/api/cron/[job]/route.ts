@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { headers } from "next/headers";
+import { createHash, timingSafeEqual } from "node:crypto";
 
 import { getCronJob, listCronJobs } from "@/lib/cron/registry";
 import { log } from "@/lib/log";
@@ -29,15 +30,14 @@ async function authorize(): Promise<{ ok: true } | { ok: false; status: number; 
   // curl invocations.
   const bearer = h.get("authorization")?.replace(/^Bearer\s+/i, "");
   const candidate = provided ?? bearer;
-  if (!candidate || candidate.length !== expected.length) {
-    return { ok: false, status: 401, reason: "missing or malformed cron secret" };
+  if (!candidate) {
+    return { ok: false, status: 401, reason: "missing cron secret" };
   }
-  // Constant-time compare so we don't leak timing information.
-  let mismatch = 0;
-  for (let i = 0; i < expected.length; i++) {
-    mismatch |= candidate.charCodeAt(i) ^ expected.charCodeAt(i);
-  }
-  if (mismatch !== 0) {
+  // Compare SHA-256 digests so length-based timing leaks are eliminated and
+  // every code path through authorize() takes constant time.
+  const a = createHash("sha256").update(candidate).digest();
+  const b = createHash("sha256").update(expected).digest();
+  if (!timingSafeEqual(a, b)) {
     return { ok: false, status: 401, reason: "invalid cron secret" };
   }
   return { ok: true };

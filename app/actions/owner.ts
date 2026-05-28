@@ -376,7 +376,12 @@ export async function addProduct(shopId: string, formData: FormData) {
     .select("id, barcode")
     .single();
 
-  if (error) return { error: `Could not add product: ${error.message}` };
+  if (error) {
+    if (error.code === "23505" && error.message.includes("idx_products_barcode_unique")) {
+      return { error: "A product with this barcode already exists in this shop." };
+    }
+    return { error: `Could not add product: ${error.message}` };
+  }
   revalidatePath("/dashboard/owner/products");
   return { success: true, id: data.id, barcode: data.barcode };
 }
@@ -447,7 +452,12 @@ export async function updateProduct(productId: string, shopId: string, formData:
     .eq("id", pidParse.data)
     .eq("shop_id", sidParse.data);
 
-  if (error) return { error: `Could not update product: ${error.message}` };
+  if (error) {
+    if (error.code === "23505" && error.message.includes("idx_products_barcode_unique")) {
+      return { error: "A product with this barcode already exists in this shop." };
+    }
+    return { error: `Could not update product: ${error.message}` };
+  }
   revalidatePath("/dashboard/owner/products");
   revalidatePath(`/dashboard/owner/products/${pidParse.data}/edit`);
   return { success: true };

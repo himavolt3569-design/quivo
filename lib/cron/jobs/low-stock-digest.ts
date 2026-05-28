@@ -22,20 +22,9 @@ export const lowStockDigestJob: CronJobDefinition = {
     const admin = createAdminClient();
     const today = new Date().toISOString().slice(0, 10);
 
-    const { data: rows, error } = await admin
-      .from("products")
-      .select("id, shop_id, name, unit, stock, low_stock_threshold")
-      .eq("status", "active")
-      .not("low_stock_threshold", "is", null)
-      .lte("stock", 0) // placeholder; we'll filter properly below
-      .limit(0); // see note: Supabase JS doesn't let us compare two columns
-    void rows;
-    void error;
-
-    // PostgREST can't express `stock <= low_stock_threshold` directly.
-    // Fall back to fetching all active products with a threshold set, then
-    // filtering client-side. With ~1000 SKUs per shop and ≤ a few hundred
-    // shops, this is fine for a daily run.
+    // PostgREST can't express `stock <= low_stock_threshold` directly, so we
+    // fetch all active products with a threshold set and filter in JS. With
+    // ~1000 SKUs per shop and ≤ a few hundred shops, this is fine daily.
     const { data: candidates, error: candidatesErr } = await admin
       .from("products")
       .select("id, shop_id, name, unit, stock, low_stock_threshold")

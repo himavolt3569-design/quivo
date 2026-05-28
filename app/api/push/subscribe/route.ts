@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { log } from "@/lib/log";
 
 export const runtime = "nodejs";
@@ -30,7 +31,11 @@ export async function POST(request: Request) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
 
-  const { error } = await supabase.from("push_subscriptions").upsert(
+  // Use service-role for the upsert: RLS UPDATE policy gates on the EXISTING
+  // row's user_id, so a different user re-using the same browser endpoint
+  // can't reclaim it through the user client. Auth was already verified above.
+  const admin = createAdminClient();
+  const { error } = await admin.from("push_subscriptions").upsert(
     {
       user_id: user.id,
       endpoint: parse.data.endpoint,
