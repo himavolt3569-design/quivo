@@ -11,6 +11,8 @@ import { PhoneInput, EmailInput } from "@/components/ui/validated-input";
 import { placeOrderWithPayment, getPublicShopPaymentMethods } from "@/app/actions/payments";
 import type { PaymentMethod, PublicPaymentMethods } from "@/lib/payments";
 import { PAYMENT_METHOD_LABELS, PAYMENT_METHOD_DESCRIPTIONS } from "@/lib/payments/constants";
+import { CheckoutDiscounts } from "./CheckoutDiscounts";
+import type { PromoPreview } from "@/app/actions/promo";
 
 // Leaflet picker — client-only to avoid SSR window references.
 const AddressPinPicker = dynamic(
@@ -76,8 +78,14 @@ export function CheckoutModal({
   // The grand total displayed in this modal is an estimate — the RPC is the
   // authoritative source. We show subtotal + estimated tax (when registered).
   const safeRate = vatRegistered ? Math.max(0, vatRate) : 0;
-  const taxEstimate = vatRegistered ? Math.round(((subtotal * safeRate) / 100) * 100) / 100 : 0;
-  const total = Math.round((subtotal + taxEstimate) * 100) / 100;
+  const [promo, setPromo] = useState<PromoPreview | null>(null);
+  const [walletUsed, setWalletUsed] = useState<number>(0);
+  const promoDiscount = Math.min(promo?.discount ?? 0, subtotal);
+  const afterPromo = Math.max(0, subtotal - promoDiscount);
+  const wallet = Math.min(walletUsed, afterPromo);
+  const afterWallet = Math.max(0, afterPromo - wallet);
+  const taxEstimate = vatRegistered ? Math.round(((afterWallet * safeRate) / 100) * 100) / 100 : 0;
+  const total = Math.round((afterWallet + taxEstimate) * 100) / 100;
   void themeColor; // kept in the prop contract for future theming
   void panNumber;  // surfaced via the printed receipt, not the checkout modal
   const [name, setName] = useState("");
@@ -129,11 +137,15 @@ export function CheckoutModal({
     e.preventDefault();
     setError("");
     startTransition(async () => {
-      const result = await placeOrderWithPayment(shopId, shopName, cart, paymentMethod, {
-        name, phone, email, address, notes,
-        deliveryLat: pin?.lat ?? null,
-        deliveryLng: pin?.lng ?? null,
-      });
+      const result = await placeOrderWithPayment(
+        shopId, shopName, cart, paymentMethod,
+        {
+          name, phone, email, address, notes,
+          deliveryLat: pin?.lat ?? null,
+          deliveryLng: pin?.lng ?? null,
+        },
+        { promoCode: promo?.code ?? null, walletUsed: wallet }
+      );
       if (result.error || !result.orderNumber) {
         setError(result.error ?? "Failed to place order.");
         return;
@@ -188,6 +200,18 @@ export function CheckoutModal({
               <span>{itemCount} item{itemCount !== 1 ? "s" : ""} subtotal</span>
               <span>Rs. {subtotal.toLocaleString()}</span>
             </div>
+            {promoDiscount > 0 && (
+              <div className="flex justify-between items-center text-xs text-green-700">
+                <span>Promo ({promo?.code})</span>
+                <span>−Rs. {promoDiscount.toLocaleString()}</span>
+              </div>
+            )}
+            {wallet > 0 && (
+              <div className="flex justify-between items-center text-xs text-[#A7653A]">
+                <span>Wallet</span>
+                <span>−Rs. {wallet.toLocaleString()}</span>
+              </div>
+            )}
             {vatRegistered && (
               <div className="flex justify-between items-center text-xs text-gray-500">
                 <span>VAT ({safeRate.toFixed(2)}%)</span>
@@ -200,6 +224,13 @@ export function CheckoutModal({
             </div>
           </div>
         </div>
+
+        <CheckoutDiscounts
+          shopId={shopId}
+          subtotal={subtotal}
+          onPromoChange={setPromo}
+          onWalletChange={setWalletUsed}
+        />
 
         <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-5 space-y-5">
           {/* Customer details */}

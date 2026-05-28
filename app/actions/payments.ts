@@ -172,7 +172,8 @@ export async function placeOrderWithPayment(
   shopName: string,
   cart: CartItemInput[],
   paymentMethod: string,
-  customer: CustomerInfo
+  customer: CustomerInfo,
+  options: { promoCode?: string | null; walletUsed?: number } = {}
 ): Promise<PlaceOrderResult> {
   const rateLimit = await checkRateLimit("placeOrderWithPayment", { maxAttempts: 10, windowMs: 10 * 60 * 1000 });
   if (!rateLimit.success) return { error: rateLimit.error };
@@ -195,6 +196,9 @@ export async function placeOrderWithPayment(
   const orderNumber = newOrderNumber();
   const transactionReference = randomUUID();
 
+  const walletUsed = Math.max(0, Math.round(Number(options.walletUsed ?? 0) * 100) / 100);
+  const promoCode = options.promoCode?.trim() || null;
+
   const { data, error } = await supabase
     .rpc("place_order_with_payment", {
       p_shop_id: shopParse.data,
@@ -211,6 +215,8 @@ export async function placeOrderWithPayment(
       p_notes: customerParse.data.notes || null,
       p_delivery_lat: customerParse.data.deliveryLat ?? null,
       p_delivery_lng: customerParse.data.deliveryLng ?? null,
+      p_promo_code: promoCode,
+      p_wallet_used: walletUsed,
     })
     .single<CreatedPaymentRow>();
 
@@ -223,6 +229,24 @@ export async function placeOrderWithPayment(
       const m = error.message.slice("PAYMENT_METHOD_DISABLED:".length);
       return { error: `Payment method "${m}" is not enabled for this shop.` };
     }
+    if (error.message.startsWith("MIN_SUBTOTAL:")) {
+      const m = error.message.slice("MIN_SUBTOTAL:".length);
+      return { error: `Promo code requires a minimum subtotal of Rs. ${m}.` };
+    }
+    if (error.message.startsWith("WALLET_EXCEEDS_MAX:")) {
+      const m = error.message.slice("WALLET_EXCEEDS_MAX:".length);
+      return { error: `Maximum wallet redemption is Rs. ${m}.` };
+    }
+    const codeMap: Record<string, string> = {
+      CODE_NOT_FOUND:        "Promo code not found.",
+      CODE_INACTIVE:         "This promo code is no longer active.",
+      CODE_NOT_YET_VALID:    "This promo code isn't valid yet.",
+      CODE_EXPIRED:          "This promo code has expired.",
+      CODE_USED_UP:          "This promo code has reached its usage limit.",
+      WALLET_REQUIRES_AUTH:  "Sign in to use your wallet balance.",
+      WALLET_OVERPAY:        "Wallet amount can't exceed the order subtotal.",
+    };
+    if (codeMap[error.message]) return { error: codeMap[error.message] };
     return { error: error.message };
   }
   if (!data) return { error: "Order could not be created." };

@@ -1,9 +1,15 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { Package, CheckCircle2, Clock, Truck, PartyPopper } from "lucide-react";
+import { useTransition } from "react";
+import { useRouter } from "next/navigation";
+import { Package, CheckCircle2, Clock, Truck, PartyPopper, RotateCcw } from "lucide-react";
 import { motion } from "framer-motion";
+import { toast } from "sonner";
 import type { Order, OrderStatus, OrderItem } from "@/lib/types";
+import { reorderOrder } from "@/app/actions/reorder";
+
+const REORDER_KEY = "quivo-reorder";
 
 const TrackingMap = dynamic(
   () => import("./TrackingMap").then((m) => m.TrackingMap),
@@ -59,6 +65,19 @@ export function OrderCard({
   const isDelivered = order.status === "delivered";
   const isOutForDelivery = order.status === "out_for_delivery";
   const totalItems = items.reduce((s, i) => s + i.quantity, 0);
+  const router = useRouter();
+  const [isReordering, startReorder] = useTransition();
+
+  const handleReorder = () => {
+    startReorder(async () => {
+      const res = await reorderOrder(order.id);
+      if (res.error || !res.data) { toast.error(res.error ?? "Could not reorder."); return; }
+      try {
+        sessionStorage.setItem(REORDER_KEY, JSON.stringify(res.data));
+      } catch { /* storage full or blocked */ }
+      router.push(`/s/${res.data.shopSlug}`);
+    });
+  };
 
   return (
     <motion.div
@@ -227,6 +246,16 @@ export function OrderCard({
           >
             View receipt
           </button>
+          {(isDelivered || isCancelled) && (
+            <button
+              onClick={handleReorder}
+              disabled={isReordering}
+              className="flex-1 rounded-full border border-[#A7653A]/30 bg-[#F7F0E6] py-2.5 text-xs font-bold text-[#A7653A] transition hover:bg-[#A7653A]/15 active:scale-95 disabled:opacity-50 inline-flex items-center justify-center gap-1.5"
+            >
+              <RotateCcw className="h-3 w-3" />
+              Reorder
+            </button>
+          )}
         </div>
       </div>
 
