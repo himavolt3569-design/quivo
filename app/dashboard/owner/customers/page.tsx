@@ -27,7 +27,13 @@ export default async function CustomersPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-end max-w-6xl mx-auto px-1">
+      <div className="flex justify-end gap-2 max-w-6xl mx-auto px-1">
+        <Link
+          href="/dashboard/owner/customers/reviews"
+          className="h-9 px-3 rounded-xl bg-white border border-[#2E3344]/10 text-xs font-bold text-[#27324A] hover:bg-[#F7F0E6] inline-flex items-center gap-1"
+        >
+          Reviews →
+        </Link>
         <Link
           href="/dashboard/owner/customers/top"
           className="h-9 px-3 rounded-xl bg-white border border-[#2E3344]/10 text-xs font-bold text-[#27324A] hover:bg-[#F7F0E6] inline-flex items-center gap-1"

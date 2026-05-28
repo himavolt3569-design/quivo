@@ -4,6 +4,9 @@ import { useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, ShoppingCart, Phone, ChevronLeft, ChevronRight, Package, PackageX } from "lucide-react";
 import { toast } from "sonner";
+import { StarRating } from "@/components/ui/StarRating";
+import { SaveProductButton } from "@/components/storefront/SaveProductButton";
+import type { PublicReview } from "@/app/actions/reviews";
 
 interface ProductData {
   product_id: string;
@@ -22,6 +25,8 @@ interface ProductData {
   image_url: string | null;
   barcode: string;
   is_available?: boolean;
+  average_rating?: number;
+  review_count?: number;
 }
 
 interface ShopData {
@@ -53,9 +58,11 @@ interface ProductViewProps {
   product: ProductData;
   shop: ShopData;
   similar?: SimilarProduct[];
+  reviews?: PublicReview[];
+  initialSaved?: boolean;
 }
 
-export function ProductView({ product, shop, similar = [] }: ProductViewProps) {
+export function ProductView({ product, shop, similar = [], reviews = [], initialSaved = false }: ProductViewProps) {
   const color = shop.theme_color ?? "#A7653A";
   const allImages = product.images?.length ? product.images : (product.image_url ? [product.image_url] : []);
   const [currentImage, setCurrentImage] = useState(0);
@@ -150,24 +157,32 @@ export function ProductView({ product, shop, similar = [] }: ProductViewProps) {
               </span>
             )}
             <h1 className="text-2xl font-black text-gray-900 mt-2">{product.name}</h1>
-            <div className="flex flex-wrap gap-2 mt-1">
+            <div className="flex flex-wrap items-center gap-2 mt-1">
               {product.brand && <span className="text-sm text-gray-500 font-medium">{product.brand}</span>}
               {product.unit && <span className="text-sm text-gray-400">• {product.unit}</span>}
               {product.variant && <span className="text-sm text-gray-400">• {product.variant}</span>}
+              {(product.review_count ?? 0) > 0 && (
+                <span className="inline-flex items-center gap-1">
+                  <StarRating value={product.average_rating ?? 0} count={product.review_count} size="sm" />
+                </span>
+              )}
             </div>
           </div>
 
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-3">
             <p className="text-3xl font-black text-gray-900">Rs. {product.price.toLocaleString()}</p>
-            {!isAvailable ? (
-              <span className="inline-flex items-center gap-1 text-xs font-bold text-red-700 bg-red-50 px-3 py-1 rounded-full border border-red-100">
-                <PackageX className="h-3 w-3" /> Not Available
-              </span>
-            ) : inStock ? (
-              <span className="text-xs font-bold text-green-700 bg-green-50 px-3 py-1 rounded-full border border-green-100">In Stock</span>
-            ) : (
-              <span className="text-xs font-bold text-red-600 bg-red-50 px-3 py-1 rounded-full border border-red-100">Out of Stock</span>
-            )}
+            <div className="flex items-center gap-2">
+              <SaveProductButton productId={product.product_id} initialSaved={initialSaved} size="md" />
+              {!isAvailable ? (
+                <span className="inline-flex items-center gap-1 text-xs font-bold text-red-700 bg-red-50 px-3 py-1 rounded-full border border-red-100">
+                  <PackageX className="h-3 w-3" /> Not Available
+                </span>
+              ) : inStock ? (
+                <span className="text-xs font-bold text-green-700 bg-green-50 px-3 py-1 rounded-full border border-green-100">In Stock</span>
+              ) : (
+                <span className="text-xs font-bold text-red-600 bg-red-50 px-3 py-1 rounded-full border border-red-100">Out of Stock</span>
+              )}
+            </div>
           </div>
 
           {product.description && (
@@ -293,6 +308,32 @@ export function ProductView({ product, shop, similar = [] }: ProductViewProps) {
                 );
               })}
             </div>
+          </section>
+        )}
+
+        {/* Reviews */}
+        {reviews.length > 0 && (
+          <section className="bg-white rounded-3xl p-5 shadow-sm space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-sm font-black uppercase tracking-widest text-gray-700">Reviews</h2>
+              <StarRating value={product.average_rating ?? 0} count={product.review_count} size="md" />
+            </div>
+            <ul className="space-y-3">
+              {reviews.slice(0, 8).map((r) => (
+                <li key={r.id} className="rounded-2xl border border-black/5 p-3 bg-[#f8f8f7]">
+                  <div className="flex items-center gap-2">
+                    <span className="h-7 w-7 rounded-full bg-[#27324A] text-white text-[11px] font-black flex items-center justify-center">
+                      {r.reviewer_initial}
+                    </span>
+                    <StarRating value={r.rating} size="sm" />
+                    <span className="text-[11px] text-gray-400 ml-auto">
+                      {new Date(r.created_at).toLocaleDateString()}
+                    </span>
+                  </div>
+                  {r.body && <p className="mt-2 text-sm text-gray-700 leading-relaxed">{r.body}</p>}
+                </li>
+              ))}
+            </ul>
           </section>
         )}
 

@@ -3,6 +3,8 @@ import { PAYMENT_METHOD_LABELS, PAYMENT_STATUS_LABELS } from "@/lib/payments/con
 import type { PaymentMethod, PaymentStatus, PublicPaymentMethods } from "@/lib/payments";
 import { ReceiptUploader } from "@/components/storefront/ReceiptUploader";
 import { DeliveryMap } from "@/components/storefront/DeliveryMap";
+import { ReviewProductsForOrder } from "@/components/storefront/ReviewProductsForOrder";
+import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
 import { ArrowLeft, CheckCircle2, XCircle, Clock, AlertTriangle, Package, MapPin } from "lucide-react";
 
@@ -14,7 +16,7 @@ interface OrderViewRow {
   shop_slug: string;
   status: string;
   total_amount: number;
-  items: Array<{ name: string; price: number; qty: number; image?: string | null }>;
+  items: Array<{ id?: string; name: string; price: number; qty: number; image?: string | null }>;
   customer_name: string | null;
   customer_phone: string | null;
   delivery_address: string | null;
@@ -77,6 +79,23 @@ export default async function OrderPage({
   if (trackingToken) {
     const c = await getOrderCoords(orderNumber, trackingToken);
     coords = c.coords ?? null;
+  }
+
+  // Detect ownership for the review form. RLS lets the customer SELECT
+  // their own order row; if the row comes back, they can review.
+  let canReview = false;
+  if (order.status === "delivered") {
+    const supabaseUser = await createClient();
+    const { data: { user } } = await supabaseUser.auth.getUser();
+    if (user) {
+      const { data: ownRow } = await supabaseUser
+        .from("orders")
+        .select("id")
+        .eq("id", order.order_id)
+        .eq("customer_id", user.id)
+        .maybeSingle();
+      canReview = ownRow != null;
+    }
   }
 
   return (
@@ -178,6 +197,11 @@ export default async function OrderPage({
           {order.customer_phone && <p><span className="text-gray-500">Phone:</span> <span className="font-bold text-gray-900">{order.customer_phone}</span></p>}
           {order.delivery_address && <p><span className="text-gray-500">Address:</span> <span className="font-bold text-gray-900">{order.delivery_address}</span></p>}
         </div>
+
+        {/* Reviews — only the order's customer, only after delivery */}
+        {canReview && (
+          <ReviewProductsForOrder orderId={order.order_id} items={order.items} />
+        )}
 
         {/* Delivery map */}
         {coords && ((coords.delivery_lat != null && coords.delivery_lng != null) || (coords.shop_lat != null && coords.shop_lng != null)) && (

@@ -2,6 +2,8 @@ import { createClient } from "@/lib/supabase/server";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { ProductView } from "@/components/storefront/ProductView";
+import { listProductReviews } from "@/app/actions/reviews";
+import { isProductSaved } from "@/app/actions/wishlist";
 
 interface Props {
   params: Promise<{ slug: string; barcode: string }>;
@@ -24,6 +26,8 @@ interface ProductResult {
   image_url: string | null;
   barcode: string;
   is_available?: boolean;
+  average_rating?: number;
+  review_count?: number;
 }
 
 interface PublicProductShop {
@@ -67,11 +71,13 @@ export default async function ProductPage({ params }: Props) {
 
   if (!product) notFound();
 
-  const [{ data: shop }, { data: similar }] = await Promise.all([
+  const [{ data: shop }, { data: similar }, reviewsRes, alreadySaved] = await Promise.all([
     supabase
       .rpc("get_public_shop", { p_slug: slug })
       .maybeSingle<PublicProductShop>(),
     supabase.rpc("get_similar_products", { p_product_id: product.product_id, p_limit: 8 }),
+    listProductReviews(product.product_id, 12),
+    isProductSaved(product.product_id),
   ]);
 
   if (!shop) notFound();
@@ -113,7 +119,7 @@ export default async function ProductPage({ params }: Props) {
         // eslint-disable-next-line react/no-danger
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <ProductView product={product} shop={shop} similar={similarProducts} />
+      <ProductView product={product} shop={shop} similar={similarProducts} reviews={reviewsRes.rows} initialSaved={alreadySaved} />
     </>
   );
 }
