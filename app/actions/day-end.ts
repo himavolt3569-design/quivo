@@ -180,12 +180,6 @@ export async function getZReport(rowId: string): Promise<{ report?: ZReport; err
       .gte("created_at", start)
       .lt("created_at", end);
 
-    const { data: splits } = await admin
-      .from("transaction_splits")
-      .select("transaction_id, payment_method, amount")
-      .gte("created_at", start)
-      .lt("created_at", end);
-
     type TxRow = {
       id: string;
       amount: number;
@@ -198,6 +192,16 @@ export async function getZReport(rowId: string): Promise<{ report?: ZReport; err
     };
 
     const txList = ((txns ?? []) as unknown as TxRow[]);
+
+    // transaction_splits has no shop_id column; scope strictly via this
+    // shop's transaction ids to avoid cross-shop bleed into method totals.
+    const txIds = txList.map((t) => t.id);
+    const { data: splits } = txIds.length === 0
+      ? { data: [] as Array<{ transaction_id: string; payment_method: string; amount: number }> }
+      : await admin
+          .from("transaction_splits")
+          .select("transaction_id, payment_method, amount")
+          .in("transaction_id", txIds);
 
     let gross_sales = 0;
     let tax_collected = 0;
