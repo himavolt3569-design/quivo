@@ -42,6 +42,7 @@
     "@supabase/ssr": "^0.10.2",
     "@supabase/supabase-js": "^2.105.3",
     "@types/jsbarcode": "^3.11.4",
+    "@vercel/speed-insights": "^2.0.0",
     "animejs": "^4.4.1",
     "axios": "^1.16.0",
     "class-variance-authority": "^0.7.1",
