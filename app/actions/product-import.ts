@@ -77,8 +77,18 @@ export async function bulkImportProducts(input: z.infer<typeof BulkSchema>): Pro
     // Insert in batches of 100 to keep request size sane.
     const toInsert: Array<Record<string, unknown>> = [];
     const updates: Array<{ id: string; patch: Record<string, unknown> }> = [];
+    // Per-shop uniqueness: rejecting duplicate barcodes within the same file
+    // up front avoids a 23505 that fails the whole 100-row chunk.
+    const seenBarcodes = new Set<string>();
 
     data.rows.forEach((r, idx) => {
+      if (r.barcode && seenBarcodes.has(r.barcode)) {
+        report.errors.push({ index: idx, message: `Duplicate barcode in file: ${r.barcode}` });
+        report.skipped += 1;
+        return;
+      }
+      if (r.barcode) seenBarcodes.add(r.barcode);
+
       // Shared field set, WITHOUT status — status is only set on insert so an
       // import never silently reactivates a paused/archived product.
       const fields = {
@@ -101,7 +111,6 @@ export async function bulkImportProducts(input: z.infer<typeof BulkSchema>): Pro
       } else {
         toInsert.push({ ...fields, status: "active" as const });
       }
-      void idx;
     });
 
     // Inserts in chunks.
