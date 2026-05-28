@@ -24,6 +24,9 @@ export type NotificationKind =
   | "refund.completed"
   | "low_stock.detected"
   | "kyc.stage_due"
+  | "cart_abandoned"
+  | "back_in_stock"
+  | "price_drop"
   | "system";
 
 type Channel = "email" | "in_app" | "push" | "sms";

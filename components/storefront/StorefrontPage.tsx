@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useReducer } from "react";
+import { useEffect, useRef, useState, useReducer } from "react";
 import { toast } from "sonner";
 import type { ShopData, StoreProduct } from "./templates/types";
 import type { CartItem } from "./CartDrawer";
@@ -11,6 +11,7 @@ import { ModernTemplate } from "./templates/ModernTemplate";
 import { BoutiqueTemplate } from "./templates/BoutiqueTemplate";
 import { MinimalTemplate } from "./templates/MinimalTemplate";
 import { DarkTemplate } from "./templates/DarkTemplate";
+import { syncCartToServer, clearServerCart } from "@/app/actions/cart";
 
 const REORDER_KEY = "quivo-reorder";
 
@@ -72,29 +73,48 @@ export function StorefrontPage({ shop, products }: StorefrontPageProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
 
-  // Hydrate cart from a reorder handoff. The action stashes {shopSlug, items}
-  // in sessionStorage; we only consume it if it matches the current shop.
+  // Hydrate cart from a reorder handoff. Defer the state writes to a
+  // microtask so we don't trigger a cascading re-render mid-effect.
   useEffect(() => {
-    try {
-      const raw = sessionStorage.getItem(REORDER_KEY);
-      if (!raw) return;
-      const payload = JSON.parse(raw) as { shopSlug: string; items: CartItem[]; skipped?: Array<{ name: string; reason: string }> };
-      if (!payload || payload.shopSlug !== shop.slug) return;
-      if (Array.isArray(payload.items) && payload.items.length > 0) {
-        dispatch({ type: "SEED", items: payload.items });
-        setIsCartOpen(true);
-        const skipped = payload.skipped ?? [];
-        if (skipped.length > 0) {
-          toast.info(`Reorder added ${payload.items.length} item${payload.items.length === 1 ? "" : "s"}; ${skipped.length} unavailable.`);
-        } else {
-          toast.success(`Reorder added ${payload.items.length} item${payload.items.length === 1 ? "" : "s"}.`);
+    let cancelled = false;
+    queueMicrotask(() => {
+      if (cancelled) return;
+      try {
+        const raw = sessionStorage.getItem(REORDER_KEY);
+        if (!raw) return;
+        const payload = JSON.parse(raw) as { shopSlug: string; items: CartItem[]; skipped?: Array<{ name: string; reason: string }> };
+        if (!payload || payload.shopSlug !== shop.slug) return;
+        if (Array.isArray(payload.items) && payload.items.length > 0) {
+          dispatch({ type: "SEED", items: payload.items });
+          setIsCartOpen(true);
+          const skipped = payload.skipped ?? [];
+          if (skipped.length > 0) {
+            toast.info(`Reorder added ${payload.items.length} item${payload.items.length === 1 ? "" : "s"}; ${skipped.length} unavailable.`);
+          } else {
+            toast.success(`Reorder added ${payload.items.length} item${payload.items.length === 1 ? "" : "s"}.`);
+          }
         }
+        sessionStorage.removeItem(REORDER_KEY);
+      } catch {
+        sessionStorage.removeItem(REORDER_KEY);
       }
-      sessionStorage.removeItem(REORDER_KEY);
-    } catch {
-      sessionStorage.removeItem(REORDER_KEY);
-    }
+    });
+    return () => { cancelled = true; };
   }, [shop.slug]);
+
+  // Debounced server-cart sync. Anonymous users no-op silently.
+  const syncTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastSynced = useRef<string>("");
+  useEffect(() => {
+    if (syncTimer.current) clearTimeout(syncTimer.current);
+    syncTimer.current = setTimeout(() => {
+      const payload = JSON.stringify(cart.map((i) => ({ id: i.id, qty: i.qty })));
+      if (payload === lastSynced.current) return;
+      lastSynced.current = payload;
+      void syncCartToServer({ shopId: shop.id, items: cart.map((i) => ({ id: i.id, qty: i.qty })) });
+    }, 600);
+    return () => { if (syncTimer.current) clearTimeout(syncTimer.current); };
+  }, [cart, shop.id]);
 
   const themeColor = shop.theme_color || "#A7653A";
   const fontFamily = FONT_MAP[shop.font_family] ?? FONT_MAP.inter;
@@ -118,6 +138,8 @@ export function StorefrontPage({ shop, products }: StorefrontPageProps) {
     setIsCheckoutOpen(false);
     setIsCartOpen(false);
     dispatch({ type: "CLEAR" });
+    // Drop the server cart so the abandoned-cart cron doesn't email us.
+    void clearServerCart(shop.id);
   };
 
   const renderTemplate = () => {

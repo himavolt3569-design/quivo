@@ -9,6 +9,10 @@ import { handleOrderStatusChanged } from "./handlers/order-status-changed";
 import { handleRefundCompleted } from "./handlers/refund-completed";
 import { handleLowStockDetected } from "./handlers/low-stock-detected";
 import { handleKycStageDue } from "./handlers/kyc-stage-due";
+// Phase 6
+import { handleCartAbandoned } from "./handlers/cart-abandoned";
+import { handleBackInStock } from "./handlers/back-in-stock";
+import { handlePriceDrop } from "./handlers/price-drop";
 
 /**
  * Domain event dispatcher.
@@ -44,6 +48,9 @@ const HANDLERS: Record<string, ((payload: Record<string, unknown>) => Promise<vo
   "refund.completed":      (p) => handleRefundCompleted(p as Parameters<typeof handleRefundCompleted>[0]),
   "low_stock.detected":    (p) => handleLowStockDetected(p as Parameters<typeof handleLowStockDetected>[0]),
   "kyc.stage_due":         (p) => handleKycStageDue(p as Parameters<typeof handleKycStageDue>[0]),
+  "cart.abandoned":        (p) => handleCartAbandoned(p as Parameters<typeof handleCartAbandoned>[0]),
+  "back_in_stock.detected":(p) => handleBackInStock(p as Parameters<typeof handleBackInStock>[0]),
+  "price_drop.detected":   (p) => handlePriceDrop(p as Parameters<typeof handlePriceDrop>[0]),
   "test.event":            async () => { /* no-op */ },
 };
 

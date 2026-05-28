@@ -71,7 +71,12 @@ registerCronJob({
 import { notificationsDispatchJob } from "./jobs/notifications-dispatch";
 import { lowStockDigestJob } from "./jobs/low-stock-digest";
 import { kycDeadlineJob } from "./jobs/kyc-deadline";
+// Phase 6: cart + product alert sweeps.
+import { abandonedCartJob } from "./jobs/abandoned-cart";
+import { wishlistAlertsJob } from "./jobs/wishlist-alerts";
 
 registerCronJob(notificationsDispatchJob);
 registerCronJob(lowStockDigestJob);
 registerCronJob(kycDeadlineJob);
+registerCronJob(abandonedCartJob);
+registerCronJob(wishlistAlertsJob);
