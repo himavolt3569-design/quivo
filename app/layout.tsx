@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { ServiceWorkerRegister } from "@/components/ServiceWorkerRegister";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const poppins = Poppins({
   weight: ["400", "500", "600", "700"],
@@ -51,6 +52,7 @@ export default function RootLayout({
             </TooltipProvider>
           </ThemeProvider>
         </ErrorBoundary>
+        <SpeedInsights />
       </body>
     </html>
   );
