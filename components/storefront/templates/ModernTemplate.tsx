@@ -220,10 +220,15 @@ export function ModernTemplate({
                           {p.name}
                         </p>
                         <p
-                          className="text-xs font-black mt-1"
+                          className="text-xs font-black mt-1 flex items-center gap-2"
                           style={{ color: themeColor }}
                         >
-                          Rs. {p.price}
+                          <span>Rs. {p.price}</span>
+                          {p.original_price && (
+                            <span className="text-[10px] text-gray-400 line-through font-medium">
+                              Rs. {p.original_price}
+                            </span>
+                          )}
                         </p>
                         {cartItem && (
                           <p
@@ -314,14 +319,19 @@ export function ModernTemplate({
                           {p.name}
                         </h3>
                         {p.unit && (
-                          <p className="text-[10px] text-gray-400 mt-0.5">
+                  <p className="text-[10px] text-gray-400 mt-0.5">
                             {p.unit}
                           </p>
                         )}
                         <div className="mt-3 flex items-center justify-between">
-                          <span className="font-black text-gray-900">
-                            Rs. {p.price}
+                          <span className="font-bold text-[#27324A]">
+                          Rs. {p.price}
+                        </span>
+                        {p.original_price && (
+                          <span className="text-xs text-[#746E73] line-through ml-2 font-medium">
+                            Rs. {p.original_price}
                           </span>
+                        )}
                           {cartItem ? (
                             <div
                               className="flex items-center gap-1.5 rounded-xl border border-gray-200 p-0.5"

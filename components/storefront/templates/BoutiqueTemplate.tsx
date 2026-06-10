@@ -216,9 +216,16 @@ export function BoutiqueTemplate({
                             </p>
                           )}
                           <div className="flex items-center justify-between mt-3">
-                            <span className="font-black text-gray-900">
-                              Rs. {p.price}
-                            </span>
+                            <div className="flex items-center gap-2">
+                              <span className="font-bold text-gray-900">
+                                Rs. {p.price}
+                              </span>
+                              {p.original_price && (
+                                <span className="text-xs text-gray-400 line-through font-medium">
+                                  Rs. {p.original_price}
+                                </span>
+                              )}
+                            </div>
                             {cartItem ? (
                               <div
                                 className="flex items-center gap-1 bg-gray-50 rounded-xl border border-gray-200 p-0.5"

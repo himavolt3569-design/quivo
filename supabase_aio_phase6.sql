@@ -955,6 +955,8 @@ BEGIN
     END IF;
 END
 $$;
+DROP FUNCTION IF EXISTS public.get_verified_shops();
+
 -- Migration to update get_verified_shops for Wholesale Discovery
 CREATE OR REPLACE FUNCTION public.get_verified_shops()
 RETURNS TABLE (
@@ -996,3 +998,55 @@ $$;
 
 REVOKE EXECUTE ON FUNCTION public.get_verified_shops() FROM PUBLIC;
 GRANT  EXECUTE ON FUNCTION public.get_verified_shops() TO anon, authenticated;
+
+-- Update get_public_shop to include is_wholesale
+DROP FUNCTION IF EXISTS public.get_public_shop(TEXT);
+CREATE OR REPLACE FUNCTION public.get_public_shop(p_slug TEXT)
+RETURNS TABLE (
+  id                   UUID,
+  slug                 TEXT,
+  name                 TEXT,
+  category             TEXT,
+  phone                TEXT,
+  address              TEXT,
+  lat                  DOUBLE PRECISION,
+  lng                  DOUBLE PRECISION,
+  description          TEXT,
+  logo_url             TEXT,
+  opening_time         TIME,
+  closing_time         TIME,
+  status               TEXT,
+  theme_color          TEXT,
+  theme_layout         TEXT,
+  template             TEXT,
+  font_family          TEXT,
+  hero_headline        TEXT,
+  hero_subtext         TEXT,
+  cover_image_url      TEXT,
+  announcement_text    TEXT,
+  announcement_active  BOOLEAN,
+  sections_order       JSONB,
+  whatsapp_number      TEXT,
+  featured_product_ids UUID[],
+  vat_registered       BOOLEAN,
+  vat_rate             NUMERIC,
+  pan_number           TEXT,
+  is_wholesale         BOOLEAN
+)
+LANGUAGE sql STABLE SECURITY DEFINER SET search_path = public
+AS $$
+  SELECT
+    id, slug, name, category, phone, address, lat, lng,
+    description, logo_url, opening_time, closing_time, status,
+    theme_color, theme_layout, template, font_family,
+    hero_headline, hero_subtext, cover_image_url,
+    announcement_text, announcement_active, sections_order,
+    whatsapp_number, featured_product_ids,
+    COALESCE(vat_registered, false), COALESCE(vat_rate, 0), pan_number,
+    COALESCE(is_wholesale, false)
+  FROM public.shops
+  WHERE slug = p_slug AND status = 'active';
+$$;
+
+REVOKE EXECUTE ON FUNCTION public.get_public_shop(TEXT) FROM PUBLIC;
+GRANT  EXECUTE ON FUNCTION public.get_public_shop(TEXT) TO anon, authenticated;
