@@ -42,9 +42,9 @@ export async function startNewShopOnboarding(): Promise<void> {
   const jar = await cookies();
   jar.set(ONBOARDING_COOKIE_NAME, token, {
     httpOnly: true,
-    sameSite: "strict",
+    sameSite: "lax", // Better for redirects across routes just in case
     secure: process.env.NODE_ENV === "production",
-    path: "/onboarding",
+    path: "/",
     maxAge: Math.floor(ONBOARDING_TOKEN_TTL_MS / 1000),
   });
 

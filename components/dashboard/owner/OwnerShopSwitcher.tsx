@@ -181,8 +181,15 @@ export function OwnerShopSwitcher({
                   // then redirects.  Bare URL navigation to /onboarding/owner
                   // is blocked for owners who already have a shop, so the
                   // cookie is the only legitimate entry point.
-                  React.startTransition(() => {
-                    void startNewShopOnboarding();
+                  // Legitimate entry point.
+                  startNewShopOnboarding().catch((e) => {
+                    // Next.js redirect throws an error, so we only want to
+                    // report actual errors that aren't redirects.
+                    if (e && typeof e === 'object' && 'digest' in e && (e as any).digest?.startsWith('NEXT_REDIRECT')) {
+                      throw e;
+                    }
+                    console.error("Failed to start onboarding:", e);
+                    toast.error("Failed to start onboarding. Check if SUPABASE_SERVICE_ROLE_KEY is set in Vercel.");
                   });
                 }}
                 className="rounded-xl my-1 cursor-pointer text-[#A7653A] font-bold"
