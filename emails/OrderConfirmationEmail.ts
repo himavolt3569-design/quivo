@@ -1,4 +1,8 @@
-import { renderEmailLayout, escapeHtml, renderTextFromBlocks } from "@/lib/email/layout";
+import {
+  renderEmailLayout,
+  escapeHtml,
+  renderTextFromBlocks,
+} from "@/lib/email/layout";
 import type { BrandedShop } from "@/lib/email/layout";
 
 export interface OrderConfirmationItem {
@@ -33,7 +37,9 @@ function money(n: number): string {
   return `Rs. ${n.toFixed(2)}`;
 }
 
-export function renderOrderConfirmationEmail(input: OrderConfirmationEmailInput): RenderedEmail {
+export function renderOrderConfirmationEmail(
+  input: OrderConfirmationEmailInput,
+): RenderedEmail {
   const subject = `Order ${input.orderNumber} confirmed — ${input.shop.name}`;
 
   const lineRows = input.items
@@ -45,7 +51,7 @@ export function renderOrderConfirmationEmail(input: OrderConfirmationEmailInput)
           <div style="font-size:11px;color:#746E73;">× ${i.qty.toString()}</div>
         </td>
         <td style="padding:6px 0;font-size:13px;text-align:right;">${money(i.price * i.qty)}</td>
-      </tr>`
+      </tr>`,
     )
     .join("");
 
@@ -95,9 +101,13 @@ export function renderOrderConfirmationEmail(input: OrderConfirmationEmailInput)
   const text = renderTextFromBlocks([
     `Thanks, ${input.customerName}!`,
     `Order ${input.orderNumber} is confirmed at ${input.shop.name}.`,
-    input.items.map((i) => `- ${i.name} × ${i.qty} — ${money(i.price * i.qty)}`).join("\n"),
+    input.items
+      .map((i) => `- ${i.name} × ${i.qty} — ${money(i.price * i.qty)}`)
+      .join("\n"),
     `Subtotal: ${money(input.subtotal)}`,
-    input.taxAmount > 0 ? `VAT (${input.vatRate.toFixed(2)}%): ${money(input.taxAmount)}` : "",
+    input.taxAmount > 0
+      ? `VAT (${input.vatRate.toFixed(2)}%): ${money(input.taxAmount)}`
+      : "",
     input.deliveryFee > 0 ? `Delivery: ${money(input.deliveryFee)}` : "",
     input.serviceCharge > 0 ? `Service: ${money(input.serviceCharge)}` : "",
     `Total: ${money(input.total)}`,

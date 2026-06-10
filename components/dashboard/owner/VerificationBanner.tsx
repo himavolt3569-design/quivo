@@ -12,7 +12,10 @@ interface VerificationBannerProps {
   policy: KycCompliancePolicy;
 }
 
-export function VerificationBanner({ status, policy }: VerificationBannerProps) {
+export function VerificationBanner({
+  status,
+  policy,
+}: VerificationBannerProps) {
   const [dismissed, setDismissed] = useState(false);
 
   if (status === "verified" || dismissed) return null;
@@ -21,7 +24,9 @@ export function VerificationBanner({ status, policy }: VerificationBannerProps) 
     unverified: {
       icon: <ShieldAlert className="h-4 w-4 shrink-0" />,
       bg: policy.isBlocked ? "bg-red-700" : "bg-amber-600",
-      text: policy.isBlocked ? "KYC DOCUMENTS REQUIRED" : "KYC GRACE PERIOD ACTIVE",
+      text: policy.isBlocked
+        ? "KYC DOCUMENTS REQUIRED"
+        : "KYC GRACE PERIOD ACTIVE",
       sub: policy.isBlocked
         ? "Upload business proof to continue using owner features."
         : `Upload business proof within ${policy.daysRemaining} day${policy.daysRemaining === 1 ? "" : "s"}.`,
@@ -37,7 +42,9 @@ export function VerificationBanner({ status, policy }: VerificationBannerProps) 
     rejected: {
       icon: <ShieldAlert className="h-4 w-4 shrink-0" />,
       bg: policy.isBlocked ? "bg-red-700" : "bg-amber-600",
-      text: policy.isBlocked ? "KYC DOCUMENTS REQUIRED" : "VERIFICATION REJECTED",
+      text: policy.isBlocked
+        ? "KYC DOCUMENTS REQUIRED"
+        : "VERIFICATION REJECTED",
       sub: policy.isBlocked
         ? "Re-upload valid documents to continue using owner features."
         : `Re-upload valid documents within ${policy.daysRemaining} day${policy.daysRemaining === 1 ? "" : "s"}.`,
@@ -49,11 +56,17 @@ export function VerificationBanner({ status, policy }: VerificationBannerProps) 
   if (!cfg) return null;
 
   return (
-    <div className={`${cfg.bg} text-white px-4 py-2.5 flex items-center gap-3 text-sm`}>
+    <div
+      className={`${cfg.bg} text-white px-4 py-2.5 flex items-center gap-3 text-sm`}
+    >
       {cfg.icon}
       <div className="flex-1 min-w-0">
-        <span className="font-black tracking-wide text-xs uppercase">{cfg.text}</span>
-        <span className="hidden sm:inline text-white/80 text-xs ml-2">{cfg.sub}</span>
+        <span className="font-black tracking-wide text-xs uppercase">
+          {cfg.text}
+        </span>
+        <span className="hidden sm:inline text-white/80 text-xs ml-2">
+          {cfg.sub}
+        </span>
       </div>
       {cfg.cta && (
         <Link

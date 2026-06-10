@@ -15,24 +15,38 @@ interface Payload {
 
 export async function handleCartAbandoned(payload: Payload): Promise<void> {
   if (!payload.customer_id || !payload.shop_id) {
-    log.debug("cart.abandoned: missing ids", payload as Record<string, unknown>);
+    log.debug(
+      "cart.abandoned: missing ids",
+      payload as Record<string, unknown>,
+    );
     return;
   }
   const admin = createAdminClient();
 
   const [{ data: shop }, { data: user }] = await Promise.all([
-    admin.from("shops").select("name, slug").eq("id", payload.shop_id).maybeSingle(),
-    admin.from("profiles").select("email, full_name").eq("id", payload.customer_id).maybeSingle(),
+    admin
+      .from("shops")
+      .select("name, slug")
+      .eq("id", payload.shop_id)
+      .maybeSingle(),
+    admin
+      .from("profiles")
+      .select("email, full_name")
+      .eq("id", payload.customer_id)
+      .maybeSingle(),
   ]);
   if (!shop || !user) {
-    log.debug("cart.abandoned: shop/user missing — skipping", payload as Record<string, unknown>);
+    log.debug(
+      "cart.abandoned: shop/user missing — skipping",
+      payload as Record<string, unknown>,
+    );
     return;
   }
 
   const shopName = (shop.name as string) ?? "the shop";
-  const slug     = (shop.slug as string) ?? "";
+  const slug = (shop.slug as string) ?? "";
   const itemCount = Math.max(1, Number(payload.item_count ?? 1));
-  const cartUrl  = `${getSiteUrl()}/s/${slug}`;
+  const cartUrl = `${getSiteUrl()}/s/${slug}`;
 
   // In-app notification: link straight to the storefront.
   await notifyUser({
@@ -43,7 +57,9 @@ export async function handleCartAbandoned(payload: Payload): Promise<void> {
       body: `You have ${itemCount} item${itemCount === 1 ? "" : "s"} waiting in your cart.`,
       linkUrl: cartUrl,
     },
-  }).catch((err) => log.warn("cart.abandoned: notifyUser failed", { err: String(err) }));
+  }).catch((err) =>
+    log.warn("cart.abandoned: notifyUser failed", { err: String(err) }),
+  );
 
   const email = (user.email as string | null | undefined) ?? null;
   if (!email) return;
@@ -54,5 +70,7 @@ export async function handleCartAbandoned(payload: Payload): Promise<void> {
       `Hi ${user.full_name ?? "there"},\n\n` +
       `You left ${itemCount} item${itemCount === 1 ? "" : "s"} in your ${shopName} cart. ` +
       `Come back to finish your order: ${cartUrl}\n\n— Quivo`,
-  }).catch((err) => log.warn("cart.abandoned: email failed", { err: String(err) }));
+  }).catch((err) =>
+    log.warn("cart.abandoned: email failed", { err: String(err) }),
+  );
 }

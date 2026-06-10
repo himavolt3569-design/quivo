@@ -26,7 +26,10 @@ const CSP = [
 ].join("; ");
 
 function isProtectedPath(pathname: string) {
-  return pathname.startsWith("/dashboard") || pathname.startsWith("/onboarding/owner");
+  return (
+    pathname.startsWith("/dashboard") ||
+    pathname.startsWith("/onboarding/owner")
+  );
 }
 
 function makeResponse(requestHeaders: Headers, requestId: string) {
@@ -53,8 +56,13 @@ export async function proxy(request: NextRequest) {
 
   let response = makeResponse(requestHeaders, requestId);
 
-  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
-    log.warn("proxy: Supabase env vars missing — skipping auth check", { requestId });
+  if (
+    !process.env.NEXT_PUBLIC_SUPABASE_URL ||
+    !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  ) {
+    log.warn("proxy: Supabase env vars missing — skipping auth check", {
+      requestId,
+    });
 
     if (isProtectedPath(request.nextUrl.pathname)) {
       return NextResponse.redirect(new URL("/?login=true", request.url));
@@ -73,17 +81,21 @@ export async function proxy(request: NextRequest) {
             return request.cookies.getAll();
           },
           setAll(cookiesToSet) {
-            cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
+            cookiesToSet.forEach(({ name, value }) =>
+              request.cookies.set(name, value),
+            );
             response = makeResponse(requestHeaders, requestId);
             cookiesToSet.forEach(({ name, value, options }) => {
               response.cookies.set(name, value, options);
             });
           },
         },
-      }
+      },
     );
 
-    const { data: { user } } = await supabase.auth.getUser();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
 
     if (isProtectedPath(request.nextUrl.pathname) && !user) {
       return NextResponse.redirect(new URL("/?login=true", request.url));
@@ -104,7 +116,8 @@ export async function proxy(request: NextRequest) {
 export const config = {
   matcher: [
     {
-      source: "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+      source:
+        "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
       missing: [
         { type: "header", key: "next-router-prefetch" },
         { type: "header", key: "purpose", value: "prefetch" },

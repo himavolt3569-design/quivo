@@ -23,7 +23,9 @@ function Input({
   } = useComposition<HTMLInputElement>({
     onKeyDown: (e) => {
       // Check if this is an Enter key that should be blocked
-      const isComposing = (e.nativeEvent as Event & { isComposing?: boolean }).isComposing || dialogComposition.justEndedComposing();
+      const isComposing =
+        (e.nativeEvent as Event & { isComposing?: boolean }).isComposing ||
+        dialogComposition.justEndedComposing();
 
       // If Enter key is pressed while composing or just after composition ended,
       // don't call the user's onKeyDown (this blocks the business logic)
@@ -34,11 +36,11 @@ function Input({
       // Otherwise, call the user's onKeyDown
       onKeyDown?.(e);
     },
-    onCompositionStart: e => {
+    onCompositionStart: (e) => {
       dialogComposition.setComposing(true);
       onCompositionStart?.(e);
     },
-    onCompositionEnd: e => {
+    onCompositionEnd: (e) => {
       // Mark that composition just ended - this helps handle the Enter key that confirms input
       dialogComposition.markCompositionEnd();
       // Delay setting composing to false to handle Safari's event order
@@ -58,7 +60,7 @@ function Input({
         "border-[#2E3344]/8 dark:border-white/10 placeholder:text-[#746E73] dark:placeholder:text-white/50 selection:bg-[#A7653A] selection:text-white dark:bg-[#1B2030] dark:focus:bg-[#1B2030]/80 flex h-12 w-full min-w-0 rounded-xl border bg-white px-4 py-2.5 text-sm font-medium text-[#27324A] dark:text-white shadow-sm transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-[#27324A] dark:file:text-white disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50",
         "focus-visible:border-[#A7653A] focus-visible:ring-[#A7653A]/20 focus-visible:ring-[3px]",
         "aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
-        className
+        className,
       )}
       onCompositionStart={handleCompositionStart}
       onCompositionEnd={handleCompositionEnd}

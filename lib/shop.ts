@@ -113,12 +113,15 @@ export const getOwnerContext = cache(
 
     if (shops.length === 0) return { shops, activeShop: null };
 
-    const activeId = profileResult.data?.active_shop_id as string | null | undefined;
+    const activeId = profileResult.data?.active_shop_id as
+      | string
+      | null
+      | undefined;
     const activeShop =
       (activeId && shops.find((s) => s.id === activeId)) || shops[0];
 
     return { shops, activeShop };
-  }
+  },
 );
 
 const ROLE_PRIORITY: Record<ShopRole, number> = {
@@ -136,7 +139,7 @@ const ROLE_PRIORITY: Record<ShopRole, number> = {
  */
 export async function requireShopAccess(
   shopId: string,
-  minRole: ShopRole = "viewer"
+  minRole: ShopRole = "viewer",
 ): Promise<ShopRole> {
   const supabase = await createClient();
   const {

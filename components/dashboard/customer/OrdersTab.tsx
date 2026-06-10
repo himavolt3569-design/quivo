@@ -40,14 +40,14 @@ export function OrdersTab({ userId, initialOrders }: OrdersTabProps) {
         (payload) => {
           const updated = payload.new as Order;
           setOrders((prev) =>
-            prev.map((o) => (o.id === updated.id ? { ...o, ...updated } : o))
+            prev.map((o) => (o.id === updated.id ? { ...o, ...updated } : o)),
           );
           if (updated.status === "out_for_delivery") {
             toast.success("Your order is on the way! 🛵", { duration: 4000 });
           } else if (updated.status === "delivered") {
             toast.success("Order delivered! Enjoy 🎉", { duration: 5000 });
           }
-        }
+        },
       )
       .on(
         "postgres_changes",
@@ -59,7 +59,7 @@ export function OrdersTab({ userId, initialOrders }: OrdersTabProps) {
         },
         (payload) => {
           setOrders((prev) => [payload.new as Order, ...prev]);
-        }
+        },
       )
       .subscribe();
 
@@ -69,26 +69,28 @@ export function OrdersTab({ userId, initialOrders }: OrdersTabProps) {
   }, [userId]);
 
   const activeOrders = orders.filter(
-    (o) => !["delivered", "cancelled"].includes(o.status)
+    (o) => !["delivered", "cancelled"].includes(o.status),
   );
   const acceptedOrders = orders.filter((o) =>
-    ["confirmed", "packing", "out_for_delivery", "delivered"].includes(o.status)
+    ["confirmed", "packing", "out_for_delivery", "delivered"].includes(
+      o.status,
+    ),
   );
   const rejectedOrders = orders.filter((o) => o.status === "cancelled");
   const pastOrders = orders.filter((o) =>
-    ["delivered", "cancelled"].includes(o.status)
+    ["delivered", "cancelled"].includes(o.status),
   );
 
   const filteredOrders =
     orderFilter === "active"
       ? activeOrders
       : orderFilter === "accepted"
-      ? acceptedOrders
-      : orderFilter === "rejected"
-      ? rejectedOrders
-      : orderFilter === "past"
-      ? pastOrders
-      : orders;
+        ? acceptedOrders
+        : orderFilter === "rejected"
+          ? rejectedOrders
+          : orderFilter === "past"
+            ? pastOrders
+            : orders;
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
@@ -100,19 +102,38 @@ export function OrdersTab({ userId, initialOrders }: OrdersTabProps) {
             <Package className="h-32 w-32 -rotate-12" />
           </div>
           <div>
-            <h2 className="text-3xl font-bold tracking-[-0.03em] text-[#27324A]">Your Orders</h2>
+            <h2 className="text-3xl font-bold tracking-[-0.03em] text-[#27324A]">
+              Your Orders
+            </h2>
             <p className="mt-2 text-sm font-medium text-[#746E73] max-w-sm">
               Keep track of your local shipments and neighborhood essentials.
             </p>
           </div>
           <div className="mt-8 flex flex-wrap gap-3">
             {[
-              { label: "Active", count: activeOrders.length, color: "text-[#A7653A] bg-[#F7F0E6]" },
-              { label: "Accepted", count: acceptedOrders.length, color: "text-green-600 bg-green-50" },
-              { label: "Rejected", count: rejectedOrders.length, color: "text-red-600 bg-red-50" },
+              {
+                label: "Active",
+                count: activeOrders.length,
+                color: "text-[#A7653A] bg-[#F7F0E6]",
+              },
+              {
+                label: "Accepted",
+                count: acceptedOrders.length,
+                color: "text-green-600 bg-green-50",
+              },
+              {
+                label: "Rejected",
+                count: rejectedOrders.length,
+                color: "text-red-600 bg-red-50",
+              },
             ].map((stat) => (
-              <div key={stat.label} className={`px-5 py-2.5 rounded-2xl ${stat.color} flex items-center gap-2.5`}>
-                <span className="text-sm font-bold uppercase tracking-wider">{stat.label}</span>
+              <div
+                key={stat.label}
+                className={`px-5 py-2.5 rounded-2xl ${stat.color} flex items-center gap-2.5`}
+              >
+                <span className="text-sm font-bold uppercase tracking-wider">
+                  {stat.label}
+                </span>
                 <span className="text-lg font-black">{stat.count}</span>
               </div>
             ))}
@@ -120,8 +141,10 @@ export function OrdersTab({ userId, initialOrders }: OrdersTabProps) {
         </div>
 
         {/* Scan & Order Bento */}
-        <div className="md:col-span-4 rounded-[2.5rem] bg-[#27324A] p-7 text-white shadow-xl shadow-[#27324A]/10 flex flex-col justify-between group cursor-pointer"
-             onClick={() => setScannerOpen(true)}>
+        <div
+          className="md:col-span-4 rounded-[2.5rem] bg-[#27324A] p-7 text-white shadow-xl shadow-[#27324A]/10 flex flex-col justify-between group cursor-pointer"
+          onClick={() => setScannerOpen(true)}
+        >
           <div className="h-12 w-12 rounded-2xl bg-white/10 flex items-center justify-center mb-4 transition-transform group-hover:scale-110">
             <Barcode className="h-6 w-6 text-[#D8C99A]" />
           </div>
@@ -139,7 +162,9 @@ export function OrdersTab({ userId, initialOrders }: OrdersTabProps) {
 
       {/* Filter pills */}
       <div className="flex flex-wrap items-center gap-1.5 p-1 bg-[#E8E3D1]/40 rounded-3xl w-fit">
-        {(["active", "accepted", "rejected", "past", "all"] as OrderFilter[]).map((f) => (
+        {(
+          ["active", "accepted", "rejected", "past", "all"] as OrderFilter[]
+        ).map((f) => (
           <button
             key={f}
             onClick={() => setOrderFilter(f)}
@@ -160,7 +185,9 @@ export function OrdersTab({ userId, initialOrders }: OrdersTabProps) {
           <div className="mx-auto mb-4 h-16 w-16 grid place-items-center rounded-2xl bg-[#F7F0E6] text-[#A7653A]">
             <Package className="h-8 w-8" />
           </div>
-          <p className="text-base font-bold text-[#27324A]">No {orderFilter} orders found</p>
+          <p className="text-base font-bold text-[#27324A]">
+            No {orderFilter} orders found
+          </p>
           <p className="mt-1 text-sm text-[#746E73]">
             Start shopping by scanning a product barcode.
           </p>

@@ -24,6 +24,8 @@ export interface DiscoverShop {
   address: string | null;
   opening_time: string | null;
   closing_time: string | null;
+  is_wholesale?: boolean;
+  delivery_radius_km?: number;
 }
 
 interface ShopWithDistance extends DiscoverShop {
@@ -38,7 +40,7 @@ function haversineKm(
   lat1: number,
   lon1: number,
   lat2: number,
-  lon2: number
+  lon2: number,
 ): number {
   const R = 6371;
   const dLat = ((lat2 - lat1) * Math.PI) / 180;
@@ -56,7 +58,10 @@ function fmtDist(km: number): string {
   return `${km.toFixed(1)} km away`;
 }
 
-function isOpen(opening: string | null, closing: string | null): boolean | null {
+function isOpen(
+  opening: string | null,
+  closing: string | null,
+): boolean | null {
   if (!opening || !closing) return null;
   const now = new Date();
   const [oh, om] = opening.split(":").map(Number);
@@ -98,7 +103,7 @@ function ShopCard({ shop }: { shop: ShopWithDistance }) {
             {shop.name}
           </h3>
           <p className="text-[10px] font-bold uppercase tracking-wider text-[#746E73] mt-0.5">
-            {shop.category ?? "Shop"}
+            {shop.category ?? "Shop"} {shop.is_wholesale ? "• WHOLESALER" : ""}
           </p>
           {status !== null && (
             <span
@@ -178,9 +183,10 @@ function SectionHeader({
 
 interface ShopsTabProps {
   shops: DiscoverShop[];
+  retailerShopId?: string | null;
 }
 
-export function ShopsTab({ shops }: ShopsTabProps) {
+export function ShopsTab({ shops, retailerShopId }: ShopsTabProps) {
   const [locState, setLocState] = useState<LocState>("loading");
   const [userLat, setUserLat] = useState<number | null>(null);
   const [userLng, setUserLng] = useState<number | null>(null);
@@ -201,26 +207,37 @@ export function ShopsTab({ shops }: ShopsTabProps) {
       () => {
         setLocState("denied");
       },
-      { timeout: 8000 }
+      { timeout: 8000 },
     );
   }, []);
 
   // Compute distances
   const shopsWithDist: ShopWithDistance[] = shops.map((s) => {
-    if (locState === "granted" && userLat !== null && userLng !== null && s.lat !== null && s.lng !== null) {
+    if (
+      locState === "granted" &&
+      userLat !== null &&
+      userLng !== null &&
+      s.lat !== null &&
+      s.lng !== null
+    ) {
       return { ...s, distanceKm: haversineKm(userLat, userLng, s.lat, s.lng) };
     }
     return { ...s, distanceKm: null };
   });
 
-  // Filter by search
-  const filtered = search.trim().length >= 1
-    ? shopsWithDist.filter((s) =>
+  // Filter by search and wholesale visibility
+  const filtered = shopsWithDist.filter((s) => {
+    if (s.is_wholesale && !retailerShopId) return false;
+    
+    if (search.trim().length >= 1) {
+      return (
         s.name.toLowerCase().includes(search.toLowerCase()) ||
         (s.category ?? "").toLowerCase().includes(search.toLowerCase()) ||
         (s.description ?? "").toLowerCase().includes(search.toLowerCase())
-      )
-    : shopsWithDist;
+      );
+    }
+    return true;
+  });
 
   // Split into nearby / far when location is known
   const locKnown = locState === "granted" && userLat !== null;
@@ -231,13 +248,18 @@ export function ShopsTab({ shops }: ShopsTabProps) {
 
   if (locKnown) {
     filtered.forEach((s) => {
+      const radius = s.is_wholesale ? (s.delivery_radius_km ?? NEARBY_KM) : NEARBY_KM;
       if (s.distanceKm === null) unknownShops.push(s);
-      else if (s.distanceKm <= NEARBY_KM) nearbyShops.push(s);
+      else if (s.distanceKm <= radius) nearbyShops.push(s);
       else farShops.push(s);
     });
     // Sort nearby by ascending distance
-    nearbyShops.sort((a, b) => (a.distanceKm ?? Infinity) - (b.distanceKm ?? Infinity));
-    farShops.sort((a, b) => (a.distanceKm ?? Infinity) - (b.distanceKm ?? Infinity));
+    nearbyShops.sort(
+      (a, b) => (a.distanceKm ?? Infinity) - (b.distanceKm ?? Infinity),
+    );
+    farShops.sort(
+      (a, b) => (a.distanceKm ?? Infinity) - (b.distanceKm ?? Infinity),
+    );
   } else {
     unknownShops = filtered;
   }
@@ -253,7 +275,8 @@ export function ShopsTab({ shops }: ShopsTabProps) {
           Discover Shops
         </h1>
         <p className="mt-2 text-sm font-medium text-[#746E73] max-w-sm">
-          Find verified local shops near you. Shops within {NEARBY_KM} km shown first.
+          Find verified local shops near you. Shops within {NEARBY_KM} km shown
+          first.
         </p>
 
         {/* Search */}
@@ -273,7 +296,9 @@ export function ShopsTab({ shops }: ShopsTabProps) {
       {locState === "loading" && (
         <div className="flex items-center gap-3 rounded-2xl border border-[#2E3344]/10 bg-[#f8f8f7] px-5 py-4">
           <span className="h-4 w-4 animate-spin rounded-full border-2 border-[#A7653A] border-t-transparent shrink-0" />
-          <p className="text-sm font-medium text-[#746E73]">Getting your location…</p>
+          <p className="text-sm font-medium text-[#746E73]">
+            Getting your location…
+          </p>
         </div>
       )}
 
@@ -281,9 +306,12 @@ export function ShopsTab({ shops }: ShopsTabProps) {
         <div className="flex items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4">
           <AlertCircle className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
           <div>
-            <p className="text-sm font-bold text-amber-900">Location access denied</p>
+            <p className="text-sm font-bold text-amber-900">
+              Location access denied
+            </p>
             <p className="text-xs text-amber-700 mt-0.5 font-medium">
-              Enable location permission in your browser to see shops sorted by distance from you. All shops are shown below.
+              Enable location permission in your browser to see shops sorted by
+              distance from you. All shops are shown below.
             </p>
           </div>
         </div>
@@ -302,7 +330,8 @@ export function ShopsTab({ shops }: ShopsTabProps) {
         <div className="flex items-center gap-3 rounded-2xl border border-green-200 bg-green-50 px-5 py-4">
           <Navigation className="h-4 w-4 text-green-600 shrink-0" />
           <p className="text-sm font-bold text-green-800">
-            Showing shops sorted by your distance · {NEARBY_KM} km radius is &quot;Nearby&quot;
+            Showing shops sorted by your distance · {NEARBY_KM} km radius is
+            &quot;Nearby&quot;
           </p>
         </div>
       )}
@@ -320,8 +349,12 @@ export function ShopsTab({ shops }: ShopsTabProps) {
               <div className="mx-auto mb-4 h-14 w-14 rounded-2xl bg-[#F7F0E6] flex items-center justify-center">
                 <Store className="h-7 w-7 text-[#A7653A]" />
               </div>
-              <p className="text-sm font-bold text-[#27324A]">No shops within {NEARBY_KM} km</p>
-              <p className="mt-1 text-xs text-[#746E73]">Check the &quot;Far Away&quot; section below for more options.</p>
+              <p className="text-sm font-bold text-[#27324A]">
+                No shops within {NEARBY_KM} km
+              </p>
+              <p className="mt-1 text-xs text-[#746E73]">
+                Check the &quot;Far Away&quot; section below for more options.
+              </p>
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -343,7 +376,8 @@ export function ShopsTab({ shops }: ShopsTabProps) {
           />
           <div className="rounded-2xl border border-[#2E3344]/8 bg-[#f8f8f7]/60 p-4 mb-4">
             <p className="text-xs font-medium text-[#746E73]">
-              These shops are more than {NEARBY_KM} km away. Delivery may take longer or may not be available.
+              These shops are more than {NEARBY_KM} km away. Delivery may take
+              longer or may not be available.
             </p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -385,7 +419,9 @@ export function ShopsTab({ shops }: ShopsTabProps) {
           <div className="mx-auto mb-4 h-16 w-16 rounded-2xl bg-[#F7F0E6] flex items-center justify-center">
             <Store className="h-8 w-8 text-[#A7653A]" />
           </div>
-          <p className="text-base font-bold text-[#27324A]">No verified shops yet</p>
+          <p className="text-base font-bold text-[#27324A]">
+            No verified shops yet
+          </p>
           <p className="mt-1 text-sm text-[#746E73]">
             Shops will appear here once they complete verification.
           </p>
@@ -395,8 +431,12 @@ export function ShopsTab({ shops }: ShopsTabProps) {
       {/* ── No search results ────────────────────────────────────── */}
       {shops.length > 0 && filtered.length === 0 && search.length > 0 && (
         <div className="rounded-[2rem] border border-dashed border-[#2E3344]/15 bg-white/50 p-12 text-center">
-          <p className="text-sm font-bold text-[#27324A]">No shops match &quot;{search}&quot;</p>
-          <p className="mt-1 text-xs text-[#746E73]">Try a different name or category.</p>
+          <p className="text-sm font-bold text-[#27324A]">
+            No shops match &quot;{search}&quot;
+          </p>
+          <p className="mt-1 text-xs text-[#746E73]">
+            Try a different name or category.
+          </p>
         </div>
       )}
     </div>

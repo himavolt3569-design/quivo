@@ -46,7 +46,7 @@ export function AddressOverviewMap({ addresses }: { addresses: Address[] }) {
       L.marker([addr.lat!, addr.lng!], { icon: makePinIcon(color) })
         .bindPopup(
           `<div style="font-size:12px;font-weight:700;color:${color};margin-bottom:2px">${addr.label}</div>` +
-            `<div style="font-size:11px;color:#27324A;line-height:1.5">${addr.address_line}${addr.landmark ? `<br/>${addr.landmark}` : ""}</div>`
+            `<div style="font-size:11px;color:#27324A;line-height:1.5">${addr.address_line}${addr.landmark ? `<br/>${addr.landmark}` : ""}</div>`,
         )
         .addTo(map);
     });
@@ -56,7 +56,7 @@ export function AddressOverviewMap({ addresses }: { addresses: Address[] }) {
     } else {
       map.fitBounds(
         pinned.map((a) => [a.lat!, a.lng!] as [number, number]),
-        { padding: [40, 40] }
+        { padding: [40, 40] },
       );
     }
 

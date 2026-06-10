@@ -33,19 +33,24 @@ export async function handleOrderPlaced(payload: Payload): Promise<void> {
 
   const admin = createAdminClient();
 
-  const [{ data: shop }, { data: order }, { data: members }] = await Promise.all([
-    admin.from("shops").select("id, name, logo_url, theme_color, pan_number").eq("id", payload.shop_id).maybeSingle(),
-    admin
-      .from("orders")
-      .select("items, tax_rate, customer_name, tracking_token")
-      .eq("id", payload.order_id)
-      .maybeSingle(),
-    admin
-      .from("shop_members")
-      .select("user_id")
-      .eq("shop_id", payload.shop_id)
-      .eq("status", "active"),
-  ]);
+  const [{ data: shop }, { data: order }, { data: members }] =
+    await Promise.all([
+      admin
+        .from("shops")
+        .select("id, name, logo_url, theme_color, pan_number")
+        .eq("id", payload.shop_id)
+        .maybeSingle(),
+      admin
+        .from("orders")
+        .select("items, tax_rate, customer_name, tracking_token")
+        .eq("id", payload.order_id)
+        .maybeSingle(),
+      admin
+        .from("shop_members")
+        .select("user_id")
+        .eq("shop_id", payload.shop_id)
+        .eq("status", "active"),
+    ]);
 
   const shopName = (shop?.name as string | undefined) ?? "the shop";
 
@@ -66,15 +71,21 @@ export async function handleOrderPlaced(payload: Payload): Promise<void> {
             total: payload.total,
           },
         },
-      }).catch((err) => log.error("notifyUser owner failed", { err: err instanceof Error ? err.message : String(err) }))
-    )
+      }).catch((err) =>
+        log.error("notifyUser owner failed", {
+          err: err instanceof Error ? err.message : String(err),
+        }),
+      ),
+    ),
   );
 
   // Customer email — only when we have one. Anonymous orders carry only a
   // phone number; SMS path lands in Phase 7.
   if (payload.customer_email && order) {
     const items = Array.isArray(order.items)
-      ? (order.items as Array<{ name?: string; qty?: number; price?: number }>).map((i) => ({
+      ? (
+          order.items as Array<{ name?: string; qty?: number; price?: number }>
+        ).map((i) => ({
           name: i.name ?? "Item",
           qty: Number(i.qty ?? 0),
           price: Number(i.price ?? 0),

@@ -3,8 +3,10 @@
 import * as React from "react";
 import { Input } from "@/components/ui/input";
 import {
-  PhoneSchema, OptionalPhoneSchema,
-  EmailSchema, OptionalEmailSchema,
+  PhoneSchema,
+  OptionalPhoneSchema,
+  EmailSchema,
+  OptionalEmailSchema,
   prettyPhone,
 } from "@/lib/validation";
 import { cn } from "@/lib/utils";
@@ -45,10 +47,12 @@ export function PhoneInput({
   // Local state is only used in uncontrolled mode (for format-on-blur). When
   // controlled, the parent owns the value and we render `value` directly —
   // no useEffect sync needed.
-  const [uncontrolledValue, setUncontrolledValue] = React.useState<string>(() => {
-    const raw = defaultValue ?? "";
-    return typeof raw === "string" ? raw : String(raw);
-  });
+  const [uncontrolledValue, setUncontrolledValue] = React.useState<string>(
+    () => {
+      const raw = defaultValue ?? "";
+      return typeof raw === "string" ? raw : String(raw);
+    },
+  );
   const displayValue = isControlled
     ? typeof value === "string"
       ? value
@@ -56,16 +60,31 @@ export function PhoneInput({
     : uncontrolledValue;
   const [error, setError] = React.useState<string | null>(null);
 
-  const validate = React.useCallback((raw: string): { ok: boolean; canonical: string | null; err: string | null } => {
-    if (!raw || raw.trim() === "") {
-      if (required) return { ok: false, canonical: null, err: "Phone is required" };
-      return { ok: true, canonical: null, err: null };
-    }
-    const schema = required ? PhoneSchema : OptionalPhoneSchema;
-    const result = schema.safeParse(raw);
-    if (!result.success) return { ok: false, canonical: null, err: result.error.issues[0].message };
-    return { ok: true, canonical: (result.data as string | null) ?? null, err: null };
-  }, [required]);
+  const validate = React.useCallback(
+    (
+      raw: string,
+    ): { ok: boolean; canonical: string | null; err: string | null } => {
+      if (!raw || raw.trim() === "") {
+        if (required)
+          return { ok: false, canonical: null, err: "Phone is required" };
+        return { ok: true, canonical: null, err: null };
+      }
+      const schema = required ? PhoneSchema : OptionalPhoneSchema;
+      const result = schema.safeParse(raw);
+      if (!result.success)
+        return {
+          ok: false,
+          canonical: null,
+          err: result.error.issues[0].message,
+        };
+      return {
+        ok: true,
+        canonical: (result.data as string | null) ?? null,
+        err: null,
+      };
+    },
+    [required],
+  );
 
   const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
     const raw = e.target.value;
@@ -78,7 +97,10 @@ export function PhoneInput({
         // Update both the visible value and the form's value via change event semantics.
         if (!isControlled) setUncontrolledValue(pretty);
         // Fire a synthetic change so consumers using onChange see the cleaned value.
-        const ev = { ...e, target: { ...e.target, value: pretty } } as React.ChangeEvent<HTMLInputElement>;
+        const ev = {
+          ...e,
+          target: { ...e.target, value: pretty },
+        } as React.ChangeEvent<HTMLInputElement>;
         onChange?.(ev);
       }
     }
@@ -115,7 +137,10 @@ export function PhoneInput({
         <p
           id={`${rest.name ?? "phone"}-error`}
           role="alert"
-          className={cn("flex items-start gap-1 text-[11px] font-bold text-red-600", errorClassName)}
+          className={cn(
+            "flex items-start gap-1 text-[11px] font-bold text-red-600",
+            errorClassName,
+          )}
         >
           <AlertCircle className="h-3 w-3 mt-0.5 shrink-0" />
           {error}
@@ -149,13 +174,23 @@ export function EmailInput({
 
   const validate = (raw: string) => {
     if (!raw || raw.trim() === "") {
-      if (required) return { ok: false, canonical: null, err: "Email is required" };
+      if (required)
+        return { ok: false, canonical: null, err: "Email is required" };
       return { ok: true, canonical: null, err: null };
     }
     const schema = required ? EmailSchema : OptionalEmailSchema;
     const result = schema.safeParse(raw);
-    if (!result.success) return { ok: false, canonical: null, err: result.error.issues[0].message };
-    return { ok: true, canonical: (result.data as string | null) ?? null, err: null };
+    if (!result.success)
+      return {
+        ok: false,
+        canonical: null,
+        err: result.error.issues[0].message,
+      };
+    return {
+      ok: true,
+      canonical: (result.data as string | null) ?? null,
+      err: null,
+    };
   };
 
   const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
@@ -195,7 +230,10 @@ export function EmailInput({
         <p
           id={`${rest.name ?? "email"}-error`}
           role="alert"
-          className={cn("flex items-start gap-1 text-[11px] font-bold text-red-600", errorClassName)}
+          className={cn(
+            "flex items-start gap-1 text-[11px] font-bold text-red-600",
+            errorClassName,
+          )}
         >
           <AlertCircle className="h-3 w-3 mt-0.5 shrink-0" />
           {error}

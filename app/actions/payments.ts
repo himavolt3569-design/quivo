@@ -29,13 +29,23 @@ import { checkRateLimit } from "@/lib/rate-limit";
 import { emitBackground } from "@/lib/events/emit";
 import { initiatePaymentProvider } from "@/lib/payments";
 import type {
-  InitiateContext, InitiateResult, PaymentMethod, PaymentSecrets, PublicPaymentMethods,
+  InitiateContext,
+  InitiateResult,
+  PaymentMethod,
+  PaymentSecrets,
+  PublicPaymentMethods,
 } from "@/lib/payments";
 import { PAYMENT_METHODS } from "@/lib/payments/constants";
 import { revalidatePath } from "next/cache";
 import { randomUUID } from "node:crypto";
 import { z } from "zod";
-import { PhoneSchema, OptionalEmailSchema, PersonNameSchema, AddressSchema as AddressTextSchema, OptionalShortText } from "@/lib/validation";
+import {
+  PhoneSchema,
+  OptionalEmailSchema,
+  PersonNameSchema,
+  AddressSchema as AddressTextSchema,
+  OptionalShortText,
+} from "@/lib/validation";
 
 interface CartItemInput {
   id: string;
@@ -74,12 +84,17 @@ export interface PlaceOrderResult {
 }
 
 const ShopIdSchema = z.string().uuid();
-const CartSchema = z.array(z.object({
-  id: z.string().uuid(),
-  name: z.string().trim().max(200).optional(),
-  price: z.coerce.number().min(0).max(10000000).optional(),
-  qty: z.coerce.number().positive().max(99),
-})).min(1).max(50);
+const CartSchema = z
+  .array(
+    z.object({
+      id: z.string().uuid(),
+      name: z.string().trim().max(200).optional(),
+      price: z.coerce.number().min(0).max(10000000).optional(),
+      qty: z.coerce.number().positive().max(99),
+    }),
+  )
+  .min(1)
+  .max(50);
 const CustomerSchema = z.object({
   name: PersonNameSchema,
   phone: PhoneSchema,
@@ -90,7 +105,10 @@ const CustomerSchema = z.object({
   deliveryLng: z.coerce.number().min(-180).max(180).nullable().optional(),
 });
 const OrderNumberSchema = z.string().trim().min(6).max(80);
-const TrackingTokenSchema = z.string().trim().regex(/^[a-f0-9]{48}$/i, "Invalid tracking token.");
+const TrackingTokenSchema = z
+  .string()
+  .trim()
+  .regex(/^[a-f0-9]{48}$/i, "Invalid tracking token.");
 
 type CreatedPaymentRow = {
   order_id: string;
@@ -132,7 +150,10 @@ async function failPaymentAndRestoreStock(paymentId: string, reason: string) {
         .from("payments")
         .update({
           payment_status: "payment_failed",
-          gateway_response: { reason: reason.slice(0, 500), stock_restore: "rpc_unavailable" },
+          gateway_response: {
+            reason: reason.slice(0, 500),
+            stock_restore: "rpc_unavailable",
+          },
         })
         .eq("id", paymentId)
         .eq("payment_status", "payment_initiated");
@@ -152,14 +173,32 @@ async function failPaymentAndRestoreStock(paymentId: string, reason: string) {
 
 function hasValidReceiptSignature(bytes: Uint8Array, mime: string) {
   if (mime === "application/pdf") {
-    return bytes[0] === 0x25 && bytes[1] === 0x50 && bytes[2] === 0x44 && bytes[3] === 0x46;
+    return (
+      bytes[0] === 0x25 &&
+      bytes[1] === 0x50 &&
+      bytes[2] === 0x44 &&
+      bytes[3] === 0x46
+    );
   }
   if (mime === "image/png") {
-    return bytes[0] === 0x89 && bytes[1] === 0x50 && bytes[2] === 0x4e && bytes[3] === 0x47;
+    return (
+      bytes[0] === 0x89 &&
+      bytes[1] === 0x50 &&
+      bytes[2] === 0x4e &&
+      bytes[3] === 0x47
+    );
   }
   if (mime === "image/webp") {
-    return bytes[0] === 0x52 && bytes[1] === 0x49 && bytes[2] === 0x46 && bytes[3] === 0x46
-      && bytes[8] === 0x57 && bytes[9] === 0x45 && bytes[10] === 0x42 && bytes[11] === 0x50;
+    return (
+      bytes[0] === 0x52 &&
+      bytes[1] === 0x49 &&
+      bytes[2] === 0x46 &&
+      bytes[3] === 0x46 &&
+      bytes[8] === 0x57 &&
+      bytes[9] === 0x45 &&
+      bytes[10] === 0x42 &&
+      bytes[11] === 0x50
+    );
   }
   if (mime === "image/jpeg" || mime === "image/jpg") {
     return bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff;
@@ -173,9 +212,12 @@ export async function placeOrderWithPayment(
   cart: CartItemInput[],
   paymentMethod: string,
   customer: CustomerInfo,
-  options: { promoCode?: string | null; walletUsed?: number } = {}
+  options: { promoCode?: string | null; walletUsed?: number } = {},
 ): Promise<PlaceOrderResult> {
-  const rateLimit = await checkRateLimit("placeOrderWithPayment", { maxAttempts: 10, windowMs: 10 * 60 * 1000 });
+  const rateLimit = await checkRateLimit("placeOrderWithPayment", {
+    maxAttempts: 10,
+    windowMs: 10 * 60 * 1000,
+  });
   if (!rateLimit.success) return { error: rateLimit.error };
 
   const shopParse = ShopIdSchema.safeParse(shopId);
@@ -183,20 +225,26 @@ export async function placeOrderWithPayment(
   const cartParse = CartSchema.safeParse(cart);
   if (!cartParse.success) return { error: cartParse.error.issues[0].message };
   const customerParse = CustomerSchema.safeParse(customer);
-  if (!customerParse.success) return { error: customerParse.error.issues[0].message };
-  if (!isPaymentMethod(paymentMethod)) return { error: "Invalid payment method." };
+  if (!customerParse.success)
+    return { error: customerParse.error.issues[0].message };
+  if (!isPaymentMethod(paymentMethod))
+    return { error: "Invalid payment method." };
 
   // Display-only estimate. The database recomputes the authoritative total
   // from locked product rows and ignores this value for billing.
   let total = 0;
-  for (const item of cartParse.data) total += Number(item.price ?? 0) * Number(item.qty);
+  for (const item of cartParse.data)
+    total += Number(item.price ?? 0) * Number(item.qty);
   total = Math.round(total * 100) / 100;
 
   const supabase = await createClient();
   const orderNumber = newOrderNumber();
   const transactionReference = randomUUID();
 
-  const walletUsed = Math.max(0, Math.round(Number(options.walletUsed ?? 0) * 100) / 100);
+  const walletUsed = Math.max(
+    0,
+    Math.round(Number(options.walletUsed ?? 0) * 100) / 100,
+  );
   const promoCode = options.promoCode?.trim() || null;
 
   const { data, error } = await supabase
@@ -223,7 +271,9 @@ export async function placeOrderWithPayment(
   if (error) {
     if (error.message.startsWith("INSUFFICIENT_STOCK:")) {
       const name = error.message.slice("INSUFFICIENT_STOCK:".length);
-      return { error: `"${name}" is no longer available in the requested quantity.` };
+      return {
+        error: `"${name}" is no longer available in the requested quantity.`,
+      };
     }
     if (error.message.startsWith("PAYMENT_METHOD_DISABLED:")) {
       const m = error.message.slice("PAYMENT_METHOD_DISABLED:".length);
@@ -238,13 +288,13 @@ export async function placeOrderWithPayment(
       return { error: `Maximum wallet redemption is Rs. ${m}.` };
     }
     const codeMap: Record<string, string> = {
-      CODE_NOT_FOUND:        "Promo code not found.",
-      CODE_INACTIVE:         "This promo code is no longer active.",
-      CODE_NOT_YET_VALID:    "This promo code isn't valid yet.",
-      CODE_EXPIRED:          "This promo code has expired.",
-      CODE_USED_UP:          "This promo code has reached its usage limit.",
-      WALLET_REQUIRES_AUTH:  "Sign in to use your wallet balance.",
-      WALLET_OVERPAY:        "Wallet amount can't exceed the order subtotal.",
+      CODE_NOT_FOUND: "Promo code not found.",
+      CODE_INACTIVE: "This promo code is no longer active.",
+      CODE_NOT_YET_VALID: "This promo code isn't valid yet.",
+      CODE_EXPIRED: "This promo code has expired.",
+      CODE_USED_UP: "This promo code has reached its usage limit.",
+      WALLET_REQUIRES_AUTH: "Sign in to use your wallet balance.",
+      WALLET_OVERPAY: "Wallet amount can't exceed the order subtotal.",
     };
     if (codeMap[error.message]) return { error: codeMap[error.message] };
     return { error: error.message };
@@ -280,7 +330,11 @@ export async function placeOrderWithPayment(
   });
 
   // Offline methods (cod / bank_transfer / qr_code) — no gateway initiation.
-  if (paymentMethod === "cod" || paymentMethod === "bank_transfer" || paymentMethod === "qr_code") {
+  if (
+    paymentMethod === "cod" ||
+    paymentMethod === "bank_transfer" ||
+    paymentMethod === "qr_code"
+  ) {
     revalidatePath("/dashboard/owner/orders");
     return {
       orderNumber: data.order_number,
@@ -300,8 +354,13 @@ export async function placeOrderWithPayment(
       .rpc("get_shop_payment_secrets", { p_shop_id: shopParse.data })
       .single<PaymentSecrets>();
     if (secretsErr || !secretsRow) {
-      await failPaymentAndRestoreStock(data.payment_id, "Shop payment configuration is missing for this method.");
-      return { error: "Shop payment configuration is missing for this method." };
+      await failPaymentAndRestoreStock(
+        data.payment_id,
+        "Shop payment configuration is missing for this method.",
+      );
+      return {
+        error: "Shop payment configuration is missing for this method.",
+      };
     }
 
     const baseUrl = getSiteUrl();
@@ -320,7 +379,11 @@ export async function placeOrderWithPayment(
       },
       baseUrl,
     };
-    initiateResult = await initiatePaymentProvider(paymentMethod, ctx, secretsRow);
+    initiateResult = await initiatePaymentProvider(
+      paymentMethod,
+      ctx,
+      secretsRow,
+    );
     if (paymentMethod === "khalti" && initiateResult.gatewayReference) {
       await admin
         .from("payments")
@@ -329,7 +392,8 @@ export async function placeOrderWithPayment(
         .eq("payment_status", "payment_initiated");
     }
   } catch (err) {
-    const msg = err instanceof Error ? err.message : "Failed to initiate payment.";
+    const msg =
+      err instanceof Error ? err.message : "Failed to initiate payment.";
     await failPaymentAndRestoreStock(data.payment_id, msg);
     // Best-effort: persist failed-init in audit log via admin client.
     try {
@@ -344,7 +408,9 @@ export async function placeOrderWithPayment(
         to_status: "payment_failed",
         metadata: { reason: msg },
       });
-    } catch { /* swallow */ }
+    } catch {
+      /* swallow */
+    }
     return { error: `Gateway initiation failed: ${msg}` };
   }
 
@@ -373,9 +439,12 @@ export async function placeOrderWithPayment(
 export async function uploadReceiptForOrder(
   orderNumber: string,
   trackingToken: string,
-  formData: FormData
+  formData: FormData,
 ): Promise<{ error?: string; receiptPath?: string }> {
-  const rateLimit = await checkRateLimit("uploadReceiptForOrder", { maxAttempts: 8, windowMs: 15 * 60 * 1000 });
+  const rateLimit = await checkRateLimit("uploadReceiptForOrder", {
+    maxAttempts: 8,
+    windowMs: 15 * 60 * 1000,
+  });
   if (!rateLimit.success) return { error: rateLimit.error };
 
   const orderParse = OrderNumberSchema.safeParse(orderNumber);
@@ -406,7 +475,10 @@ export async function uploadReceiptForOrder(
     })
     .single<{ order_id: string; shop_id: string; payment_method: string }>();
   if (orderErr || !order) return { error: "Order not found." };
-  if (order.payment_method !== "bank_transfer" && order.payment_method !== "qr_code") {
+  if (
+    order.payment_method !== "bank_transfer" &&
+    order.payment_method !== "qr_code"
+  ) {
     return { error: "This order does not accept receipt uploads." };
   }
 
@@ -431,7 +503,10 @@ export async function uploadReceiptForOrder(
     p_receipt_url: path,
   });
   if (attachErr) {
-    await admin.storage.from("payment_receipts").remove([path]).catch(() => null);
+    await admin.storage
+      .from("payment_receipts")
+      .remove([path])
+      .catch(() => null);
     return { error: attachErr.message };
   }
 
@@ -445,13 +520,20 @@ export async function getOrderByNumber(orderNumber: string) {
   return { error: "Tracking token is required." };
 }
 
-export async function getOrderByNumberWithToken(orderNumber: string, trackingToken: string) {
-  const rateLimit = await checkRateLimit("getOrderByNumberWithToken", { maxAttempts: 30, windowMs: 15 * 60 * 1000 });
+export async function getOrderByNumberWithToken(
+  orderNumber: string,
+  trackingToken: string,
+) {
+  const rateLimit = await checkRateLimit("getOrderByNumberWithToken", {
+    maxAttempts: 30,
+    windowMs: 15 * 60 * 1000,
+  });
   if (!rateLimit.success) return { error: rateLimit.error };
 
   const orderParse = OrderNumberSchema.safeParse(orderNumber);
   const tokenParse = TrackingTokenSchema.safeParse(trackingToken);
-  if (!orderParse.success || !tokenParse.success) return { error: "Order not found." };
+  if (!orderParse.success || !tokenParse.success)
+    return { error: "Order not found." };
 
   const supabase = await createClient();
   const { data, error } = await supabase
@@ -478,10 +560,14 @@ export interface OrderCoords {
 
 /** Coords-only lookup for the tracking-page delivery map. Separate from
  *  getOrderByNumberWithToken so we don't change that function's shape. */
-export async function getOrderCoords(orderNumber: string, trackingToken: string) {
+export async function getOrderCoords(
+  orderNumber: string,
+  trackingToken: string,
+) {
   const orderParse = OrderNumberSchema.safeParse(orderNumber);
   const tokenParse = TrackingTokenSchema.safeParse(trackingToken);
-  if (!orderParse.success || !tokenParse.success) return { error: "Order not found." };
+  if (!orderParse.success || !tokenParse.success)
+    return { error: "Order not found." };
 
   const supabase = await createClient();
   const { data, error } = await supabase
@@ -496,7 +582,7 @@ export async function getOrderCoords(orderNumber: string, trackingToken: string)
 
 /** Anon-safe: returns enabled methods + bank/QR display fields, NEVER secrets. */
 export async function getPublicShopPaymentMethods(
-  shopId: string
+  shopId: string,
 ): Promise<{ error?: string; methods?: PublicPaymentMethods }> {
   const shopParse = ShopIdSchema.safeParse(shopId);
   if (!shopParse.success) return { error: "Invalid shop." };
@@ -510,9 +596,15 @@ export async function getPublicShopPaymentMethods(
     return {
       methods: {
         enabled_methods: ["cod"],
-        bank_name: null, bank_account_holder: null, bank_account_number: null,
-        bank_branch: null, bank_swift_code: null, qr_code_url: null,
-        payment_instructions: null, has_esewa: false, has_khalti: false,
+        bank_name: null,
+        bank_account_holder: null,
+        bank_account_number: null,
+        bank_branch: null,
+        bank_swift_code: null,
+        qr_code_url: null,
+        payment_instructions: null,
+        has_esewa: false,
+        has_khalti: false,
       },
     };
   }

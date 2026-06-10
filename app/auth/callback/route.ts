@@ -2,10 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getSafeRedirectPath } from "@/lib/security";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { AUTH_ERROR_CODES, type AuthErrorCode } from "@/lib/auth-errors";
-import {
-  decideCallbackOutcome,
-  type Role,
-} from "@/lib/auth-callback-decision";
+import { decideCallbackOutcome, type Role } from "@/lib/auth-callback-decision";
 import { NextResponse } from "next/server";
 import { createHash } from "crypto";
 import { headers } from "next/headers";
@@ -20,8 +17,14 @@ async function hashIp(): Promise<string | null> {
     const h = await headers();
     const ip = h.get("x-forwarded-for")?.split(",")[0]?.trim();
     if (!ip) return null;
-    const salt = process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "";
-    return createHash("sha256").update(`${ip}|${salt}`).digest("hex").slice(0, 32);
+    const salt =
+      process.env.SUPABASE_SERVICE_ROLE_KEY ??
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ??
+      "";
+    return createHash("sha256")
+      .update(`${ip}|${salt}`)
+      .digest("hex")
+      .slice(0, 32);
   } catch {
     return null;
   }
@@ -30,7 +33,7 @@ async function hashIp(): Promise<string | null> {
 function errorRedirect(
   origin: string,
   code: AuthErrorCode,
-  extra?: Record<string, string>
+  extra?: Record<string, string>,
 ) {
   const params = new URLSearchParams({ auth_error: code, ...(extra ?? {}) });
   return NextResponse.redirect(`${origin}/?${params.toString()}`);
@@ -49,7 +52,8 @@ export async function GET(request: Request) {
   try {
     const supabase = await createClient();
 
-    const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
+    const { error: exchangeError } =
+      await supabase.auth.exchangeCodeForSession(code);
     if (exchangeError) {
       log.error("auth/callback: exchange failed", {
         event: "exchange_failed",
@@ -120,13 +124,13 @@ export async function GET(request: Request) {
       const seedRole: Role =
         metaRole === "owner" || metaRole === "customer"
           ? metaRole
-          : intent ?? "customer";
+          : (intent ?? "customer");
 
       const { error: insertError } = await supabase
         .from("profiles")
         .upsert(
           { id: user.id, email: user.email!, role: seedRole },
-          { onConflict: "id", ignoreDuplicates: true }
+          { onConflict: "id", ignoreDuplicates: true },
         );
 
       if (insertError) {
@@ -145,8 +149,7 @@ export async function GET(request: Request) {
 
     // Resolve hasShop only when relevant (owner path). The decision helper
     // can read it as `false` for customers without us paying for a query.
-    const effectiveRole: Role =
-      existingRole ?? (intent ?? "customer");
+    const effectiveRole: Role = existingRole ?? intent ?? "customer";
     let hasShop = false;
     if (effectiveRole === "owner" && !profileCreationConflict) {
       const { count } = await supabase
@@ -189,7 +192,8 @@ export async function GET(request: Request) {
       } catch (auditErr) {
         log.error("auth/callback: audit log failed", {
           event: "audit_log_failed",
-          error: auditErr instanceof Error ? auditErr.message : String(auditErr),
+          error:
+            auditErr instanceof Error ? auditErr.message : String(auditErr),
         });
       }
 

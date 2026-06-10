@@ -51,7 +51,11 @@ function NavbarContent({ scrollToSection }: NavbarProps) {
       } = await supabase.auth.getUser();
       setUser(user);
       if (user) {
-        const { data } = await supabase.from("profiles").select("avatar_url, full_name").eq("id", user.id).single();
+        const { data } = await supabase
+          .from("profiles")
+          .select("avatar_url, full_name")
+          .eq("id", user.id)
+          .single();
         setProfile(data);
       }
     };
@@ -61,7 +65,11 @@ function NavbarContent({ scrollToSection }: NavbarProps) {
       async (event, session) => {
         setUser(session?.user ?? null);
         if (session?.user) {
-          const { data } = await supabase.from("profiles").select("avatar_url, full_name").eq("id", session.user.id).single();
+          const { data } = await supabase
+            .from("profiles")
+            .select("avatar_url, full_name")
+            .eq("id", session.user.id)
+            .single();
           setProfile(data);
         } else {
           setProfile(null);
@@ -156,7 +164,11 @@ function NavbarContent({ scrollToSection }: NavbarProps) {
                   className="flex items-center gap-2 rounded-full bg-[#27324A] px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-[#27324A]/25 transition hover:-translate-y-0.5 hover:bg-[#1B2030] focus:outline-none focus:ring-2 focus:ring-[#27324A] focus:ring-offset-4"
                 >
                   {profile?.avatar_url ? (
-                    <img src={profile.avatar_url} alt="Profile" className="h-5 w-5 rounded-full object-cover ring-1 ring-white/20" />
+                    <img
+                      src={profile.avatar_url}
+                      alt="Profile"
+                      className="h-5 w-5 rounded-full object-cover ring-1 ring-white/20"
+                    />
                   ) : (
                     <UserIcon className="h-4 w-4" />
                   )}
@@ -245,7 +257,11 @@ function NavbarContent({ scrollToSection }: NavbarProps) {
                         className="flex min-h-12 items-center justify-center gap-2 rounded-full bg-[#27324A] px-5 text-sm font-semibold text-white shadow-lg shadow-[#27324A]/20"
                       >
                         {profile?.avatar_url ? (
-                          <img src={profile.avatar_url} alt="Profile" className="h-5 w-5 rounded-full object-cover ring-1 ring-white/20" />
+                          <img
+                            src={profile.avatar_url}
+                            alt="Profile"
+                            className="h-5 w-5 rounded-full object-cover ring-1 ring-white/20"
+                          />
                         ) : (
                           <UserIcon className="h-4 w-4" />
                         )}

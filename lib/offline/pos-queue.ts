@@ -51,7 +51,9 @@ function tx(db: IDBDatabase, mode: IDBTransactionMode) {
   return { store: t.objectStore(STORE), tx: t };
 }
 
-export async function enqueue(item: Omit<QueuedSale, "id" | "queuedAt" | "attempts">): Promise<number> {
+export async function enqueue(
+  item: Omit<QueuedSale, "id" | "queuedAt" | "attempts">,
+): Promise<number> {
   const db = await open();
   return new Promise((resolve, reject) => {
     const { store, tx } = (function getTx() {
@@ -88,20 +90,27 @@ export async function remove(id: number): Promise<void> {
   });
 }
 
-export async function update(id: number, patch: Partial<QueuedSale>): Promise<void> {
+export async function update(
+  id: number,
+  patch: Partial<QueuedSale>,
+): Promise<void> {
   const db = await open();
   return new Promise((resolve, reject) => {
     const { store, tx: t } = tx(db, "readwrite");
     const getReq = store.get(id);
     getReq.onsuccess = () => {
       const current = getReq.result as QueuedSale | undefined;
-      if (!current) { resolve(); return; }
+      if (!current) {
+        resolve();
+        return;
+      }
       const next: QueuedSale = { ...current, ...patch };
       const putReq = store.put(next);
       putReq.onerror = () => reject(putReq.error ?? new Error("update failed"));
       putReq.onsuccess = () => resolve();
     };
-    getReq.onerror = () => reject(getReq.error ?? new Error("update read failed"));
+    getReq.onerror = () =>
+      reject(getReq.error ?? new Error("update read failed"));
     t.oncomplete = () => db.close();
   });
 }
@@ -122,7 +131,7 @@ export async function clear(): Promise<void> {
  * The caller passes the action so this module stays UI-agnostic.
  */
 export async function replayQueue(
-  submit: (input: POSSaleInput) => Promise<{ success?: true; error?: string }>
+  submit: (input: POSSaleInput) => Promise<{ success?: true; error?: string }>,
 ): Promise<{ flushed: number; failed: number }> {
   const items = await list();
   let flushed = 0;

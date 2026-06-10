@@ -66,10 +66,11 @@ export async function loginWithEmail(formData: FormData) {
   const { email, password } = parseResult.data;
   const supabase = await createClient();
 
-  const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
-    email,
-    password,
-  });
+  const { data: authData, error: authError } =
+    await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
 
   if (authError) {
     return { error: "Invalid email or password." };
@@ -81,7 +82,10 @@ export async function loginWithEmail(formData: FormData) {
     const cookieStore = await cookies();
     const allCookies = cookieStore.getAll();
     for (const cookie of allCookies) {
-      if (cookie.name.startsWith("sb-") && cookie.name.endsWith("-auth-token")) {
+      if (
+        cookie.name.startsWith("sb-") &&
+        cookie.name.endsWith("-auth-token")
+      ) {
         // Overwrite the cookie to be a session cookie (no maxAge, no expires)
         cookieStore.set(cookie.name, cookie.value, {
           path: "/",

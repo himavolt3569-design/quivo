@@ -49,7 +49,9 @@ export type HeldCartLine = z.infer<typeof CartLineSchema>;
 
 async function authedClient() {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) throw new Error("Unauthorized");
   return { supabase, user };
 }
@@ -63,7 +65,16 @@ export async function parkSale(input: HeldCartPayload) {
   if (!parse.success) {
     return { error: parse.error.issues[0]?.message ?? "Invalid cart payload" };
   }
-  const { shopId, cart, note, customerName, orderDiscount, orderDiscountKind, orderDiscountValue, buyerName } = parse.data;
+  const {
+    shopId,
+    cart,
+    note,
+    customerName,
+    orderDiscount,
+    orderDiscountKind,
+    orderDiscountValue,
+    buyerName,
+  } = parse.data;
 
   try {
     const { supabase, user } = await authedClient();
@@ -90,7 +101,11 @@ export async function parkSale(input: HeldCartPayload) {
       .single();
 
     if (error) {
-      log.error("parkSale: insert failed", { code: error.code, message: error.message, shopId });
+      log.error("parkSale: insert failed", {
+        code: error.code,
+        message: error.message,
+        shopId,
+      });
       return { error: error.message };
     }
     revalidatePath("/dashboard/owner/pos");
@@ -112,7 +127,9 @@ export interface HeldSaleSummary {
 /**
  * List open held sales for a shop, most recent first.
  */
-export async function listHeldSales(shopId: string): Promise<{ rows?: HeldSaleSummary[]; error?: string }> {
+export async function listHeldSales(
+  shopId: string,
+): Promise<{ rows?: HeldSaleSummary[]; error?: string }> {
   const parse = ShopIdSchema.safeParse(shopId);
   if (!parse.success) return { error: "Invalid shop ID" };
 
@@ -126,14 +143,20 @@ export async function listHeldSales(shopId: string): Promise<{ rows?: HeldSaleSu
       .limit(50);
 
     if (error) {
-      log.error("listHeldSales: select failed", { code: error.code, message: error.message });
+      log.error("listHeldSales: select failed", {
+        code: error.code,
+        message: error.message,
+      });
       return { error: error.message };
     }
 
     const rows: HeldSaleSummary[] = (data ?? []).map((r) => {
       const cart = (r.cart ?? {}) as { cart?: HeldCartLine[] };
       const lines = Array.isArray(cart.cart) ? cart.cart : [];
-      const total = lines.reduce((a, l) => a + l.price * l.qty - (l.lineDiscount ?? 0), 0);
+      const total = lines.reduce(
+        (a, l) => a + l.price * l.qty - (l.lineDiscount ?? 0),
+        0,
+      );
       return {
         id: r.id as string,
         created_at: r.created_at as string,
@@ -165,7 +188,10 @@ export async function getHeldSale(id: string) {
       .maybeSingle();
 
     if (error) {
-      log.error("getHeldSale: select failed", { code: error.code, message: error.message });
+      log.error("getHeldSale: select failed", {
+        code: error.code,
+        message: error.message,
+      });
       return { error: error.message };
     }
     if (!data) return { error: "Held sale not found" };
@@ -184,9 +210,15 @@ export async function deleteHeldSale(id: string) {
 
   try {
     const { supabase } = await authedClient();
-    const { error } = await supabase.from("held_sales").delete().eq("id", parse.data);
+    const { error } = await supabase
+      .from("held_sales")
+      .delete()
+      .eq("id", parse.data);
     if (error) {
-      log.error("deleteHeldSale: failed", { code: error.code, message: error.message });
+      log.error("deleteHeldSale: failed", {
+        code: error.code,
+        message: error.message,
+      });
       return { error: error.message };
     }
     revalidatePath("/dashboard/owner/pos");

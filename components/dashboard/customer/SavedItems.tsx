@@ -12,7 +12,11 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { toast } from "sonner";
-import { toggleSavedShop, toggleSavedProduct, placeOrder } from "@/app/actions/customer";
+import {
+  toggleSavedShop,
+  toggleSavedProduct,
+  placeOrder,
+} from "@/app/actions/customer";
 import type { SavedShop, SavedProduct, Order } from "@/lib/types";
 
 interface SavedItemsProps {
@@ -45,7 +49,7 @@ export function SavedItems({
   // ─── Derived wishlist data ───────────────────────────────────────────────
   const totalWishlistValue = savedProducts.reduce(
     (sum, p) => sum + parsePrice(p.product_price),
-    0
+    0,
   );
 
   const productsByShop = savedProducts.reduce<Record<string, SavedProduct[]>>(
@@ -54,7 +58,7 @@ export function SavedItems({
       (acc[key] ??= []).push(p);
       return acc;
     },
-    {}
+    {},
   );
 
   // ─── Handlers ─────────────────────────────────────────────────────────────
@@ -79,7 +83,7 @@ export function SavedItems({
         product_name: product.product_name,
       });
       onProductsChange?.(
-        savedProducts.filter((p) => p.product_id !== product.product_id)
+        savedProducts.filter((p) => p.product_id !== product.product_id),
       );
       toast.success(`${product.product_name} removed from wishlist`);
     } catch {
@@ -121,7 +125,10 @@ export function SavedItems({
     }
   };
 
-  const handleOrderAllFromShop = async (shopName: string, products: SavedProduct[]) => {
+  const handleOrderAllFromShop = async (
+    shopName: string,
+    products: SavedProduct[],
+  ) => {
     setOrderingShop(shopName);
     try {
       const items = products.map((p) => ({
@@ -130,13 +137,17 @@ export function SavedItems({
         quantity: 1,
         image: p.product_image ?? undefined,
       }));
-      const result = await placeOrder({ shop_name: shopName, items, eta_minutes: 20 });
+      const result = await placeOrder({
+        shop_name: shopName,
+        items,
+        eta_minutes: 20,
+      });
       if (result.error) {
         toast.error(result.error);
       } else if (result.order) {
         onOrderPlaced?.(result.order as Order);
         toast.success(
-          `${items.length} item${items.length !== 1 ? "s" : ""} ordered from ${shopName}`
+          `${items.length} item${items.length !== 1 ? "s" : ""} ordered from ${shopName}`,
         );
       }
     } catch {
@@ -172,7 +183,9 @@ export function SavedItems({
           ))}
         </div>
         <p className="text-[11px] font-bold uppercase tracking-widest text-[#A7653A] bg-[#F7F0E6] px-3 py-1.5 rounded-full">
-          {subTab === "wishlist" ? `${savedProducts.length} items` : `${savedShops.length} stores`}
+          {subTab === "wishlist"
+            ? `${savedProducts.length} items`
+            : `${savedShops.length} stores`}
         </p>
       </div>
 
@@ -184,9 +197,12 @@ export function SavedItems({
               <div className="mx-auto mb-4 h-16 w-16 grid place-items-center rounded-2xl bg-[#F7F0E6] text-[#A7653A]">
                 <Bookmark className="h-8 w-8" />
               </div>
-              <p className="text-base font-bold text-[#27324A]">Your wishlist is empty</p>
+              <p className="text-base font-bold text-[#27324A]">
+                Your wishlist is empty
+              </p>
               <p className="mt-1 text-sm text-[#746E73] max-w-xs mx-auto">
-                Save products while browsing to keep track of your neighborhood favorites.
+                Save products while browsing to keep track of your neighborhood
+                favorites.
               </p>
             </div>
           ) : (
@@ -198,21 +214,36 @@ export function SavedItems({
                     <Bookmark className="h-32 w-32 rotate-12" />
                   </div>
                   <div className="relative z-10">
-                    <p className="text-xs font-bold uppercase tracking-widest text-white/60">Estimated Total</p>
-                    <p className="text-4xl font-black mt-2">Rs. {totalWishlistValue.toLocaleString()}</p>
+                    <p className="text-xs font-bold uppercase tracking-widest text-white/60">
+                      Estimated Total
+                    </p>
+                    <p className="text-4xl font-black mt-2">
+                      Rs. {totalWishlistValue.toLocaleString()}
+                    </p>
                     <p className="mt-4 text-sm text-white/70 font-medium">
-                      Ready to restock? You have items from <span className="text-[#D8C99A] font-bold">{Object.keys(productsByShop).length} local shops</span> in your list.
+                      Ready to restock? You have items from{" "}
+                      <span className="text-[#D8C99A] font-bold">
+                        {Object.keys(productsByShop).length} local shops
+                      </span>{" "}
+                      in your list.
                     </p>
                   </div>
                 </div>
                 <div className="md:col-span-4 rounded-[2.5rem] bg-[#F7F0E6] border border-[#A7653A]/10 p-8 flex flex-col justify-center text-center">
-                   <p className="text-xs font-bold uppercase tracking-widest text-[#8D5132]">Quick Action</p>
-                   <button 
-                     onClick={() => handleOrderAllFromShop(Object.keys(productsByShop)[0], Object.values(productsByShop)[0])}
-                     className="mt-4 py-4 rounded-full bg-[#A7653A] text-white text-xs font-black uppercase tracking-widest shadow-lg shadow-[#A7653A]/20 hover:bg-[#8E5432] transition active:scale-95"
-                   >
-                     Order Top Shop
-                   </button>
+                  <p className="text-xs font-bold uppercase tracking-widest text-[#8D5132]">
+                    Quick Action
+                  </p>
+                  <button
+                    onClick={() =>
+                      handleOrderAllFromShop(
+                        Object.keys(productsByShop)[0],
+                        Object.values(productsByShop)[0],
+                      )
+                    }
+                    className="mt-4 py-4 rounded-full bg-[#A7653A] text-white text-xs font-black uppercase tracking-widest shadow-lg shadow-[#A7653A]/20 hover:bg-[#8E5432] transition active:scale-95"
+                  >
+                    Order Top Shop
+                  </button>
                 </div>
               </div>
 
@@ -221,7 +252,7 @@ export function SavedItems({
                 {Object.entries(productsByShop).map(([shopName, products]) => {
                   const shopTotal = products.reduce(
                     (sum, p) => sum + parsePrice(p.product_price),
-                    0
+                    0,
                   );
                   const isOrderingThisShop = orderingShop === shopName;
 
@@ -233,13 +264,18 @@ export function SavedItems({
                       {/* Shop header */}
                       <div className="px-6 py-5 border-b border-[#2E3344]/6 bg-[#F7F0E6]/30 flex items-center justify-between">
                         <div className="min-w-0">
-                          <p className="text-[10px] font-black uppercase tracking-widest text-[#A7653A]">{shopName}</p>
+                          <p className="text-[10px] font-black uppercase tracking-widest text-[#A7653A]">
+                            {shopName}
+                          </p>
                           <p className="text-xs font-bold text-[#27324A] mt-0.5">
-                            {products.length} Items · Rs. {shopTotal.toLocaleString()}
+                            {products.length} Items · Rs.{" "}
+                            {shopTotal.toLocaleString()}
                           </p>
                         </div>
                         <button
-                          onClick={() => handleOrderAllFromShop(shopName, products)}
+                          onClick={() =>
+                            handleOrderAllFromShop(shopName, products)
+                          }
                           disabled={isOrderingThisShop}
                           className="h-10 w-10 rounded-xl bg-[#27324A] text-white flex items-center justify-center hover:bg-[#1B2030] disabled:opacity-50 transition active:scale-95"
                         >
@@ -255,13 +291,17 @@ export function SavedItems({
                             className="flex items-center gap-3 p-2 rounded-2xl border border-transparent hover:border-[#2E3344]/8 hover:bg-[#F7F0E6]/20 transition"
                           >
                             <div className="h-14 w-14 rounded-2xl bg-[#F7F0E6] overflow-hidden flex-shrink-0">
-                               {product.product_image ? (
-                                  <img src={product.product_image} alt="" className="h-full w-full object-cover" />
-                               ) : (
-                                  <div className="h-full w-full flex items-center justify-center text-[#A7653A]">
-                                    <Package className="h-5 w-5" />
-                                  </div>
-                               )}
+                              {product.product_image ? (
+                                <img
+                                  src={product.product_image}
+                                  alt=""
+                                  className="h-full w-full object-cover"
+                                />
+                              ) : (
+                                <div className="h-full w-full flex items-center justify-center text-[#A7653A]">
+                                  <Package className="h-5 w-5" />
+                                </div>
+                              )}
                             </div>
 
                             <div className="flex-1 min-w-0">
@@ -276,10 +316,15 @@ export function SavedItems({
                             <div className="flex items-center gap-1">
                               <button
                                 onClick={() => handleReorderOne(product)}
-                                disabled={orderingProduct === product.product_id || isOrderingThisShop}
+                                disabled={
+                                  orderingProduct === product.product_id ||
+                                  isOrderingThisShop
+                                }
                                 className="h-9 px-4 rounded-full bg-[#F7F0E6] text-[11px] font-bold text-[#27324A] hover:bg-[#A7653A] hover:text-white transition active:scale-95 disabled:opacity-30"
                               >
-                                {orderingProduct === product.product_id ? "…" : "Order"}
+                                {orderingProduct === product.product_id
+                                  ? "…"
+                                  : "Order"}
                               </button>
                               <button
                                 onClick={() => handleRemoveProduct(product)}
@@ -308,7 +353,9 @@ export function SavedItems({
               <div className="mx-auto mb-4 h-16 w-16 grid place-items-center rounded-2xl bg-[#F7F0E6] text-[#A7653A]">
                 <Store className="h-8 w-8" />
               </div>
-              <p className="text-base font-bold text-[#27324A]">No saved shops</p>
+              <p className="text-base font-bold text-[#27324A]">
+                No saved shops
+              </p>
               <p className="mt-1 text-sm text-[#746E73]">
                 Heart your favorite neighborhood stores to see them here.
               </p>
@@ -323,7 +370,11 @@ export function SavedItems({
                   <div className="flex items-center gap-4">
                     <div className="h-16 w-16 rounded-2xl bg-[#E8E3D1] overflow-hidden flex-shrink-0">
                       {shop.shop_image ? (
-                        <img src={shop.shop_image} alt="" className="h-full w-full object-cover" />
+                        <img
+                          src={shop.shop_image}
+                          alt=""
+                          className="h-full w-full object-cover"
+                        />
                       ) : (
                         <div className="h-full w-full flex items-center justify-center text-[#626A54]">
                           <Store className="h-7 w-7" />
@@ -339,21 +390,23 @@ export function SavedItems({
                       </p>
                     </div>
                   </div>
-                  
+
                   <div className="mt-5 pt-4 border-t border-[#2E3344]/5 flex items-center justify-between">
-                     <p className="text-[11px] font-bold text-[#746E73]">{shop.shop_distance}km away</p>
-                     <div className="flex items-center gap-2">
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleRemoveShop(shop);
-                          }}
-                          className="h-9 w-9 rounded-full bg-[#F7F0E6] text-[#A7653A] flex items-center justify-center hover:bg-red-50 hover:text-red-500 transition"
-                        >
-                          <Heart className="h-4 w-4 fill-current" />
-                        </button>
-                        <ChevronRight className="h-4 w-4 text-[#746E73]/40 group-hover:text-[#A7653A] transition group-hover:translate-x-1" />
-                     </div>
+                    <p className="text-[11px] font-bold text-[#746E73]">
+                      {shop.shop_distance}km away
+                    </p>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleRemoveShop(shop);
+                        }}
+                        className="h-9 w-9 rounded-full bg-[#F7F0E6] text-[#A7653A] flex items-center justify-center hover:bg-red-50 hover:text-red-500 transition"
+                      >
+                        <Heart className="h-4 w-4 fill-current" />
+                      </button>
+                      <ChevronRight className="h-4 w-4 text-[#746E73]/40 group-hover:text-[#A7653A] transition group-hover:translate-x-1" />
+                    </div>
                   </div>
                 </div>
               ))}

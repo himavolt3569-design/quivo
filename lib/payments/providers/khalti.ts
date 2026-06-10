@@ -13,17 +13,21 @@
  * Amount unit: Khalti uses PAISA (1 NPR = 100 paisa). Always integer.
  */
 import type {
-  InitiateContext, InitiateResult, VerifyContext, VerifyResult, PaymentSecrets,
+  InitiateContext,
+  InitiateResult,
+  VerifyContext,
+  VerifyResult,
+  PaymentSecrets,
 } from "../types";
 
 const KHALTI_ENDPOINTS = {
   sandbox: {
     initiate: "https://a.khalti.com/api/v2/epayment/initiate/",
-    lookup:   "https://a.khalti.com/api/v2/epayment/lookup/",
+    lookup: "https://a.khalti.com/api/v2/epayment/lookup/",
   },
   production: {
     initiate: "https://khalti.com/api/v2/epayment/initiate/",
-    lookup:   "https://khalti.com/api/v2/epayment/lookup/",
+    lookup: "https://khalti.com/api/v2/epayment/lookup/",
   },
 };
 const FETCH_TIMEOUT_MS = 10_000;
@@ -35,7 +39,7 @@ function npRupeesToPaisa(amountNpr: number): number {
 
 export async function initiateKhalti(
   ctx: InitiateContext,
-  secrets: PaymentSecrets
+  secrets: PaymentSecrets,
 ): Promise<InitiateResult> {
   if (!secrets.khalti_secret_key) {
     throw new Error("KHALTI_NOT_CONFIGURED");
@@ -43,7 +47,8 @@ export async function initiateKhalti(
   const env = secrets.khalti_environment;
   const endpoint = KHALTI_ENDPOINTS[env].initiate;
 
-  const returnUrl = `${ctx.baseUrl}/api/payments/khalti/callback` +
+  const returnUrl =
+    `${ctx.baseUrl}/api/payments/khalti/callback` +
     `?payment_id=${encodeURIComponent(ctx.paymentId)}`;
 
   const body = {
@@ -51,7 +56,10 @@ export async function initiateKhalti(
     website_url: ctx.baseUrl,
     amount: npRupeesToPaisa(ctx.amount),
     purchase_order_id: ctx.transactionReference,
-    purchase_order_name: `Order ${ctx.orderNumber} — ${ctx.shopName}`.slice(0, 64),
+    purchase_order_name: `Order ${ctx.orderNumber} — ${ctx.shopName}`.slice(
+      0,
+      64,
+    ),
     customer_info: {
       name: ctx.customer.name || "Customer",
       email: ctx.customer.email ?? undefined,
@@ -66,14 +74,15 @@ export async function initiateKhalti(
     signal,
     headers: {
       "Content-Type": "application/json",
-      "Authorization": `Key ${secrets.khalti_secret_key}`,
+      Authorization: `Key ${secrets.khalti_secret_key}`,
     },
     body: JSON.stringify(body),
   });
 
   const json = await res.json().catch(() => null);
   if (!res.ok || !json?.payment_url || !json?.pidx) {
-    const detail = json?.detail ?? json?.error_key ?? JSON.stringify(json ?? {});
+    const detail =
+      json?.detail ?? json?.error_key ?? JSON.stringify(json ?? {});
     throw new Error(`KHALTI_INITIATE_FAILED:${detail}`);
   }
 
@@ -110,7 +119,7 @@ export async function verifyKhalti(ctx: VerifyContext): Promise<VerifyResult> {
       signal,
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Key ${secrets.khalti_secret_key}`,
+        Authorization: `Key ${secrets.khalti_secret_key}`,
       },
       body: JSON.stringify({ pidx }),
     });
@@ -128,13 +137,15 @@ export async function verifyKhalti(ctx: VerifyContext): Promise<VerifyResult> {
     }
 
     // Khalti returns total_amount in paisa.
-    const lookupAmountNpr = (typeof lookup.total_amount === "number")
-      ? lookup.total_amount / 100
-      : NaN;
+    const lookupAmountNpr =
+      typeof lookup.total_amount === "number" ? lookup.total_amount / 100 : NaN;
     if (Math.abs(lookupAmountNpr - amount) > 0.01) {
       return { ok: false, reason: "AMOUNT_MISMATCH", rawResponse: lookup };
     }
-    if (lookup.purchase_order_id && lookup.purchase_order_id !== ctx.transactionReference) {
+    if (
+      lookup.purchase_order_id &&
+      lookup.purchase_order_id !== ctx.transactionReference
+    ) {
       return { ok: false, reason: "TXN_REF_MISMATCH", rawResponse: lookup };
     }
 

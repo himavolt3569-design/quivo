@@ -2,7 +2,10 @@ import { createClient } from "@/lib/supabase/server";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { StorefrontPage } from "@/components/storefront/StorefrontPage";
-import type { ShopData, StoreProduct } from "@/components/storefront/templates/types";
+import type {
+  ShopData,
+  StoreProduct,
+} from "@/components/storefront/templates/types";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -39,12 +42,16 @@ export default async function PublicShopPage({ params }: Props) {
 
   const { data: products } = await supabase
     .from("products")
-    .select("id, name, brand, category, unit, variant, price, stock, image_url, images, barcode, description")
+    .select(
+      "id, name, brand, category, unit, variant, price, stock, image_url, images, barcode, description",
+    )
     .eq("shop_id", shop.id)
     .eq("status", "active")
     .gt("stock", 0)
     .order("category")
     .order("name");
 
-  return <StorefrontPage shop={shop} products={(products ?? []) as StoreProduct[]} />;
+  return (
+    <StorefrontPage shop={shop} products={(products ?? []) as StoreProduct[]} />
+  );
 }

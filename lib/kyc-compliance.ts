@@ -11,7 +11,11 @@ import { sendEmail, type SendEmailResult } from "@/lib/email/send";
 import { renderKycComplianceEmail } from "@/emails/KycComplianceEmail";
 import type { BrandedShop } from "@/lib/email/layout";
 
-export type VerificationStatus = "unverified" | "pending" | "verified" | "rejected";
+export type VerificationStatus =
+  | "unverified"
+  | "pending"
+  | "verified"
+  | "rejected";
 
 export type KycNotificationStage = "grace" | "warning" | "deadline";
 
@@ -67,12 +71,13 @@ export function getKycNotificationStage(
     grace?: string | null;
     warning?: string | null;
     deadline?: string | null;
-  }
+  },
 ): KycNotificationStage | null {
   if (!policy.needsDocuments) return null;
   if (!sent.grace) return "grace";
   if (policy.isBlocked && !sent.deadline) return "deadline";
-  if (policy.isGraceActive && policy.daysRemaining <= 7 && !sent.warning) return "warning";
+  if (policy.isGraceActive && policy.daysRemaining <= 7 && !sent.warning)
+    return "warning";
   return null;
 }
 
@@ -87,7 +92,7 @@ export interface SendKycEmailInput {
 }
 
 export async function sendKycComplianceEmail(
-  input: SendKycEmailInput
+  input: SendKycEmailInput,
 ): Promise<SendEmailResult> {
   const rendered = renderKycComplianceEmail({
     shopName: input.shopName,

@@ -5,7 +5,12 @@ import Link from "next/link";
 import { ChevronLeft, Ticket, Plus, Trash2, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 
-import { createPromoCode, deletePromoCode, togglePromoActive, type PromoRow } from "@/app/actions/promo";
+import {
+  createPromoCode,
+  deletePromoCode,
+  togglePromoActive,
+  type PromoRow,
+} from "@/app/actions/promo";
 
 interface Props {
   shopId: string;
@@ -35,14 +40,28 @@ export function PromoCodesView({ shopId, initialRows }: Props) {
         value: Number(form.value),
         minSubtotal: Number(form.minSubtotal || 0),
         maxDiscount: form.maxDiscount ? Number(form.maxDiscount) : null,
-        maxUses:     form.maxUses     ? Number(form.maxUses)     : null,
-        validFrom:   form.validFrom   ? new Date(form.validFrom).toISOString()   : null,
-        validTo:     form.validTo     ? new Date(form.validTo).toISOString()     : null,
+        maxUses: form.maxUses ? Number(form.maxUses) : null,
+        validFrom: form.validFrom
+          ? new Date(form.validFrom).toISOString()
+          : null,
+        validTo: form.validTo ? new Date(form.validTo).toISOString() : null,
         active: true,
       });
-      if (res.error) { toast.error(res.error); return; }
+      if (res.error) {
+        toast.error(res.error);
+        return;
+      }
       toast.success("Created");
-      setForm((f) => ({ ...f, code: "", value: "10", minSubtotal: "0", maxDiscount: "", maxUses: "", validFrom: "", validTo: "" }));
+      setForm((f) => ({
+        ...f,
+        code: "",
+        value: "10",
+        minSubtotal: "0",
+        maxDiscount: "",
+        maxUses: "",
+        validFrom: "",
+        validTo: "",
+      }));
       // Optimistically add a placeholder; on next nav the list refetches.
       setRows((cur) => [
         {
@@ -52,10 +71,12 @@ export function PromoCodesView({ shopId, initialRows }: Props) {
           value: Number(form.value),
           min_subtotal: Number(form.minSubtotal || 0),
           max_discount: form.maxDiscount ? Number(form.maxDiscount) : null,
-          max_uses:     form.maxUses     ? Number(form.maxUses)     : null,
+          max_uses: form.maxUses ? Number(form.maxUses) : null,
           used_count: 0,
-          valid_from: form.validFrom ? new Date(form.validFrom).toISOString() : null,
-          valid_to:   form.validTo   ? new Date(form.validTo).toISOString()   : null,
+          valid_from: form.validFrom
+            ? new Date(form.validFrom).toISOString()
+            : null,
+          valid_to: form.validTo ? new Date(form.validTo).toISOString() : null,
           active: true,
           created_at: new Date().toISOString(),
         },
@@ -67,21 +88,32 @@ export function PromoCodesView({ shopId, initialRows }: Props) {
   const toggle = (id: string, next: boolean) =>
     startTransition(async () => {
       const res = await togglePromoActive(id, next);
-      if (res.error) { toast.error(res.error); return; }
-      setRows((cur) => cur.map((r) => (r.id === id ? { ...r, active: next } : r)));
+      if (res.error) {
+        toast.error(res.error);
+        return;
+      }
+      setRows((cur) =>
+        cur.map((r) => (r.id === id ? { ...r, active: next } : r)),
+      );
     });
 
   const remove = (id: string) =>
     startTransition(async () => {
       const res = await deletePromoCode(id);
-      if (res.error) { toast.error(res.error); return; }
+      if (res.error) {
+        toast.error(res.error);
+        return;
+      }
       setRows((cur) => cur.filter((r) => r.id !== id));
     });
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500 pb-12">
       <div>
-        <Link href="/dashboard/owner/payments" className="inline-flex items-center gap-1 text-xs font-bold text-[#746E73] hover:text-[#27324A] mb-2">
+        <Link
+          href="/dashboard/owner/payments"
+          className="inline-flex items-center gap-1 text-xs font-bold text-[#746E73] hover:text-[#27324A] mb-2"
+        >
           <ChevronLeft className="h-3 w-3" /> Back to Payments
         </Link>
         <h1 className="text-2xl font-black text-[#27324A] flex items-center gap-2">
@@ -98,7 +130,14 @@ export function PromoCodesView({ shopId, initialRows }: Props) {
           <Field label="Code" hint="e.g. WELCOME10">
             <input
               value={form.code}
-              onChange={(e) => setForm({ ...form, code: e.target.value.toUpperCase().replace(/[^A-Z0-9_-]/g, "") })}
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  code: e.target.value
+                    .toUpperCase()
+                    .replace(/[^A-Z0-9_-]/g, ""),
+                })
+              }
               className="w-full h-10 rounded-xl border border-black/10 px-3 text-sm font-bold tracking-wide"
               placeholder="WELCOME10"
               maxLength={40}
@@ -118,9 +157,15 @@ export function PromoCodesView({ shopId, initialRows }: Props) {
               ))}
             </div>
           </Field>
-          <Field label={form.kind === "percent" ? "Percent off" : "Flat amount (Rs.)"}>
+          <Field
+            label={
+              form.kind === "percent" ? "Percent off" : "Flat amount (Rs.)"
+            }
+          >
             <input
-              type="number" min="0" step="0.01"
+              type="number"
+              min="0"
+              step="0.01"
               value={form.value}
               onChange={(e) => setForm({ ...form, value: e.target.value })}
               className="w-full h-10 rounded-xl border border-black/10 px-3 text-sm"
@@ -128,18 +173,26 @@ export function PromoCodesView({ shopId, initialRows }: Props) {
           </Field>
           <Field label="Min. subtotal (Rs.)">
             <input
-              type="number" min="0" step="0.01"
+              type="number"
+              min="0"
+              step="0.01"
               value={form.minSubtotal}
-              onChange={(e) => setForm({ ...form, minSubtotal: e.target.value })}
+              onChange={(e) =>
+                setForm({ ...form, minSubtotal: e.target.value })
+              }
               className="w-full h-10 rounded-xl border border-black/10 px-3 text-sm"
             />
           </Field>
           {form.kind === "percent" && (
             <Field label="Max discount cap (optional)">
               <input
-                type="number" min="0" step="0.01"
+                type="number"
+                min="0"
+                step="0.01"
                 value={form.maxDiscount}
-                onChange={(e) => setForm({ ...form, maxDiscount: e.target.value })}
+                onChange={(e) =>
+                  setForm({ ...form, maxDiscount: e.target.value })
+                }
                 placeholder="e.g. 500"
                 className="w-full h-10 rounded-xl border border-black/10 px-3 text-sm"
               />
@@ -147,7 +200,9 @@ export function PromoCodesView({ shopId, initialRows }: Props) {
           )}
           <Field label="Max uses (optional)">
             <input
-              type="number" min="1" step="1"
+              type="number"
+              min="1"
+              step="1"
               value={form.maxUses}
               onChange={(e) => setForm({ ...form, maxUses: e.target.value })}
               placeholder="∞"
@@ -206,16 +261,31 @@ export function PromoCodesView({ shopId, initialRows }: Props) {
             <tbody>
               {rows.map((r) => (
                 <tr key={r.id} className="border-t border-black/5">
-                  <td className="px-4 py-3 font-mono font-black text-[#27324A]">{r.code}</td>
-                  <td className="px-4 py-3 text-xs font-bold text-[#27324A]">
-                    {r.kind === "percent" ? `${r.value}% off${r.max_discount ? ` (max Rs. ${r.max_discount})` : ""}` : `Rs. ${r.value} off`}
+                  <td className="px-4 py-3 font-mono font-black text-[#27324A]">
+                    {r.code}
                   </td>
-                  <td className="px-4 py-3 text-xs">{r.min_subtotal > 0 ? `Rs. ${r.min_subtotal}` : "—"}</td>
-                  <td className="px-4 py-3 text-xs">{r.used_count}{r.max_uses ? ` / ${r.max_uses}` : ""}</td>
+                  <td className="px-4 py-3 text-xs font-bold text-[#27324A]">
+                    {r.kind === "percent"
+                      ? `${r.value}% off${r.max_discount ? ` (max Rs. ${r.max_discount})` : ""}`
+                      : `Rs. ${r.value} off`}
+                  </td>
+                  <td className="px-4 py-3 text-xs">
+                    {r.min_subtotal > 0 ? `Rs. ${r.min_subtotal}` : "—"}
+                  </td>
+                  <td className="px-4 py-3 text-xs">
+                    {r.used_count}
+                    {r.max_uses ? ` / ${r.max_uses}` : ""}
+                  </td>
                   <td className="px-4 py-3 text-xs">
                     {r.valid_from || r.valid_to ? (
                       <>
-                        {r.valid_from ? new Date(r.valid_from).toLocaleDateString() : "—"} → {r.valid_to ? new Date(r.valid_to).toLocaleDateString() : "—"}
+                        {r.valid_from
+                          ? new Date(r.valid_from).toLocaleDateString()
+                          : "—"}{" "}
+                        →{" "}
+                        {r.valid_to
+                          ? new Date(r.valid_to).toLocaleDateString()
+                          : "—"}
                       </>
                     ) : (
                       "Always"
@@ -250,12 +320,24 @@ export function PromoCodesView({ shopId, initialRows }: Props) {
   );
 }
 
-function Field({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
+function Field({
+  label,
+  hint,
+  children,
+}: {
+  label: string;
+  hint?: string;
+  children: React.ReactNode;
+}) {
   return (
     <label className="block">
-      <span className="block text-[10px] font-black uppercase tracking-wider text-[#746E73] mb-1">{label}</span>
+      <span className="block text-[10px] font-black uppercase tracking-wider text-[#746E73] mb-1">
+        {label}
+      </span>
       {children}
-      {hint && <span className="block text-[10px] text-[#746E73] mt-0.5">{hint}</span>}
+      {hint && (
+        <span className="block text-[10px] text-[#746E73] mt-0.5">{hint}</span>
+      )}
     </label>
   );
 }

@@ -33,21 +33,89 @@ const OWNER_ROUTES: {
   icon: typeof LayoutDashboard;
   roles?: ShopRole[];
 }[] = [
-  { href: "/dashboard/owner", label: "Overview", icon: LayoutDashboard, roles: ["owner", "admin", "manager", "viewer"] },
-  { href: "/dashboard/owner/pos", label: "Point of Sale", icon: Calculator, roles: ["owner", "admin", "manager", "cashier"] },
-  { href: "/dashboard/owner/products", label: "Inventory & Products", icon: Package, roles: ["owner", "admin", "manager", "cashier", "inventory"] },
-  { href: "/dashboard/owner/orders", label: "Online Orders", icon: ShoppingCart, roles: ["owner", "admin", "manager", "cashier"] },
-  { href: "/dashboard/owner/payments", label: "Payments", icon: CreditCard, roles: ["owner", "admin", "manager"] },
-  { href: "/dashboard/owner/customers", label: "Customers & Udhar", icon: Users, roles: ["owner", "admin", "manager", "cashier"] },
-  { href: "/dashboard/owner/suppliers", label: "Suppliers", icon: Truck, roles: ["owner", "admin", "manager", "inventory"] },
-  { href: "/dashboard/owner/finances", label: "Finances & Reports", icon: BarChart3, roles: ["owner", "admin", "manager", "viewer"] },
-  { href: "/dashboard/owner/staff", label: "Staff & Roles", icon: Shield, roles: ["owner", "admin", "manager"] },
-  { href: "/dashboard/owner/payroll", label: "Payroll", icon: Banknote, roles: ["owner", "admin", "manager"] },
-  { href: "/dashboard/owner/storefront", label: "Storefront & QR", icon: QrCode, roles: ["owner", "admin", "manager"] },
-  { href: "/dashboard/owner/settings", label: "Shop Settings", icon: Settings, roles: ["owner", "admin", "manager"] },
+  {
+    href: "/dashboard/owner",
+    label: "Overview",
+    icon: LayoutDashboard,
+    roles: ["owner", "admin", "manager", "viewer"],
+  },
+  {
+    href: "/dashboard/owner/pos",
+    label: "Point of Sale",
+    icon: Calculator,
+    roles: ["owner", "admin", "manager", "cashier"],
+  },
+  {
+    href: "/dashboard/owner/products",
+    label: "Inventory & Products",
+    icon: Package,
+    roles: ["owner", "admin", "manager", "cashier", "inventory"],
+  },
+  {
+    href: "/dashboard/owner/orders",
+    label: "Online Orders",
+    icon: ShoppingCart,
+    roles: ["owner", "admin", "manager", "cashier"],
+  },
+  {
+    href: "/dashboard/owner/payments",
+    label: "Payments",
+    icon: CreditCard,
+    roles: ["owner", "admin", "manager"],
+  },
+  {
+    href: "/dashboard/owner/customers",
+    label: "Customers & Udhar",
+    icon: Users,
+    roles: ["owner", "admin", "manager", "cashier"],
+  },
+  {
+    href: "/dashboard/owner/wholesale",
+    label: "Wholesale B2B",
+    icon: Store,
+    roles: ["owner", "admin", "manager"],
+  },
+  {
+    href: "/dashboard/owner/suppliers",
+    label: "Suppliers",
+    icon: Truck,
+    roles: ["owner", "admin", "manager", "inventory"],
+  },
+  {
+    href: "/dashboard/owner/finances",
+    label: "Finances & Reports",
+    icon: BarChart3,
+    roles: ["owner", "admin", "manager", "viewer"],
+  },
+  {
+    href: "/dashboard/owner/staff",
+    label: "Staff & Roles",
+    icon: Shield,
+    roles: ["owner", "admin", "manager"],
+  },
+  {
+    href: "/dashboard/owner/payroll",
+    label: "Payroll",
+    icon: Banknote,
+    roles: ["owner", "admin", "manager"],
+  },
+  {
+    href: "/dashboard/owner/storefront",
+    label: "Storefront & QR",
+    icon: QrCode,
+    roles: ["owner", "admin", "manager"],
+  },
+  {
+    href: "/dashboard/owner/settings",
+    label: "Shop Settings",
+    icon: Settings,
+    roles: ["owner", "admin", "manager"],
+  },
 ];
 
-function visibleRoutesFor(role: ShopRole | null | undefined): typeof OWNER_ROUTES {
+function visibleRoutesFor(
+  role: ShopRole | null | undefined,
+): typeof OWNER_ROUTES {
   // Default to the most permissive view when the role hasn't loaded yet —
   // server-side route guards still enforce the real boundary.
   if (!role) return OWNER_ROUTES;
@@ -66,7 +134,12 @@ interface OwnerSidebarProps {
   role?: ShopRole | null;
 }
 
-export function OwnerSidebar({ isMobile = false, shops, activeShopId, role }: OwnerSidebarProps) {
+export function OwnerSidebar({
+  isMobile = false,
+  shops,
+  activeShopId,
+  role,
+}: OwnerSidebarProps) {
   const pathname = usePathname();
   const routes = visibleRoutesFor(role);
 
@@ -83,7 +156,10 @@ export function OwnerSidebar({ isMobile = false, shops, activeShopId, role }: Ow
       </div>
       <nav className="flex-1 overflow-y-auto p-4 space-y-1">
         {routes.map((route) => {
-          const isActive = pathname === route.href || (route.href !== "/dashboard/owner" && pathname.startsWith(route.href + "/"));
+          const isActive =
+            pathname === route.href ||
+            (route.href !== "/dashboard/owner" &&
+              pathname.startsWith(route.href + "/"));
           return (
             <Link
               key={route.href}
@@ -95,9 +171,17 @@ export function OwnerSidebar({ isMobile = false, shops, activeShopId, role }: Ow
               } ${isMobile ? "" : "md:justify-center lg:justify-start"}`}
               title={route.label}
             >
-              <route.icon className={`h-4 w-4 shrink-0 ${isActive ? "text-[#D8C99A]" : ""}`} />
-              <span className={isMobile ? "" : "hidden lg:block"}>{route.label}</span>
-              <NavPendingDot className={isMobile ? "ml-auto" : "ml-auto hidden lg:inline-block"} />
+              <route.icon
+                className={`h-4 w-4 shrink-0 ${isActive ? "text-[#D8C99A]" : ""}`}
+              />
+              <span className={isMobile ? "" : "hidden lg:block"}>
+                {route.label}
+              </span>
+              <NavPendingDot
+                className={
+                  isMobile ? "ml-auto" : "ml-auto hidden lg:inline-block"
+                }
+              />
             </Link>
           );
         })}
@@ -110,7 +194,10 @@ export function OwnerSidebar({ isMobile = false, shops, activeShopId, role }: Ow
         className="p-4 border-t border-[#2E3344]/8 space-y-3"
         style={
           isMobile
-            ? { paddingBottom: "calc(4rem + env(safe-area-inset-bottom) + 1rem)" }
+            ? {
+                paddingBottom:
+                  "calc(4rem + env(safe-area-inset-bottom) + 1rem)",
+              }
             : undefined
         }
       >

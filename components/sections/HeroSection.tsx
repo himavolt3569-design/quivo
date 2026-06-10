@@ -41,7 +41,10 @@ interface HeroSectionProps {
   addProductToBasket?: (productId: string) => void;
 }
 
-export function HeroSection({ scrollToSection, addProductToBasket: propAddProduct }: HeroSectionProps) {
+export function HeroSection({
+  scrollToSection,
+  addProductToBasket: propAddProduct,
+}: HeroSectionProps) {
   const rootRef = useRef<HTMLDivElement | null>(null);
 
   const [scannerOpen, setScannerOpen] = useState(false);

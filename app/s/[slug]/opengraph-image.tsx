@@ -34,69 +34,85 @@ export default async function Image({ params }: Props) {
   }
 
   return new ImageResponse(
-    (
-      <div
-        style={{
-          height: "100%",
-          width: "100%",
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "space-between",
-          padding: "80px",
-          background: `linear-gradient(135deg, #F7F0E6 0%, #E8E3D1 100%)`,
-          fontFamily: "system-ui, sans-serif",
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-          <div
-            style={{
-              width: 56,
-              height: 56,
-              borderRadius: 14,
-              background: theme,
-              color: "white",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: 28,
-              fontWeight: 900,
-            }}
-          >
-            Q
-          </div>
-          <div style={{ fontSize: 28, fontWeight: 800, color: "#27324A" }}>Quivo</div>
+    <div
+      style={{
+        height: "100%",
+        width: "100%",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "space-between",
+        padding: "80px",
+        background: `linear-gradient(135deg, #F7F0E6 0%, #E8E3D1 100%)`,
+        fontFamily: "system-ui, sans-serif",
+      }}
+    >
+      <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+        <div
+          style={{
+            width: 56,
+            height: 56,
+            borderRadius: 14,
+            background: theme,
+            color: "white",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: 28,
+            fontWeight: 900,
+          }}
+        >
+          Q
         </div>
-
-        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-          <div style={{ fontSize: 96, fontWeight: 900, color: "#27324A", lineHeight: 1.05, letterSpacing: "-0.03em" }}>
-            {name}
-          </div>
-          {category && (
-            <div style={{ fontSize: 28, fontWeight: 700, color: theme, textTransform: "uppercase", letterSpacing: "0.12em" }}>
-              {category} · quivo.app/s/{slug}
-            </div>
-          )}
-        </div>
-
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <div
-            style={{
-              padding: "10px 20px",
-              borderRadius: 999,
-              background: theme,
-              color: "white",
-              fontSize: 24,
-              fontWeight: 800,
-            }}
-          >
-            Order online
-          </div>
-          <div style={{ fontSize: 20, fontWeight: 600, color: "#746E73" }}>
-            Powered by Quivo · barcode-first kirana commerce
-          </div>
+        <div style={{ fontSize: 28, fontWeight: 800, color: "#27324A" }}>
+          Quivo
         </div>
       </div>
-    ),
-    { ...size }
+
+      <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+        <div
+          style={{
+            fontSize: 96,
+            fontWeight: 900,
+            color: "#27324A",
+            lineHeight: 1.05,
+            letterSpacing: "-0.03em",
+          }}
+        >
+          {name}
+        </div>
+        {category && (
+          <div
+            style={{
+              fontSize: 28,
+              fontWeight: 700,
+              color: theme,
+              textTransform: "uppercase",
+              letterSpacing: "0.12em",
+            }}
+          >
+            {category} · quivo.app/s/{slug}
+          </div>
+        )}
+      </div>
+
+      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+        <div
+          style={{
+            padding: "10px 20px",
+            borderRadius: 999,
+            background: theme,
+            color: "white",
+            fontSize: 24,
+            fontWeight: 800,
+          }}
+        >
+          Order online
+        </div>
+        <div style={{ fontSize: 20, fontWeight: 600, color: "#746E73" }}>
+          Powered by Quivo · barcode-first kirana commerce
+        </div>
+      </div>
+    </div>,
+    { ...size },
   );
 }

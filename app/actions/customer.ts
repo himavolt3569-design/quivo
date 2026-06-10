@@ -28,8 +28,18 @@ const AddressSchema = z.object({
   landmark: OptionalShortText(100, "Landmark"),
   phone: OptionalPhoneSchema,
   is_default: z.coerce.boolean().optional().default(false),
-  lat: z.coerce.number().min(-90, "Invalid latitude").max(90, "Invalid latitude").nullable().optional(),
-  lng: z.coerce.number().min(-180, "Invalid longitude").max(180, "Invalid longitude").nullable().optional(),
+  lat: z.coerce
+    .number()
+    .min(-90, "Invalid latitude")
+    .max(90, "Invalid latitude")
+    .nullable()
+    .optional(),
+  lng: z.coerce
+    .number()
+    .min(-180, "Invalid longitude")
+    .max(180, "Invalid longitude")
+    .nullable()
+    .optional(),
 });
 
 const PlaceOrderSchema = z.object({
@@ -42,7 +52,7 @@ const PlaceOrderSchema = z.object({
         quantity: z.number().min(1).max(99),
         image: ImageUrlSchema.optional(),
         barcode: z.string().trim().max(100).optional(),
-      })
+      }),
     )
     .min(1)
     .max(50),
@@ -67,10 +77,18 @@ const SavedProductSchema = z.object({
 });
 
 const ProfileSchema = z.object({
-  full_name: z.string().trim().min(2, "Name must be at least 2 characters").max(50, "Name too long")
+  full_name: z
+    .string()
+    .trim()
+    .min(2, "Name must be at least 2 characters")
+    .max(50, "Name too long"),
 });
 
-const AvatarUrlSchema = z.string().trim().max(1000).refine(isSafeHttpUrl, "Invalid avatar URL");
+const AvatarUrlSchema = z
+  .string()
+  .trim()
+  .max(1000)
+  .refine(isSafeHttpUrl, "Invalid avatar URL");
 const CoverColorSchema = z.enum(COVER_GRADIENTS);
 const IdSchema = z.string().uuid("Invalid ID");
 
@@ -225,7 +243,9 @@ export async function toggleSavedShop(shopData: {
     if (error) return { error: "Could not update saved shop." };
     return { saved: false };
   } else {
-    const { error } = await supabase.from("saved_shops").insert({ customer_id: user.id, ...parse.data });
+    const { error } = await supabase
+      .from("saved_shops")
+      .insert({ customer_id: user.id, ...parse.data });
     if (error) return { error: "Could not update saved shop." };
     return { saved: true };
   }
@@ -295,7 +315,7 @@ export async function placeOrder(data: {
 
   const total_amount = parse.data.items.reduce(
     (sum, item) => sum + item.price * item.quantity,
-    0
+    0,
   );
   if (total_amount > 1000000) {
     return { error: "Order total is too large." };
@@ -485,7 +505,7 @@ export async function updateProfile(formData: FormData) {
   const parse = ProfileSchema.safeParse({
     full_name: formData.get("full_name")?.toString(),
   });
-  
+
   if (!parse.success) return { error: parse.error.issues[0].message };
 
   const { supabase, user } = await getAuthUser();
@@ -515,7 +535,7 @@ export interface ScannedProduct {
 }
 
 export async function lookupProductByBarcode(
-  barcode: string
+  barcode: string,
 ): Promise<{ product?: ScannedProduct; error?: string }> {
   const trimmed = barcode.trim();
   if (!trimmed) return {};

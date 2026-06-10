@@ -6,9 +6,19 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { updateOrderStatus } from "@/app/actions/owner";
-import { RefundModal, type RefundOrderContext, type RefundableLine } from "./RefundModal";
+import {
+  RefundModal,
+  type RefundOrderContext,
+  type RefundableLine,
+} from "./RefundModal";
 
-type OrderStatus = "placed" | "confirmed" | "packing" | "out_for_delivery" | "delivered" | "cancelled";
+type OrderStatus =
+  | "placed"
+  | "confirmed"
+  | "packing"
+  | "out_for_delivery"
+  | "delivered"
+  | "cancelled";
 
 interface OrderItem {
   id?: string;
@@ -38,10 +48,23 @@ interface OrderListProps {
   initialOrders: Order[];
 }
 
-const STATUS_FILTERS = ["All", "Pending", "Processing", "Completed", "Cancelled"];
+const STATUS_FILTERS = [
+  "All",
+  "Pending",
+  "Processing",
+  "Completed",
+  "Cancelled",
+];
 
 const STATUS_MAP: Record<string, OrderStatus[]> = {
-  All: ["placed", "confirmed", "packing", "out_for_delivery", "delivered", "cancelled"],
+  All: [
+    "placed",
+    "confirmed",
+    "packing",
+    "out_for_delivery",
+    "delivered",
+    "cancelled",
+  ],
   Pending: ["placed"],
   Processing: ["confirmed", "packing", "out_for_delivery"],
   Completed: ["delivered"],
@@ -52,7 +75,10 @@ const STATUS_BADGE: Record<OrderStatus, { label: string; class: string }> = {
   placed: { label: "New", class: "bg-yellow-100 text-yellow-800" },
   confirmed: { label: "Confirmed", class: "bg-blue-100 text-blue-800" },
   packing: { label: "Packing", class: "bg-purple-100 text-purple-800" },
-  out_for_delivery: { label: "Out for Delivery", class: "bg-orange-100 text-orange-800" },
+  out_for_delivery: {
+    label: "Out for Delivery",
+    class: "bg-orange-100 text-orange-800",
+  },
   delivered: { label: "Delivered", class: "bg-green-100 text-green-800" },
   cancelled: { label: "Cancelled", class: "bg-red-100 text-red-800" },
 };
@@ -115,9 +141,11 @@ export function OrderList({ shopId, initialOrders }: OrderListProps) {
         toast.error(result.error);
       } else {
         setOrders((prev) =>
-          prev.map((o) => (o.id === orderId ? { ...o, status: newStatus } : o))
+          prev.map((o) => (o.id === orderId ? { ...o, status: newStatus } : o)),
         );
-        toast.success(`Order ${newStatus === "cancelled" ? "rejected" : "accepted"}.`);
+        toast.success(
+          `Order ${newStatus === "cancelled" ? "rejected" : "accepted"}.`,
+        );
       }
     });
   };
@@ -126,7 +154,9 @@ export function OrderList({ shopId, initialOrders }: OrderListProps) {
     <div className="space-y-6 max-w-7xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500 pb-10">
       <div>
         <h1 className="text-2xl font-black text-[#27324A]">Online Orders</h1>
-        <p className="text-sm font-medium text-[#746E73] mt-1">Manage orders from your public storefront.</p>
+        <p className="text-sm font-medium text-[#746E73] mt-1">
+          Manage orders from your public storefront.
+        </p>
       </div>
 
       {/* Toolbar */}
@@ -165,7 +195,8 @@ export function OrderList({ shopId, initialOrders }: OrderListProps) {
           </div>
           <h3 className="text-lg font-black text-[#27324A]">No orders yet</h3>
           <p className="text-sm text-[#746E73] font-medium max-w-xs">
-            When customers place orders from your storefront, they will appear here.
+            When customers place orders from your storefront, they will appear
+            here.
           </p>
         </div>
       )}
@@ -173,9 +204,10 @@ export function OrderList({ shopId, initialOrders }: OrderListProps) {
       <div className="grid grid-cols-1 gap-4">
         {filtered.map((order) => {
           const badge = STATUS_BADGE[order.status];
-          const itemSummary = order.items
-            ?.map((i: OrderItem) => `${i.name} x${i.quantity ?? i.qty ?? 0}`)
-            .join(", ") ?? "";
+          const itemSummary =
+            order.items
+              ?.map((i: OrderItem) => `${i.name} x${i.quantity ?? i.qty ?? 0}`)
+              .join(", ") ?? "";
           const canAccept = order.status === "placed";
           const canCancel = !["delivered", "cancelled"].includes(order.status);
 
@@ -190,23 +222,35 @@ export function OrderList({ shopId, initialOrders }: OrderListProps) {
                 </div>
                 <div>
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="font-bold text-[#746E73] text-xs">{order.order_number}</span>
-                    <span className={`text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full ${badge.class}`}>
+                    <span className="font-bold text-[#746E73] text-xs">
+                      {order.order_number}
+                    </span>
+                    <span
+                      className={`text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full ${badge.class}`}
+                    >
                       {badge.label}
                     </span>
                   </div>
-                  <p className="text-sm font-medium text-[#746E73] mt-1 line-clamp-1">{itemSummary}</p>
+                  <p className="text-sm font-medium text-[#746E73] mt-1 line-clamp-1">
+                    {itemSummary}
+                  </p>
                   {order.delivery_address && (
-                    <p className="text-xs text-[#746E73] mt-0.5 line-clamp-1">📍 {order.delivery_address}</p>
+                    <p className="text-xs text-[#746E73] mt-0.5 line-clamp-1">
+                      📍 {order.delivery_address}
+                    </p>
                   )}
                   {order.notes && (
-                    <p className="text-xs text-[#746E73] italic mt-0.5 line-clamp-1">&quot;{order.notes}&quot;</p>
+                    <p className="text-xs text-[#746E73] italic mt-0.5 line-clamp-1">
+                      &quot;{order.notes}&quot;
+                    </p>
                   )}
                   <div className="flex items-center gap-4 mt-2 text-[10px] font-bold text-[#746E73] uppercase tracking-widest">
                     <span className="flex items-center gap-1">
                       <Clock className="h-3 w-3" /> {timeAgo(order.created_at)}
                     </span>
-                    <span className="text-[#A7653A] font-black text-sm">Rs. {order.total_amount}</span>
+                    <span className="text-[#A7653A] font-black text-sm">
+                      Rs. {order.total_amount}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -264,7 +308,9 @@ export function OrderList({ shopId, initialOrders }: OrderListProps) {
                     onClick={() => {
                       const ctx = buildRefundContext(order);
                       if (!ctx) {
-                        toast.error("This order's items aren't linked to products; refund manually.");
+                        toast.error(
+                          "This order's items aren't linked to products; refund manually.",
+                        );
                         return;
                       }
                       setRefundFor(ctx);

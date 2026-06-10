@@ -1,7 +1,13 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState, useTransition } from "react";
-import { CloudOff, Cloud, RefreshCcw, AlertCircle, Loader2 } from "lucide-react";
+import {
+  CloudOff,
+  Cloud,
+  RefreshCcw,
+  AlertCircle,
+  Loader2,
+} from "lucide-react";
 import { toast } from "sonner";
 import { completePOSSale } from "@/app/actions/owner";
 import {
@@ -31,8 +37,14 @@ export function OfflineSync() {
       });
       notifyQueueChanged();
       setQueue(await listQueue());
-      if (res.flushed > 0) toast.success(`Synced ${res.flushed} queued sale${res.flushed === 1 ? "" : "s"}`);
-      if (res.failed > 0) toast.error(`${res.failed} sale${res.failed === 1 ? "" : "s"} could not be replayed; check the sync tray.`);
+      if (res.flushed > 0)
+        toast.success(
+          `Synced ${res.flushed} queued sale${res.flushed === 1 ? "" : "s"}`,
+        );
+      if (res.failed > 0)
+        toast.error(
+          `${res.failed} sale${res.failed === 1 ? "" : "s"} could not be replayed; check the sync tray.`,
+        );
     });
   }, []);
 
@@ -85,7 +97,11 @@ export function OfflineSync() {
               : "bg-[#27324A] hover:bg-[#1b2333] text-white"
         }`}
       >
-        {!online ? <CloudOff className="h-4 w-4" /> : <Cloud className="h-4 w-4" />}
+        {!online ? (
+          <CloudOff className="h-4 w-4" />
+        ) : (
+          <Cloud className="h-4 w-4" />
+        )}
         {!online ? "Offline" : "Online"}
         {queued > 0 && (
           <span className="bg-white/20 text-white text-[11px] font-black rounded-full px-2 py-0.5">
@@ -106,7 +122,9 @@ export function OfflineSync() {
           </div>
           <div className="p-4 max-h-72 overflow-y-auto space-y-2">
             {queue.length === 0 ? (
-              <p className="text-xs text-[#746E73] font-bold">No queued sales.</p>
+              <p className="text-xs text-[#746E73] font-bold">
+                No queued sales.
+              </p>
             ) : (
               queue.map((q) => (
                 <div
@@ -115,10 +133,14 @@ export function OfflineSync() {
                 >
                   <div className="flex items-center justify-between">
                     <span className="font-bold text-[#27324A]">
-                      Rs. {q.input.total.toFixed(2)} · {q.input.items.length} item{q.input.items.length === 1 ? "" : "s"}
+                      Rs. {q.input.total.toFixed(2)} · {q.input.items.length}{" "}
+                      item{q.input.items.length === 1 ? "" : "s"}
                     </span>
                     <span className="text-[10px] text-[#746E73]">
-                      {new Date(q.queuedAt).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}
+                      {new Date(q.queuedAt).toLocaleTimeString("en-IN", {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
                     </span>
                   </div>
                   {q.lastError && (
@@ -143,7 +165,11 @@ export function OfflineSync() {
               disabled={syncing || !online || queue.length === 0}
               className="flex-1 h-10 rounded-xl bg-[#27324A] hover:bg-[#1b2333] text-white font-bold text-xs flex items-center justify-center gap-1 disabled:opacity-40"
             >
-              {syncing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RefreshCcw className="h-3.5 w-3.5" />}
+              {syncing ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <RefreshCcw className="h-3.5 w-3.5" />
+              )}
               Sync now
             </button>
           </div>

@@ -21,26 +21,31 @@ import { log } from "@/lib/log";
  */
 export const kycDeadlineJob: CronJobDefinition = {
   name: "kyc-deadline",
-  description: "Daily KYC compliance reminder. Emits kyc.stage_due per shop needing the next stage email.",
+  description:
+    "Daily KYC compliance reminder. Emits kyc.stage_due per shop needing the next stage email.",
   timeoutMs: 120_000,
   handler: async () => {
     const admin = createAdminClient();
     const { data: shops, error } = await admin
       .from("shops")
       .select(
-        "id, name, owner_id, created_at, verification_status, kyc_submitted_at, kyc_grace_email_sent_at, kyc_warning_email_sent_at, kyc_deadline_email_sent_at"
+        "id, name, owner_id, created_at, verification_status, kyc_submitted_at, kyc_grace_email_sent_at, kyc_warning_email_sent_at, kyc_deadline_email_sent_at",
       )
       .neq("verification_status", "verified");
 
     if (error) {
-      log.error("kyc-deadline: shop query failed", { code: error.code, message: error.message });
+      log.error("kyc-deadline: shop query failed", {
+        code: error.code,
+        message: error.message,
+      });
       throw new Error(`kyc shop query failed: ${error.message}`);
     }
 
     let emitted = 0;
     for (const s of shops ?? []) {
       const policy = getKycCompliancePolicy({
-        verificationStatus: (s.verification_status as VerificationStatus) ?? "unverified",
+        verificationStatus:
+          (s.verification_status as VerificationStatus) ?? "unverified",
         createdAt: s.created_at as string,
         kycSubmittedAt: (s.kyc_submitted_at as string | null) ?? null,
       });

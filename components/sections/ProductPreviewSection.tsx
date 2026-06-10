@@ -30,7 +30,7 @@ export function ProductPreviewSection() {
               "Stock alerts",
               "Customer credit",
               "Website orders",
-            ].map(item => (
+            ].map((item) => (
               <div
                 key={item}
                 className="rounded-2xl border border-white/10 bg-white/8 p-4 backdrop-blur"

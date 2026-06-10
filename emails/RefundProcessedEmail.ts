@@ -1,4 +1,8 @@
-import { renderEmailLayout, escapeHtml, renderTextFromBlocks } from "@/lib/email/layout";
+import {
+  renderEmailLayout,
+  escapeHtml,
+  renderTextFromBlocks,
+} from "@/lib/email/layout";
 import type { BrandedShop } from "@/lib/email/layout";
 import type { RenderedEmail } from "@/emails/OrderConfirmationEmail";
 
@@ -17,7 +21,9 @@ function money(n: number) {
   return `Rs. ${n.toFixed(2)}`;
 }
 
-export function renderRefundProcessedEmail(input: RefundProcessedEmailInput): RenderedEmail {
+export function renderRefundProcessedEmail(
+  input: RefundProcessedEmailInput,
+): RenderedEmail {
   const ref = input.orderNumber
     ? `order ${input.orderNumber}`
     : input.receiptNumber
@@ -35,9 +41,11 @@ export function renderRefundProcessedEmail(input: RefundProcessedEmailInput): Re
     <p style="margin:0 0 16px;color:#746E73;font-size:13px;">
       <strong>Reason:</strong> ${escapeHtml(input.reason)}
     </p>
-    ${input.trackingUrl
-      ? `<p style="margin:24px 0 0;"><a href="${escapeHtml(input.trackingUrl)}" style="display:inline-block;padding:12px 24px;background:#27324A;color:#ffffff;text-decoration:none;border-radius:12px;font-weight:700;font-size:14px;">View order</a></p>`
-      : ""}
+    ${
+      input.trackingUrl
+        ? `<p style="margin:24px 0 0;"><a href="${escapeHtml(input.trackingUrl)}" style="display:inline-block;padding:12px 24px;background:#27324A;color:#ffffff;text-decoration:none;border-radius:12px;font-weight:700;font-size:14px;">View order</a></p>`
+        : ""
+    }
   `;
 
   const html = renderEmailLayout({

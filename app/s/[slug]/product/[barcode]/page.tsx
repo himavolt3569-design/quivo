@@ -43,7 +43,10 @@ interface PublicProductShop {
 async function lookupProductInShop(slug: string, barcode: string) {
   const supabase = await createClient();
   const { data } = await supabase
-    .rpc("get_product_by_shop_barcode", { p_shop_slug: slug, p_barcode: barcode })
+    .rpc("get_product_by_shop_barcode", {
+      p_shop_slug: slug,
+      p_barcode: barcode,
+    })
     .maybeSingle<ProductResult>();
 
   return data;
@@ -58,7 +61,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     description: product.description ?? `Buy ${product.name} online`,
     openGraph: {
       title: product.name,
-      images: product.images?.length ? [product.images[0]] : product.image_url ? [product.image_url] : [],
+      images: product.images?.length
+        ? [product.images[0]]
+        : product.image_url
+          ? [product.image_url]
+          : [],
     },
   };
 }
@@ -71,22 +78,35 @@ export default async function ProductPage({ params }: Props) {
 
   if (!product) notFound();
 
-  const [{ data: shop }, { data: similar }, reviewsRes, alreadySaved] = await Promise.all([
-    supabase
-      .rpc("get_public_shop", { p_slug: slug })
-      .maybeSingle<PublicProductShop>(),
-    supabase.rpc("get_similar_products", { p_product_id: product.product_id, p_limit: 8 }),
-    listProductReviews(product.product_id, 12),
-    isProductSaved(product.product_id),
-  ]);
+  const [{ data: shop }, { data: similar }, reviewsRes, alreadySaved] =
+    await Promise.all([
+      supabase
+        .rpc("get_public_shop", { p_slug: slug })
+        .maybeSingle<PublicProductShop>(),
+      supabase.rpc("get_similar_products", {
+        p_product_id: product.product_id,
+        p_limit: 8,
+      }),
+      listProductReviews(product.product_id, 12),
+      isProductSaved(product.product_id),
+    ]);
 
   if (!shop) notFound();
 
   const similarProducts = (similar ?? []) as Array<{
-    product_id: string; shop_slug: string; name: string; brand: string | null;
-    category: string | null; unit: string | null; variant: string | null;
-    price: number; stock: number; image_url: string | null; images: string[] | null;
-    barcode: string; match_score: number;
+    product_id: string;
+    shop_slug: string;
+    name: string;
+    brand: string | null;
+    category: string | null;
+    unit: string | null;
+    variant: string | null;
+    price: number;
+    stock: number;
+    image_url: string | null;
+    images: string[] | null;
+    barcode: string;
+    match_score: number;
   }>;
 
   // Product JSON-LD for Google Merchant + rich results.
@@ -95,7 +115,9 @@ export default async function ProductPage({ params }: Props) {
     "@context": "https://schema.org/",
     "@type": "Product",
     name: product.name,
-    brand: product.brand ? { "@type": "Brand", name: product.brand } : undefined,
+    brand: product.brand
+      ? { "@type": "Brand", name: product.brand }
+      : undefined,
     description: product.description ?? `${product.name} at ${shop.name}.`,
     gtin: product.barcode,
     sku: product.barcode,
@@ -119,7 +141,13 @@ export default async function ProductPage({ params }: Props) {
         // eslint-disable-next-line react/no-danger
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <ProductView product={product} shop={shop} similar={similarProducts} reviews={reviewsRes.rows} initialSaved={alreadySaved} />
+      <ProductView
+        product={product}
+        shop={shop}
+        similar={similarProducts}
+        reviews={reviewsRes.rows}
+        initialSaved={alreadySaved}
+      />
     </>
   );
 }

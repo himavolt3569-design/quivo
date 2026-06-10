@@ -12,12 +12,17 @@ export function csvEscape(value: unknown): string {
   return /[",\r\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
 }
 
-export function buildCsv(rows: (string | number | null | undefined)[][]): string {
+export function buildCsv(
+  rows: (string | number | null | undefined)[][],
+): string {
   const body = rows.map((r) => r.map(csvEscape).join(",")).join("\r\n");
   return "﻿" + body; // BOM
 }
 
-export function downloadCsv(filename: string, rows: (string | number | null | undefined)[][]): void {
+export function downloadCsv(
+  filename: string,
+  rows: (string | number | null | undefined)[][],
+): void {
   if (typeof document === "undefined") return;
   const blob = new Blob([buildCsv(rows)], { type: "text/csv;charset=utf-8" });
   const url = URL.createObjectURL(blob);
@@ -32,5 +37,10 @@ export function downloadCsv(filename: string, rows: (string | number | null | un
 
 /** Slugify a shop name into a safe filename stem. */
 export function fileStem(name: string): string {
-  return name.replace(/[^a-z0-9]+/gi, "-").replace(/^-+|-+$/g, "").toLowerCase() || "report";
+  return (
+    name
+      .replace(/[^a-z0-9]+/gi, "-")
+      .replace(/^-+|-+$/g, "")
+      .toLowerCase() || "report"
+  );
 }

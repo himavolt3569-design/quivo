@@ -19,7 +19,12 @@ interface Props {
  * slider. Both are optional and silent if unavailable. Server actions
  * do the heavy lifting; this component is purely UI + lifted state.
  */
-export function CheckoutDiscounts({ shopId, subtotal, onPromoChange, onWalletChange }: Props) {
+export function CheckoutDiscounts({
+  shopId,
+  subtotal,
+  onPromoChange,
+  onWalletChange,
+}: Props) {
   const [code, setCode] = useState("");
   const [applied, setApplied] = useState<PromoPreview | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -37,30 +42,51 @@ export function CheckoutDiscounts({ shopId, subtotal, onPromoChange, onWalletCha
       const bal = await getMyWalletBalance();
       if (cancelled) return;
       setBalance(bal.balance);
-      if (!(subtotal > 0)) { setWalletMax(0); return; }
+      if (!(subtotal > 0)) {
+        setWalletMax(0);
+        return;
+      }
       const sub = Math.max(0, subtotal - (applied?.discount ?? 0));
       const m = await getWalletRedeemMax(shopId, sub);
       if (cancelled) return;
       setWalletMax(m.max);
       setWalletUsed((cur) => Math.min(cur, m.max));
     })();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [shopId, subtotal, applied]);
 
-  useEffect(() => { onPromoChange(applied); }, [applied, onPromoChange]);
-  useEffect(() => { onWalletChange(walletUsed); }, [walletUsed, onWalletChange]);
+  useEffect(() => {
+    onPromoChange(applied);
+  }, [applied, onPromoChange]);
+  useEffect(() => {
+    onWalletChange(walletUsed);
+  }, [walletUsed, onWalletChange]);
 
   const apply = () => {
     if (!code.trim() || !(subtotal > 0)) return;
     startTransition(async () => {
       setError(null);
-      const res = await previewPromoCode({ shopId, code: code.trim(), subtotal });
-      if (res.error) { setError(res.error); setApplied(null); return; }
+      const res = await previewPromoCode({
+        shopId,
+        code: code.trim(),
+        subtotal,
+      });
+      if (res.error) {
+        setError(res.error);
+        setApplied(null);
+        return;
+      }
       setApplied(res.preview ?? null);
     });
   };
 
-  const clear = () => { setApplied(null); setCode(""); setError(null); };
+  const clear = () => {
+    setApplied(null);
+    setCode("");
+    setError(null);
+  };
 
   return (
     <div className="space-y-2 px-5 py-3 bg-white border-b border-gray-100">
@@ -70,7 +96,8 @@ export function CheckoutDiscounts({ shopId, subtotal, onPromoChange, onWalletCha
         {applied ? (
           <div className="flex-1 flex items-center justify-between gap-2 rounded-xl bg-green-50 border border-green-200 px-3 py-2">
             <span className="text-xs font-bold text-green-800">
-              <Check className="h-3 w-3 inline mb-0.5 mr-1" /> {applied.code} applied — −Rs. {applied.discount.toLocaleString()}
+              <Check className="h-3 w-3 inline mb-0.5 mr-1" /> {applied.code}{" "}
+              applied — −Rs. {applied.discount.toLocaleString()}
             </span>
             <button
               type="button"
@@ -85,7 +112,9 @@ export function CheckoutDiscounts({ shopId, subtotal, onPromoChange, onWalletCha
           <>
             <input
               value={code}
-              onChange={(e) => setCode(e.target.value.toUpperCase().slice(0, 40))}
+              onChange={(e) =>
+                setCode(e.target.value.toUpperCase().slice(0, 40))
+              }
               placeholder="Promo code"
               className="flex-1 h-9 rounded-xl border border-black/10 px-3 text-xs font-bold tracking-wide"
             />
@@ -100,7 +129,9 @@ export function CheckoutDiscounts({ shopId, subtotal, onPromoChange, onWalletCha
           </>
         )}
       </div>
-      {error && <p className="text-[11px] text-red-700 font-bold pl-6">{error}</p>}
+      {error && (
+        <p className="text-[11px] text-red-700 font-bold pl-6">{error}</p>
+      )}
 
       {/* Wallet redemption — only when there's something to spend */}
       {walletMax > 0 && (
@@ -109,7 +140,9 @@ export function CheckoutDiscounts({ shopId, subtotal, onPromoChange, onWalletCha
             <span className="font-bold text-[#27324A] inline-flex items-center gap-1.5">
               <Wallet className="h-3.5 w-3.5 text-[#A7653A]" /> Pay with wallet
             </span>
-            <span className="text-[#746E73]">Balance: Rs. {balance.toLocaleString()}</span>
+            <span className="text-[#746E73]">
+              Balance: Rs. {balance.toLocaleString()}
+            </span>
           </div>
           <input
             type="range"
@@ -117,12 +150,20 @@ export function CheckoutDiscounts({ shopId, subtotal, onPromoChange, onWalletCha
             max={walletMax}
             step={1}
             value={walletUsed}
-            onChange={(e) => setWalletUsed(Math.min(walletMax, Math.max(0, Number(e.target.value))))}
+            onChange={(e) =>
+              setWalletUsed(
+                Math.min(walletMax, Math.max(0, Number(e.target.value))),
+              )
+            }
             className="w-full accent-[#A7653A]"
           />
           <div className="flex items-center justify-between text-[11px] font-bold">
-            <span className="text-[#746E73]">Use Rs. {walletUsed.toLocaleString()}</span>
-            <span className="text-[#A7653A]">Max Rs. {walletMax.toLocaleString()}</span>
+            <span className="text-[#746E73]">
+              Use Rs. {walletUsed.toLocaleString()}
+            </span>
+            <span className="text-[#A7653A]">
+              Max Rs. {walletMax.toLocaleString()}
+            </span>
           </div>
         </div>
       )}

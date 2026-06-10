@@ -1,7 +1,13 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { UploadCloud, ScanLine, CheckCircle2, Clock, AlertTriangle } from "lucide-react";
+import {
+  UploadCloud,
+  ScanLine,
+  CheckCircle2,
+  Clock,
+  AlertTriangle,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export type KYCStatus = "idle" | "scanning" | "verified" | "pending" | "error";
@@ -41,7 +47,8 @@ export function KYCScanner({ onResult }: KYCScannerProps) {
       const conf = Math.round(data.confidence);
       setConfidence(conf);
 
-      const finalStatus: KYCStatus = conf >= CONFIDENCE_THRESHOLD ? "verified" : "pending";
+      const finalStatus: KYCStatus =
+        conf >= CONFIDENCE_THRESHOLD ? "verified" : "pending";
       setStatus(finalStatus);
       onResult(finalStatus, conf, file);
     } catch (err) {
@@ -89,16 +96,24 @@ export function KYCScanner({ onResult }: KYCScannerProps) {
         onClick={() => status !== "scanning" && fileRef.current?.click()}
       >
         {previewUrl ? (
-          <img src={previewUrl} alt="KYC document" className="h-28 w-full object-contain rounded-lg mb-1" />
+          <img
+            src={previewUrl}
+            alt="KYC document"
+            className="h-28 w-full object-contain rounded-lg mb-1"
+          />
         ) : (
           <div className="h-12 w-12 rounded-full bg-[#A7653A]/10 flex items-center justify-center">
             <UploadCloud className="h-6 w-6 text-[#A7653A]" />
           </div>
         )}
         <span className="text-sm font-bold text-[#27324A]">
-          {previewUrl ? "Click to replace document" : "Upload PAN / VAT / Registration document"}
+          {previewUrl
+            ? "Click to replace document"
+            : "Upload PAN / VAT / Registration document"}
         </span>
-        <span className="text-xs text-[#746E73]">JPG, PNG, PDF — clear photo required for AI scan</span>
+        <span className="text-xs text-[#746E73]">
+          JPG, PNG, PDF — clear photo required for AI scan
+        </span>
       </div>
       <input
         ref={fileRef}
@@ -109,15 +124,22 @@ export function KYCScanner({ onResult }: KYCScannerProps) {
       />
 
       {cfg && (
-        <div className={`flex items-center gap-3 rounded-xl border px-4 py-3 ${cfg.bg}`}>
+        <div
+          className={`flex items-center gap-3 rounded-xl border px-4 py-3 ${cfg.bg}`}
+        >
           {cfg.icon}
           <div className="flex-1">
             <p className={`text-sm font-bold ${cfg.color}`}>{cfg.label}</p>
             {status === "verified" && (
-              <p className="text-xs text-green-600 mt-0.5">Your shop will be verified automatically.</p>
+              <p className="text-xs text-green-600 mt-0.5">
+                Your shop will be verified automatically.
+              </p>
             )}
             {status === "pending" && (
-              <p className="text-xs text-amber-600 mt-0.5">An admin will review your document. You can create the shop but some features will be locked until verified.</p>
+              <p className="text-xs text-amber-600 mt-0.5">
+                An admin will review your document. You can create the shop but
+                some features will be locked until verified.
+              </p>
             )}
           </div>
           {status === "error" && (
@@ -136,7 +158,10 @@ export function KYCScanner({ onResult }: KYCScannerProps) {
 
       {status === "scanning" && (
         <div className="w-full h-1.5 bg-[#2E3344]/10 rounded-full overflow-hidden">
-          <div className="h-full bg-blue-500 rounded-full animate-pulse" style={{ width: "60%" }} />
+          <div
+            className="h-full bg-blue-500 rounded-full animate-pulse"
+            style={{ width: "60%" }}
+          />
         </div>
       )}
     </div>

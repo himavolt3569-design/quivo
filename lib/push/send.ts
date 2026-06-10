@@ -28,10 +28,14 @@ export interface PushPayload {
 }
 
 interface WebPushModule {
-  setVapidDetails: (subject: string, publicKey: string, privateKey: string) => void;
+  setVapidDetails: (
+    subject: string,
+    publicKey: string,
+    privateKey: string,
+  ) => void;
   sendNotification: (
     sub: { endpoint: string; keys: { p256dh: string; auth: string } },
-    payload: string
+    payload: string,
   ) => Promise<unknown>;
 }
 
@@ -49,8 +53,12 @@ async function loadSdk(): Promise<WebPushModule | null> {
   }
   try {
     const moduleName = "web-push";
-    const dyn = Function("m", "return import(m)") as (m: string) => Promise<unknown>;
-    const mod = (await dyn(moduleName)) as { default?: WebPushModule } & Partial<WebPushModule>;
+    const dyn = Function("m", "return import(m)") as (
+      m: string,
+    ) => Promise<unknown>;
+    const mod = (await dyn(moduleName)) as {
+      default?: WebPushModule;
+    } & Partial<WebPushModule>;
     const sdk = (mod.default ?? mod) as WebPushModule;
     sdk.setVapidDetails(subject, pub, priv);
     cachedSdk = sdk;
@@ -60,10 +68,16 @@ async function loadSdk(): Promise<WebPushModule | null> {
   }
 }
 
-export async function sendPushToUser(userId: string, payload: PushPayload): Promise<{ sent: number; failed: number; skipped?: true }> {
+export async function sendPushToUser(
+  userId: string,
+  payload: PushPayload,
+): Promise<{ sent: number; failed: number; skipped?: true }> {
   const sdk = await loadSdk();
   if (!sdk) {
-    log.info("sendPushToUser skipped (web-push not active)", { userId, title: payload.title });
+    log.info("sendPushToUser skipped (web-push not active)", {
+      userId,
+      title: payload.title,
+    });
     return { sent: 0, failed: 0, skipped: true };
   }
 
@@ -73,7 +87,10 @@ export async function sendPushToUser(userId: string, payload: PushPayload): Prom
     .select("id, endpoint, p256dh, auth")
     .eq("user_id", userId);
   if (error) {
-    log.error("sendPushToUser: subs query failed", { code: error.code, message: error.message });
+    log.error("sendPushToUser: subs query failed", {
+      code: error.code,
+      message: error.message,
+    });
     return { sent: 0, failed: 0 };
   }
   if (!subs || subs.length === 0) return { sent: 0, failed: 0 };
@@ -87,12 +104,19 @@ export async function sendPushToUser(userId: string, payload: PushPayload): Prom
     subs.map(async (s) => {
       try {
         await sdk.sendNotification(
-          { endpoint: s.endpoint as string, keys: { p256dh: s.p256dh as string, auth: s.auth as string } },
-          body
+          {
+            endpoint: s.endpoint as string,
+            keys: { p256dh: s.p256dh as string, auth: s.auth as string },
+          },
+          body,
         );
         sent += 1;
       } catch (err) {
-        const e = err as { statusCode?: number; body?: string; message?: string };
+        const e = err as {
+          statusCode?: number;
+          body?: string;
+          message?: string;
+        };
         if (e.statusCode === 404 || e.statusCode === 410) {
           stale.push(s.id as string);
         } else {
@@ -105,7 +129,7 @@ export async function sendPushToUser(userId: string, payload: PushPayload): Prom
         }
         failed += 1;
       }
-    })
+    }),
   );
 
   if (stale.length > 0) {

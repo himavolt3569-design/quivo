@@ -13,7 +13,12 @@ interface Payload {
 }
 
 export async function handleKycStageDue(payload: Payload): Promise<void> {
-  if (!payload.shop_id || !payload.stage || !payload.to || !payload.grace_ends_at) {
+  if (
+    !payload.shop_id ||
+    !payload.stage ||
+    !payload.to ||
+    !payload.grace_ends_at
+  ) {
     log.warn("kyc.stage_due handler: missing fields", { payload });
     return;
   }

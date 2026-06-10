@@ -23,7 +23,7 @@ export function PricingSection() {
         </div>
 
         <div className="mt-12 grid gap-6 lg:grid-cols-2">
-          {plans.map(plan => (
+          {plans.map((plan) => (
             <article
               key={plan.name}
               className={`reveal-item rounded-[1.5rem] p-5 shadow-lg sm:rounded-[2rem] sm:p-8 ${plan.featured ? "bg-[#A7653A] text-white shadow-[#A7653A]/18" : "bg-white text-[#2E3344] shadow-[#27324A]/8"}`}
@@ -58,7 +58,7 @@ export function PricingSection() {
                 )}
               </div>
               <ul className="mt-7 space-y-3">
-                {plan.items.map(item => (
+                {plan.items.map((item) => (
                   <li
                     key={item}
                     className="flex items-center gap-3 text-sm font-medium"
@@ -108,8 +108,7 @@ export function PricingSection() {
           <div className="overflow-x-auto border-t border-[#2E3344]/8">
             <table className="w-full min-w-[920px] border-collapse text-left">
               <caption className="sr-only">
-                Detailed comparison of Quivo Starter and Growth pricing
-                plans
+                Detailed comparison of Quivo Starter and Growth pricing plans
               </caption>
               <thead>
                 <tr className="bg-[#F7F0E6] text-sm font-semibold text-[#27324A]">
@@ -131,7 +130,7 @@ export function PricingSection() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#2E3344]/8">
-                {pricingComparison.map(row => (
+                {pricingComparison.map((row) => (
                   <tr
                     key={`${row.category}-${row.feature}`}
                     className="transition hover:bg-[#F7F0E6]/70"
@@ -189,13 +188,12 @@ export function PricingSection() {
               </h3>
             </div>
             <p className="max-w-sm text-sm leading-6 text-[#746E73]">
-              Short answers for shop owners comparing the free and paid
-              options.
+              Short answers for shop owners comparing the free and paid options.
             </p>
           </div>
 
           <div className="mt-6 grid gap-4 md:grid-cols-2">
-            {pricingFaqs.map(faq => (
+            {pricingFaqs.map((faq) => (
               <details
                 key={faq.question}
                 className="group rounded-[1.25rem] border border-[#2E3344]/8 bg-white p-5 shadow-sm transition hover:border-[#A7653A]/28 hover:shadow-md"

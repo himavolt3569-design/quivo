@@ -20,15 +20,20 @@ interface Payload {
 export async function handlePriceDrop(payload: Payload): Promise<void> {
   if (!payload.product_id || !payload.customer_id || !payload.shop_slug) return;
   const admin = createAdminClient();
-  const { data: user } = await admin.from("profiles").select("email, full_name").eq("id", payload.customer_id).maybeSingle();
+  const { data: user } = await admin
+    .from("profiles")
+    .select("email, full_name")
+    .eq("id", payload.customer_id)
+    .maybeSingle();
   if (!user) return;
   const link = payload.barcode
     ? `${getSiteUrl()}/s/${payload.shop_slug}/product/${payload.barcode}`
     : `${getSiteUrl()}/s/${payload.shop_slug}`;
 
-  const dropLine = payload.old_price != null && payload.new_price != null
-    ? `Rs. ${payload.old_price} → Rs. ${payload.new_price}`
-    : "";
+  const dropLine =
+    payload.old_price != null && payload.new_price != null
+      ? `Rs. ${payload.old_price} → Rs. ${payload.new_price}`
+      : "";
 
   await notifyUser({
     userId: payload.customer_id,
@@ -38,7 +43,9 @@ export async function handlePriceDrop(payload: Payload): Promise<void> {
       body: `${payload.product_name ?? "A saved item"} is now cheaper${dropLine ? ` (${dropLine})` : ""}.`,
       linkUrl: link,
     },
-  }).catch((err) => log.warn("price_drop notifyUser failed", { err: String(err) }));
+  }).catch((err) =>
+    log.warn("price_drop notifyUser failed", { err: String(err) }),
+  );
 
   const email = (user.email as string | null | undefined) ?? null;
   if (!email) return;

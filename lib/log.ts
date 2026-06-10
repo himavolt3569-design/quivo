@@ -26,18 +26,31 @@ type LogRecord = {
 type ChildBindings = Record<string, unknown>;
 
 const isServer = typeof window === "undefined";
-const isEdge = typeof process === "undefined" || (process as { release?: { name?: string } }).release?.name !== "node";
-const isProd = (typeof process !== "undefined" && process.env?.NODE_ENV) === "production";
-const envLevel = (typeof process !== "undefined" ? process.env?.LOG_LEVEL : undefined) as LogLevel | undefined;
-const minLevel: LogLevel = envLevel && envLevel in LEVEL_RANK ? envLevel : isProd ? "info" : "debug";
+const isEdge =
+  typeof process === "undefined" ||
+  (process as { release?: { name?: string } }).release?.name !== "node";
+const isProd =
+  (typeof process !== "undefined" && process.env?.NODE_ENV) === "production";
+const envLevel = (
+  typeof process !== "undefined" ? process.env?.LOG_LEVEL : undefined
+) as LogLevel | undefined;
+const minLevel: LogLevel =
+  envLevel && envLevel in LEVEL_RANK ? envLevel : isProd ? "info" : "debug";
 
-const SENSITIVE_KEY_RE = /(?:^|_)(?:password|secret|token|api_?key|authorization|cookie|set_cookie|session|refresh_token|access_token|otp|pin|cvv|card_number)$/i;
+const SENSITIVE_KEY_RE =
+  /(?:^|_)(?:password|secret|token|api_?key|authorization|cookie|set_cookie|session|refresh_token|access_token|otp|pin|cvv|card_number)$/i;
 
 function redact(value: unknown, depth = 0): unknown {
   if (value === null || value === undefined) return value;
   if (depth > 6) return "[truncated]";
-  if (typeof value === "string") return value.length > 4000 ? `${value.slice(0, 4000)}…` : value;
-  if (typeof value === "number" || typeof value === "boolean" || typeof value === "bigint") return value;
+  if (typeof value === "string")
+    return value.length > 4000 ? `${value.slice(0, 4000)}…` : value;
+  if (
+    typeof value === "number" ||
+    typeof value === "boolean" ||
+    typeof value === "bigint"
+  )
+    return value;
   if (value instanceof Error) {
     return {
       name: value.name,
@@ -48,7 +61,10 @@ function redact(value: unknown, depth = 0): unknown {
   }
   if (Array.isArray(value)) {
     return value.length > 50
-      ? [...value.slice(0, 50).map((v) => redact(v, depth + 1)), `[+${value.length - 50} more]`]
+      ? [
+          ...value.slice(0, 50).map((v) => redact(v, depth + 1)),
+          `[+${value.length - 50} more]`,
+        ]
       : value.map((v) => redact(v, depth + 1));
   }
   if (typeof value === "object") {
@@ -66,7 +82,12 @@ function redact(value: unknown, depth = 0): unknown {
 }
 
 // AsyncLocalStorage context — only available on Node runtime, not edge or browser.
-type RequestContext = { requestId?: string; userId?: string; shopId?: string; [key: string]: unknown };
+type RequestContext = {
+  requestId?: string;
+  userId?: string;
+  shopId?: string;
+  [key: string]: unknown;
+};
 
 type AsyncLocalStorageLike<T> = {
   getStore(): T | undefined;
@@ -82,7 +103,9 @@ function tryLoadAls(): AsyncLocalStorageLike<RequestContext> | null {
   if (!isServer || isEdge) return null;
   try {
     // Dynamic require keeps this out of the edge/browser bundle.
-    const dynamicRequire = Function("return require")() as (name: string) => unknown;
+    const dynamicRequire = Function("return require")() as (
+      name: string,
+    ) => unknown;
     const mod = dynamicRequire("node:async_hooks") as {
       AsyncLocalStorage: new <T>() => AsyncLocalStorageLike<T>;
     };
@@ -120,7 +143,12 @@ function safeStringify(value: unknown): string {
   }
 }
 
-function emit(level: LogLevel, bindings: ChildBindings, msgOrObj: unknown, extra?: unknown) {
+function emit(
+  level: LogLevel,
+  bindings: ChildBindings,
+  msgOrObj: unknown,
+  extra?: unknown,
+) {
   if (!shouldEmit(level)) return;
 
   try {
@@ -156,7 +184,14 @@ function emit(level: LogLevel, bindings: ChildBindings, msgOrObj: unknown, extra
 
     if (isProd || !isServer) {
       const line = safeStringify(record);
-      const fn = level === "error" || level === "fatal" ? console.error : level === "warn" ? console.warn : level === "debug" ? console.debug : console.log;
+      const fn =
+        level === "error" || level === "fatal"
+          ? console.error
+          : level === "warn"
+            ? console.warn
+            : level === "debug"
+              ? console.debug
+              : console.log;
       fn(line);
       return;
     }
@@ -170,14 +205,28 @@ function emit(level: LogLevel, bindings: ChildBindings, msgOrObj: unknown, extra
     };
     const reset = "\x1b[0m";
     const ts = record.time.slice(11, 23);
-    const ctx = bindings.requestId || record.requestId ? `[${(bindings.requestId ?? record.requestId) as string}]` : "";
-    const tail = Object.keys(data).length > 0 ? ` ${safeStringify(redact(data))}` : "";
-    const stream = level === "error" || level === "fatal" ? console.error : level === "warn" ? console.warn : console.log;
-    stream(`${palette[level]}${level.toUpperCase().padEnd(5)}${reset} ${ts} ${ctx} ${msg}${tail}`);
+    const ctx =
+      bindings.requestId || record.requestId
+        ? `[${(bindings.requestId ?? record.requestId) as string}]`
+        : "";
+    const tail =
+      Object.keys(data).length > 0 ? ` ${safeStringify(redact(data))}` : "";
+    const stream =
+      level === "error" || level === "fatal"
+        ? console.error
+        : level === "warn"
+          ? console.warn
+          : console.log;
+    stream(
+      `${palette[level]}${level.toUpperCase().padEnd(5)}${reset} ${ts} ${ctx} ${msg}${tail}`,
+    );
   } catch (err) {
     // A logger that throws is worse than no logger. Eat the failure.
     try {
-      console.error("[log.emit] threw", err instanceof Error ? err.message : String(err));
+      console.error(
+        "[log.emit] threw",
+        err instanceof Error ? err.message : String(err),
+      );
     } catch {
       /* nothing else we can do */
     }

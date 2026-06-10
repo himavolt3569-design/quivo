@@ -18,7 +18,11 @@ export async function register(): Promise<void> {
 export async function onRequestError(
   error: unknown,
   request: { path: string; method: string; headers: Record<string, string> },
-  context: { routerKind: "Pages Router" | "App Router"; routePath: string; routeType: string }
+  context: {
+    routerKind: "Pages Router" | "App Router";
+    routePath: string;
+    routeType: string;
+  },
 ): Promise<void> {
   const { captureException } = await import("@/lib/sentry");
   await captureException(error, {

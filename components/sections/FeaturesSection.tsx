@@ -19,8 +19,8 @@ export function FeaturesSection() {
             </h2>
           </div>
           <p className="reveal-item max-w-3xl self-end text-lg leading-8 text-[#5F5A61]">
-            Less reading, more doing: each action connects to the next
-            counter task.
+            Less reading, more doing: each action connects to the next counter
+            task.
           </p>
         </div>
 
@@ -57,7 +57,7 @@ export function FeaturesSection() {
         </div>
 
         <div className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {features.map(feature => {
+          {features.map((feature) => {
             const Icon = feature.icon;
             return (
               <article

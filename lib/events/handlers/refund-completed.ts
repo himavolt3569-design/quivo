@@ -22,15 +22,26 @@ export async function handleRefundCompleted(payload: Payload): Promise<void> {
   }
 
   const admin = createAdminClient();
-  const [{ data: refund }, { data: shop }, { data: members }] = await Promise.all([
-    admin
-      .from("refunds")
-      .select("id, refund_amount, tax_refunded, reason, order_id, transaction_id")
-      .eq("id", payload.refund_id)
-      .maybeSingle(),
-    admin.from("shops").select("name, logo_url, theme_color").eq("id", payload.shop_id).maybeSingle(),
-    admin.from("shop_members").select("user_id").eq("shop_id", payload.shop_id).eq("status", "active"),
-  ]);
+  const [{ data: refund }, { data: shop }, { data: members }] =
+    await Promise.all([
+      admin
+        .from("refunds")
+        .select(
+          "id, refund_amount, tax_refunded, reason, order_id, transaction_id",
+        )
+        .eq("id", payload.refund_id)
+        .maybeSingle(),
+      admin
+        .from("shops")
+        .select("name, logo_url, theme_color")
+        .eq("id", payload.shop_id)
+        .maybeSingle(),
+      admin
+        .from("shop_members")
+        .select("user_id")
+        .eq("shop_id", payload.shop_id)
+        .eq("status", "active"),
+    ]);
 
   if (!refund) return;
 
@@ -51,10 +62,18 @@ export async function handleRefundCompleted(payload: Payload): Promise<void> {
           title: `Refund of Rs. ${Number(refund.refund_amount).toFixed(2)} completed`,
           body: refund.reason as string,
           linkUrl: `/dashboard/owner/orders`,
-          data: { refund_id: refund.id, order_id: refund.order_id, transaction_id: refund.transaction_id },
+          data: {
+            refund_id: refund.id,
+            order_id: refund.order_id,
+            transaction_id: refund.transaction_id,
+          },
         },
-      }).catch((err) => log.error("notify owner refund failed", { err: err instanceof Error ? err.message : String(err) }))
-    )
+      }).catch((err) =>
+        log.error("notify owner refund failed", {
+          err: err instanceof Error ? err.message : String(err),
+        }),
+      ),
+    ),
   );
 
   // Customer email — only when refund is tied to an order with a known email.

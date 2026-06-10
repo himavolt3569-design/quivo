@@ -27,17 +27,23 @@ export const abandonedCartJob: CronJobDefinition = {
       .lt("updated_at", cutoff)
       .is("abandoned_email_sent_at", null);
     if (error) {
-      log.error("abandoned-cart: query failed", { code: error.code, message: error.message });
+      log.error("abandoned-cart: query failed", {
+        code: error.code,
+        message: error.message,
+      });
       throw new Error(`abandoned-cart query failed: ${error.message}`);
     }
 
     let emitted = 0;
     let cleared = 0;
     for (const row of rows ?? []) {
-      const items = (row.items as unknown as Array<{ id: string; qty: number }> | null) ?? [];
+      const items =
+        (row.items as unknown as Array<{ id: string; qty: number }> | null) ??
+        [];
       if (!Array.isArray(items) || items.length === 0) {
         // Empty cart — mark as processed so we don't re-scan.
-        await admin.from("carts")
+        await admin
+          .from("carts")
           .update({ abandoned_email_sent_at: new Date().toISOString() })
           .eq("id", row.id as string);
         cleared += 1;
@@ -49,20 +55,25 @@ export const abandonedCartJob: CronJobDefinition = {
         userId: row.customer_id as string,
         payload: {
           customer_id: row.customer_id,
-          shop_id:     row.shop_id,
-          item_count:  items.length,
-          updated_at:  row.updated_at,
+          shop_id: row.shop_id,
+          item_count: items.length,
+          updated_at: row.updated_at,
         },
         idempotencyKey: `cart_abandoned:${row.id}:${row.updated_at}`,
       });
       if (res.ok || res.skipped) {
-        await admin.from("carts")
+        await admin
+          .from("carts")
           .update({ abandoned_email_sent_at: new Date().toISOString() })
           .eq("id", row.id as string);
         emitted += 1;
       }
     }
 
-    return { rows_scanned: (rows ?? []).length, events_emitted: emitted, empty_cleared: cleared };
+    return {
+      rows_scanned: (rows ?? []).length,
+      events_emitted: emitted,
+      empty_cleared: cleared,
+    };
   },
 };

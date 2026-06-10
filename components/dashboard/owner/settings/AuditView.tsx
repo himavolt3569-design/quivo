@@ -2,7 +2,13 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { ChevronLeft, Download, Shield, CreditCard, Filter } from "lucide-react";
+import {
+  ChevronLeft,
+  Download,
+  Shield,
+  CreditCard,
+  Filter,
+} from "lucide-react";
 import { Input } from "@/components/ui/input";
 
 type Tab = "payments" | "security";
@@ -60,7 +66,10 @@ function downloadCsv(filename: string, rows: string[][]): void {
 
 function inRange(iso: string, fromISO: string, toISO: string): boolean {
   const t = new Date(iso).getTime();
-  return t >= new Date(fromISO + "T00:00:00").getTime() && t <= new Date(toISO + "T23:59:59.999").getTime();
+  return (
+    t >= new Date(fromISO + "T00:00:00").getTime() &&
+    t <= new Date(toISO + "T23:59:59.999").getTime()
+  );
 }
 
 function toDateInput(d: Date): string {
@@ -70,10 +79,17 @@ function toDateInput(d: Date): string {
   return `${y}-${m}-${day}`;
 }
 
-export function AuditView({ shopName, paymentRows, securityRows }: AuditViewProps) {
+export function AuditView({
+  shopName,
+  paymentRows,
+  securityRows,
+}: AuditViewProps) {
   const [tab, setTab] = useState<Tab>("payments");
   const today = useMemo(() => new Date(), []);
-  const monthAgo = useMemo(() => new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000), [today]);
+  const monthAgo = useMemo(
+    () => new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000),
+    [today],
+  );
   const [from, setFrom] = useState<string>(toDateInput(monthAgo));
   const [to, setTo] = useState<string>(toDateInput(today));
   const [search, setSearch] = useState("");
@@ -105,7 +121,16 @@ export function AuditView({ shopName, paymentRows, securityRows }: AuditViewProp
 
   const exportPayments = () => {
     const rows: string[][] = [
-      ["When", "Action", "Actor", "Email", "Actor type", "From → To", "Payment ID", "Metadata"],
+      [
+        "When",
+        "Action",
+        "Actor",
+        "Email",
+        "Actor type",
+        "From → To",
+        "Payment ID",
+        "Metadata",
+      ],
       ...filteredPayments.map((r) => [
         new Date(r.created_at).toISOString(),
         r.action,
@@ -117,7 +142,10 @@ export function AuditView({ shopName, paymentRows, securityRows }: AuditViewProp
         JSON.stringify(r.metadata ?? {}),
       ]),
     ];
-    downloadCsv(`${shopName.replace(/[^a-z0-9]+/gi, "_").toLowerCase()}-payment-audit-${from}-to-${to}.csv`, rows);
+    downloadCsv(
+      `${shopName.replace(/[^a-z0-9]+/gi, "_").toLowerCase()}-payment-audit-${from}-to-${to}.csv`,
+      rows,
+    );
   };
 
   const exportSecurity = () => {
@@ -146,7 +174,8 @@ export function AuditView({ shopName, paymentRows, securityRows }: AuditViewProp
           </Link>
           <h1 className="text-2xl font-black text-[#27324A]">Audit log</h1>
           <p className="text-sm font-medium text-[#746E73] mt-1">
-            Payment lifecycle events for this shop and security events tied to your account.
+            Payment lifecycle events for this shop and security events tied to
+            your account.
           </p>
         </div>
         <button
@@ -162,41 +191,67 @@ export function AuditView({ shopName, paymentRows, securityRows }: AuditViewProp
         <button
           onClick={() => setTab("payments")}
           className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider flex items-center gap-2 transition ${
-            tab === "payments" ? "bg-[#27324A] text-white" : "text-[#746E73] hover:text-[#27324A]"
+            tab === "payments"
+              ? "bg-[#27324A] text-white"
+              : "text-[#746E73] hover:text-[#27324A]"
           }`}
         >
           <CreditCard className="h-3.5 w-3.5" />
           Payment audit
-          <span className="text-[10px] font-bold opacity-70">{paymentRows.length}</span>
+          <span className="text-[10px] font-bold opacity-70">
+            {paymentRows.length}
+          </span>
         </button>
         <button
           onClick={() => setTab("security")}
           className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider flex items-center gap-2 transition ${
-            tab === "security" ? "bg-[#27324A] text-white" : "text-[#746E73] hover:text-[#27324A]"
+            tab === "security"
+              ? "bg-[#27324A] text-white"
+              : "text-[#746E73] hover:text-[#27324A]"
           }`}
         >
           <Shield className="h-3.5 w-3.5" />
           Security events
-          <span className="text-[10px] font-bold opacity-70">{securityRows.length}</span>
+          <span className="text-[10px] font-bold opacity-70">
+            {securityRows.length}
+          </span>
         </button>
       </div>
 
       {/* Filter bar */}
       <div className="bg-white p-4 rounded-2xl border border-[#2E3344]/8 shadow-sm grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
         <div>
-          <label className="text-[10px] font-black uppercase tracking-wider text-[#746E73] mb-1 block">From</label>
-          <Input type="date" value={from} max={to} onChange={(e) => setFrom(e.target.value)} className="h-11 rounded-xl" />
+          <label className="text-[10px] font-black uppercase tracking-wider text-[#746E73] mb-1 block">
+            From
+          </label>
+          <Input
+            type="date"
+            value={from}
+            max={to}
+            onChange={(e) => setFrom(e.target.value)}
+            className="h-11 rounded-xl"
+          />
         </div>
         <div>
-          <label className="text-[10px] font-black uppercase tracking-wider text-[#746E73] mb-1 block">To</label>
-          <Input type="date" value={to} min={from} onChange={(e) => setTo(e.target.value)} className="h-11 rounded-xl" />
+          <label className="text-[10px] font-black uppercase tracking-wider text-[#746E73] mb-1 block">
+            To
+          </label>
+          <Input
+            type="date"
+            value={to}
+            min={from}
+            onChange={(e) => setTo(e.target.value)}
+            className="h-11 rounded-xl"
+          />
         </div>
         <div>
           <label className="text-[10px] font-black uppercase tracking-wider text-[#746E73] mb-1 block flex items-center gap-1">
             <Filter className="h-3 w-3" /> Search
           </label>
           <Input
-            placeholder={tab === "payments" ? "action, status, actor…" : "event type…"}
+            placeholder={
+              tab === "payments" ? "action, status, actor…" : "event type…"
+            }
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="h-11 rounded-xl"
@@ -226,71 +281,93 @@ export function AuditView({ shopName, paymentRows, securityRows }: AuditViewProp
                     <tr key={r.id} className="hover:bg-[#f8f8f7]/50">
                       <Td>
                         <span className="text-xs text-[#746E73]">
-                          {new Date(r.created_at).toLocaleString("en-IN", { dateStyle: "short", timeStyle: "short" })}
+                          {new Date(r.created_at).toLocaleString("en-IN", {
+                            dateStyle: "short",
+                            timeStyle: "short",
+                          })}
                         </span>
                       </Td>
                       <Td>
-                        <span className="font-bold text-[#27324A]">{r.action}</span>
+                        <span className="font-bold text-[#27324A]">
+                          {r.action}
+                        </span>
                       </Td>
                       <Td>
                         <span className="text-xs text-[#27324A]">
-                          {r.from_status ?? "—"} <span className="text-[#A7653A] font-black">→</span> {r.to_status ?? "—"}
+                          {r.from_status ?? "—"}{" "}
+                          <span className="text-[#A7653A] font-black">→</span>{" "}
+                          {r.to_status ?? "—"}
                         </span>
                       </Td>
                       <Td>
                         <div className="text-xs">
-                          <div className="font-bold text-[#27324A]">{r.actor_full_name ?? r.actor_type}</div>
-                          {r.actor_email && <div className="text-[#746E73]">{r.actor_email}</div>}
+                          <div className="font-bold text-[#27324A]">
+                            {r.actor_full_name ?? r.actor_type}
+                          </div>
+                          {r.actor_email && (
+                            <div className="text-[#746E73]">
+                              {r.actor_email}
+                            </div>
+                          )}
                         </div>
                       </Td>
                       <Td>
-                        <span className="font-mono text-[10px] text-[#746E73]">{r.payment_id.slice(0, 8)}…</span>
-                      </Td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )
-        ) : (
-          filteredSecurity.length === 0 ? (
-            <EmptyState label="No security events in range." />
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead className="bg-[#f8f8f7] text-[10px] uppercase tracking-widest text-[#746E73] font-black">
-                  <tr>
-                    <Th>When</Th>
-                    <Th>Event</Th>
-                    <Th>IP hash</Th>
-                    <Th>Metadata</Th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-[#2E3344]/5">
-                  {filteredSecurity.map((r) => (
-                    <tr key={r.id} className="hover:bg-[#f8f8f7]/50">
-                      <Td>
-                        <span className="text-xs text-[#746E73]">
-                          {new Date(r.created_at).toLocaleString("en-IN", { dateStyle: "short", timeStyle: "short" })}
+                        <span className="font-mono text-[10px] text-[#746E73]">
+                          {r.payment_id.slice(0, 8)}…
                         </span>
                       </Td>
-                      <Td>
-                        <span className="font-bold text-[#27324A]">{r.event_type}</span>
-                      </Td>
-                      <Td>
-                        <span className="font-mono text-[10px] text-[#746E73]">{r.ip_hash ?? "—"}</span>
-                      </Td>
-                      <Td>
-                        <pre className="text-[10px] text-[#746E73] whitespace-pre-wrap max-w-md">
-                          {r.metadata && Object.keys(r.metadata).length > 0 ? JSON.stringify(r.metadata) : "—"}
-                        </pre>
-                      </Td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
           )
+        ) : filteredSecurity.length === 0 ? (
+          <EmptyState label="No security events in range." />
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="bg-[#f8f8f7] text-[10px] uppercase tracking-widest text-[#746E73] font-black">
+                <tr>
+                  <Th>When</Th>
+                  <Th>Event</Th>
+                  <Th>IP hash</Th>
+                  <Th>Metadata</Th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[#2E3344]/5">
+                {filteredSecurity.map((r) => (
+                  <tr key={r.id} className="hover:bg-[#f8f8f7]/50">
+                    <Td>
+                      <span className="text-xs text-[#746E73]">
+                        {new Date(r.created_at).toLocaleString("en-IN", {
+                          dateStyle: "short",
+                          timeStyle: "short",
+                        })}
+                      </span>
+                    </Td>
+                    <Td>
+                      <span className="font-bold text-[#27324A]">
+                        {r.event_type}
+                      </span>
+                    </Td>
+                    <Td>
+                      <span className="font-mono text-[10px] text-[#746E73]">
+                        {r.ip_hash ?? "—"}
+                      </span>
+                    </Td>
+                    <Td>
+                      <pre className="text-[10px] text-[#746E73] whitespace-pre-wrap max-w-md">
+                        {r.metadata && Object.keys(r.metadata).length > 0
+                          ? JSON.stringify(r.metadata)
+                          : "—"}
+                      </pre>
+                    </Td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
     </div>

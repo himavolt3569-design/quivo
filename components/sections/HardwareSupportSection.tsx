@@ -1,6 +1,11 @@
 "use client";
 
-import { CreditCard, PackageCheck, ReceiptText, Smartphone } from "lucide-react";
+import {
+  CreditCard,
+  PackageCheck,
+  ReceiptText,
+  Smartphone,
+} from "lucide-react";
 import { Eyebrow } from "@/components/Eyebrow";
 
 export function HardwareSupportSection() {
@@ -15,8 +20,8 @@ export function HardwareSupportSection() {
             </h2>
           </div>
           <p className="reveal-item max-w-3xl text-lg leading-8 text-[#5F5A61]">
-            Receipt printers, barcode lookup, payments, and phones fit the
-            same counter flow.
+            Receipt printers, barcode lookup, payments, and phones fit the same
+            counter flow.
           </p>
         </div>
 
@@ -42,7 +47,7 @@ export function HardwareSupportSection() {
               title: "Mobile devices",
               copy: "Use Quivo on phones and tablets when the shop floor gets crowded.",
             },
-          ].map(item => {
+          ].map((item) => {
             const Icon = item.icon;
             return (
               <article

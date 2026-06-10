@@ -47,14 +47,14 @@ export interface InitiateContext {
   paymentId: string;
   shopId: string;
   shopName: string;
-  amount: number;            // NPR, decimal allowed (e.g. 1250.00)
+  amount: number; // NPR, decimal allowed (e.g. 1250.00)
   transactionReference: string;
   customer: {
     name: string;
     email: string | null;
     phone: string | null;
   };
-  baseUrl: string;           // origin, e.g. https://example.com
+  baseUrl: string; // origin, e.g. https://example.com
 }
 
 export interface InitiateResult {
@@ -117,7 +117,13 @@ export interface OrderWithPayment {
   shop_slug: string;
   status: string;
   total_amount: number;
-  items: Array<{ id?: string; name: string; price: number; qty: number; image?: string | null }>;
+  items: Array<{
+    id?: string;
+    name: string;
+    price: number;
+    qty: number;
+    image?: string | null;
+  }>;
   customer_name: string | null;
   customer_phone: string | null;
   delivery_address: string | null;

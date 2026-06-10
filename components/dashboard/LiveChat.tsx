@@ -2,12 +2,22 @@
 
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { MessageSquare, X, Send, ChevronLeft, Store, Search } from "lucide-react";
+import {
+  MessageSquare,
+  X,
+  Send,
+  ChevronLeft,
+  Store,
+  Search,
+} from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import type { User } from "@supabase/supabase-js";
 import { toast } from "sonner";
 import { getVerifiedShopsForChat, type ChatShop } from "@/app/actions/customer";
-import { getCustomerChatMessages, sendCustomerChatMessage } from "@/app/actions/storefront";
+import {
+  getCustomerChatMessages,
+  sendCustomerChatMessage,
+} from "@/app/actions/storefront";
 
 interface ChatMessage {
   id: string;
@@ -30,7 +40,9 @@ function makeSessionSecret(shopId: string): string {
   const key = `customer_chat_secret_${shopId}`;
   let secret = localStorage.getItem(key);
   if (!secret || !/^[a-f0-9]{64,128}$/i.test(secret)) {
-    secret = crypto.randomUUID().replace(/-/g, "") + crypto.randomUUID().replace(/-/g, "");
+    secret =
+      crypto.randomUUID().replace(/-/g, "") +
+      crypto.randomUUID().replace(/-/g, "");
     localStorage.setItem(key, secret);
   }
   return secret;
@@ -80,7 +92,11 @@ export function LiveChat({ currentUser, customerName }: LiveChatProps) {
     const sessionSecret = makeSessionSecret(selectedShop.id);
 
     const load = async () => {
-      const res = await getCustomerChatMessages(selectedShop.id, sessionId, sessionSecret);
+      const res = await getCustomerChatMessages(
+        selectedShop.id,
+        sessionId,
+        sessionSecret,
+      );
       setMessages((res.messages as ChatMessage[]) ?? []);
     };
 
@@ -97,10 +113,14 @@ export function LiveChat({ currentUser, customerName }: LiveChatProps) {
           filter: `session_id=eq.${sessionId}`,
         },
         () => {
-          getCustomerChatMessages(selectedShop.id, sessionId, sessionSecret).then((res) => {
+          getCustomerChatMessages(
+            selectedShop.id,
+            sessionId,
+            sessionSecret,
+          ).then((res) => {
             setMessages((res.messages as ChatMessage[]) ?? []);
           });
-        }
+        },
       )
       .subscribe();
 
@@ -140,7 +160,7 @@ export function LiveChat({ currentUser, customerName }: LiveChatProps) {
       sessionId,
       sessionSecret,
       customerName,
-      text
+      text,
     );
 
     setSending(false);
@@ -149,14 +169,18 @@ export function LiveChat({ currentUser, customerName }: LiveChatProps) {
       setMessages((prev) => prev.filter((m) => m.id !== tempId));
       setInput(text);
     } else {
-      const res = await getCustomerChatMessages(selectedShop.id, sessionId, sessionSecret);
+      const res = await getCustomerChatMessages(
+        selectedShop.id,
+        sessionId,
+        sessionSecret,
+      );
       setMessages((res.messages as ChatMessage[]) ?? []);
     }
   };
 
   const filteredShops = shopSearch.trim()
     ? shops.filter((s) =>
-        s.name.toLowerCase().includes(shopSearch.toLowerCase())
+        s.name.toLowerCase().includes(shopSearch.toLowerCase()),
       )
     : shops;
 
@@ -174,7 +198,10 @@ export function LiveChat({ currentUser, customerName }: LiveChatProps) {
         className="fixed bottom-32 right-6 z-50 flex items-center gap-2"
       >
         <button
-          onClick={() => { setIsPeek(false); setIsOpen(true); }}
+          onClick={() => {
+            setIsPeek(false);
+            setIsOpen(true);
+          }}
           onMouseEnter={() => isPeek && setIsPeek(false)}
           className={`group flex items-center justify-center rounded-full bg-[#27324A] text-white shadow-xl shadow-[#27324A]/25 transition-all duration-300 hover:shadow-2xl active:scale-95 focus:outline-none focus:ring-2 focus:ring-[#A7653A] focus:ring-offset-2 ${
             isPeek ? "h-10 w-10" : "h-12 w-12"
@@ -211,7 +238,10 @@ export function LiveChat({ currentUser, customerName }: LiveChatProps) {
               <div className="flex items-center gap-2.5">
                 {selectedShop && (
                   <button
-                    onClick={() => { setSelectedShop(null); setMessages([]); }}
+                    onClick={() => {
+                      setSelectedShop(null);
+                      setMessages([]);
+                    }}
                     className="rounded-full p-1 hover:bg-white/10 transition"
                   >
                     <ChevronLeft className="h-4 w-4" />
@@ -223,7 +253,10 @@ export function LiveChat({ currentUser, customerName }: LiveChatProps) {
                 </span>
               </div>
               <button
-                onClick={() => { setIsOpen(false); setIsPeek(true); }}
+                onClick={() => {
+                  setIsOpen(false);
+                  setIsPeek(true);
+                }}
                 className="rounded-full p-1.5 hover:bg-white/10 text-white/70 hover:text-white transition"
               >
                 <X className="h-4 w-4" />
@@ -254,7 +287,10 @@ export function LiveChat({ currentUser, customerName }: LiveChatProps) {
                   {shopsLoading && (
                     <div className="space-y-2">
                       {[1, 2, 3].map((i) => (
-                        <div key={i} className="flex items-center gap-3 p-3 rounded-2xl bg-[#f8f8f7] animate-pulse">
+                        <div
+                          key={i}
+                          className="flex items-center gap-3 p-3 rounded-2xl bg-[#f8f8f7] animate-pulse"
+                        >
                           <div className="h-9 w-9 rounded-xl bg-[#2E3344]/10 shrink-0" />
                           <div className="flex-1 space-y-1.5">
                             <div className="h-2.5 w-24 rounded-full bg-[#2E3344]/10" />
@@ -269,32 +305,48 @@ export function LiveChat({ currentUser, customerName }: LiveChatProps) {
                     <div className="py-8 text-center">
                       <Store className="h-8 w-8 mx-auto text-[#746E73]/30 mb-2" />
                       <p className="text-xs text-[#746E73] font-medium">
-                        {shopSearch ? "No shops match your search" : "No verified shops yet"}
+                        {shopSearch
+                          ? "No shops match your search"
+                          : "No verified shops yet"}
                       </p>
                     </div>
                   )}
 
-                  {!shopsLoading && filteredShops.map((shop) => (
-                    <button
-                      key={shop.id}
-                      onClick={() => { setSelectedShop(shop); setMessages([]); }}
-                      className="w-full flex items-center gap-3 p-3 rounded-2xl hover:bg-[#F7F0E6]/60 border border-transparent hover:border-[#A7653A]/10 transition text-left"
-                    >
-                      <div className="h-9 w-9 rounded-xl bg-[#F7F0E6] overflow-hidden shrink-0 flex items-center justify-center">
-                        {shop.image_url ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img src={shop.image_url} alt={shop.name} className="h-9 w-9 object-cover" />
-                        ) : (
-                          <span className="text-sm font-black text-[#A7653A]">{shop.name[0]}</span>
-                        )}
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <p className="text-xs font-bold text-[#27324A] truncate">{shop.name}</p>
-                        <p className="text-[10px] text-[#746E73] font-medium">Tap to chat</p>
-                      </div>
-                      <ChevronLeft className="h-3.5 w-3.5 text-[#746E73]/40 rotate-180 shrink-0" />
-                    </button>
-                  ))}
+                  {!shopsLoading &&
+                    filteredShops.map((shop) => (
+                      <button
+                        key={shop.id}
+                        onClick={() => {
+                          setSelectedShop(shop);
+                          setMessages([]);
+                        }}
+                        className="w-full flex items-center gap-3 p-3 rounded-2xl hover:bg-[#F7F0E6]/60 border border-transparent hover:border-[#A7653A]/10 transition text-left"
+                      >
+                        <div className="h-9 w-9 rounded-xl bg-[#F7F0E6] overflow-hidden shrink-0 flex items-center justify-center">
+                          {shop.image_url ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img
+                              src={shop.image_url}
+                              alt={shop.name}
+                              className="h-9 w-9 object-cover"
+                            />
+                          ) : (
+                            <span className="text-sm font-black text-[#A7653A]">
+                              {shop.name[0]}
+                            </span>
+                          )}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-xs font-bold text-[#27324A] truncate">
+                            {shop.name}
+                          </p>
+                          <p className="text-[10px] text-[#746E73] font-medium">
+                            Tap to chat
+                          </p>
+                        </div>
+                        <ChevronLeft className="h-3.5 w-3.5 text-[#746E73]/40 rotate-180 shrink-0" />
+                      </button>
+                    ))}
                 </div>
               </div>
             ) : (
@@ -306,9 +358,12 @@ export function LiveChat({ currentUser, customerName }: LiveChatProps) {
                       <div className="h-12 w-12 rounded-2xl bg-[#E8E3D1] flex items-center justify-center mb-3">
                         <MessageSquare className="h-6 w-6 text-[#626A54]" />
                       </div>
-                      <p className="text-xs font-bold text-[#27324A]">Start the conversation</p>
+                      <p className="text-xs font-bold text-[#27324A]">
+                        Start the conversation
+                      </p>
                       <p className="text-[10px] text-[#746E73] mt-1 leading-relaxed">
-                        Ask {selectedShop.name} about products, availability, or your order.
+                        Ask {selectedShop.name} about products, availability, or
+                        your order.
                       </p>
                     </div>
                   ) : (

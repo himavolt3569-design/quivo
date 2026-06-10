@@ -13,7 +13,10 @@ export default async function AuditPage() {
     return (
       <div className="flex flex-col items-center justify-center h-64 gap-4 text-center">
         <p className="text-lg font-bold text-[#27324A]">No shop selected.</p>
-        <Link href="/onboarding/owner" className="text-sm text-[#A7653A] hover:underline font-bold">
+        <Link
+          href="/onboarding/owner"
+          className="text-sm text-[#A7653A] hover:underline font-bold"
+        >
           Create your first shop →
         </Link>
       </div>
@@ -25,7 +28,9 @@ export default async function AuditPage() {
   const [{ data: paymentRows }, { data: securityRows }] = await Promise.all([
     supabase
       .from("v_payment_audit_logs_shop")
-      .select("id, payment_id, shop_id, action, actor_type, from_status, to_status, metadata, created_at, actor_full_name, actor_email")
+      .select(
+        "id, payment_id, shop_id, action, actor_type, from_status, to_status, metadata, created_at, actor_full_name, actor_email",
+      )
       .eq("shop_id", activeShop.id)
       .order("created_at", { ascending: false })
       .limit(500),

@@ -27,8 +27,8 @@ export function TrendingSection({ addProductToBasket }: TrendingSectionProps) {
             </h2>
           </div>
           <p className="max-w-xl text-base leading-7 text-[#5F5A61]">
-            Each card starts with a barcode, then shows nearby stock, price,
-            and the shop ready to receive the order.
+            Each card starts with a barcode, then shows nearby stock, price, and
+            the shop ready to receive the order.
           </p>
         </div>
 
@@ -37,7 +37,7 @@ export function TrendingSection({ addProductToBasket }: TrendingSectionProps) {
           className="reveal-item mt-8"
         >
           <CarouselContent className="-ml-4">
-            {popularProducts.map(product => (
+            {popularProducts.map((product) => (
               <CarouselItem
                 key={product.id}
                 className="basis-full pl-4 min-[430px]:basis-[88%] sm:basis-1/2 lg:basis-1/3 xl:basis-1/4"

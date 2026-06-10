@@ -112,14 +112,61 @@ function timeAgo(dateStr: string): string {
 }
 
 const QUICK_ACTIONS = [
-  { label: "Cash Sale", icon: Calculator, href: "/dashboard/owner/pos", color: "bg-[#27324A] text-white hover:bg-[#1b2333]" },
-  { label: "Add Product", icon: Plus, href: "/dashboard/owner/products/add", color: "bg-white text-[#27324A] border border-[#2E3344]/10 hover:border-[#A7653A]" },
-  { label: "Add Expense", icon: ReceiptText, href: "/dashboard/owner/finances", color: "bg-white text-[#27324A] border border-[#2E3344]/10 hover:border-[#A7653A]" },
-  { label: "New Invoice", icon: FileText, href: null, color: "bg-white text-[#27324A] border border-[#2E3344]/10 opacity-50 cursor-not-allowed" },
-  { label: "Barcode Scan", icon: Barcode, href: "/dashboard/owner/pos", color: "bg-white text-[#27324A] border border-[#2E3344]/10 hover:border-[#A7653A]" },
-  { label: "Shop QR", icon: QrCode, href: "/dashboard/owner/storefront", color: "bg-white text-[#27324A] border border-[#2E3344]/10 hover:border-[#A7653A]" },
-  { label: "Add Customer", icon: UserPlus, href: "/dashboard/owner/customers", color: "bg-white text-[#27324A] border border-[#2E3344]/10 hover:border-[#A7653A]" },
-  { label: "Upload Bill", icon: Camera, href: null, color: "bg-white text-[#27324A] border border-[#2E3344]/10 opacity-50 cursor-not-allowed" },
+  {
+    label: "Cash Sale",
+    icon: Calculator,
+    href: "/dashboard/owner/pos",
+    color: "bg-[#27324A] text-white hover:bg-[#1b2333]",
+  },
+  {
+    label: "Add Product",
+    icon: Plus,
+    href: "/dashboard/owner/products/add",
+    color:
+      "bg-white text-[#27324A] border border-[#2E3344]/10 hover:border-[#A7653A]",
+  },
+  {
+    label: "Add Expense",
+    icon: ReceiptText,
+    href: "/dashboard/owner/finances",
+    color:
+      "bg-white text-[#27324A] border border-[#2E3344]/10 hover:border-[#A7653A]",
+  },
+  {
+    label: "New Invoice",
+    icon: FileText,
+    href: null,
+    color:
+      "bg-white text-[#27324A] border border-[#2E3344]/10 opacity-50 cursor-not-allowed",
+  },
+  {
+    label: "Barcode Scan",
+    icon: Barcode,
+    href: "/dashboard/owner/pos",
+    color:
+      "bg-white text-[#27324A] border border-[#2E3344]/10 hover:border-[#A7653A]",
+  },
+  {
+    label: "Shop QR",
+    icon: QrCode,
+    href: "/dashboard/owner/storefront",
+    color:
+      "bg-white text-[#27324A] border border-[#2E3344]/10 hover:border-[#A7653A]",
+  },
+  {
+    label: "Add Customer",
+    icon: UserPlus,
+    href: "/dashboard/owner/customers",
+    color:
+      "bg-white text-[#27324A] border border-[#2E3344]/10 hover:border-[#A7653A]",
+  },
+  {
+    label: "Upload Bill",
+    icon: Camera,
+    href: null,
+    color:
+      "bg-white text-[#27324A] border border-[#2E3344]/10 opacity-50 cursor-not-allowed",
+  },
 ];
 
 export function OwnerDashboard({
@@ -139,7 +186,9 @@ export function OwnerDashboard({
   const statusDot = STATUS_DOT[statusKey] ?? "bg-zinc-400";
 
   const chartData = revenueChartData.map((d) => ({
-    name: new Date(d.day + "T00:00:00").toLocaleDateString("en-US", { weekday: "short" }),
+    name: new Date(d.day + "T00:00:00").toLocaleDateString("en-US", {
+      weekday: "short",
+    }),
     revenue: Number(d.revenue) || 0,
   }));
 
@@ -183,7 +232,6 @@ export function OwnerDashboard({
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500 fill-mode-both pb-10">
-
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 bg-white p-6 rounded-[2rem] border border-[#2E3344]/8 shadow-sm relative overflow-hidden">
         <div className="absolute -right-10 -top-10 opacity-[0.03] pointer-events-none">
@@ -208,7 +256,10 @@ export function OwnerDashboard({
                 </a>
               </span>
               <span className="text-[#746E73]/30">·</span>
-              <Link href="/onboarding/owner" className="text-[#A7653A] hover:underline">
+              <Link
+                href="/onboarding/owner"
+                className="text-[#A7653A] hover:underline"
+              >
                 + New shop
               </Link>
               {shopCount > 1 && (
@@ -220,15 +271,22 @@ export function OwnerDashboard({
           ) : (
             <p className="mt-1 text-sm font-bold text-[#746E73]">
               You haven&apos;t created a shop yet.{" "}
-              <Link href="/onboarding/owner" className="text-[#A7653A] hover:underline">
+              <Link
+                href="/onboarding/owner"
+                className="text-[#A7653A] hover:underline"
+              >
                 Set up your first shop →
               </Link>
             </p>
           )}
         </div>
         <div className="relative z-10 flex items-center gap-2 bg-[#F7F0E6] py-2 px-4 rounded-xl border border-[#A7653A]/20 self-start sm:self-auto">
-          <div className={`h-2 w-2 rounded-full ${statusDot} ${statusKey === "active" ? "animate-pulse" : ""}`} />
-          <span className="text-xs font-bold text-[#A7653A] uppercase tracking-widest">{statusLabel}</span>
+          <div
+            className={`h-2 w-2 rounded-full ${statusDot} ${statusKey === "active" ? "animate-pulse" : ""}`}
+          />
+          <span className="text-xs font-bold text-[#A7653A] uppercase tracking-widest">
+            {statusLabel}
+          </span>
         </div>
       </div>
 
@@ -244,7 +302,9 @@ export function OwnerDashboard({
             <div className="flex justify-between items-start">
               <div
                 className={`h-10 w-10 rounded-xl flex items-center justify-center ${
-                  kpi.alert ? "bg-orange-100 text-orange-600" : "bg-[#F7F0E6] text-[#A7653A]"
+                  kpi.alert
+                    ? "bg-orange-100 text-orange-600"
+                    : "bg-[#F7F0E6] text-[#A7653A]"
                 }`}
               >
                 <kpi.icon className="h-5 w-5" />
@@ -252,7 +312,9 @@ export function OwnerDashboard({
               {kpi.badge && (
                 <span
                   className={`text-[10px] font-bold px-2 py-1 rounded-full ${
-                    kpi.alert ? "bg-orange-100 text-orange-700" : "bg-green-50 text-green-600"
+                    kpi.alert
+                      ? "bg-orange-100 text-orange-700"
+                      : "bg-green-50 text-green-600"
                   }`}
                 >
                   {kpi.badge}
@@ -261,7 +323,9 @@ export function OwnerDashboard({
             </div>
             <div className="mt-4">
               <p className="text-2xl font-black text-[#27324A]">{kpi.value}</p>
-              <p className="text-[10px] font-black uppercase tracking-widest text-[#746E73] mt-1">{kpi.label}</p>
+              <p className="text-[10px] font-black uppercase tracking-widest text-[#746E73] mt-1">
+                {kpi.label}
+              </p>
             </div>
           </div>
         ))}
@@ -269,13 +333,17 @@ export function OwnerDashboard({
 
       {/* Quick Actions */}
       <div>
-        <h2 className="text-xs font-black uppercase tracking-widest text-[#746E73] mb-3 ml-2">Quick Actions</h2>
+        <h2 className="text-xs font-black uppercase tracking-widest text-[#746E73] mb-3 ml-2">
+          Quick Actions
+        </h2>
         <div className="flex overflow-x-auto pb-4 -mx-4 px-4 sm:mx-0 sm:px-0 sm:pb-0 sm:grid sm:grid-cols-4 lg:grid-cols-8 gap-2 hide-scrollbar">
           {QUICK_ACTIONS.map((action, i) => {
             const inner = (
               <>
                 <action.icon className="h-5 w-5" />
-                <span className="text-[10px] font-bold text-center leading-tight">{action.label}</span>
+                <span className="text-[10px] font-bold text-center leading-tight">
+                  {action.label}
+                </span>
               </>
             );
             const cls = `${action.color} flex flex-col items-center justify-center gap-2 p-3 rounded-2xl transition-all active:scale-95 min-w-[90px] sm:min-w-0 shadow-sm`;
@@ -302,8 +370,12 @@ export function OwnerDashboard({
           <div className="bg-white rounded-[2rem] border border-[#2E3344]/8 p-6 shadow-sm">
             <div className="flex items-center justify-between mb-6">
               <div>
-                <h2 className="text-lg font-black text-[#27324A]">Revenue Overview</h2>
-                <p className="text-xs text-[#746E73] font-medium">Daily sales — last 7 days</p>
+                <h2 className="text-lg font-black text-[#27324A]">
+                  Revenue Overview
+                </h2>
+                <p className="text-xs text-[#746E73] font-medium">
+                  Daily sales — last 7 days
+                </p>
               </div>
               <Link
                 href="/dashboard/owner/finances"
@@ -319,8 +391,15 @@ export function OwnerDashboard({
             ) : (
               <div className="h-[250px] w-full">
                 <ResponsiveContainer width="100%" height="100%">
-                  <RechartsLineChart data={chartData} margin={{ top: 5, right: 5, left: -20, bottom: 5 }}>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
+                  <RechartsLineChart
+                    data={chartData}
+                    margin={{ top: 5, right: 5, left: -20, bottom: 5 }}
+                  >
+                    <CartesianGrid
+                      strokeDasharray="3 3"
+                      vertical={false}
+                      stroke="#f0f0f0"
+                    />
                     <XAxis
                       dataKey="name"
                       axisLine={false}
@@ -328,22 +407,38 @@ export function OwnerDashboard({
                       tick={{ fontSize: 10, fill: "#746E73" }}
                       dy={10}
                     />
-                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: "#746E73" }} />
+                    <YAxis
+                      axisLine={false}
+                      tickLine={false}
+                      tick={{ fontSize: 10, fill: "#746E73" }}
+                    />
                     <RechartsTooltip
-                      cursor={{ stroke: "#A7653A", strokeWidth: 1, strokeDasharray: "3 3" }}
+                      cursor={{
+                        stroke: "#A7653A",
+                        strokeWidth: 1,
+                        strokeDasharray: "3 3",
+                      }}
                       contentStyle={{
                         borderRadius: "12px",
                         border: "none",
                         boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)",
                       }}
-                      formatter={(v) => [`Rs. ${Number(v).toLocaleString()}`, "Revenue"]}
+                      formatter={(v) => [
+                        `Rs. ${Number(v).toLocaleString()}`,
+                        "Revenue",
+                      ]}
                     />
                     <Line
                       type="monotone"
                       dataKey="revenue"
                       stroke="#A7653A"
                       strokeWidth={3}
-                      dot={{ r: 4, fill: "#A7653A", strokeWidth: 2, stroke: "#fff" }}
+                      dot={{
+                        r: 4,
+                        fill: "#A7653A",
+                        strokeWidth: 2,
+                        stroke: "#fff",
+                      }}
                       activeDot={{ r: 6 }}
                     />
                   </RechartsLineChart>
@@ -361,8 +456,12 @@ export function OwnerDashboard({
                   <PackageMinus className="h-5 w-5" />
                 </div>
                 <div>
-                  <h2 className="text-sm font-black text-[#27324A]">Low Stock Items</h2>
-                  <p className="text-[10px] uppercase tracking-widest text-[#746E73] font-bold">Needs Restocking</p>
+                  <h2 className="text-sm font-black text-[#27324A]">
+                    Low Stock Items
+                  </h2>
+                  <p className="text-[10px] uppercase tracking-widest text-[#746E73] font-bold">
+                    Needs Restocking
+                  </p>
                 </div>
               </div>
               {lowStockItems.length === 0 ? (
@@ -377,8 +476,12 @@ export function OwnerDashboard({
                       className="flex items-center justify-between p-3 rounded-xl bg-[#f8f8f7] border border-[#2E3344]/5"
                     >
                       <div>
-                        <p className="text-xs font-bold text-[#27324A] line-clamp-1">{item.name}</p>
-                        <p className="text-[10px] text-red-500 font-bold mt-0.5">Low Stock</p>
+                        <p className="text-xs font-bold text-[#27324A] line-clamp-1">
+                          {item.name}
+                        </p>
+                        <p className="text-[10px] text-red-500 font-bold mt-0.5">
+                          Low Stock
+                        </p>
                       </div>
                       <span className="text-xs font-black text-[#27324A] bg-white px-2 py-1 rounded-lg border border-[#2E3344]/5 shrink-0">
                         {item.stock} left
@@ -402,8 +505,12 @@ export function OwnerDashboard({
                   <Clock className="h-5 w-5" />
                 </div>
                 <div>
-                  <h2 className="text-sm font-black text-[#27324A]">Recent Transactions</h2>
-                  <p className="text-[10px] uppercase tracking-widest text-[#746E73] font-bold">Latest Activity</p>
+                  <h2 className="text-sm font-black text-[#27324A]">
+                    Recent Transactions
+                  </h2>
+                  <p className="text-[10px] uppercase tracking-widest text-[#746E73] font-bold">
+                    Latest Activity
+                  </p>
                 </div>
               </div>
               {recentTransactions.length === 0 ? (
@@ -414,7 +521,8 @@ export function OwnerDashboard({
                 <div className="space-y-3">
                   {recentTransactions.map((txn) => {
                     const typeLabel = TXN_TYPE_LABEL[txn.type] ?? txn.type;
-                    const typeColor = TXN_TYPE_COLOR[txn.type] ?? "text-[#27324A]";
+                    const typeColor =
+                      TXN_TYPE_COLOR[txn.type] ?? "text-[#27324A]";
                     const isExpense = txn.type === "expense";
                     return (
                       <div
@@ -423,15 +531,23 @@ export function OwnerDashboard({
                       >
                         <div>
                           <p className="text-xs font-bold text-[#27324A]">
-                            {txn.payment_method ? txn.payment_method.charAt(0).toUpperCase() + txn.payment_method.slice(1) : typeLabel}
+                            {txn.payment_method
+                              ? txn.payment_method.charAt(0).toUpperCase() +
+                                txn.payment_method.slice(1)
+                              : typeLabel}
                           </p>
                           <p className="text-[10px] text-[#746E73] font-medium mt-0.5 flex items-center gap-1">
                             {timeAgo(txn.created_at)} ·{" "}
-                            <span className={`font-bold ${typeColor}`}>{typeLabel}</span>
+                            <span className={`font-bold ${typeColor}`}>
+                              {typeLabel}
+                            </span>
                           </p>
                         </div>
-                        <span className={`text-sm font-black ${isExpense ? "text-red-500" : "text-[#27324A]"}`}>
-                          {isExpense ? "-" : "+"}Rs. {Number(txn.amount).toLocaleString()}
+                        <span
+                          className={`text-sm font-black ${isExpense ? "text-red-500" : "text-[#27324A]"}`}
+                        >
+                          {isExpense ? "-" : "+"}Rs.{" "}
+                          {Number(txn.amount).toLocaleString()}
                         </span>
                       </div>
                     );
@@ -482,7 +598,9 @@ export function OwnerDashboard({
                     <p className="font-black text-[#27324A] text-sm">
                       Rs. {Number(order.total_amount).toLocaleString()}
                     </p>
-                    <p className="text-[10px] text-[#746E73] mt-1">{timeAgo(order.created_at)}</p>
+                    <p className="text-[10px] text-[#746E73] mt-1">
+                      {timeAgo(order.created_at)}
+                    </p>
                     <Link
                       href="/dashboard/owner/orders"
                       className="mt-3 block w-full py-2 rounded-xl bg-[#F7F0E6] text-[#A7653A] text-xs font-bold hover:bg-[#A7653A] hover:text-white transition text-center"
@@ -505,7 +623,9 @@ export function OwnerDashboard({
           <div className="rounded-[2rem] bg-[#27324A] p-6 text-white shadow-xl flex flex-col justify-between">
             <div className="flex items-center gap-3 mb-2">
               <Truck className="h-5 w-5 text-[#D8C99A]" />
-              <p className="text-[10px] font-black uppercase tracking-widest text-[#D8C99A]">Supplier Dues</p>
+              <p className="text-[10px] font-black uppercase tracking-widest text-[#D8C99A]">
+                Supplier Dues
+              </p>
             </div>
             <p className="text-3xl font-black mt-2">
               Rs. {dashStats.supplier_dues.toLocaleString()}
@@ -530,14 +650,20 @@ export function OwnerDashboard({
                 <Banknote className="h-5 w-5" />
               </div>
               <div>
-                <h2 className="text-sm font-black text-[#27324A]">Customer Udhar</h2>
-                <p className="text-[10px] uppercase tracking-widest text-[#746E73] font-bold">Outstanding</p>
+                <h2 className="text-sm font-black text-[#27324A]">
+                  Customer Udhar
+                </h2>
+                <p className="text-[10px] uppercase tracking-widest text-[#746E73] font-bold">
+                  Outstanding
+                </p>
               </div>
             </div>
             <p className="text-2xl font-black text-[#27324A]">
               Rs. {dashStats.total_udhar.toLocaleString()}
             </p>
-            <p className="text-xs text-[#746E73] font-medium mt-1">Total credit given to customers.</p>
+            <p className="text-xs text-[#746E73] font-medium mt-1">
+              Total credit given to customers.
+            </p>
             <Link
               href="/dashboard/owner/customers"
               className="mt-4 block w-full py-3 rounded-xl bg-[#F7F0E6] text-[#A7653A] text-xs font-bold hover:bg-[#A7653A] hover:text-white transition text-center"

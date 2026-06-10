@@ -45,12 +45,16 @@ const CreateShopSchema = z.object({
     .max(50)
     .refine(
       (v) => v === "" || SUBDOMAIN_REGEX.test(v),
-      "Subdomain must be 2–50 chars, lowercase letters/digits/hyphens"
+      "Subdomain must be 2–50 chars, lowercase letters/digits/hyphens",
     )
     .optional()
     .transform((v) => (v && v !== "" ? v : undefined)),
-  opening_time: TimeOfDaySchema.optional().or(z.literal("")).transform((v) => (v ? v : undefined)),
-  closing_time: TimeOfDaySchema.optional().or(z.literal("")).transform((v) => (v ? v : undefined)),
+  opening_time: TimeOfDaySchema.optional()
+    .or(z.literal(""))
+    .transform((v) => (v ? v : undefined)),
+  closing_time: TimeOfDaySchema.optional()
+    .or(z.literal(""))
+    .transform((v) => (v ? v : undefined)),
 });
 
 function slugify(input: string): string {
@@ -130,7 +134,9 @@ export async function createShop(formData: FormData) {
     if (!existing) break;
     slug = `${base}-${randomSuffix()}`;
     if (attempt === 7) {
-      return { error: "Could not generate a unique slug. Try a different shop name." };
+      return {
+        error: "Could not generate a unique slug. Try a different shop name.",
+      };
     }
   }
 
@@ -154,7 +160,7 @@ export async function createShop(formData: FormData) {
       p_site_origin: getSiteUrl(),
       p_verification_status: "unverified",
       p_kyc_confidence: null,
-    }
+    },
   );
 
   if (rpcError) {
@@ -191,7 +197,10 @@ export async function createShop(formData: FormData) {
     .update({ active_shop_id: row.shop_id })
     .eq("id", user.id);
   if (activeError && activeError.code !== "42703") {
-    log.error("createShop: could not set active_shop_id", { code: activeError.code, message: activeError.message });
+    log.error("createShop: could not set active_shop_id", {
+      code: activeError.code,
+      message: activeError.message,
+    });
   }
 
   // Best-effort KYC welcome email — must NEVER block shop creation. The
@@ -199,7 +208,9 @@ export async function createShop(formData: FormData) {
   // failure here is informational only.
   if (user.email) {
     try {
-      const graceEndsAt = new Date(Date.now() + KYC_GRACE_DAYS * 24 * 60 * 60 * 1000).toISOString();
+      const graceEndsAt = new Date(
+        Date.now() + KYC_GRACE_DAYS * 24 * 60 * 60 * 1000,
+      ).toISOString();
       const emailResult = await sendKycComplianceEmail({
         to: user.email,
         shopName: data.name,
@@ -213,7 +224,10 @@ export async function createShop(formData: FormData) {
           .update({ kyc_grace_email_sent_at: new Date().toISOString() })
           .eq("id", row.shop_id);
         if (emailMarkError && emailMarkError.code !== "42703") {
-          log.error("createShop: could not mark KYC email sent", { code: emailMarkError.code, message: emailMarkError.message });
+          log.error("createShop: could not mark KYC email sent", {
+            code: emailMarkError.code,
+            message: emailMarkError.message,
+          });
         }
       }
     } catch (err) {
@@ -309,7 +323,10 @@ export async function setActiveShop(shopId: string) {
 
 async function getAuthUser() {
   const supabase = await createClient();
-  const { data: { user }, error } = await supabase.auth.getUser();
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser();
   if (error || !user) throw new Error("Unauthorized");
   return { supabase, user };
 }
@@ -345,11 +362,18 @@ export async function addProduct(shopId: string, formData: FormData) {
 
   const unitSize = formData.get("unit_size")?.toString() ?? "";
   const unitType = formData.get("unit_type")?.toString() ?? "";
-  const unit = unitSize && unitType ? `${unitSize} ${unitType}` : (unitSize || unitType || undefined);
+  const unit =
+    unitSize && unitType
+      ? `${unitSize} ${unitType}`
+      : unitSize || unitType || undefined;
 
   const rawImages = formData.get("images")?.toString();
   let imagesList: string[] = [];
-  try { imagesList = rawImages ? JSON.parse(rawImages) : []; } catch { imagesList = []; }
+  try {
+    imagesList = rawImages ? JSON.parse(rawImages) : [];
+  } catch {
+    imagesList = [];
+  }
 
   const parse = ProductSchema.safeParse({
     name: formData.get("name")?.toString() ?? "",
@@ -364,7 +388,7 @@ export async function addProduct(shopId: string, formData: FormData) {
     low_stock_threshold: formData.get("low_stock_threshold")?.toString() ?? "5",
     barcode: formData.get("barcode")?.toString() || undefined,
     status: "active",
-    image_url: imagesList[0] ?? (formData.get("image_url")?.toString() ?? ""),
+    image_url: imagesList[0] ?? formData.get("image_url")?.toString() ?? "",
     images: imagesList,
   });
   if (!parse.success) return { error: parse.error.issues[0].message };
@@ -377,8 +401,13 @@ export async function addProduct(shopId: string, formData: FormData) {
     .single();
 
   if (error) {
-    if (error.code === "23505" && error.message.includes("idx_products_barcode_unique")) {
-      return { error: "A product with this barcode already exists in this shop." };
+    if (
+      error.code === "23505" &&
+      error.message.includes("idx_products_barcode_unique")
+    ) {
+      return {
+        error: "A product with this barcode already exists in this shop.",
+      };
     }
     return { error: `Could not add product: ${error.message}` };
   }
@@ -391,7 +420,7 @@ export async function restockProduct(
   shopId: string,
   addQty: number,
   costPrice: number | null,
-  newPrice: number | null
+  newPrice: number | null,
 ): Promise<{ error?: string; newStock?: number; barcode?: string }> {
   const pidParse = ShopIdSchema.safeParse(productId);
   const sidParse = ShopIdSchema.safeParse(shopId);
@@ -414,18 +443,29 @@ export async function restockProduct(
   return { newStock: data.new_stock, barcode: data.barcode };
 }
 
-export async function updateProduct(productId: string, shopId: string, formData: FormData) {
+export async function updateProduct(
+  productId: string,
+  shopId: string,
+  formData: FormData,
+) {
   const pidParse = ShopIdSchema.safeParse(productId);
   const sidParse = ShopIdSchema.safeParse(shopId);
   if (!pidParse.success || !sidParse.success) return { error: "Invalid ID" };
 
   const unitSize = formData.get("unit_size")?.toString() ?? "";
   const unitType = formData.get("unit_type")?.toString() ?? "";
-  const unit = unitSize && unitType ? `${unitSize} ${unitType}` : (unitSize || unitType || undefined);
+  const unit =
+    unitSize && unitType
+      ? `${unitSize} ${unitType}`
+      : unitSize || unitType || undefined;
 
   const rawImages = formData.get("images")?.toString();
   let imagesList: string[] = [];
-  try { imagesList = rawImages ? JSON.parse(rawImages) : []; } catch { imagesList = []; }
+  try {
+    imagesList = rawImages ? JSON.parse(rawImages) : [];
+  } catch {
+    imagesList = [];
+  }
 
   const parse = ProductSchema.safeParse({
     name: formData.get("name")?.toString() ?? "",
@@ -439,8 +479,10 @@ export async function updateProduct(productId: string, shopId: string, formData:
     stock: formData.get("stock")?.toString() ?? "0",
     low_stock_threshold: formData.get("low_stock_threshold")?.toString() ?? "5",
     barcode: formData.get("barcode")?.toString() || undefined,
-    status: formData.get("status")?.toString() as "active" | "draft" | "archived" ?? "active",
-    image_url: imagesList[0] ?? (formData.get("image_url")?.toString() ?? ""),
+    status:
+      (formData.get("status")?.toString() as "active" | "draft" | "archived") ??
+      "active",
+    image_url: imagesList[0] ?? formData.get("image_url")?.toString() ?? "",
     images: imagesList,
   });
   if (!parse.success) return { error: parse.error.issues[0].message };
@@ -453,8 +495,13 @@ export async function updateProduct(productId: string, shopId: string, formData:
     .eq("shop_id", sidParse.data);
 
   if (error) {
-    if (error.code === "23505" && error.message.includes("idx_products_barcode_unique")) {
-      return { error: "A product with this barcode already exists in this shop." };
+    if (
+      error.code === "23505" &&
+      error.message.includes("idx_products_barcode_unique")
+    ) {
+      return {
+        error: "A product with this barcode already exists in this shop.",
+      };
     }
     return { error: `Could not update product: ${error.message}` };
   }
@@ -463,11 +510,16 @@ export async function updateProduct(productId: string, shopId: string, formData:
   return { success: true };
 }
 
-export async function adjustStock(productId: string, shopId: string, delta: number) {
+export async function adjustStock(
+  productId: string,
+  shopId: string,
+  delta: number,
+) {
   const pidParse = ShopIdSchema.safeParse(productId);
   const sidParse = ShopIdSchema.safeParse(shopId);
   if (!pidParse.success || !sidParse.success) return { error: "Invalid ID" };
-  if (!Number.isInteger(delta) || delta === 0) return { error: "Invalid delta" };
+  if (!Number.isInteger(delta) || delta === 0)
+    return { error: "Invalid delta" };
 
   const { supabase } = await getAuthUser();
   const { data: product } = await supabase
@@ -535,13 +587,18 @@ export async function addShopCustomer(shopId: string, formData: FormData) {
     email: parse.data.email || null,
   });
 
-  if (error?.code === "23505") return { error: "A customer with that phone already exists." };
+  if (error?.code === "23505")
+    return { error: "A customer with that phone already exists." };
   if (error) return { error: `Could not add customer: ${error.message}` };
   revalidatePath("/dashboard/owner/customers");
   return { success: true };
 }
 
-export async function settleUdhar(customerId: string, shopId: string, amount: number) {
+export async function settleUdhar(
+  customerId: string,
+  shopId: string,
+  amount: number,
+) {
   const cidParse = ShopIdSchema.safeParse(customerId);
   const sidParse = ShopIdSchema.safeParse(shopId);
   if (!cidParse.success || !sidParse.success) return { error: "Invalid ID" };
@@ -561,8 +618,11 @@ export async function settleUdhar(customerId: string, shopId: string, amount: nu
   const newBalance = Math.max(0, (customer.udhar_balance ?? 0) - amount);
 
   const [updateResult, txnResult] = await Promise.all([
-    supabase.from("shop_customers").update({ udhar_balance: newBalance })
-      .eq("id", cidParse.data).eq("shop_id", sidParse.data),
+    supabase
+      .from("shop_customers")
+      .update({ udhar_balance: newBalance })
+      .eq("id", cidParse.data)
+      .eq("shop_id", sidParse.data),
     supabase.from("shop_transactions").insert({
       shop_id: sidParse.data,
       amount,
@@ -582,9 +642,13 @@ export async function settleUdhar(customerId: string, shopId: string, amount: nu
 
 const SupplierSchema = z.object({
   name: ShopNameSchema,
-  contact_person: z.union([z.string(), z.undefined(), z.null()])
-    .transform((v) => v == null ? "" : v.trim())
-    .refine((v) => v === "" || v.length >= 2, "Contact name must be at least 2 characters")
+  contact_person: z
+    .union([z.string(), z.undefined(), z.null()])
+    .transform((v) => (v == null ? "" : v.trim()))
+    .refine(
+      (v) => v === "" || v.length >= 2,
+      "Contact name must be at least 2 characters",
+    )
     .refine((v) => v.length <= 120, "Contact name is too long")
     .transform((v) => (v === "" ? undefined : v)),
   phone: OptionalPhoneSchema,
@@ -594,11 +658,20 @@ const SupplierSchema = z.object({
   logo_url: OptionalUrl,
   tax_id: OptionalShortText(80, "Tax ID"),
   notes: OptionalShortText(500, "Notes"),
-  opening_balance: z.coerce.number().min(0, "Opening balance cannot be negative").max(99_999_999).default(0),
+  opening_balance: z.coerce
+    .number()
+    .min(0, "Opening balance cannot be negative")
+    .max(99_999_999)
+    .default(0),
 });
 
 const SupplierLedgerEntrySchema = z.object({
-  entry_type: z.enum(["purchase", "payment", "credit_adjustment", "debit_adjustment"]),
+  entry_type: z.enum([
+    "purchase",
+    "payment",
+    "credit_adjustment",
+    "debit_adjustment",
+  ]),
   amount: z.coerce.number().positive("Amount must be positive").max(99999999),
   description: z.string().trim().max(240).optional(),
   payment_method: z.enum(["cash", "card", "online", "udhar"]).default("cash"),
@@ -643,7 +716,11 @@ export async function addSupplier(shopId: string, formData: FormData) {
   return { success: true };
 }
 
-export async function paySupplierDue(supplierId: string, shopId: string, amount: number) {
+export async function paySupplierDue(
+  supplierId: string,
+  shopId: string,
+  amount: number,
+) {
   const sidParse = ShopIdSchema.safeParse(supplierId);
   const shopIdParse = ShopIdSchema.safeParse(shopId);
   if (!sidParse.success || !shopIdParse.success) return { error: "Invalid ID" };
@@ -663,8 +740,11 @@ export async function paySupplierDue(supplierId: string, shopId: string, amount:
   const newBalance = Math.max(0, (supplier.balance_due ?? 0) - amount);
 
   const [updateResult] = await Promise.all([
-    supabase.from("shop_suppliers").update({ balance_due: newBalance })
-      .eq("id", sidParse.data).eq("shop_id", shopIdParse.data),
+    supabase
+      .from("shop_suppliers")
+      .update({ balance_due: newBalance })
+      .eq("id", sidParse.data)
+      .eq("shop_id", shopIdParse.data),
     supabase.from("shop_transactions").insert({
       shop_id: shopIdParse.data,
       amount,
@@ -683,7 +763,7 @@ export async function paySupplierDue(supplierId: string, shopId: string, amount:
 export async function recordSupplierLedgerEntry(
   supplierId: string,
   shopId: string,
-  formData: FormData
+  formData: FormData,
 ) {
   const sidParse = ShopIdSchema.safeParse(supplierId);
   const shopIdParse = ShopIdSchema.safeParse(shopId);
@@ -708,7 +788,9 @@ export async function recordSupplierLedgerEntry(
 
   if (!supplier) return { error: "Supplier not found" };
 
-  const isCredit = parse.data.entry_type === "purchase" || parse.data.entry_type === "credit_adjustment";
+  const isCredit =
+    parse.data.entry_type === "purchase" ||
+    parse.data.entry_type === "credit_adjustment";
   const currentBalance = Number(supplier.balance_due ?? 0);
   const nextBalance = isCredit
     ? currentBalance + parse.data.amount
@@ -791,13 +873,18 @@ export async function addShopStaff(shopId: string, formData: FormData) {
   return { success: true };
 }
 
-export async function updateShopStaffStatus(staffId: string, shopId: string, status: "active" | "inactive") {
+export async function updateShopStaffStatus(
+  staffId: string,
+  shopId: string,
+  status: "active" | "inactive",
+) {
   const sidParse = ShopIdSchema.safeParse(staffId);
   const shopParse = ShopIdSchema.safeParse(shopId);
   if (!sidParse.success || !shopParse.success) return { error: "Invalid ID" };
 
   const { supabase } = await getAuthUser();
-  const { error } = await supabase.from("shop_staff")
+  const { error } = await supabase
+    .from("shop_staff")
     .update({ status })
     .eq("id", sidParse.data)
     .eq("shop_id", shopParse.data);
@@ -809,9 +896,20 @@ export async function updateShopStaffStatus(staffId: string, shopId: string, sta
 
 // ─── Orders ───────────────────────────────────────────────────────────────────
 
-const OrderStatusValues = ["placed", "confirmed", "packing", "out_for_delivery", "delivered", "cancelled"] as const;
+const OrderStatusValues = [
+  "placed",
+  "confirmed",
+  "packing",
+  "out_for_delivery",
+  "delivered",
+  "cancelled",
+] as const;
 
-export async function updateOrderStatus(orderId: string, shopId: string, status: typeof OrderStatusValues[number]) {
+export async function updateOrderStatus(
+  orderId: string,
+  shopId: string,
+  status: (typeof OrderStatusValues)[number],
+) {
   const oidParse = ShopIdSchema.safeParse(orderId);
   const sidParse = ShopIdSchema.safeParse(shopId);
   if (!oidParse.success || !sidParse.success) return { error: "Invalid ID" };
@@ -870,17 +968,32 @@ const TimezoneSchema = z
   .trim()
   .min(2)
   .max(60)
-  .refine((v) => /^[A-Za-z_]+\/[A-Za-z_+/-]+$|^UTC$/.test(v), "Invalid timezone");
+  .refine(
+    (v) => /^[A-Za-z_]+\/[A-Za-z_+/-]+$|^UTC$/.test(v),
+    "Invalid timezone",
+  );
 
 const ShopSettingsSchema = z.object({
   name: ShopNameSchema,
   description: OptionalShortText(500, "Description"),
   phone: OptionalPhoneSchema,
-  opening_time: TimeOfDaySchema.optional().or(z.literal("")).transform((v) => v || undefined),
-  closing_time: TimeOfDaySchema.optional().or(z.literal("")).transform((v) => v || undefined),
-  vat_registered: z.preprocess((v) => v === "on" || v === "true" || v === true, z.boolean()).optional(),
+  opening_time: TimeOfDaySchema.optional()
+    .or(z.literal(""))
+    .transform((v) => v || undefined),
+  closing_time: TimeOfDaySchema.optional()
+    .or(z.literal(""))
+    .transform((v) => v || undefined),
+  vat_registered: z
+    .preprocess((v) => v === "on" || v === "true" || v === true, z.boolean())
+    .optional(),
   vat_rate: z.coerce.number().min(0).max(100).optional(),
-  pan_number: z.string().trim().max(40).optional().or(z.literal("")).transform((v) => v || undefined),
+  pan_number: z
+    .string()
+    .trim()
+    .max(40)
+    .optional()
+    .or(z.literal(""))
+    .transform((v) => v || undefined),
   timezone: TimezoneSchema.optional(),
 });
 
@@ -899,8 +1012,12 @@ export async function updateShopSettings(shopId: string, formData: FormData) {
     phone: formData.get("phone")?.toString() || undefined,
     opening_time: formData.get("opening_time")?.toString() || undefined,
     closing_time: formData.get("closing_time")?.toString() || undefined,
-    vat_registered: rawVatRegistered === null ? undefined : rawVatRegistered.toString(),
-    vat_rate: rawVatRate === null || rawVatRate === "" ? undefined : rawVatRate.toString(),
+    vat_registered:
+      rawVatRegistered === null ? undefined : rawVatRegistered.toString(),
+    vat_rate:
+      rawVatRate === null || rawVatRate === ""
+        ? undefined
+        : rawVatRate.toString(),
     pan_number: rawPan === null ? undefined : rawPan.toString(),
     timezone: rawTz === null || rawTz === "" ? undefined : rawTz.toString(),
   });
@@ -914,12 +1031,17 @@ export async function updateShopSettings(shopId: string, formData: FormData) {
     opening_time: parse.data.opening_time ?? null,
     closing_time: parse.data.closing_time ?? null,
   };
-  if (parse.data.vat_registered !== undefined) update.vat_registered = parse.data.vat_registered;
+  if (parse.data.vat_registered !== undefined)
+    update.vat_registered = parse.data.vat_registered;
   if (parse.data.vat_rate !== undefined) update.vat_rate = parse.data.vat_rate;
-  if (parse.data.pan_number !== undefined) update.pan_number = parse.data.pan_number ?? null;
+  if (parse.data.pan_number !== undefined)
+    update.pan_number = parse.data.pan_number ?? null;
   if (parse.data.timezone !== undefined) update.timezone = parse.data.timezone;
 
-  const { error } = await supabase.from("shops").update(update).eq("id", idParse.data);
+  const { error } = await supabase
+    .from("shops")
+    .update(update)
+    .eq("id", idParse.data);
 
   if (error) return { error: `Could not save settings: ${error.message}` };
   revalidatePath("/dashboard/owner");
@@ -929,15 +1051,22 @@ export async function updateShopSettings(shopId: string, formData: FormData) {
 
 // ─── Storefront / Theme ───────────────────────────────────────────────────────
 
-export async function updateStorefrontTheme(shopId: string, themeColor: string, themeLayout: "modern" | "list") {
+export async function updateStorefrontTheme(
+  shopId: string,
+  themeColor: string,
+  themeLayout: "modern" | "list",
+) {
   const idParse = ShopIdSchema.safeParse(shopId);
   if (!idParse.success) return { error: "Invalid shop ID" };
 
   const { supabase } = await getAuthUser();
-  const { error } = await supabase.from("shops").update({
-    theme_color: themeColor,
-    theme_layout: themeLayout,
-  }).eq("id", idParse.data);
+  const { error } = await supabase
+    .from("shops")
+    .update({
+      theme_color: themeColor,
+      theme_layout: themeLayout,
+    })
+    .eq("id", idParse.data);
 
   if (error) return { error: `Could not update theme: ${error.message}` };
   revalidatePath("/dashboard/owner/storefront");
@@ -991,7 +1120,8 @@ export async function completePOSSale(input: POSSaleInput) {
     p_total: input.total,
     p_payment_method: input.paymentMethod,
     p_notes: input.notes ?? null,
-    p_split_payments: input.splits && input.splits.length > 0 ? input.splits : null,
+    p_split_payments:
+      input.splits && input.splits.length > 0 ? input.splits : null,
   });
 
   if (error) return { error: error.message };
@@ -1006,7 +1136,10 @@ export async function completePOSSale(input: POSSaleInput) {
         shop_id: idParse.data,
         total: input.total,
         tax_amount: input.taxAmount,
-        payment_method: input.splits && input.splits.length > 0 ? "split" : input.paymentMethod,
+        payment_method:
+          input.splits && input.splits.length > 0
+            ? "split"
+            : input.paymentMethod,
         item_count: input.items.length,
       },
       shopId: idParse.data,
@@ -1084,7 +1217,9 @@ export async function getKYCStatus(shopId: string) {
   const { supabase } = await getAuthUser();
   const { data, error } = await supabase
     .from("shops")
-    .select("verification_status, kyc_submitted_at, kyc_rejection_reason, kyc_document_urls, kyc_confidence")
+    .select(
+      "verification_status, kyc_submitted_at, kyc_rejection_reason, kyc_document_urls, kyc_confidence",
+    )
     .eq("id", idParse.data)
     .single();
 
@@ -1095,9 +1230,9 @@ export async function getKYCStatus(shopId: string) {
 export async function deleteShopCustomer(customerId: string, shopId: string) {
   const idParse = ShopIdSchema.safeParse(shopId);
   if (!idParse.success) return { error: "Invalid shop ID" };
-  
+
   const { supabase } = await getAuthUser();
-  
+
   // Verify customer belongs to shop
   const { data: customer } = await supabase
     .from("shop_customers")
@@ -1105,9 +1240,10 @@ export async function deleteShopCustomer(customerId: string, shopId: string) {
     .eq("id", customerId)
     .eq("shop_id", idParse.data)
     .single();
-    
+
   if (!customer) return { error: "Customer not found." };
-  if (customer.udhar_balance > 0) return { error: "Cannot delete customer with pending Udhar." };
+  if (customer.udhar_balance > 0)
+    return { error: "Cannot delete customer with pending Udhar." };
 
   const { error } = await supabase
     .from("shop_customers")
@@ -1116,7 +1252,7 @@ export async function deleteShopCustomer(customerId: string, shopId: string) {
     .eq("shop_id", idParse.data);
 
   if (error) return { error: `Could not delete customer: ${error.message}` };
-  
+
   revalidatePath("/dashboard/owner/customers");
   return { success: true };
 }

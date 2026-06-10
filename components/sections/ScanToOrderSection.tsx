@@ -70,16 +70,16 @@ export function ScanToOrderSection({
 
   const shopsInsideRadius = useMemo(
     () => nearbyShops.filter((shop) => shop.distance <= 6),
-    []
+    [],
   );
 
   const filteredNearbyShops = useMemo(
     () =>
       shopsInsideRadius.filter(
         (shop) =>
-          activeOrderFilter === "All" || shop.category === activeOrderFilter
+          activeOrderFilter === "All" || shop.category === activeOrderFilter,
       ),
-    [shopsInsideRadius, activeOrderFilter]
+    [shopsInsideRadius, activeOrderFilter],
   );
 
   const selectedOrderShop = useMemo(
@@ -87,12 +87,12 @@ export function ScanToOrderSection({
       filteredNearbyShops.find((shop) => shop.name === activeShopName) ??
       filteredNearbyShops[0] ??
       shopsInsideRadius[0],
-    [filteredNearbyShops, activeShopName, shopsInsideRadius]
+    [filteredNearbyShops, activeShopName, shopsInsideRadius],
   );
 
   const basketProducts = useMemo(
     () => popularProducts.filter((product) => basketItems.includes(product.id)),
-    [basketItems]
+    [basketItems],
   );
   const basketTotal = basketProducts.reduce(
     (total, product) => total + product.priceNumber,
@@ -156,7 +156,7 @@ export function ScanToOrderSection({
       total: basketTotal,
       createdAt: new Date().toISOString(),
     };
-    
+
     let previousOrders: (typeof savedOrder)[] = [];
     try {
       const stored = window.localStorage.getItem("quivo-submitted-orders");
@@ -218,7 +218,9 @@ export function ScanToOrderSection({
       });
 
       try {
-        shopMarkersRef.current.forEach((marker: { remove: () => void }) => marker.remove());
+        shopMarkersRef.current.forEach((marker: { remove: () => void }) =>
+          marker.remove(),
+        );
         shopMarkersRef.current = [];
         if (radiusCircleRef.current) radiusCircleRef.current.remove();
         if (customerMarkerRef.current) customerMarkerRef.current.remove();

@@ -10,7 +10,13 @@ interface BarcodeImageProps {
   className?: string;
 }
 
-export function BarcodeImage({ value, width = 2, height = 80, fontSize = 14, className }: BarcodeImageProps) {
+export function BarcodeImage({
+  value,
+  width = 2,
+  height = 80,
+  fontSize = 14,
+  className,
+}: BarcodeImageProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {

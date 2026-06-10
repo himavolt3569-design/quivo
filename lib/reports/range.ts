@@ -9,15 +9,17 @@
 export type CompareMode = "none" | "prev_period";
 
 export interface ReportRange {
-  start: string;          // inclusive, ISO
-  end: string;            // exclusive, ISO
+  start: string; // inclusive, ISO
+  end: string; // exclusive, ISO
   compareStart?: string;
   compareEnd?: string;
-  label: string;          // human label e.g. "1 May – 31 May 2026"
+  label: string; // human label e.g. "1 May – 31 May 2026"
 }
 
 function startOfDayUtc(d: Date): Date {
-  return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), 0, 0, 0, 0));
+  return new Date(
+    Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), 0, 0, 0, 0),
+  );
 }
 
 function parseDateInput(v: string | undefined | null): Date | null {
@@ -38,7 +40,10 @@ function first(v: string | string[] | undefined): string | undefined {
   return Array.isArray(v) ? v[0] : v;
 }
 
-export function getRangeFromParams(q: RangeQuery, now = new Date()): ReportRange {
+export function getRangeFromParams(
+  q: RangeQuery,
+  now = new Date(),
+): ReportRange {
   const today = startOfDayUtc(now);
   // Default window: trailing 30 days through end of today.
   const defaultStart = new Date(today.getTime() - 29 * 24 * 60 * 60 * 1000);
@@ -47,12 +52,18 @@ export function getRangeFromParams(q: RangeQuery, now = new Date()): ReportRange
   const fromD = parseDateInput(first(q.from)) ?? defaultStart;
   const toD = parseDateInput(first(q.to));
   // `to` is inclusive in the UI, exclusive internally → +1 day.
-  const endExclusive = toD ? new Date(toD.getTime() + 24 * 60 * 60 * 1000) : defaultEndExclusive;
+  const endExclusive = toD
+    ? new Date(toD.getTime() + 24 * 60 * 60 * 1000)
+    : defaultEndExclusive;
 
   // Guard against inverted ranges.
-  const start = fromD <= endExclusive ? fromD : new Date(endExclusive.getTime() - 24 * 60 * 60 * 1000);
+  const start =
+    fromD <= endExclusive
+      ? fromD
+      : new Date(endExclusive.getTime() - 24 * 60 * 60 * 1000);
 
-  const compare: CompareMode = first(q.compare) === "prev_period" ? "prev_period" : "none";
+  const compare: CompareMode =
+    first(q.compare) === "prev_period" ? "prev_period" : "none";
 
   const range: ReportRange = {
     start: start.toISOString(),
@@ -71,28 +82,48 @@ export function getRangeFromParams(q: RangeQuery, now = new Date()): ReportRange
 
 export function formatRangeLabel(start: Date, endInclusive: Date): string {
   const fmt = (d: Date) =>
-    d.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
+    d.toLocaleDateString("en-GB", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+      timeZone: "UTC",
+    });
   return `${fmt(start)} – ${fmt(endInclusive)}`;
 }
 
 /** Convenience presets for the date-range picker UI. */
-export function presetRange(kind: "today" | "7d" | "30d" | "this_month" | "last_month", now = new Date()): { from: string; to: string } {
+export function presetRange(
+  kind: "today" | "7d" | "30d" | "this_month" | "last_month",
+  now = new Date(),
+): { from: string; to: string } {
   const today = startOfDayUtc(now);
   const toIso = (d: Date) => d.toISOString().slice(0, 10);
   switch (kind) {
     case "today":
       return { from: toIso(today), to: toIso(today) };
     case "7d":
-      return { from: toIso(new Date(today.getTime() - 6 * 864e5)), to: toIso(today) };
+      return {
+        from: toIso(new Date(today.getTime() - 6 * 864e5)),
+        to: toIso(today),
+      };
     case "30d":
-      return { from: toIso(new Date(today.getTime() - 29 * 864e5)), to: toIso(today) };
+      return {
+        from: toIso(new Date(today.getTime() - 29 * 864e5)),
+        to: toIso(today),
+      };
     case "this_month": {
-      const s = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), 1));
+      const s = new Date(
+        Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), 1),
+      );
       return { from: toIso(s), to: toIso(today) };
     }
     case "last_month": {
-      const s = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth() - 1, 1));
-      const e = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), 0));
+      const s = new Date(
+        Date.UTC(today.getUTCFullYear(), today.getUTCMonth() - 1, 1),
+      );
+      const e = new Date(
+        Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), 0),
+      );
       return { from: toIso(s), to: toIso(e) };
     }
   }

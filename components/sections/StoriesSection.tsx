@@ -21,13 +21,13 @@ export function StoriesSection() {
           </p>
         </div>
         <div className="grid gap-5">
-          {testimonials.map(testimonial => (
+          {testimonials.map((testimonial) => (
             <blockquote
               key={testimonial.name}
               className="magnetic-card reveal-item rounded-[1.75rem] border border-[#2E3344]/8 bg-[#F7F0E6] p-6 shadow-sm"
             >
               <div className="flex gap-1 text-[#B76E42]" aria-hidden="true">
-                {[0, 1, 2, 3, 4].map(star => (
+                {[0, 1, 2, 3, 4].map((star) => (
                   <Star key={star} className="h-4 w-4 fill-current" />
                 ))}
               </div>

@@ -18,7 +18,11 @@ const TABS = [
 
 const MOBILE_TABS = TABS;
 
-export function DashboardNav({ activeOrderCount }: { activeOrderCount: number }) {
+export function DashboardNav({
+  activeOrderCount,
+}: {
+  activeOrderCount: number;
+}) {
   const pathname = usePathname();
   const [scannerOpen, setScannerOpen] = useState(false);
 
@@ -65,8 +69,12 @@ export function DashboardNav({ activeOrderCount }: { activeOrderCount: number })
                   isActive ? "text-[#A7653A]" : "text-[#746E73]"
                 }`}
               >
-                <div className={`relative flex items-center justify-center w-8 h-8 rounded-full transition-colors ${isActive ? "bg-[#F7F0E6]" : ""}`}>
-                  <Icon className={`h-5 w-5 ${isActive ? "stroke-[2.5]" : "stroke-2"}`} />
+                <div
+                  className={`relative flex items-center justify-center w-8 h-8 rounded-full transition-colors ${isActive ? "bg-[#F7F0E6]" : ""}`}
+                >
+                  <Icon
+                    className={`h-5 w-5 ${isActive ? "stroke-[2.5]" : "stroke-2"}`}
+                  />
                   {href === "/dashboard/orders" && activeOrderCount > 0 && (
                     <span className="absolute -top-1 -right-1 grid h-4 w-4 place-items-center rounded-full bg-[#A7653A] text-[9px] font-bold text-white shadow-sm border border-white">
                       {activeOrderCount > 9 ? "9+" : activeOrderCount}
@@ -88,7 +96,9 @@ export function DashboardNav({ activeOrderCount }: { activeOrderCount: number })
               <Barcode className="h-6 w-6" />
             </button>
             <div className="mt-8">
-              <span className="text-[10px] font-black uppercase tracking-tighter text-[#A7653A]">Scan</span>
+              <span className="text-[10px] font-black uppercase tracking-tighter text-[#A7653A]">
+                Scan
+              </span>
             </div>
           </div>
 
@@ -102,8 +112,12 @@ export function DashboardNav({ activeOrderCount }: { activeOrderCount: number })
                   isActive ? "text-[#A7653A]" : "text-[#746E73]"
                 }`}
               >
-                <div className={`relative flex items-center justify-center w-8 h-8 rounded-full transition-colors ${isActive ? "bg-[#F7F0E6]" : ""}`}>
-                  <Icon className={`h-5 w-5 ${isActive ? "stroke-[2.5]" : "stroke-2"}`} />
+                <div
+                  className={`relative flex items-center justify-center w-8 h-8 rounded-full transition-colors ${isActive ? "bg-[#F7F0E6]" : ""}`}
+                >
+                  <Icon
+                    className={`h-5 w-5 ${isActive ? "stroke-[2.5]" : "stroke-2"}`}
+                  />
                 </div>
                 <span className="text-[10px] font-bold">{label}</span>
               </Link>

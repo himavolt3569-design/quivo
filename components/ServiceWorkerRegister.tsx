@@ -15,7 +15,9 @@ export function ServiceWorkerRegister() {
 
     const register = async () => {
       try {
-        const reg = await navigator.serviceWorker.register("/sw.js", { scope: "/" });
+        const reg = await navigator.serviceWorker.register("/sw.js", {
+          scope: "/",
+        });
 
         // When a new worker is waiting, prompt activation on the next user gesture.
         if (reg.waiting) reg.waiting.postMessage("SKIP_WAITING");
@@ -23,7 +25,10 @@ export function ServiceWorkerRegister() {
           const installing = reg.installing;
           if (!installing) return;
           installing.addEventListener("statechange", () => {
-            if (installing.state === "installed" && navigator.serviceWorker.controller) {
+            if (
+              installing.state === "installed" &&
+              navigator.serviceWorker.controller
+            ) {
               installing.postMessage("SKIP_WAITING");
             }
           });

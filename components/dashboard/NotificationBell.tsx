@@ -46,7 +46,9 @@ export function NotificationBell({ initial }: NotificationBellProps) {
     let channel: ReturnType<typeof supabase.channel> | null = null;
 
     (async () => {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (!user || cancelled) return;
       const channelInstanceId =
         typeof crypto !== "undefined" && "randomUUID" in crypto
@@ -69,7 +71,7 @@ export function NotificationBell({ initial }: NotificationBellProps) {
               if (prev.some((n) => n.id === row.id)) return prev;
               return [row, ...prev].slice(0, 50);
             });
-          }
+          },
         )
         .subscribe();
     })();
@@ -78,7 +80,9 @@ export function NotificationBell({ initial }: NotificationBellProps) {
       cancelled = true;
       if (channel) {
         supabase.removeChannel(channel).catch((err) => {
-          log.warn("NotificationBell: removeChannel failed", { err: err instanceof Error ? err.message : String(err) });
+          log.warn("NotificationBell: removeChannel failed", {
+            err: err instanceof Error ? err.message : String(err),
+          });
         });
       }
     };
@@ -88,7 +92,10 @@ export function NotificationBell({ initial }: NotificationBellProps) {
   useEffect(() => {
     if (!open) return;
     const onClick = (e: MouseEvent) => {
-      if (popoverRef.current && !popoverRef.current.contains(e.target as Node)) {
+      if (
+        popoverRef.current &&
+        !popoverRef.current.contains(e.target as Node)
+      ) {
         setOpen(false);
       }
     };
@@ -99,7 +106,11 @@ export function NotificationBell({ initial }: NotificationBellProps) {
   const unread = items.filter((n) => !n.read_at);
 
   const markOneRead = async (id: string) => {
-    setItems((prev) => prev.map((n) => (n.id === id ? { ...n, read_at: new Date().toISOString() } : n)));
+    setItems((prev) =>
+      prev.map((n) =>
+        n.id === id ? { ...n, read_at: new Date().toISOString() } : n,
+      ),
+    );
     const { error } = await supabase
       .from("notifications")
       .update({ read_at: new Date().toISOString() })
@@ -110,7 +121,9 @@ export function NotificationBell({ initial }: NotificationBellProps) {
   const markAllRead = () => {
     startTransition(async () => {
       const now = new Date().toISOString();
-      setItems((prev) => prev.map((n) => ({ ...n, read_at: n.read_at ?? now })));
+      setItems((prev) =>
+        prev.map((n) => ({ ...n, read_at: n.read_at ?? now })),
+      );
       const { error } = await supabase.rpc("mark_all_notifications_read");
       if (error) toast.error("Could not mark all as read");
     });
@@ -135,7 +148,9 @@ export function NotificationBell({ initial }: NotificationBellProps) {
       {open && (
         <div className="absolute right-0 top-12 z-50 w-[360px] max-w-[calc(100vw-1.5rem)] bg-white rounded-2xl border border-[#2E3344]/10 shadow-2xl overflow-hidden">
           <div className="flex items-center justify-between gap-2 px-4 py-3 border-b border-[#2E3344]/8 bg-[#f8f8f7]/50">
-            <p className="text-xs font-black uppercase tracking-widest text-[#27324A]">Notifications</p>
+            <p className="text-xs font-black uppercase tracking-widest text-[#27324A]">
+              Notifications
+            </p>
             <div className="flex items-center gap-2">
               {unread.length > 0 && (
                 <button
@@ -160,7 +175,9 @@ export function NotificationBell({ initial }: NotificationBellProps) {
             {items.length === 0 ? (
               <div className="px-4 py-8 text-center">
                 <Bell className="h-8 w-8 text-[#746E73] opacity-30 mx-auto mb-2" />
-                <p className="text-xs text-[#746E73] font-bold">No notifications yet.</p>
+                <p className="text-xs text-[#746E73] font-bold">
+                  No notifications yet.
+                </p>
               </div>
             ) : (
               <ul className="divide-y divide-[#2E3344]/5">
@@ -195,17 +212,29 @@ function NotificationRow({
   onNavigate: () => void;
 }) {
   const inner = (
-    <div className={`flex items-start gap-3 px-4 py-3 transition ${!n.read_at ? "bg-[#F7F0E6]/40" : "hover:bg-[#f8f8f7]/50"}`}>
-      <span className={`mt-1 h-2 w-2 rounded-full shrink-0 ${!n.read_at ? "bg-[#A7653A]" : "bg-[#27324A]/20"}`} />
+    <div
+      className={`flex items-start gap-3 px-4 py-3 transition ${!n.read_at ? "bg-[#F7F0E6]/40" : "hover:bg-[#f8f8f7]/50"}`}
+    >
+      <span
+        className={`mt-1 h-2 w-2 rounded-full shrink-0 ${!n.read_at ? "bg-[#A7653A]" : "bg-[#27324A]/20"}`}
+      />
       <div className="flex-1 min-w-0">
         <p className="text-sm font-bold text-[#27324A]">{n.title}</p>
-        {n.body && <p className="text-xs text-[#746E73] mt-0.5 line-clamp-2">{n.body}</p>}
-        <p className="text-[10px] text-[#a4a09a] mt-1">{timeAgo(n.created_at)} ago</p>
+        {n.body && (
+          <p className="text-xs text-[#746E73] mt-0.5 line-clamp-2">{n.body}</p>
+        )}
+        <p className="text-[10px] text-[#a4a09a] mt-1">
+          {timeAgo(n.created_at)} ago
+        </p>
       </div>
       {!n.read_at && (
         <button
           type="button"
-          onClick={(e) => { e.stopPropagation(); e.preventDefault(); onMarkRead(); }}
+          onClick={(e) => {
+            e.stopPropagation();
+            e.preventDefault();
+            onMarkRead();
+          }}
           className="text-[10px] font-bold text-[#A7653A] hover:underline shrink-0"
         >
           Read
@@ -221,5 +250,13 @@ function NotificationRow({
       </Link>
     );
   }
-  return <button type="button" onClick={onNavigate} className="block w-full text-left">{inner}</button>;
+  return (
+    <button
+      type="button"
+      onClick={onNavigate}
+      className="block w-full text-left"
+    >
+      {inner}
+    </button>
+  );
 }

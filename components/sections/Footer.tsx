@@ -12,21 +12,22 @@ export function Footer() {
             <span className="text-xl font-bold">Quivo</span>
           </div>
           <p className="mt-3 max-w-md text-sm leading-6 text-white/58">
-            Quivo means Quick + Inventory: built for Nepali businesses that
-            need fast stock answers, secure records, and easier shop
-            operations.
+            Quivo means Quick + Inventory: built for Nepali businesses that need
+            fast stock answers, secure records, and easier shop operations.
           </p>
         </div>
         <div className="flex flex-wrap gap-5 text-sm font-medium text-white/68">
-          {["Features", "Pricing", "Support", "Privacy", "Terms"].map(link => (
-            <a
-              key={link}
-              href="#top"
-              className="transition hover:text-[#D8C99A]"
-            >
-              {link}
-            </a>
-          ))}
+          {["Features", "Pricing", "Support", "Privacy", "Terms"].map(
+            (link) => (
+              <a
+                key={link}
+                href="#top"
+                className="transition hover:text-[#D8C99A]"
+              >
+                {link}
+              </a>
+            ),
+          )}
         </div>
         <p className="text-sm text-white/45">© 2026 Quivo Inc.</p>
       </div>

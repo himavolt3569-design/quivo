@@ -23,7 +23,9 @@ import {
 
 export async function startNewShopOnboarding(): Promise<void> {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) redirect("/?login=true");
 
   // Only owner-role users may enter the shop-creation flow.  Block customers
@@ -41,9 +43,9 @@ export async function startNewShopOnboarding(): Promise<void> {
   jar.set(ONBOARDING_COOKIE_NAME, token, {
     httpOnly: true,
     sameSite: "strict",
-    secure:  process.env.NODE_ENV === "production",
-    path:    "/onboarding",
-    maxAge:  Math.floor(ONBOARDING_TOKEN_TTL_MS / 1000),
+    secure: process.env.NODE_ENV === "production",
+    path: "/onboarding",
+    maxAge: Math.floor(ONBOARDING_TOKEN_TTL_MS / 1000),
   });
 
   redirect("/onboarding/owner");

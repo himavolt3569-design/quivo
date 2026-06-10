@@ -12,26 +12,29 @@ export default function SavedLoading() {
           <Skeleton className="h-4 w-64 rounded-lg" />
         </div>
         <div className="flex gap-4">
-           <Skeleton className="h-10 w-32 rounded-2xl" />
-           <Skeleton className="h-10 w-32 rounded-2xl" />
+          <Skeleton className="h-10 w-32 rounded-2xl" />
+          <Skeleton className="h-10 w-32 rounded-2xl" />
         </div>
       </div>
 
       {/* Toggle Tab Skeleton */}
       <div className="flex gap-1.5 p-1 bg-white border border-[#2E3344]/8 rounded-3xl w-fit mt-6 shadow-sm">
-         <Skeleton className="h-9 w-24 rounded-full" />
-         <Skeleton className="h-9 w-24 rounded-full bg-transparent border-none" />
+        <Skeleton className="h-9 w-24 rounded-full" />
+        <Skeleton className="h-9 w-24 rounded-full bg-transparent border-none" />
       </div>
 
       {/* Grid Skeleton */}
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mt-6">
         {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-          <div key={i} className="h-[220px] rounded-[2rem] bg-white border border-[#2E3344]/8 p-4 flex flex-col gap-4 shadow-sm">
-             <Skeleton className="h-32 w-full rounded-2xl" />
-             <div className="space-y-2">
-                <Skeleton className="h-4 w-full rounded-lg" />
-                <Skeleton className="h-3 w-1/2 rounded-lg" />
-             </div>
+          <div
+            key={i}
+            className="h-[220px] rounded-[2rem] bg-white border border-[#2E3344]/8 p-4 flex flex-col gap-4 shadow-sm"
+          >
+            <Skeleton className="h-32 w-full rounded-2xl" />
+            <div className="space-y-2">
+              <Skeleton className="h-4 w-full rounded-lg" />
+              <Skeleton className="h-3 w-1/2 rounded-lg" />
+            </div>
           </div>
         ))}
       </div>

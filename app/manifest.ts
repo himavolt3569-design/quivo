@@ -9,7 +9,8 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: "Quivo — Kirana POS & Storefront",
     short_name: "Quivo",
-    description: "Nepal-first POS, inventory, payments and storefront for kirana shops.",
+    description:
+      "Nepal-first POS, inventory, payments and storefront for kirana shops.",
     start_url: "/dashboard?source=pwa",
     scope: "/",
     display: "standalone",

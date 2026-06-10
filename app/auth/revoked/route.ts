@@ -37,7 +37,10 @@ export async function GET(request: Request) {
           process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ??
           "";
         const ipHash = ip
-          ? createHash("sha256").update(`${ip}|${salt}`).digest("hex").slice(0, 32)
+          ? createHash("sha256")
+              .update(`${ip}|${salt}`)
+              .digest("hex")
+              .slice(0, 32)
           : null;
 
         await supabase.rpc("record_security_event", {
@@ -48,7 +51,8 @@ export async function GET(request: Request) {
       } catch (auditErr) {
         log.error("auth/revoked: audit failed", {
           event: "audit_log_failed",
-          error: auditErr instanceof Error ? auditErr.message : String(auditErr),
+          error:
+            auditErr instanceof Error ? auditErr.message : String(auditErr),
         });
       }
 
@@ -71,6 +75,6 @@ export async function GET(request: Request) {
   }
 
   return NextResponse.redirect(
-    `${origin}/?auth_error=${AUTH_ERROR_CODES.ACCOUNT_REVOKED}`
+    `${origin}/?auth_error=${AUTH_ERROR_CODES.ACCOUNT_REVOKED}`,
   );
 }

@@ -16,7 +16,12 @@ const sizeClass: Record<NonNullable<DisplayProps["size"]>, string> = {
   lg: "h-5 w-5",
 };
 
-export function StarRating({ value, count, size = "sm", showEmpty = false }: DisplayProps) {
+export function StarRating({
+  value,
+  count,
+  size = "sm",
+  showEmpty = false,
+}: DisplayProps) {
   const rounded = Math.round((Number(value) || 0) * 2) / 2; // nearest 0.5
   if (rounded <= 0 && !showEmpty) return null;
 
@@ -26,7 +31,10 @@ export function StarRating({ value, count, size = "sm", showEmpty = false }: Dis
   });
 
   return (
-    <span className="inline-flex items-center gap-1 text-[#A7653A]" aria-label={`${rounded} out of 5 stars`}>
+    <span
+      className="inline-flex items-center gap-1 text-[#A7653A]"
+      aria-label={`${rounded} out of 5 stars`}
+    >
       {stars.map((s) => (
         <Star
           key={s.i}
@@ -36,7 +44,9 @@ export function StarRating({ value, count, size = "sm", showEmpty = false }: Dis
         />
       ))}
       {typeof count === "number" && count > 0 && (
-        <span className="text-xs font-bold text-[#746E73] ml-0.5">({count})</span>
+        <span className="text-xs font-bold text-[#746E73] ml-0.5">
+          ({count})
+        </span>
       )}
     </span>
   );
@@ -49,14 +59,25 @@ interface InteractiveProps {
   size?: DisplayProps["size"];
 }
 
-export function InteractiveStarRating({ value, onChange, disabled, size = "lg" }: InteractiveProps) {
+export function InteractiveStarRating({
+  value,
+  onChange,
+  disabled,
+  size = "lg",
+}: InteractiveProps) {
   const labelId = useId();
   const [hover, setHover] = useState<number | null>(null);
   const effective = hover ?? value;
 
   return (
-    <fieldset className="inline-flex items-center gap-1" aria-labelledby={labelId} disabled={disabled}>
-      <span id={labelId} className="sr-only">Rate this product, 1 to 5 stars</span>
+    <fieldset
+      className="inline-flex items-center gap-1"
+      aria-labelledby={labelId}
+      disabled={disabled}
+    >
+      <span id={labelId} className="sr-only">
+        Rate this product, 1 to 5 stars
+      </span>
       {[1, 2, 3, 4, 5].map((i) => (
         <button
           key={i}

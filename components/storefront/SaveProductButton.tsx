@@ -16,7 +16,12 @@ interface Props {
 const sizeClass = { sm: "h-7 w-7", md: "h-9 w-9" };
 const iconClass = { sm: "h-3.5 w-3.5", md: "h-4 w-4" };
 
-export function SaveProductButton({ productId, initialSaved = false, size = "sm", className }: Props) {
+export function SaveProductButton({
+  productId,
+  initialSaved = false,
+  size = "sm",
+  className,
+}: Props) {
   const [saved, setSaved] = useState<boolean>(initialSaved);
   const [isPending, startTransition] = useTransition();
 

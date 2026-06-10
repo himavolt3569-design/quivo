@@ -3,21 +3,47 @@
 import dynamic from "next/dynamic";
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import {
-  X, CheckCircle2, Banknote, QrCode, MapPin, Phone, User, FileText,
-  Smartphone, Building2, Copy, Check, Loader2, ExternalLink,
+  X,
+  CheckCircle2,
+  Banknote,
+  QrCode,
+  MapPin,
+  Phone,
+  User,
+  FileText,
+  Smartphone,
+  Building2,
+  Copy,
+  Check,
+  Loader2,
+  ExternalLink,
 } from "lucide-react";
 import type { CartItem } from "./CartDrawer";
 import { PhoneInput, EmailInput } from "@/components/ui/validated-input";
-import { placeOrderWithPayment, getPublicShopPaymentMethods } from "@/app/actions/payments";
+import {
+  placeOrderWithPayment,
+  getPublicShopPaymentMethods,
+} from "@/app/actions/payments";
 import type { PaymentMethod, PublicPaymentMethods } from "@/lib/payments";
-import { PAYMENT_METHOD_LABELS, PAYMENT_METHOD_DESCRIPTIONS } from "@/lib/payments/constants";
+import {
+  PAYMENT_METHOD_LABELS,
+  PAYMENT_METHOD_DESCRIPTIONS,
+} from "@/lib/payments/constants";
 import { CheckoutDiscounts } from "./CheckoutDiscounts";
 import type { PromoPreview } from "@/app/actions/promo";
 
 // Leaflet picker — client-only to avoid SSR window references.
 const AddressPinPicker = dynamic(
-  () => import("@/components/dashboard/customer/AddressPinPicker").then((m) => m.AddressPinPicker),
-  { ssr: false, loading: () => <div className="h-[260px] rounded-2xl bg-gray-100 animate-pulse" /> }
+  () =>
+    import("@/components/dashboard/customer/AddressPinPicker").then(
+      (m) => m.AddressPinPicker,
+    ),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="h-[260px] rounded-2xl bg-gray-100 animate-pulse" />
+    ),
+  },
 );
 
 interface CheckoutModalProps {
@@ -35,20 +61,23 @@ interface CheckoutModalProps {
   onSuccess: (orderNumber: string, trackingToken: string) => void;
 }
 
-const METHOD_ICONS: Record<PaymentMethod, React.ComponentType<{ className?: string }>> = {
-  cod:           Banknote,
-  esewa:         Smartphone,
-  khalti:        Smartphone,
+const METHOD_ICONS: Record<
+  PaymentMethod,
+  React.ComponentType<{ className?: string }>
+> = {
+  cod: Banknote,
+  esewa: Smartphone,
+  khalti: Smartphone,
   bank_transfer: Building2,
-  qr_code:       QrCode,
+  qr_code: QrCode,
 };
 
 const METHOD_ACCENTS: Record<PaymentMethod, string> = {
-  cod:           "border-amber-500 bg-amber-500 text-white",
-  esewa:         "border-green-600 bg-green-600 text-white",
-  khalti:        "border-purple-600 bg-purple-600 text-white",
+  cod: "border-amber-500 bg-amber-500 text-white",
+  esewa: "border-green-600 bg-green-600 text-white",
+  khalti: "border-purple-600 bg-purple-600 text-white",
   bank_transfer: "border-blue-600 bg-blue-600 text-white",
-  qr_code:       "border-pink-600 bg-pink-600 text-white",
+  qr_code: "border-pink-600 bg-pink-600 text-white",
 };
 
 function Copyable({ value, label }: { value: string; label: string }) {
@@ -57,23 +86,45 @@ function Copyable({ value, label }: { value: string; label: string }) {
     <button
       type="button"
       onClick={async () => {
-        try { await navigator.clipboard.writeText(value); setCopied(true); setTimeout(() => setCopied(false), 1500); } catch { /* */ }
+        try {
+          await navigator.clipboard.writeText(value);
+          setCopied(true);
+          setTimeout(() => setCopied(false), 1500);
+        } catch {
+          /* */
+        }
       }}
       className="w-full flex items-center justify-between gap-3 px-3 py-2.5 rounded-xl bg-white border border-gray-200 hover:border-gray-300 transition text-left"
     >
       <div className="min-w-0">
-        <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400">{label}</p>
-        <p className="font-mono font-bold text-sm text-gray-900 truncate">{value}</p>
+        <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400">
+          {label}
+        </p>
+        <p className="font-mono font-bold text-sm text-gray-900 truncate">
+          {value}
+        </p>
       </div>
-      {copied
-        ? <Check className="h-4 w-4 text-green-600 shrink-0" />
-        : <Copy className="h-4 w-4 text-gray-400 shrink-0" />}
+      {copied ? (
+        <Check className="h-4 w-4 text-green-600 shrink-0" />
+      ) : (
+        <Copy className="h-4 w-4 text-gray-400 shrink-0" />
+      )}
     </button>
   );
 }
 
 export function CheckoutModal({
-  isOpen, onClose, cart, subtotal, shopId, shopName, themeColor, vatRegistered, vatRate, panNumber, onSuccess,
+  isOpen,
+  onClose,
+  cart,
+  subtotal,
+  shopId,
+  shopName,
+  themeColor,
+  vatRegistered,
+  vatRate,
+  panNumber,
+  onSuccess,
 }: CheckoutModalProps) {
   // The grand total displayed in this modal is an estimate — the RPC is the
   // authoritative source. We show subtotal + estimated tax (when registered).
@@ -84,10 +135,12 @@ export function CheckoutModal({
   const afterPromo = Math.max(0, subtotal - promoDiscount);
   const wallet = Math.min(walletUsed, afterPromo);
   const afterWallet = Math.max(0, afterPromo - wallet);
-  const taxEstimate = vatRegistered ? Math.round(((afterWallet * safeRate) / 100) * 100) / 100 : 0;
+  const taxEstimate = vatRegistered
+    ? Math.round(((afterWallet * safeRate) / 100) * 100) / 100
+    : 0;
   const total = Math.round((afterWallet + taxEstimate) * 100) / 100;
   void themeColor; // kept in the prop contract for future theming
-  void panNumber;  // surfaced via the printed receipt, not the checkout modal
+  void panNumber; // surfaced via the printed receipt, not the checkout modal
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
@@ -119,16 +172,18 @@ export function CheckoutModal({
       }
       setLoadingMethods(false);
     });
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [isOpen, shopId]);
 
   const availableMethods: PaymentMethod[] = useMemo(() => {
     if (!methods) return ["cod"];
     return methods.enabled_methods.filter((m) => {
-      if (m === "esewa")  return methods.has_esewa;
+      if (m === "esewa") return methods.has_esewa;
       if (m === "khalti") return methods.has_khalti;
       if (m === "bank_transfer") return !!methods.bank_account_number;
-      if (m === "qr_code")       return !!methods.qr_code_url;
+      if (m === "qr_code") return !!methods.qr_code_url;
       return true;
     });
   }, [methods]);
@@ -138,13 +193,20 @@ export function CheckoutModal({
     setError("");
     startTransition(async () => {
       const result = await placeOrderWithPayment(
-        shopId, shopName, cart, paymentMethod,
+        shopId,
+        shopName,
+        cart,
+        paymentMethod,
         {
-          name, phone, email, address, notes,
+          name,
+          phone,
+          email,
+          address,
+          notes,
           deliveryLat: pin?.lat ?? null,
           deliveryLng: pin?.lng ?? null,
         },
-        { promoCode: promo?.code ?? null, walletUsed: wallet }
+        { promoCode: promo?.code ?? null, walletUsed: wallet },
       );
       if (result.error || !result.orderNumber) {
         setError(result.error ?? "Failed to place order.");
@@ -152,14 +214,20 @@ export function CheckoutModal({
       }
 
       // eSewa form-POST: build hidden form and submit to the gateway.
-      if (result.redirectMethod === "POST" && result.redirectUrl && result.formFields) {
+      if (
+        result.redirectMethod === "POST" &&
+        result.redirectUrl &&
+        result.formFields
+      ) {
         const form = formPostRef.current!;
         form.action = result.redirectUrl;
         form.method = "POST";
         form.innerHTML = "";
         for (const [k, v] of Object.entries(result.formFields)) {
           const input = document.createElement("input");
-          input.type = "hidden"; input.name = k; input.value = v;
+          input.type = "hidden";
+          input.name = k;
+          input.value = v;
           form.appendChild(input);
         }
         form.submit();
@@ -187,17 +255,26 @@ export function CheckoutModal({
 
       <div className="bg-white w-full h-full sm:h-auto sm:max-h-[90vh] sm:max-w-lg sm:rounded-3xl shadow-2xl flex flex-col">
         <div className="flex items-center justify-between p-5 border-b border-gray-100">
-          <h2 className="font-black text-gray-900 text-lg">Complete Your Order</h2>
-          <button onClick={onClose} className="h-9 w-9 rounded-full bg-gray-100 flex items-center justify-center">
+          <h2 className="font-black text-gray-900 text-lg">
+            Complete Your Order
+          </h2>
+          <button
+            onClick={onClose}
+            className="h-9 w-9 rounded-full bg-gray-100 flex items-center justify-center"
+          >
             <X className="h-4 w-4 text-gray-500" />
           </button>
         </div>
 
         <div className="px-5 py-3 bg-gray-50 border-b border-gray-100">
-          <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Order Summary</p>
+          <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">
+            Order Summary
+          </p>
           <div className="space-y-1">
             <div className="flex justify-between items-center text-sm text-gray-600">
-              <span>{itemCount} item{itemCount !== 1 ? "s" : ""} subtotal</span>
+              <span>
+                {itemCount} item{itemCount !== 1 ? "s" : ""} subtotal
+              </span>
               <span>Rs. {subtotal.toLocaleString()}</span>
             </div>
             {promoDiscount > 0 && (
@@ -220,7 +297,9 @@ export function CheckoutModal({
             )}
             <div className="flex justify-between items-center pt-1 border-t border-gray-200">
               <span className="text-sm font-bold text-gray-900">Total</span>
-              <span className="font-black text-gray-900">Rs. {total.toLocaleString()}</span>
+              <span className="font-black text-gray-900">
+                Rs. {total.toLocaleString()}
+              </span>
             </div>
           </div>
         </div>
@@ -232,22 +311,36 @@ export function CheckoutModal({
           onWalletChange={setWalletUsed}
         />
 
-        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-5 space-y-5">
+        <form
+          onSubmit={handleSubmit}
+          className="flex-1 overflow-y-auto p-5 space-y-5"
+        >
           {/* Customer details */}
           <div className="space-y-3">
-            <p className="text-xs font-black uppercase tracking-wider text-gray-400">Your Details</p>
+            <p className="text-xs font-black uppercase tracking-wider text-gray-400">
+              Your Details
+            </p>
 
             <label className="block">
-              <span className="text-[11px] font-bold text-gray-600 ml-1">Full name <span className="text-red-500">*</span></span>
+              <span className="text-[11px] font-bold text-gray-600 ml-1">
+                Full name <span className="text-red-500">*</span>
+              </span>
               <div className="relative mt-1">
                 <User className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                <input required value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Anita Tamang"
-                  className="w-full h-12 pl-10 pr-4 bg-gray-50 border border-gray-200 rounded-xl text-sm outline-none focus:border-gray-400 transition" />
+                <input
+                  required
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="e.g. Anita Tamang"
+                  className="w-full h-12 pl-10 pr-4 bg-gray-50 border border-gray-200 rounded-xl text-sm outline-none focus:border-gray-400 transition"
+                />
               </div>
             </label>
 
             <label className="block">
-              <span className="text-[11px] font-bold text-gray-600 ml-1">Phone <span className="text-red-500">*</span></span>
+              <span className="text-[11px] font-bold text-gray-600 ml-1">
+                Phone <span className="text-red-500">*</span>
+              </span>
               <div className="relative mt-1">
                 <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 z-10 pointer-events-none" />
                 <PhoneInput
@@ -261,19 +354,37 @@ export function CheckoutModal({
             </label>
 
             <label className="block">
-              <span className="text-[11px] font-bold text-gray-600 ml-1">Delivery address <span className="text-red-500">*</span></span>
+              <span className="text-[11px] font-bold text-gray-600 ml-1">
+                Delivery address <span className="text-red-500">*</span>
+              </span>
               <div className="relative mt-1">
                 <MapPin className="absolute left-3.5 top-3.5 h-4 w-4 text-gray-400" />
-                <textarea required value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Street, area, landmark" rows={2}
-                  className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm outline-none focus:border-gray-400 transition resize-none" />
+                <textarea
+                  required
+                  value={address}
+                  onChange={(e) => setAddress(e.target.value)}
+                  placeholder="Street, area, landmark"
+                  rows={2}
+                  className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm outline-none focus:border-gray-400 transition resize-none"
+                />
               </div>
               <div className="mt-3 flex items-center justify-between gap-3 text-xs bg-gray-50 p-3 rounded-xl border border-gray-200">
                 <div className="flex items-center gap-2 text-gray-600 flex-1 min-w-0">
-                  <MapPin className="h-4 w-4 shrink-0" style={{ color: themeColor }} />
+                  <MapPin
+                    className="h-4 w-4 shrink-0"
+                    style={{ color: themeColor }}
+                  />
                   {pin ? (
-                    <span className="truncate">Pin set: <span className="font-mono text-gray-900 font-bold">{pin.lat.toFixed(4)}, {pin.lng.toFixed(4)}</span></span>
+                    <span className="truncate">
+                      Pin set:{" "}
+                      <span className="font-mono text-gray-900 font-bold">
+                        {pin.lat.toFixed(4)}, {pin.lng.toFixed(4)}
+                      </span>
+                    </span>
                   ) : (
-                    <span className="truncate">Pin exact location (recommended)</span>
+                    <span className="truncate">
+                      Pin exact location (recommended)
+                    </span>
                   )}
                 </div>
                 <button
@@ -300,18 +411,28 @@ export function CheckoutModal({
             </label>
 
             <label className="block">
-              <span className="text-[11px] font-bold text-gray-600 ml-1">Notes <span className="text-gray-400 font-medium">(optional)</span></span>
+              <span className="text-[11px] font-bold text-gray-600 ml-1">
+                Notes{" "}
+                <span className="text-gray-400 font-medium">(optional)</span>
+              </span>
               <div className="relative mt-1">
                 <FileText className="absolute left-3.5 top-3.5 h-4 w-4 text-gray-400" />
-                <textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Gate color, substitution preference…" rows={2}
-                  className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm outline-none focus:border-gray-400 transition resize-none" />
+                <textarea
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  placeholder="Gate color, substitution preference…"
+                  rows={2}
+                  className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm outline-none focus:border-gray-400 transition resize-none"
+                />
               </div>
             </label>
           </div>
 
           {/* Payment method selector */}
           <div className="space-y-3">
-            <p className="text-xs font-black uppercase tracking-wider text-gray-400">Payment Method</p>
+            <p className="text-xs font-black uppercase tracking-wider text-gray-400">
+              Payment Method
+            </p>
 
             {loadingMethods ? (
               <div className="flex items-center justify-center py-6">
@@ -319,7 +440,8 @@ export function CheckoutModal({
               </div>
             ) : availableMethods.length === 0 ? (
               <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-xl px-3 py-2.5 font-medium">
-                This shop has not configured any payment method yet. Please contact them directly.
+                This shop has not configured any payment method yet. Please
+                contact them directly.
               </p>
             ) : (
               <div className="grid grid-cols-2 gap-2.5">
@@ -332,11 +454,15 @@ export function CheckoutModal({
                       type="button"
                       onClick={() => setPaymentMethod(m)}
                       className={`flex flex-col items-center gap-1.5 p-3.5 rounded-2xl border-2 transition ${
-                        active ? METHOD_ACCENTS[m] : "border-gray-200 text-gray-600 hover:border-gray-300"
+                        active
+                          ? METHOD_ACCENTS[m]
+                          : "border-gray-200 text-gray-600 hover:border-gray-300"
                       }`}
                     >
                       <Icon className="h-5 w-5" />
-                      <span className="text-xs font-bold leading-tight text-center">{PAYMENT_METHOD_LABELS[m]}</span>
+                      <span className="text-xs font-bold leading-tight text-center">
+                        {PAYMENT_METHOD_LABELS[m]}
+                      </span>
                     </button>
                   );
                 })}
@@ -346,54 +472,87 @@ export function CheckoutModal({
             {/* Method-specific details */}
             {paymentMethod === "cod" && availableMethods.includes("cod") && (
               <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-xl px-3 py-2.5 font-medium">
-                {PAYMENT_METHOD_DESCRIPTIONS.cod} You can pay in cash when the order arrives.
+                {PAYMENT_METHOD_DESCRIPTIONS.cod} You can pay in cash when the
+                order arrives.
               </p>
             )}
 
-            {paymentMethod === "esewa" && availableMethods.includes("esewa") && (
-              <p className="text-xs text-green-700 bg-green-50 border border-green-200 rounded-xl px-3 py-2.5 font-medium">
-                {PAYMENT_METHOD_DESCRIPTIONS.esewa}
-              </p>
-            )}
-
-            {paymentMethod === "khalti" && availableMethods.includes("khalti") && (
-              <p className="text-xs text-purple-700 bg-purple-50 border border-purple-200 rounded-xl px-3 py-2.5 font-medium">
-                {PAYMENT_METHOD_DESCRIPTIONS.khalti}
-              </p>
-            )}
-
-            {paymentMethod === "bank_transfer" && availableMethods.includes("bank_transfer") && methods && (
-              <div className="space-y-2.5 bg-blue-50 border border-blue-200 rounded-2xl p-3">
-                <p className="text-xs font-bold text-blue-900 leading-snug">
-                  Transfer Rs. {total.toLocaleString()} to the account below, then upload your receipt on the order tracking page.
+            {paymentMethod === "esewa" &&
+              availableMethods.includes("esewa") && (
+                <p className="text-xs text-green-700 bg-green-50 border border-green-200 rounded-xl px-3 py-2.5 font-medium">
+                  {PAYMENT_METHOD_DESCRIPTIONS.esewa}
                 </p>
-                <div className="space-y-1.5">
-                  {methods.bank_name           && <Copyable label="Bank"     value={methods.bank_name} />}
-                  {methods.bank_account_holder && <Copyable label="Holder"   value={methods.bank_account_holder} />}
-                  {methods.bank_account_number && <Copyable label="Account #" value={methods.bank_account_number} />}
-                  {methods.bank_branch         && <Copyable label="Branch"   value={methods.bank_branch} />}
-                  {methods.bank_swift_code     && <Copyable label="SWIFT"    value={methods.bank_swift_code} />}
-                </div>
-                {methods.payment_instructions && (
-                  <p className="text-[11px] text-blue-800 whitespace-pre-wrap">{methods.payment_instructions}</p>
-                )}
-              </div>
-            )}
+              )}
 
-            {paymentMethod === "qr_code" && availableMethods.includes("qr_code") && methods?.qr_code_url && (
-              <div className="space-y-2.5 bg-pink-50 border border-pink-200 rounded-2xl p-3 text-center">
-                <p className="text-xs font-bold text-pink-900">
-                  Scan this QR with any banking or wallet app, then upload your receipt on the order tracking page.
+            {paymentMethod === "khalti" &&
+              availableMethods.includes("khalti") && (
+                <p className="text-xs text-purple-700 bg-purple-50 border border-purple-200 rounded-xl px-3 py-2.5 font-medium">
+                  {PAYMENT_METHOD_DESCRIPTIONS.khalti}
                 </p>
-                <div className="flex justify-center">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={methods.qr_code_url} alt="Payment QR" className="h-48 w-48 rounded-xl border border-pink-200 bg-white object-contain" />
+              )}
+
+            {paymentMethod === "bank_transfer" &&
+              availableMethods.includes("bank_transfer") &&
+              methods && (
+                <div className="space-y-2.5 bg-blue-50 border border-blue-200 rounded-2xl p-3">
+                  <p className="text-xs font-bold text-blue-900 leading-snug">
+                    Transfer Rs. {total.toLocaleString()} to the account below,
+                    then upload your receipt on the order tracking page.
+                  </p>
+                  <div className="space-y-1.5">
+                    {methods.bank_name && (
+                      <Copyable label="Bank" value={methods.bank_name} />
+                    )}
+                    {methods.bank_account_holder && (
+                      <Copyable
+                        label="Holder"
+                        value={methods.bank_account_holder}
+                      />
+                    )}
+                    {methods.bank_account_number && (
+                      <Copyable
+                        label="Account #"
+                        value={methods.bank_account_number}
+                      />
+                    )}
+                    {methods.bank_branch && (
+                      <Copyable label="Branch" value={methods.bank_branch} />
+                    )}
+                    {methods.bank_swift_code && (
+                      <Copyable label="SWIFT" value={methods.bank_swift_code} />
+                    )}
+                  </div>
+                  {methods.payment_instructions && (
+                    <p className="text-[11px] text-blue-800 whitespace-pre-wrap">
+                      {methods.payment_instructions}
+                    </p>
+                  )}
                 </div>
-                {methods.payment_instructions && (
-                  <p className="text-[11px] text-pink-800 whitespace-pre-wrap text-left">{methods.payment_instructions}</p>
-                )}
-              </div>
-            )}
+              )}
+
+            {paymentMethod === "qr_code" &&
+              availableMethods.includes("qr_code") &&
+              methods?.qr_code_url && (
+                <div className="space-y-2.5 bg-pink-50 border border-pink-200 rounded-2xl p-3 text-center">
+                  <p className="text-xs font-bold text-pink-900">
+                    Scan this QR with any banking or wallet app, then upload
+                    your receipt on the order tracking page.
+                  </p>
+                  <div className="flex justify-center">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={methods.qr_code_url}
+                      alt="Payment QR"
+                      className="h-48 w-48 rounded-xl border border-pink-200 bg-white object-contain"
+                    />
+                  </div>
+                  {methods.payment_instructions && (
+                    <p className="text-[11px] text-pink-800 whitespace-pre-wrap text-left">
+                      {methods.payment_instructions}
+                    </p>
+                  )}
+                </div>
+              )}
           </div>
 
           {error && (
@@ -409,9 +568,16 @@ export function CheckoutModal({
             style={{ backgroundColor: themeColor }}
           >
             {isPending ? (
-              <><Loader2 className="h-4 w-4 animate-spin" />Processing…</>
-            ) : (paymentMethod === "esewa" || paymentMethod === "khalti") ? (
-              <>Pay Rs. {total.toLocaleString()} with {PAYMENT_METHOD_LABELS[paymentMethod]}<ExternalLink className="h-4 w-4" /></>
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Processing…
+              </>
+            ) : paymentMethod === "esewa" || paymentMethod === "khalti" ? (
+              <>
+                Pay Rs. {total.toLocaleString()} with{" "}
+                {PAYMENT_METHOD_LABELS[paymentMethod]}
+                <ExternalLink className="h-4 w-4" />
+              </>
             ) : (
               <>Place Order · Rs. {total.toLocaleString()}</>
             )}
@@ -430,23 +596,39 @@ interface OrderConfirmationProps {
   onClose: () => void;
 }
 
-export function OrderConfirmation({ orderNumber, trackingToken, shopName, themeColor, onClose }: OrderConfirmationProps) {
+export function OrderConfirmation({
+  orderNumber,
+  trackingToken,
+  shopName,
+  themeColor,
+  onClose,
+}: OrderConfirmationProps) {
   const trackingHref = `/order/${orderNumber}?t=${trackingToken}`;
   return (
     <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
       <div className="bg-white w-full max-w-sm rounded-3xl shadow-2xl p-8 text-center">
-        <div className="h-20 w-20 rounded-full flex items-center justify-center mx-auto mb-4"
-          style={{ backgroundColor: `${themeColor}20` }}>
+        <div
+          className="h-20 w-20 rounded-full flex items-center justify-center mx-auto mb-4"
+          style={{ backgroundColor: `${themeColor}20` }}
+        >
           <CheckCircle2 className="h-10 w-10" style={{ color: themeColor }} />
         </div>
-        <h2 className="text-2xl font-black text-gray-900 mb-2">Order Placed!</h2>
+        <h2 className="text-2xl font-black text-gray-900 mb-2">
+          Order Placed!
+        </h2>
         <p className="text-gray-500 text-sm mb-4">
-          Your order from <span className="font-bold text-gray-800">{shopName}</span> has been received.
+          Your order from{" "}
+          <span className="font-bold text-gray-800">{shopName}</span> has been
+          received.
         </p>
         <div className="bg-gray-50 rounded-2xl p-4 mb-4">
-          <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Order Number</p>
+          <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">
+            Order Number
+          </p>
           <p className="font-black text-gray-900 text-lg">{orderNumber}</p>
-          <p className="text-xs text-gray-500 mt-1">Save this for tracking your order</p>
+          <p className="text-xs text-gray-500 mt-1">
+            Save this for tracking your order
+          </p>
         </div>
         <a
           href={trackingHref}
@@ -455,7 +637,10 @@ export function OrderConfirmation({ orderNumber, trackingToken, shopName, themeC
         >
           Track Order
         </a>
-        <button onClick={onClose} className="w-full py-2.5 rounded-2xl text-gray-700 font-bold bg-gray-100 hover:bg-gray-200 transition">
+        <button
+          onClick={onClose}
+          className="w-full py-2.5 rounded-2xl text-gray-700 font-bold bg-gray-100 hover:bg-gray-200 transition"
+        >
           Continue Shopping
         </button>
       </div>

@@ -3,7 +3,14 @@
 import dynamic from "next/dynamic";
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { Package, CheckCircle2, Clock, Truck, PartyPopper, RotateCcw } from "lucide-react";
+import {
+  Package,
+  CheckCircle2,
+  Clock,
+  Truck,
+  PartyPopper,
+  RotateCcw,
+} from "lucide-react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 import type { Order, OrderStatus, OrderItem } from "@/lib/types";
@@ -18,7 +25,7 @@ const TrackingMap = dynamic(
     loading: () => (
       <div className="h-[160px] animate-pulse rounded-xl bg-[#F7F0E6]" />
     ),
-  }
+  },
 );
 
 const STATUS_STEPS: Array<{
@@ -71,10 +78,15 @@ export function OrderCard({
   const handleReorder = () => {
     startReorder(async () => {
       const res = await reorderOrder(order.id);
-      if (res.error || !res.data) { toast.error(res.error ?? "Could not reorder."); return; }
+      if (res.error || !res.data) {
+        toast.error(res.error ?? "Could not reorder.");
+        return;
+      }
       try {
         sessionStorage.setItem(REORDER_KEY, JSON.stringify(res.data));
-      } catch { /* storage full or blocked */ }
+      } catch {
+        /* storage full or blocked */
+      }
       router.push(`/s/${res.data.shopSlug}`);
     });
   };
@@ -88,10 +100,10 @@ export function OrderCard({
         isCancelled
           ? "border-red-100"
           : isDelivered
-          ? "border-green-100"
-          : isOutForDelivery
-          ? "border-[#A7653A]/20"
-          : "border-[#2E3344]/8"
+            ? "border-green-100"
+            : isOutForDelivery
+              ? "border-[#A7653A]/20"
+              : "border-[#2E3344]/8"
       }`}
     >
       <div className="p-5">
@@ -103,10 +115,10 @@ export function OrderCard({
                 isCancelled
                   ? "bg-red-50 text-red-400"
                   : isDelivered
-                  ? "bg-green-50 text-green-600"
-                  : isOutForDelivery
-                  ? "bg-[#F7F0E6] text-[#A7653A]"
-                  : "bg-[#E8E3D1] text-[#626A54]"
+                    ? "bg-green-50 text-green-600"
+                    : isOutForDelivery
+                      ? "bg-[#F7F0E6] text-[#A7653A]"
+                      : "bg-[#E8E3D1] text-[#626A54]"
               }`}
             >
               {isOutForDelivery ? (
@@ -159,9 +171,7 @@ export function OrderCard({
                   <div className="flex flex-shrink-0 flex-col items-center gap-1.5">
                     <motion.div
                       className={`h-2.5 w-2.5 rounded-full transition-colors duration-500 ${
-                        i <= stepIndex
-                          ? "bg-[#A7653A]"
-                          : "bg-[#2E3344]/15"
+                        i <= stepIndex ? "bg-[#A7653A]" : "bg-[#2E3344]/15"
                       }`}
                       animate={
                         i === stepIndex
@@ -183,9 +193,7 @@ export function OrderCard({
                       className="mx-1.5 h-[2px] flex-1 rounded-full"
                       animate={{
                         backgroundColor:
-                          i < stepIndex
-                            ? "#A7653A"
-                            : "rgba(46,51,68,0.12)",
+                          i < stepIndex ? "#A7653A" : "rgba(46,51,68,0.12)",
                       }}
                       transition={{ duration: 0.5 }}
                     />
@@ -198,9 +206,7 @@ export function OrderCard({
                 <p
                   key={step.key}
                   className={`flex-1 text-center text-[9px] font-semibold last:flex-none ${
-                    i === stepIndex
-                      ? "text-[#A7653A]"
-                      : "text-[#746E73]/50"
+                    i === stepIndex ? "text-[#A7653A]" : "text-[#746E73]/50"
                   }`}
                 >
                   {step.label}
@@ -227,7 +233,7 @@ export function OrderCard({
             {items
               .map(
                 (item) =>
-                  `${item.name}${item.quantity > 1 ? ` ×${item.quantity}` : ""}`
+                  `${item.name}${item.quantity > 1 ? ` ×${item.quantity}` : ""}`,
               )
               .join(", ")}
           </p>

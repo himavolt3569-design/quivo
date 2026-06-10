@@ -24,7 +24,8 @@ const PRICE_DROP_THRESHOLD = 0.05; // 5%
 
 export const wishlistAlertsJob: CronJobDefinition = {
   name: "wishlist-alerts",
-  description: "Sweep saved_products for back-in-stock + price-drop transitions.",
+  description:
+    "Sweep saved_products for back-in-stock + price-drop transitions.",
   timeoutMs: 120_000,
   handler: async () => {
     const admin = createAdminClient();
@@ -32,16 +33,21 @@ export const wishlistAlertsJob: CronJobDefinition = {
     // Pull the typed-FK saved rows joined with current product state.
     const { data, error } = await admin
       .from("saved_products")
-      .select(`
+      .select(
+        `
         id, customer_id, product_uuid, shop_uuid, price_at_save,
         back_in_stock_alerted_at, price_drop_alerted_at,
         products!saved_products_product_uuid_fkey ( id, name, price, stock, status, barcode ),
         shops!saved_products_shop_uuid_fkey ( slug, status )
-      `)
+      `,
+      )
       .not("product_uuid", "is", null)
       .limit(2000);
     if (error) {
-      log.error("wishlist-alerts: query failed", { code: error.code, message: error.message });
+      log.error("wishlist-alerts: query failed", {
+        code: error.code,
+        message: error.message,
+      });
       throw new Error(`wishlist-alerts query failed: ${error.message}`);
     }
 
@@ -57,8 +63,15 @@ export const wishlistAlertsJob: CronJobDefinition = {
       price_at_save: number | null;
       back_in_stock_alerted_at: string | null;
       price_drop_alerted_at: string | null;
-      products: { id: string; name: string; price: number; stock: number; status: string; barcode: string | null } | null;
-      shops:    { slug: string; status: string } | null;
+      products: {
+        id: string;
+        name: string;
+        price: number;
+        stock: number;
+        status: string;
+        barcode: string | null;
+      } | null;
+      shops: { slug: string; status: string } | null;
     }>) {
       const p = row.products;
       const s = row.shops;
@@ -74,23 +87,25 @@ export const wishlistAlertsJob: CronJobDefinition = {
           shopId: row.shop_uuid,
           userId: row.customer_id,
           payload: {
-            product_id:   p.id,
-            customer_id:  row.customer_id,
+            product_id: p.id,
+            customer_id: row.customer_id,
             product_name: p.name,
-            shop_slug:    s.slug,
-            barcode:      p.barcode,
+            shop_slug: s.slug,
+            barcode: p.barcode,
           },
           idempotencyKey: `bis:${row.id}:${stock}`,
         });
         if (res.ok || res.skipped) {
-          await admin.from("saved_products")
+          await admin
+            .from("saved_products")
             .update({ back_in_stock_alerted_at: new Date().toISOString() })
             .eq("id", row.id);
           bisEmitted += 1;
         }
       } else if (stock <= 0 && row.back_in_stock_alerted_at != null) {
         // Re-arm so the next restock triggers another alert.
-        await admin.from("saved_products")
+        await admin
+          .from("saved_products")
           .update({ back_in_stock_alerted_at: null })
           .eq("id", row.id);
         stockResets += 1;
@@ -100,27 +115,32 @@ export const wishlistAlertsJob: CronJobDefinition = {
       if (row.price_at_save != null && price > 0) {
         const baseline = Number(row.price_at_save);
         if (baseline > 0 && price <= baseline * (1 - PRICE_DROP_THRESHOLD)) {
-          const dropPct = Math.round(((baseline - price) / baseline) * 1000) / 10;
+          const dropPct =
+            Math.round(((baseline - price) / baseline) * 1000) / 10;
           const res = await emit({
             name: "price_drop.detected",
             shopId: row.shop_uuid,
             userId: row.customer_id,
             payload: {
-              product_id:   p.id,
-              customer_id:  row.customer_id,
+              product_id: p.id,
+              customer_id: row.customer_id,
               product_name: p.name,
-              shop_slug:    s.slug,
-              barcode:      p.barcode,
-              old_price:    baseline,
-              new_price:    price,
-              drop_pct:     dropPct,
+              shop_slug: s.slug,
+              barcode: p.barcode,
+              old_price: baseline,
+              new_price: price,
+              drop_pct: dropPct,
             },
             idempotencyKey: `pdrop:${row.id}:${price}`,
           });
           if (res.ok || res.skipped) {
             // Rebaseline so we don't email again until another drop.
-            await admin.from("saved_products")
-              .update({ price_at_save: price, price_drop_alerted_at: new Date().toISOString() })
+            await admin
+              .from("saved_products")
+              .update({
+                price_at_save: price,
+                price_drop_alerted_at: new Date().toISOString(),
+              })
               .eq("id", row.id);
             pdEmitted += 1;
           }
@@ -128,6 +148,11 @@ export const wishlistAlertsJob: CronJobDefinition = {
       }
     }
 
-    return { rows_scanned: (data ?? []).length, back_in_stock_emitted: bisEmitted, price_drop_emitted: pdEmitted, stock_resets: stockResets };
+    return {
+      rows_scanned: (data ?? []).length,
+      back_in_stock_emitted: bisEmitted,
+      price_drop_emitted: pdEmitted,
+      stock_resets: stockResets,
+    };
   },
 };

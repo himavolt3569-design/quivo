@@ -42,7 +42,7 @@ function HomeContent() {
   function addProductToBasket(productId: string) {
     const product = popularProducts.find((item) => item.id === productId);
     setBasketItems((current) =>
-      current.includes(productId) ? current : [...current, productId]
+      current.includes(productId) ? current : [...current, productId],
     );
     if (product) {
       toast.success(`${product.name} added by barcode`, {
@@ -57,7 +57,7 @@ function HomeContent() {
 
   useLayoutEffect(() => {
     const reduceMotion = window.matchMedia(
-      "(prefers-reduced-motion: reduce)"
+      "(prefers-reduced-motion: reduce)",
     ).matches;
     const isSmallScreen = window.matchMedia("(max-width: 639px)").matches;
     if (reduceMotion || isSmallScreen || !rootRef.current) return;
@@ -145,7 +145,7 @@ function HomeContent() {
         }, rootRef);
 
         cleanup = () => context.revert();
-      }
+      },
     );
 
     return () => {
@@ -162,13 +162,13 @@ function HomeContent() {
       <Navbar scrollToSection={scrollToSection} />
 
       <main id="top" className="pt-16 sm:pt-20">
-        <HeroSection 
-          scrollToSection={scrollToSection} 
-          addProductToBasket={addProductToBasket} 
+        <HeroSection
+          scrollToSection={scrollToSection}
+          addProductToBasket={addProductToBasket}
         />
         <TrendingSection addProductToBasket={addProductToBasket} />
         <FeaturesSection />
-        <ScanToOrderSection 
+        <ScanToOrderSection
           basketItems={basketItems}
           addProductToBasket={addProductToBasket}
           removeProductFromBasket={removeProductFromBasket}

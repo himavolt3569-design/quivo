@@ -4,7 +4,11 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
 };
 
-export default function StorefrontLayout({ children }: { children: React.ReactNode }) {
+export default function StorefrontLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <>
       {/* Google Fonts preload — all storefront fonts in one request */}

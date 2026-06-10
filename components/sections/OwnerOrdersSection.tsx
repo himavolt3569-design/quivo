@@ -23,8 +23,8 @@ export function OwnerOrdersSection() {
             </h2>
           </div>
           <p className="reveal-item max-w-3xl text-lg leading-8 text-[#5F5A61]">
-            Once customers send a basket, shops see only what matters:
-            items, payment, distance, and the next action.
+            Once customers send a basket, shops see only what matters: items,
+            payment, distance, and the next action.
           </p>
         </div>
 
@@ -50,7 +50,7 @@ export function OwnerOrdersSection() {
             </div>
 
             <div className="divide-y divide-[#2E3344]/8">
-              {incomingOrders.map(order => (
+              {incomingOrders.map((order) => (
                 <article
                   key={order.id}
                   className="grid gap-4 bg-white p-5 transition hover:bg-[#FFFBF4] xl:grid-cols-[0.9fr_1.15fr_0.75fr] xl:items-center"
@@ -131,9 +131,7 @@ export function OwnerOrdersSection() {
                   className="rounded-2xl border border-white/10 bg-white/8 p-4"
                 >
                   <p className="font-semibold text-[#D8C99A]">{title}</p>
-                  <p className="mt-1 text-sm leading-6 text-white/68">
-                    {copy}
-                  </p>
+                  <p className="mt-1 text-sm leading-6 text-white/68">{copy}</p>
                 </div>
               ))}
             </div>

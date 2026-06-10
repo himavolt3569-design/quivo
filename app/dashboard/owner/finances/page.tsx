@@ -12,7 +12,10 @@ export default async function FinancesPage() {
     return (
       <div className="flex flex-col items-center justify-center h-64 gap-4 text-center">
         <p className="text-lg font-bold text-[#27324A]">No shop selected.</p>
-        <Link href="/onboarding/owner" className="text-sm text-[#A7653A] hover:underline font-bold">
+        <Link
+          href="/onboarding/owner"
+          className="text-sm text-[#A7653A] hover:underline font-bold"
+        >
           Create your first shop →
         </Link>
       </div>
@@ -49,7 +52,12 @@ export default async function FinancesPage() {
 
   const sumWhere = (type: string, fromIso: string, toIso?: string) =>
     win
-      .filter((t) => t.type === type && t.created_at >= fromIso && (!toIso || t.created_at < toIso))
+      .filter(
+        (t) =>
+          t.type === type &&
+          t.created_at >= fromIso &&
+          (!toIso || t.created_at < toIso),
+      )
       .reduce((acc, t) => acc + (t.amount ?? 0), 0);
 
   const monthlyIncome = sumWhere("sale", monthStartIso);
@@ -70,7 +78,9 @@ export default async function FinancesPage() {
           </span>
           <div>
             <p className="font-bold text-[#27324A] text-sm">Day end</p>
-            <p className="text-[11px] text-[#746E73]">Cash drawer reconciliation + Z-report.</p>
+            <p className="text-[11px] text-[#746E73]">
+              Cash drawer reconciliation + Z-report.
+            </p>
           </div>
         </Link>
         <Link
@@ -82,7 +92,9 @@ export default async function FinancesPage() {
           </span>
           <div>
             <p className="font-bold text-[#27324A] text-sm">VAT-3 export</p>
-            <p className="text-[11px] text-[#746E73]">Monthly IRD-format VAT report.</p>
+            <p className="text-[11px] text-[#746E73]">
+              Monthly IRD-format VAT report.
+            </p>
           </div>
         </Link>
         <Link
@@ -94,7 +106,9 @@ export default async function FinancesPage() {
           </span>
           <div>
             <p className="font-bold text-[#27324A] text-sm">Profitability</p>
-            <p className="text-[11px] text-[#746E73]">Margin per product + top sellers.</p>
+            <p className="text-[11px] text-[#746E73]">
+              Margin per product + top sellers.
+            </p>
           </div>
         </Link>
       </div>

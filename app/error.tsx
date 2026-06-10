@@ -23,9 +23,12 @@ export default function Error({
         <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-red-50">
           <AlertTriangle className="h-7 w-7 text-red-600" />
         </div>
-        <h1 className="text-xl font-black text-[#27324A]">Something went wrong</h1>
+        <h1 className="text-xl font-black text-[#27324A]">
+          Something went wrong
+        </h1>
         <p className="mt-2 text-sm font-medium text-[#746E73]">
-          The page could not finish loading. Try again, or return to the dashboard.
+          The page could not finish loading. Try again, or return to the
+          dashboard.
         </p>
         {error.digest && (
           <p className="mt-3 rounded-xl bg-[#f8f8f7] px-3 py-2 font-mono text-[11px] text-[#746E73]">

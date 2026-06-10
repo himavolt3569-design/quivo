@@ -42,9 +42,19 @@ function round2(n: number): number {
   return Math.round(n * 100) / 100;
 }
 
-export function RefundModal({ order, open, onClose, onComplete }: RefundModalProps) {
+export function RefundModal({
+  order,
+  open,
+  onClose,
+  onComplete,
+}: RefundModalProps) {
   const [state, setState] = useState<Record<string, LineState>>(() =>
-    Object.fromEntries(order.items.map((l) => [l.product_id, { refundQty: l.qty, selected: false }]))
+    Object.fromEntries(
+      order.items.map((l) => [
+        l.product_id,
+        { refundQty: l.qty, selected: false },
+      ]),
+    ),
   );
   const [reason, setReason] = useState("");
   const [isPending, startTransition] = useTransition();
@@ -52,12 +62,18 @@ export function RefundModal({ order, open, onClose, onComplete }: RefundModalPro
   const lines = useMemo(() => {
     return order.items.map((l) => {
       const s = state[l.product_id];
-      return { ...l, selected: !!s?.selected, refundQty: s?.refundQty ?? l.qty };
+      return {
+        ...l,
+        selected: !!s?.selected,
+        refundQty: s?.refundQty ?? l.qty,
+      };
     });
   }, [order.items, state]);
 
   const selectedLines = lines.filter((l) => l.selected && l.refundQty > 0);
-  const refundSubtotal = round2(selectedLines.reduce((a, l) => a + l.price * l.refundQty, 0));
+  const refundSubtotal = round2(
+    selectedLines.reduce((a, l) => a + l.price * l.refundQty, 0),
+  );
 
   // Pro-rate tax refunded by the fraction of the order being refunded.
   const taxRefunded = useMemo(() => {
@@ -68,17 +84,27 @@ export function RefundModal({ order, open, onClose, onComplete }: RefundModalPro
 
   const refundTotal = round2(refundSubtotal + taxRefunded);
 
-  const canSubmit = !isPending && selectedLines.length > 0 && reason.trim().length >= 2 && refundTotal > 0;
+  const canSubmit =
+    !isPending &&
+    selectedLines.length > 0 &&
+    reason.trim().length >= 2 &&
+    refundTotal > 0;
 
   if (!open) return null;
 
   const toggle = (id: string) => {
-    setState((prev) => ({ ...prev, [id]: { ...prev[id], selected: !prev[id]?.selected } }));
+    setState((prev) => ({
+      ...prev,
+      [id]: { ...prev[id], selected: !prev[id]?.selected },
+    }));
   };
 
   const updateQty = (id: string, qty: number, max: number) => {
     const clamped = Math.max(0, Math.min(qty, max));
-    setState((prev) => ({ ...prev, [id]: { ...prev[id], refundQty: clamped } }));
+    setState((prev) => ({
+      ...prev,
+      [id]: { ...prev[id], refundQty: clamped },
+    }));
   };
 
   const submit = () => {
@@ -114,7 +140,10 @@ export function RefundModal({ order, open, onClose, onComplete }: RefundModalPro
       <div className="bg-white rounded-[2rem] w-full max-w-xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
         <div className="bg-gradient-to-br from-[#27324A] to-[#1b2333] p-6 text-white flex items-start justify-between gap-4">
           <div>
-            <h2 id="refund-modal-title" className="font-black text-xl flex items-center gap-2">
+            <h2
+              id="refund-modal-title"
+              className="font-black text-xl flex items-center gap-2"
+            >
               <RotateCcw className="h-5 w-5" /> Refund order
             </h2>
             <p className="text-white/70 text-sm mt-1">{order.orderNumber}</p>
@@ -133,24 +162,31 @@ export function RefundModal({ order, open, onClose, onComplete }: RefundModalPro
           <div className="flex items-start gap-3 bg-[#F7F0E6]/60 rounded-2xl p-4 border border-[#A7653A]/15">
             <AlertTriangle className="h-5 w-5 text-[#A7653A] shrink-0 mt-0.5" />
             <p className="text-xs text-[#27324A] leading-relaxed">
-              Selected items will be restocked and the refund amount will be subtracted from this shop&apos;s finance dashboard.
-              This action is irreversible.
+              Selected items will be restocked and the refund amount will be
+              subtracted from this shop&apos;s finance dashboard. This action is
+              irreversible.
             </p>
           </div>
 
           <div>
-            <h3 className="text-xs font-black uppercase tracking-widest text-[#746E73] mb-2">Pick lines to refund</h3>
+            <h3 className="text-xs font-black uppercase tracking-widest text-[#746E73] mb-2">
+              Pick lines to refund
+            </h3>
             <ul className="space-y-2">
               {lines.length === 0 ? (
                 <li className="text-sm text-[#746E73] italic">
-                  This order&apos;s items are not linked to product IDs and cannot be refunded automatically. Process manually in finances.
+                  This order&apos;s items are not linked to product IDs and
+                  cannot be refunded automatically. Process manually in
+                  finances.
                 </li>
               ) : (
                 lines.map((l) => (
                   <li
                     key={l.product_id}
                     className={`rounded-2xl border px-4 py-3 transition ${
-                      l.selected ? "border-[#27324A] bg-[#f8f8f7]" : "border-[#2E3344]/10 hover:bg-[#f8f8f7]/50"
+                      l.selected
+                        ? "border-[#27324A] bg-[#f8f8f7]"
+                        : "border-[#2E3344]/10 hover:bg-[#f8f8f7]/50"
                     }`}
                   >
                     <label className="flex items-start gap-3 cursor-pointer">
@@ -162,12 +198,18 @@ export function RefundModal({ order, open, onClose, onComplete }: RefundModalPro
                       />
                       <div className="flex-1">
                         <div className="flex justify-between gap-3">
-                          <p className="text-sm font-bold text-[#27324A]">{l.name}</p>
-                          <p className="text-xs text-[#746E73]">Rs. {l.price.toFixed(2)} × {l.qty}</p>
+                          <p className="text-sm font-bold text-[#27324A]">
+                            {l.name}
+                          </p>
+                          <p className="text-xs text-[#746E73]">
+                            Rs. {l.price.toFixed(2)} × {l.qty}
+                          </p>
                         </div>
                         {l.selected && (
                           <div className="flex items-center gap-2 mt-2">
-                            <span className="text-[10px] font-black uppercase tracking-wider text-[#746E73]">Refund qty</span>
+                            <span className="text-[10px] font-black uppercase tracking-wider text-[#746E73]">
+                              Refund qty
+                            </span>
                             <Input
                               type="number"
                               inputMode="decimal"
@@ -175,10 +217,18 @@ export function RefundModal({ order, open, onClose, onComplete }: RefundModalPro
                               min={0}
                               max={l.qty}
                               value={l.refundQty}
-                              onChange={(e) => updateQty(l.product_id, Number(e.target.value) || 0, l.qty)}
+                              onChange={(e) =>
+                                updateQty(
+                                  l.product_id,
+                                  Number(e.target.value) || 0,
+                                  l.qty,
+                                )
+                              }
                               className="h-9 w-28 text-sm rounded-xl"
                             />
-                            <span className="text-[10px] text-[#746E73]">of {l.qty}</span>
+                            <span className="text-[10px] text-[#746E73]">
+                              of {l.qty}
+                            </span>
                             <span className="ml-auto text-sm font-bold text-[#27324A]">
                               Rs. {round2(l.price * l.refundQty).toFixed(2)}
                             </span>
@@ -193,7 +243,9 @@ export function RefundModal({ order, open, onClose, onComplete }: RefundModalPro
           </div>
 
           <div>
-            <label className="text-xs font-black uppercase tracking-widest text-[#746E73] mb-2 block">Reason</label>
+            <label className="text-xs font-black uppercase tracking-widest text-[#746E73] mb-2 block">
+              Reason
+            </label>
             <Textarea
               value={reason}
               onChange={(e) => setReason(e.target.value)}
@@ -243,7 +295,8 @@ export function RefundModal({ order, open, onClose, onComplete }: RefundModalPro
               </>
             ) : (
               <>
-                <RotateCcw className="h-4 w-4" /> Refund Rs. {refundTotal.toFixed(2)}
+                <RotateCcw className="h-4 w-4" /> Refund Rs.{" "}
+                {refundTotal.toFixed(2)}
               </>
             )}
           </button>

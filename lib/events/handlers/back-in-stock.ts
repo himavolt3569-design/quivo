@@ -17,7 +17,11 @@ interface Payload {
 export async function handleBackInStock(payload: Payload): Promise<void> {
   if (!payload.product_id || !payload.customer_id || !payload.shop_slug) return;
   const admin = createAdminClient();
-  const { data: user } = await admin.from("profiles").select("email, full_name").eq("id", payload.customer_id).maybeSingle();
+  const { data: user } = await admin
+    .from("profiles")
+    .select("email, full_name")
+    .eq("id", payload.customer_id)
+    .maybeSingle();
   if (!user) return;
   const link = payload.barcode
     ? `${getSiteUrl()}/s/${payload.shop_slug}/product/${payload.barcode}`
@@ -31,7 +35,9 @@ export async function handleBackInStock(payload: Payload): Promise<void> {
       body: `${payload.product_name ?? "An item you saved"} is available again.`,
       linkUrl: link,
     },
-  }).catch((err) => log.warn("back_in_stock notifyUser failed", { err: String(err) }));
+  }).catch((err) =>
+    log.warn("back_in_stock notifyUser failed", { err: String(err) }),
+  );
 
   const email = (user.email as string | null | undefined) ?? null;
   if (!email) return;
@@ -39,5 +45,7 @@ export async function handleBackInStock(payload: Payload): Promise<void> {
     to: email,
     subject: `${payload.product_name ?? "Your saved item"} is back in stock`,
     text: `${payload.product_name ?? "An item"} you saved is back in stock. ${link}`,
-  }).catch((err) => log.warn("back_in_stock email failed", { err: String(err) }));
+  }).catch((err) =>
+    log.warn("back_in_stock email failed", { err: String(err) }),
+  );
 }

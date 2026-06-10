@@ -7,11 +7,7 @@ import { createClient } from "@/lib/supabase/server";
 import { log } from "@/lib/log";
 
 const ShopIdSchema = z.string().uuid("Invalid shop ID");
-const OptionalUuid = z
-  .string()
-  .uuid()
-  .nullable()
-  .optional();
+const OptionalUuid = z.string().uuid().nullable().optional();
 
 const RefundLineSchema = z.object({
   product_id: z.string().uuid("Invalid product ID"),
@@ -37,7 +33,9 @@ export type CreateRefundInput = z.infer<typeof CreateRefundSchema>;
 
 async function authedClient() {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) throw new Error("Unauthorized");
   return { supabase, user };
 }
@@ -51,11 +49,15 @@ async function authedClient() {
 export async function createRefund(input: CreateRefundInput) {
   const parsed = CreateRefundSchema.safeParse(input);
   if (!parsed.success) {
-    return { error: parsed.error.issues[0]?.message ?? "Invalid refund payload" };
+    return {
+      error: parsed.error.issues[0]?.message ?? "Invalid refund payload",
+    };
   }
   const data = parsed.data;
-  const totalAmount = Math.round(data.items.reduce((a, l) => a + l.line_amount, 0) * 100) / 100;
-  if (totalAmount <= 0) return { error: "Refund amount must be greater than zero" };
+  const totalAmount =
+    Math.round(data.items.reduce((a, l) => a + l.line_amount, 0) * 100) / 100;
+  if (totalAmount <= 0)
+    return { error: "Refund amount must be greater than zero" };
 
   try {
     const { supabase, user } = await authedClient();
@@ -76,33 +78,45 @@ export async function createRefund(input: CreateRefundInput) {
       .single();
 
     if (refundErr || !refundRow) {
-      log.error("createRefund: insert failed", { code: refundErr?.code, message: refundErr?.message });
+      log.error("createRefund: insert failed", {
+        code: refundErr?.code,
+        message: refundErr?.message,
+      });
       return { error: refundErr?.message ?? "Could not create refund" };
     }
     const refundId = refundRow.id as string;
 
-    const { error: linesErr } = await supabase
-      .from("refund_items")
-      .insert(data.items.map((l) => ({
+    const { error: linesErr } = await supabase.from("refund_items").insert(
+      data.items.map((l) => ({
         refund_id: refundId,
         product_id: l.product_id,
         qty: l.qty,
         line_amount: l.line_amount,
-      })));
+      })),
+    );
 
     if (linesErr) {
-      log.error("createRefund: line insert failed", { code: linesErr.code, message: linesErr.message });
+      log.error("createRefund: line insert failed", {
+        code: linesErr.code,
+        message: linesErr.message,
+      });
       // Roll back the parent row so we don't strand an empty refund.
       await supabase.from("refunds").delete().eq("id", refundId);
       return { error: linesErr.message };
     }
 
-    const { data: processed, error: rpcErr } = await supabase.rpc("process_refund", {
-      p_refund_id: refundId,
-    });
+    const { data: processed, error: rpcErr } = await supabase.rpc(
+      "process_refund",
+      {
+        p_refund_id: refundId,
+      },
+    );
 
     if (rpcErr) {
-      log.error("createRefund: process_refund failed", { code: rpcErr.code, message: rpcErr.message });
+      log.error("createRefund: process_refund failed", {
+        code: rpcErr.code,
+        message: rpcErr.message,
+      });
       return { error: rpcErr.message };
     }
 
@@ -140,12 +154,17 @@ export async function listRefunds(shopId: string) {
     const { supabase } = await authedClient();
     const { data, error } = await supabase
       .from("refunds")
-      .select("id, shop_id, refund_amount, tax_refunded, reason, status, transaction_id, order_id, processed_at, created_at")
+      .select(
+        "id, shop_id, refund_amount, tax_refunded, reason, status, transaction_id, order_id, processed_at, created_at",
+      )
       .eq("shop_id", parse.data)
       .order("created_at", { ascending: false })
       .limit(100);
     if (error) {
-      log.error("listRefunds: failed", { code: error.code, message: error.message });
+      log.error("listRefunds: failed", {
+        code: error.code,
+        message: error.message,
+      });
       return { error: error.message };
     }
     return { rows: (data ?? []) as RefundSummary[] };

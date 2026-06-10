@@ -27,9 +27,13 @@ import { verifyEsewa } from "@/lib/payments/providers/esewa";
 import type { PaymentSecrets } from "@/lib/payments";
 
 const TERMINAL_STATUSES = new Set([
-  "payment_verified", "cod_paid", "refunded", "payment_rejected",
+  "payment_verified",
+  "cod_paid",
+  "refunded",
+  "payment_rejected",
 ]);
-const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const UUID_RE =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 interface PaymentRow {
   id: string;
@@ -45,10 +49,16 @@ interface OrderRow {
   tracking_token: string;
 }
 
-function failureRedirect(origin: string, orderNumber: string | null, trackingToken: string | null, reason: string) {
-  const target = orderNumber && trackingToken
-    ? `${origin}/order/${orderNumber}?t=${trackingToken}&payment=failed&reason=${encodeURIComponent(reason)}`
-    : `${origin}/?payment=failed&reason=${encodeURIComponent(reason)}`;
+function failureRedirect(
+  origin: string,
+  orderNumber: string | null,
+  trackingToken: string | null,
+  reason: string,
+) {
+  const target =
+    orderNumber && trackingToken
+      ? `${origin}/order/${orderNumber}?t=${trackingToken}&payment=failed&reason=${encodeURIComponent(reason)}`
+      : `${origin}/?payment=failed&reason=${encodeURIComponent(reason)}`;
   return NextResponse.redirect(target);
 }
 
@@ -56,26 +66,34 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const origin = getSiteUrl();
   const paymentId = searchParams.get("payment_id");
-  const result    = searchParams.get("result");
-  const data      = searchParams.get("data");
+  const result = searchParams.get("result");
+  const data = searchParams.get("data");
 
   if (!paymentId || !UUID_RE.test(paymentId)) {
-    return NextResponse.redirect(`${origin}/?payment=failed&reason=missing_payment_id`);
+    return NextResponse.redirect(
+      `${origin}/?payment=failed&reason=missing_payment_id`,
+    );
   }
   if (data && data.length > 8192) {
-    return NextResponse.redirect(`${origin}/?payment=failed&reason=invalid_callback_data`);
+    return NextResponse.redirect(
+      `${origin}/?payment=failed&reason=invalid_callback_data`,
+    );
   }
 
   const admin = createAdminClient();
 
   const { data: payment, error: payErr } = await admin
     .from("payments")
-    .select("id, order_id, shop_id, amount, payment_status, transaction_reference")
+    .select(
+      "id, order_id, shop_id, amount, payment_status, transaction_reference",
+    )
     .eq("id", paymentId)
     .maybeSingle<PaymentRow>();
 
   if (payErr || !payment) {
-    return NextResponse.redirect(`${origin}/?payment=failed&reason=payment_not_found`);
+    return NextResponse.redirect(
+      `${origin}/?payment=failed&reason=payment_not_found`,
+    );
   }
 
   const { data: order } = await admin
@@ -85,9 +103,10 @@ export async function GET(request: Request) {
     .maybeSingle<OrderRow>();
   const orderNumber = order?.order_number ?? null;
   const trackingToken = order?.tracking_token ?? null;
-  const orderPath = orderNumber && trackingToken
-    ? `/order/${orderNumber}?t=${trackingToken}`
-    : "/";
+  const orderPath =
+    orderNumber && trackingToken
+      ? `/order/${orderNumber}?t=${trackingToken}`
+      : "/";
 
   // Idempotent: already terminal → just bounce to tracking page.
   if (TERMINAL_STATUSES.has(payment.payment_status)) {
@@ -97,12 +116,21 @@ export async function GET(request: Request) {
   // Customer cancelled / eSewa reported failure.
   if (result === "failure" || !data) {
     await admin.from("payment_audit_logs").insert({
-      payment_id: payment.id, order_id: payment.order_id, shop_id: payment.shop_id,
-      action: "callback_ignored", actor_type: "gateway",
-      from_status: payment.payment_status, to_status: payment.payment_status,
+      payment_id: payment.id,
+      order_id: payment.order_id,
+      shop_id: payment.shop_id,
+      action: "callback_ignored",
+      actor_type: "gateway",
+      from_status: payment.payment_status,
+      to_status: payment.payment_status,
       metadata: { result, reason: "no_data_or_failure" },
     });
-    return failureRedirect(origin, orderNumber, trackingToken, "gateway_failure");
+    return failureRedirect(
+      origin,
+      orderNumber,
+      trackingToken,
+      "gateway_failure",
+    );
   }
 
   // Pull the shop's secrets via service-role.
@@ -110,7 +138,12 @@ export async function GET(request: Request) {
     .rpc("get_shop_payment_secrets", { p_shop_id: payment.shop_id })
     .single<PaymentSecrets>();
   if (secretsErr || !secrets) {
-    return failureRedirect(origin, orderNumber, trackingToken, "config_missing");
+    return failureRedirect(
+      origin,
+      orderNumber,
+      trackingToken,
+      "config_missing",
+    );
   }
 
   const verifyResult = await verifyEsewa({
@@ -124,12 +157,21 @@ export async function GET(request: Request) {
 
   if (!verifyResult.ok) {
     await admin.from("payment_audit_logs").insert({
-      payment_id: payment.id, order_id: payment.order_id, shop_id: payment.shop_id,
-      action: "verification_failed", actor_type: "gateway",
-      from_status: payment.payment_status, to_status: payment.payment_status,
+      payment_id: payment.id,
+      order_id: payment.order_id,
+      shop_id: payment.shop_id,
+      action: "verification_failed",
+      actor_type: "gateway",
+      from_status: payment.payment_status,
+      to_status: payment.payment_status,
       metadata: { reason: verifyResult.reason ?? "verification_failed" },
     });
-    return failureRedirect(origin, orderNumber, trackingToken, verifyResult.reason ?? "verification_failed");
+    return failureRedirect(
+      origin,
+      orderNumber,
+      trackingToken,
+      verifyResult.reason ?? "verification_failed",
+    );
   }
 
   // Verified — transition to payment_verified.  Conditional UPDATE on
@@ -143,12 +185,21 @@ export async function GET(request: Request) {
       verified_at: new Date().toISOString(),
     })
     .eq("id", payment.id)
-    .not("payment_status", "in", "(payment_verified,cod_paid,refunded,payment_rejected)")
+    .not(
+      "payment_status",
+      "in",
+      "(payment_verified,cod_paid,refunded,payment_rejected)",
+    )
     .select("id")
     .maybeSingle();
 
   if (updErr) {
-    return failureRedirect(origin, orderNumber, trackingToken, "db_update_failed");
+    return failureRedirect(
+      origin,
+      orderNumber,
+      trackingToken,
+      "db_update_failed",
+    );
   }
 
   // updated === null means another concurrent callback already finalized this
@@ -164,16 +215,21 @@ export async function GET(request: Request) {
       .eq("status", "placed");
 
     await admin.from("payment_audit_logs").insert({
-      payment_id: payment.id, order_id: payment.order_id, shop_id: payment.shop_id,
-      action: "verified", actor_type: "gateway",
-      from_status: payment.payment_status, to_status: "payment_verified",
+      payment_id: payment.id,
+      order_id: payment.order_id,
+      shop_id: payment.shop_id,
+      action: "verified",
+      actor_type: "gateway",
+      from_status: payment.payment_status,
+      to_status: "payment_verified",
       metadata: { gateway_transaction_id: verifyResult.gatewayTransactionId },
     });
   }
 
-  const successPath = orderNumber && trackingToken
-    ? `/order/${orderNumber}?t=${trackingToken}&payment=success`
-    : "/";
+  const successPath =
+    orderNumber && trackingToken
+      ? `/order/${orderNumber}?t=${trackingToken}&payment=success`
+      : "/";
   return NextResponse.redirect(`${origin}${successPath}`);
 }
 
@@ -181,12 +237,16 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   let dataField: string | null = null;
   const ct = request.headers.get("content-type") ?? "";
-  if (ct.includes("application/x-www-form-urlencoded") || ct.includes("multipart/form-data")) {
+  if (
+    ct.includes("application/x-www-form-urlencoded") ||
+    ct.includes("multipart/form-data")
+  ) {
     const form = await request.formData().catch(() => null);
     dataField = form?.get("data")?.toString() ?? null;
   } else if (ct.includes("application/json")) {
     const body = await request.json().catch(() => null);
-    if (body && typeof body === "object" && typeof body.data === "string") dataField = body.data;
+    if (body && typeof body === "object" && typeof body.data === "string")
+      dataField = body.data;
   }
 
   const url = new URL(request.url);

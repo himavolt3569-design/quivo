@@ -37,12 +37,19 @@ function money(n: number | null | undefined) {
 
 function fmt(iso: string | null | undefined) {
   if (!iso) return "—";
-  return new Date(iso).toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" });
+  return new Date(iso).toLocaleString("en-IN", {
+    dateStyle: "medium",
+    timeStyle: "short",
+  });
 }
 
 function escapeHtml(s: string): string {
-  return s.replace(/[&<>"']/g, (c) =>
-    ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]!)
+  return s.replace(
+    /[&<>"']/g,
+    (c) =>
+      ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[
+        c
+      ]!,
   );
 }
 
@@ -50,11 +57,13 @@ function printZReport(report: ZReport) {
   const t = report.totals;
   const opened = fmt(report.day.opened_at);
   const closed = fmt(report.day.closed_at);
-  const pan = report.shop.pan_number ? `<div class="pan">PAN: ${escapeHtml(report.shop.pan_number)}</div>` : "";
+  const pan = report.shop.pan_number
+    ? `<div class="pan">PAN: ${escapeHtml(report.shop.pan_number)}</div>`
+    : "";
   const staff = report.by_staff
     .map(
       (s) =>
-        `<tr><td>${escapeHtml(s.staff_name)}</td><td style="text-align:right">${s.sales_count}</td><td style="text-align:right">${money(s.gross)}</td></tr>`
+        `<tr><td>${escapeHtml(s.staff_name)}</td><td style="text-align:right">${s.sales_count}</td><td style="text-align:right">${money(s.gross)}</td></tr>`,
     )
     .join("");
   const html = `<!DOCTYPE html><html><head><meta charset="utf-8"/>
@@ -108,14 +117,25 @@ ${pan}
 </body></html>`;
 
   const w = window.open("", "_blank", "width=420,height=620");
-  if (!w) { toast.error("Allow pop-ups to print the Z-report."); return; }
+  if (!w) {
+    toast.error("Allow pop-ups to print the Z-report.");
+    return;
+  }
   w.document.write(html);
   w.document.close();
   w.focus();
-  setTimeout(() => { w.print(); w.close(); }, 400);
+  setTimeout(() => {
+    w.print();
+    w.close();
+  }, 400);
 }
 
-export function DayEndView({ shopId, shopName, initialCurrent, initialHistory }: Props) {
+export function DayEndView({
+  shopId,
+  shopName,
+  initialCurrent,
+  initialHistory,
+}: Props) {
   const [current, setCurrent] = useState<DayEndRow | null>(initialCurrent);
   const [history, setHistory] = useState<DayEndRow[]>(initialHistory);
   const [openingCash, setOpeningCash] = useState("0");
@@ -134,7 +154,10 @@ export function DayEndView({ shopId, shopName, initialCurrent, initialHistory }:
     const cash = Number(openingCash) || 0;
     startTransition(async () => {
       const res = await openDay(shopId, cash, notes || undefined);
-      if (res.error) { toast.error(res.error); return; }
+      if (res.error) {
+        toast.error(res.error);
+        return;
+      }
       setCurrent(res.row ?? null);
       setOpeningCash("0");
       setNotes("");
@@ -151,13 +174,19 @@ export function DayEndView({ shopId, shopName, initialCurrent, initialHistory }:
     const cash = Number(countedCash);
     startTransition(async () => {
       const res = await closeDay(current.id, cash, closeNotes || undefined);
-      if (res.error) { toast.error(res.error); return; }
+      if (res.error) {
+        toast.error(res.error);
+        return;
+      }
       const closed = res.row ?? null;
       setCurrent(null);
       setCountedCash("");
       setCloseNotes("");
       if (closed) {
-        setHistory((prev) => [closed, ...prev.filter((r) => r.id !== closed.id)]);
+        setHistory((prev) => [
+          closed,
+          ...prev.filter((r) => r.id !== closed.id),
+        ]);
         const zr = await getZReport(closed.id);
         if (zr.report) setZReport(zr.report);
       }
@@ -168,20 +197,27 @@ export function DayEndView({ shopId, shopName, initialCurrent, initialHistory }:
 
   const handleViewZ = async (id: string) => {
     const zr = await getZReport(id);
-    if (zr.error) { toast.error(zr.error); return; }
+    if (zr.error) {
+      toast.error(zr.error);
+      return;
+    }
     if (zr.report) setZReport(zr.report);
   };
 
   const expected = useMemo(() => {
     // For the close form we don't know expected until close_day_end runs.
     // Display the opening cash + naive note instead.
-    return current ? `Opening ${money(current.opening_cash)} + cash sales since ${fmt(current.opened_at)}` : "";
+    return current
+      ? `Opening ${money(current.opening_cash)} + cash sales since ${fmt(current.opened_at)}`
+      : "";
   }, [current]);
 
   // Clear modal on Escape.
   useEffect(() => {
     if (!zReport) return;
-    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setZReport(null); };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setZReport(null);
+    };
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
   }, [zReport]);
@@ -190,14 +226,18 @@ export function DayEndView({ shopId, shopName, initialCurrent, initialHistory }:
     <div className="space-y-6 max-w-5xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500 pb-12">
       <div className="flex items-center justify-between">
         <div>
-          <Link href="/dashboard/owner/finances" className="inline-flex items-center gap-1 text-xs font-bold text-[#746E73] hover:text-[#27324A] mb-2">
+          <Link
+            href="/dashboard/owner/finances"
+            className="inline-flex items-center gap-1 text-xs font-bold text-[#746E73] hover:text-[#27324A] mb-2"
+          >
             <ChevronLeft className="h-3 w-3" /> Back to Finances
           </Link>
           <h1 className="text-2xl font-black text-[#27324A] flex items-center gap-2">
             <Banknote className="h-6 w-6 text-[#A7653A]" /> Day End — {shopName}
           </h1>
           <p className="text-sm font-medium text-[#746E73] mt-1">
-            Open a day with a cash float, then close it with the counted drawer total to reveal the variance.
+            Open a day with a cash float, then close it with the counted drawer
+            total to reveal the variance.
           </p>
         </div>
       </div>
@@ -208,20 +248,30 @@ export function DayEndView({ shopId, shopName, initialCurrent, initialHistory }:
           <div className="flex items-center gap-2">
             <span className="h-2.5 w-2.5 rounded-full bg-emerald-500 animate-pulse" />
             <h2 className="font-black text-[#27324A]">Day open</h2>
-            <span className="ml-auto text-xs font-bold text-[#746E73]">since {fmt(current.opened_at)}</span>
+            <span className="ml-auto text-xs font-bold text-[#746E73]">
+              since {fmt(current.opened_at)}
+            </span>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="bg-[#f8f8f7] p-4 rounded-xl">
-              <p className="text-[10px] font-black uppercase tracking-widest text-[#746E73]">Opening float</p>
-              <p className="text-2xl font-black text-[#27324A] mt-1">{money(current.opening_cash)}</p>
+              <p className="text-[10px] font-black uppercase tracking-widest text-[#746E73]">
+                Opening float
+              </p>
+              <p className="text-2xl font-black text-[#27324A] mt-1">
+                {money(current.opening_cash)}
+              </p>
             </div>
             <div className="bg-[#f8f8f7] p-4 rounded-xl">
-              <p className="text-[10px] font-black uppercase tracking-widest text-[#746E73]">Expected at close</p>
+              <p className="text-[10px] font-black uppercase tracking-widest text-[#746E73]">
+                Expected at close
+              </p>
               <p className="text-xs text-[#746E73] mt-2">{expected}</p>
             </div>
           </div>
           <div className="space-y-2">
-            <label className="text-xs font-black uppercase tracking-widest text-[#746E73]">Counted cash</label>
+            <label className="text-xs font-black uppercase tracking-widest text-[#746E73]">
+              Counted cash
+            </label>
             <Input
               type="number"
               inputMode="decimal"
@@ -234,7 +284,9 @@ export function DayEndView({ shopId, shopName, initialCurrent, initialHistory }:
             />
           </div>
           <div className="space-y-2">
-            <label className="text-xs font-black uppercase tracking-widest text-[#746E73]">Notes (optional)</label>
+            <label className="text-xs font-black uppercase tracking-widest text-[#746E73]">
+              Notes (optional)
+            </label>
             <Textarea
               rows={2}
               value={closeNotes}
@@ -249,7 +301,11 @@ export function DayEndView({ shopId, shopName, initialCurrent, initialHistory }:
             disabled={isPending}
             className="w-full h-12 rounded-xl bg-[#27324A] hover:bg-[#1b2333] text-white font-bold flex items-center justify-center gap-2 disabled:opacity-40"
           >
-            {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <StopCircle className="h-4 w-4" />}
+            {isPending ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <StopCircle className="h-4 w-4" />
+            )}
             Close day &amp; show Z-report
           </button>
         </div>
@@ -259,9 +315,13 @@ export function DayEndView({ shopId, shopName, initialCurrent, initialHistory }:
             <span className="h-2.5 w-2.5 rounded-full bg-[#746E73]/40" />
             <h2 className="font-black text-[#27324A]">No open day</h2>
           </div>
-          <p className="text-sm text-[#746E73]">Start a fresh day by recording the cash drawer float.</p>
+          <p className="text-sm text-[#746E73]">
+            Start a fresh day by recording the cash drawer float.
+          </p>
           <div className="space-y-2">
-            <label className="text-xs font-black uppercase tracking-widest text-[#746E73]">Opening cash float</label>
+            <label className="text-xs font-black uppercase tracking-widest text-[#746E73]">
+              Opening cash float
+            </label>
             <Input
               type="number"
               inputMode="decimal"
@@ -274,7 +334,9 @@ export function DayEndView({ shopId, shopName, initialCurrent, initialHistory }:
             />
           </div>
           <div className="space-y-2">
-            <label className="text-xs font-black uppercase tracking-widest text-[#746E73]">Notes (optional)</label>
+            <label className="text-xs font-black uppercase tracking-widest text-[#746E73]">
+              Notes (optional)
+            </label>
             <Textarea
               rows={2}
               value={notes}
@@ -289,7 +351,11 @@ export function DayEndView({ shopId, shopName, initialCurrent, initialHistory }:
             disabled={isPending}
             className="w-full h-12 rounded-xl bg-[#27324A] hover:bg-[#1b2333] text-white font-bold flex items-center justify-center gap-2 disabled:opacity-40"
           >
-            {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <PlayCircle className="h-4 w-4" />}
+            {isPending ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <PlayCircle className="h-4 w-4" />
+            )}
             Open day
           </button>
         </div>
@@ -300,7 +366,9 @@ export function DayEndView({ shopId, shopName, initialCurrent, initialHistory }:
         <div className="p-4 border-b border-[#2E3344]/8 flex items-center gap-2">
           <History className="h-4 w-4 text-[#A7653A]" />
           <h3 className="font-black text-[#27324A]">Closed days</h3>
-          <span className="ml-auto text-xs font-bold text-[#746E73]">{history.length}</span>
+          <span className="ml-auto text-xs font-bold text-[#746E73]">
+            {history.length}
+          </span>
         </div>
         {history.length === 0 ? (
           <div className="py-12 text-center text-sm font-bold text-[#746E73]">
@@ -327,10 +395,18 @@ export function DayEndView({ shopId, shopName, initialCurrent, initialHistory }:
                     <tr key={d.id} className="hover:bg-[#f8f8f7]/50">
                       <td className="px-4 py-3 text-xs">{fmt(d.opened_at)}</td>
                       <td className="px-4 py-3 text-xs">{fmt(d.closed_at)}</td>
-                      <td className="px-4 py-3 text-right">{money(d.opening_cash)}</td>
-                      <td className="px-4 py-3 text-right">{money(d.expected_cash)}</td>
-                      <td className="px-4 py-3 text-right">{money(d.counted_cash)}</td>
-                      <td className={`px-4 py-3 text-right font-bold ${v === 0 ? "text-[#27324A]" : v > 0 ? "text-emerald-600" : "text-red-600"}`}>
+                      <td className="px-4 py-3 text-right">
+                        {money(d.opening_cash)}
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        {money(d.expected_cash)}
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        {money(d.counted_cash)}
+                      </td>
+                      <td
+                        className={`px-4 py-3 text-right font-bold ${v === 0 ? "text-[#27324A]" : v > 0 ? "text-emerald-600" : "text-red-600"}`}
+                      >
                         {v >= 0 ? money(v) : `−${money(-v)}`}
                       </td>
                       <td className="px-4 py-3 text-right">
@@ -352,8 +428,14 @@ export function DayEndView({ shopId, shopName, initialCurrent, initialHistory }:
 
       {/* Z-report modal */}
       {zReport && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={() => setZReport(null)}>
-          <div className="bg-white rounded-[2rem] max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-2xl" onClick={(e) => e.stopPropagation()}>
+        <div
+          className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
+          onClick={() => setZReport(null)}
+        >
+          <div
+            className="bg-white rounded-[2rem] max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="p-6 border-b border-[#2E3344]/8 flex items-center justify-between">
               <div>
                 <h3 className="font-black text-xl text-[#27324A]">Z-Report</h3>
@@ -361,17 +443,42 @@ export function DayEndView({ shopId, shopName, initialCurrent, initialHistory }:
                   {fmt(zReport.day.opened_at)} → {fmt(zReport.day.closed_at)}
                 </p>
               </div>
-              <button onClick={() => setZReport(null)} className="text-[#746E73] hover:text-[#27324A] text-2xl leading-none">&times;</button>
+              <button
+                onClick={() => setZReport(null)}
+                className="text-[#746E73] hover:text-[#27324A] text-2xl leading-none"
+              >
+                &times;
+              </button>
             </div>
             <div className="p-6 space-y-4 text-sm">
               <ZRow label="Receipts" value={String(zReport.receipts)} />
-              <ZRow label="Gross sales" value={money(zReport.totals.gross_sales)} />
-              <ZRow label="Tax collected" value={money(zReport.totals.tax_collected)} />
-              <ZRow label="Discounts" value={`− ${money(zReport.totals.discounts)}`} />
-              <ZRow label="Refunds" value={`− ${money(zReport.totals.refund_amount)}`} />
-              <ZRow label="Net sales" value={money(zReport.totals.net_sales - zReport.totals.refund_amount)} bold />
+              <ZRow
+                label="Gross sales"
+                value={money(zReport.totals.gross_sales)}
+              />
+              <ZRow
+                label="Tax collected"
+                value={money(zReport.totals.tax_collected)}
+              />
+              <ZRow
+                label="Discounts"
+                value={`− ${money(zReport.totals.discounts)}`}
+              />
+              <ZRow
+                label="Refunds"
+                value={`− ${money(zReport.totals.refund_amount)}`}
+              />
+              <ZRow
+                label="Net sales"
+                value={money(
+                  zReport.totals.net_sales - zReport.totals.refund_amount,
+                )}
+                bold
+              />
               <div className="border-t border-[#2E3344]/10 pt-3">
-                <p className="text-[10px] font-black uppercase tracking-widest text-[#746E73] mb-2">By payment method</p>
+                <p className="text-[10px] font-black uppercase tracking-widest text-[#746E73] mb-2">
+                  By payment method
+                </p>
                 <ZRow label="Cash" value={money(zReport.totals.cash)} />
                 <ZRow label="Card" value={money(zReport.totals.card)} />
                 <ZRow label="QR" value={money(zReport.totals.qr)} />
@@ -380,17 +487,32 @@ export function DayEndView({ shopId, shopName, initialCurrent, initialHistory }:
                 <ZRow label="Udhar" value={money(zReport.totals.udhar)} />
               </div>
               <div className="border-t border-[#2E3344]/10 pt-3">
-                <p className="text-[10px] font-black uppercase tracking-widest text-[#746E73] mb-2">Cash drawer</p>
+                <p className="text-[10px] font-black uppercase tracking-widest text-[#746E73] mb-2">
+                  Cash drawer
+                </p>
                 <ZRow label="Opening" value={money(zReport.day.opening_cash)} />
-                <ZRow label="Expected" value={money(zReport.day.expected_cash)} />
+                <ZRow
+                  label="Expected"
+                  value={money(zReport.day.expected_cash)}
+                />
                 <ZRow label="Counted" value={money(zReport.day.counted_cash)} />
-                <ZRow label="Variance" value={money(zReport.day.variance)} bold />
+                <ZRow
+                  label="Variance"
+                  value={money(zReport.day.variance)}
+                  bold
+                />
               </div>
               {zReport.by_staff.length > 0 && (
                 <div className="border-t border-[#2E3344]/10 pt-3">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-[#746E73] mb-2">By staff</p>
+                  <p className="text-[10px] font-black uppercase tracking-widest text-[#746E73] mb-2">
+                    By staff
+                  </p>
                   {zReport.by_staff.map((s) => (
-                    <ZRow key={s.staff_name} label={`${s.staff_name} (${s.sales_count})`} value={money(s.gross)} />
+                    <ZRow
+                      key={s.staff_name}
+                      label={`${s.staff_name} (${s.sales_count})`}
+                      value={money(s.gross)}
+                    />
                   ))}
                 </div>
               )}
@@ -417,16 +539,27 @@ export function DayEndView({ shopId, shopName, initialCurrent, initialHistory }:
       {!current && history.length === 0 && (
         <div className="flex items-center gap-2 text-xs text-[#746E73] bg-[#F7F0E6]/40 p-3 rounded-xl">
           <AlertCircle className="h-3.5 w-3.5 text-[#A7653A]" />
-          The first day you open will set the baseline for future variance reports.
+          The first day you open will set the baseline for future variance
+          reports.
         </div>
       )}
     </div>
   );
 }
 
-function ZRow({ label, value, bold }: { label: string; value: string; bold?: boolean }) {
+function ZRow({
+  label,
+  value,
+  bold,
+}: {
+  label: string;
+  value: string;
+  bold?: boolean;
+}) {
   return (
-    <div className={`flex justify-between ${bold ? "font-black text-[#27324A] text-base" : "text-[#746E73]"}`}>
+    <div
+      className={`flex justify-between ${bold ? "font-black text-[#27324A] text-base" : "text-[#746E73]"}`}
+    >
       <span>{label}</span>
       <span>{value}</span>
     </div>

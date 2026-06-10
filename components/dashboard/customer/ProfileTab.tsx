@@ -2,14 +2,38 @@
 
 import { useRef, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { Camera, Clock, Eye, EyeOff, KeyRound, MapPin, Package, Store, X, Bookmark, Palette, Check, Type, Bell, ChevronDown, Edit2, ShieldCheck } from "lucide-react";
+import {
+  Camera,
+  Clock,
+  Eye,
+  EyeOff,
+  KeyRound,
+  MapPin,
+  Package,
+  Store,
+  X,
+  Bookmark,
+  Palette,
+  Check,
+  Type,
+  Bell,
+  ChevronDown,
+  Edit2,
+  ShieldCheck,
+} from "lucide-react";
 import { toast } from "sonner";
 import type { User as SupabaseUser } from "@supabase/supabase-js";
 import Cropper from "react-easy-crop";
 import type { Area } from "react-easy-crop";
 
 import { createClient } from "@/lib/supabase/client";
-import { updateProfile, updateAvatar, updateCoverColor, updateFontSize, changePassword } from "@/app/actions/customer";
+import {
+  updateProfile,
+  updateAvatar,
+  updateCoverColor,
+  updateFontSize,
+  changePassword,
+} from "@/app/actions/customer";
 import type { Address, Profile } from "@/lib/types";
 import { AddressBook } from "./AddressBook";
 import { useFontSize } from "@/components/FontProvider";
@@ -64,17 +88,21 @@ async function getCroppedImg(imageSrc: string, pixelCrop: Area): Promise<Blob> {
     0,
     0,
     pixelCrop.width,
-    pixelCrop.height
+    pixelCrop.height,
   );
 
   return new Promise((resolve, reject) => {
-    canvas.toBlob((blob) => {
-      if (!blob) {
-        reject(new Error("Canvas is empty"));
-        return;
-      }
-      resolve(blob);
-    }, "image/jpeg", 0.9);
+    canvas.toBlob(
+      (blob) => {
+        if (!blob) {
+          reject(new Error("Canvas is empty"));
+          return;
+        }
+        resolve(blob);
+      },
+      "image/jpeg",
+      0.9,
+    );
   });
 }
 
@@ -94,12 +122,12 @@ export function ProfileTab({
   const [nameInput, setNameInput] = useState(profile?.full_name ?? "");
   const [savingName, setSavingName] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(
-    profile?.avatar_url ?? null
+    profile?.avatar_url ?? null,
   );
-  
+
   // Cover Color State
   const [coverGradient, setCoverGradient] = useState<string>(
-    profile?.cover_color ?? COVER_GRADIENTS[0]
+    profile?.cover_color ?? COVER_GRADIENTS[0],
   );
   const [showColorPicker, setShowColorPicker] = useState(false);
   const [savingColor, setSavingColor] = useState(false);
@@ -118,9 +146,15 @@ export function ProfileTab({
   const [showAddresses, setShowAddresses] = useState(false);
 
   // Password change
-  const isGoogleUser = (user.identities ?? []).every((id) => id.provider !== "email");
+  const isGoogleUser = (user.identities ?? []).every(
+    (id) => id.provider !== "email",
+  );
   const [pwForm, setPwForm] = useState({ current: "", next: "", confirm: "" });
-  const [showPw, setShowPw] = useState({ current: false, next: false, confirm: false });
+  const [showPw, setShowPw] = useState({
+    current: false,
+    next: false,
+    confirm: false,
+  });
   const [changingPw, setChangingPw] = useState(false);
 
   const displayName = profile?.full_name ?? user.email?.split("@")[0] ?? "User";
@@ -156,16 +190,22 @@ export function ProfileTab({
     if (result.error) {
       toast.error(result.error);
     } else {
-      toast.success(isGoogleUser ? "Password set — you can now sign in with email too" : "Password updated");
+      toast.success(
+        isGoogleUser
+          ? "Password set — you can now sign in with email too"
+          : "Password updated",
+      );
       setPwForm({ current: "", next: "", confirm: "" });
     }
     setChangingPw(false);
   };
 
-  const handleUpdateFontSize = async (size: (typeof FONT_SIZES)[number]["id"]) => {
+  const handleUpdateFontSize = async (
+    size: (typeof FONT_SIZES)[number]["id"],
+  ) => {
     setUpdatingFontSize(true);
     setCustomerFontSize(size); // Optimistic UI update
-    
+
     const result = await updateFontSize(size);
     if (result.error) {
       toast.error(result.error);
@@ -179,7 +219,7 @@ export function ProfileTab({
   const handleSaveCoverColor = async (color: string) => {
     setSavingColor(true);
     setCoverGradient(color); // Optimistic UI update
-    
+
     const result = await updateCoverColor(color);
     if (result.error) {
       toast.error(result.error);
@@ -188,7 +228,7 @@ export function ProfileTab({
       toast.success("Cover color updated");
       router.refresh();
     }
-    
+
     setSavingColor(false);
     setShowColorPicker(false);
   };
@@ -196,7 +236,7 @@ export function ProfileTab({
   const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       const file = e.target.files[0];
-      
+
       if (file.size > 5 * 1024 * 1024) {
         toast.error("Image must be under 5 MB");
         return;
@@ -205,7 +245,7 @@ export function ProfileTab({
         toast.error("Please choose an image file");
         return;
       }
-      
+
       const reader = new FileReader();
       reader.addEventListener("load", () => {
         setCropImage(reader.result?.toString() || null);
@@ -214,9 +254,12 @@ export function ProfileTab({
     }
   };
 
-  const onCropComplete = useCallback((_croppedArea: Area, croppedAreaPixels: Area) => {
-    setCroppedAreaPixels(croppedAreaPixels);
-  }, []);
+  const onCropComplete = useCallback(
+    (_croppedArea: Area, croppedAreaPixels: Area) => {
+      setCroppedAreaPixels(croppedAreaPixels);
+    },
+    [],
+  );
 
   const handleUploadAvatar = async () => {
     if (!cropImage || !croppedAreaPixels) return;
@@ -225,10 +268,18 @@ export function ProfileTab({
     try {
       // 1. Get cropped image blob
       const croppedBlob = await getCroppedImg(cropImage, croppedAreaPixels);
-      
+
       // 2. Convert blob to file for Supabase
-      const ext = cropImage.substring(cropImage.indexOf("/") + 1, cropImage.indexOf(";")) === "png" ? "png" : "jpg";
-      const file = new File([croppedBlob], `avatar.${ext}`, { type: `image/${ext}` });
+      const ext =
+        cropImage.substring(
+          cropImage.indexOf("/") + 1,
+          cropImage.indexOf(";"),
+        ) === "png"
+          ? "png"
+          : "jpg";
+      const file = new File([croppedBlob], `avatar.${ext}`, {
+        type: `image/${ext}`,
+      });
 
       // 3. Upload to Supabase
       const supabase = createClient();
@@ -263,7 +314,7 @@ export function ProfileTab({
   };
 
   const memberSince = new Date(
-    profile?.created_at ?? user.created_at
+    profile?.created_at ?? user.created_at,
   ).toLocaleDateString("en-IN", { month: "short", year: "numeric" });
 
   return (
@@ -273,8 +324,10 @@ export function ProfileTab({
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
           <div className="bg-[#f8f8f7] rounded-[2.5rem] w-full max-w-md overflow-hidden shadow-2xl flex flex-col border border-[#2E3344]/10">
             <div className="p-6 border-b border-[#2E3344]/8 flex items-center justify-between bg-white">
-              <h3 className="font-bold text-[#27324A] text-lg">Adjust Profile Photo</h3>
-              <button 
+              <h3 className="font-bold text-[#27324A] text-lg">
+                Adjust Profile Photo
+              </h3>
+              <button
                 onClick={() => setCropImage(null)}
                 className="p-2 rounded-full hover:bg-[#F7F0E6] text-[#746E73] transition"
                 disabled={uploadingAvatar}
@@ -282,7 +335,7 @@ export function ProfileTab({
                 <X className="h-5 w-5" />
               </button>
             </div>
-            
+
             <div className="relative h-64 sm:h-80 w-full bg-black/5">
               <Cropper
                 image={cropImage}
@@ -296,10 +349,12 @@ export function ProfileTab({
                 onZoomChange={setZoom}
               />
             </div>
-            
+
             <div className="p-8 bg-white space-y-6">
               <div>
-                <p className="text-[10px] font-black uppercase tracking-widest text-[#746E73] mb-4 text-center">Zoom Level</p>
+                <p className="text-[10px] font-black uppercase tracking-widest text-[#746E73] mb-4 text-center">
+                  Zoom Level
+                </p>
                 <input
                   type="range"
                   value={zoom}
@@ -312,16 +367,16 @@ export function ProfileTab({
                   disabled={uploadingAvatar}
                 />
               </div>
-              
+
               <div className="flex gap-3">
-                <button 
+                <button
                   onClick={() => setCropImage(null)}
                   disabled={uploadingAvatar}
                   className="flex-1 py-4 px-4 rounded-full border border-[#2E3344]/12 font-bold text-xs uppercase tracking-widest text-[#746E73] hover:bg-[#F7F0E6] transition active:scale-95"
                 >
                   Cancel
                 </button>
-                <button 
+                <button
                   onClick={handleUploadAvatar}
                   disabled={uploadingAvatar}
                   className="flex-1 py-4 px-4 rounded-full bg-[#A7653A] font-black text-xs uppercase tracking-widest text-white shadow-lg shadow-[#A7653A]/20 hover:bg-[#8E5432] transition active:scale-95 flex items-center justify-center"
@@ -341,17 +396,21 @@ export function ProfileTab({
       {/* ── Super Minimal Profile Header ───────────────────────────── */}
       <div className="relative rounded-[2.5rem] overflow-hidden bg-white border border-[#2E3344]/8 shadow-sm">
         {/* Slim Cover Banner */}
-        <div className={`h-24 sm:h-32 w-full bg-gradient-to-r ${coverGradient} relative transition-all duration-700`}>
+        <div
+          className={`h-24 sm:h-32 w-full bg-gradient-to-r ${coverGradient} relative transition-all duration-700`}
+        >
           {/* Animated Glow Orbs for Depth */}
           <div className="absolute top-[-20%] left-[-10%] h-40 w-40 rounded-full bg-white/20 blur-3xl animate-pulse" />
           <div className="absolute bottom-[-10%] right-[15%] h-32 w-32 rounded-full bg-black/10 blur-2xl animate-bounce duration-[8s]" />
-          
+
           <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-20 mix-blend-overlay"></div>
-          
+
           {/* Glass-morphic Member Badge */}
           <div className="absolute bottom-3 right-4 z-10 hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 shadow-sm transition-transform hover:scale-105">
-             <ShieldCheck className="h-3 w-3 text-[#D8C99A]" />
-             <span className="text-[9px] font-black uppercase tracking-[0.15em] text-white">Verified Quivo Member</span>
+            <ShieldCheck className="h-3 w-3 text-[#D8C99A]" />
+            <span className="text-[9px] font-black uppercase tracking-[0.15em] text-white">
+              Verified Quivo Member
+            </span>
           </div>
 
           {/* Theme Toggle */}
@@ -372,7 +431,9 @@ export function ProfileTab({
                     key={idx}
                     onClick={() => handleSaveCoverColor(gradient)}
                     className={`h-8 w-24 rounded-lg bg-gradient-to-r ${gradient} relative shadow-inner overflow-hidden border-2 transition ${
-                      coverGradient === gradient ? "border-[#27324A]" : "border-transparent hover:scale-105"
+                      coverGradient === gradient
+                        ? "border-[#27324A]"
+                        : "border-transparent hover:scale-105"
                     }`}
                   >
                     {coverGradient === gradient && (
@@ -386,7 +447,7 @@ export function ProfileTab({
             </div>
           )}
         </div>
-        
+
         {/* Minimal User Info Strip */}
         <div className="px-6 py-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-4">
@@ -398,7 +459,11 @@ export function ProfileTab({
                 className="group relative h-full w-full block rounded-xl overflow-hidden bg-[#27324A]"
               >
                 {avatarUrl ? (
-                  <img src={avatarUrl} alt="" className="h-full w-full object-cover" />
+                  <img
+                    src={avatarUrl}
+                    alt=""
+                    className="h-full w-full object-cover"
+                  />
                 ) : (
                   <div className="h-full w-full flex items-center justify-center text-white text-xl font-black">
                     {initial}
@@ -408,7 +473,13 @@ export function ProfileTab({
                   <Camera className="h-4 w-4 text-white" />
                 </div>
               </button>
-              <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={onFileChange} />
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={onFileChange}
+              />
             </div>
 
             <div className="min-w-0">
@@ -425,7 +496,12 @@ export function ProfileTab({
                     }}
                     className="w-40 sm:w-56 rounded-xl border border-[#A7653A]/30 bg-[#F7F0E6]/30 px-3 py-1.5 text-sm font-bold text-[#27324A] outline-none focus:ring-2 focus:ring-[#A7653A]/20 shadow-sm"
                   />
-                  <button onClick={handleSaveName} className="text-[10px] font-black uppercase text-[#A7653A] hover:underline">Save</button>
+                  <button
+                    onClick={handleSaveName}
+                    className="text-[10px] font-black uppercase text-[#A7653A] hover:underline"
+                  >
+                    Save
+                  </button>
                 </div>
               ) : (
                 <div className="flex flex-col">
@@ -433,37 +509,41 @@ export function ProfileTab({
                     <h2 className="text-lg sm:text-xl font-black tracking-tight text-[#27324A] truncate">
                       {profile?.full_name ?? "User"}
                     </h2>
-                    <button onClick={() => setEditingName(true)} className="text-[#746E73] hover:text-[#A7653A] transition">
+                    <button
+                      onClick={() => setEditingName(true)}
+                      className="text-[#746E73] hover:text-[#A7653A] transition"
+                    >
                       <Edit2 className="h-3 w-3" />
                     </button>
                   </div>
-                  <p className="text-xs font-bold text-[#746E73]/70 truncate">{user.email}</p>
+                  <p className="text-xs font-bold text-[#746E73]/70 truncate">
+                    {user.email}
+                  </p>
                 </div>
               )}
             </div>
           </div>
 
           <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-             <div className="flex items-center gap-2 bg-[#F7F0E6] px-3 py-1.5 rounded-full border border-[#2E3344]/5">
-                <Clock className="h-3 w-3 text-[#A7653A]" />
-                <p className="text-[10px] font-black text-[#A7653A] uppercase tracking-widest">
-                  Joined: {memberSince}
-                </p>
-             </div>
-             <p className="text-[10px] font-black text-[#746E73] bg-white border border-[#2E3344]/8 px-3 py-1.5 rounded-full uppercase tracking-widest shadow-sm">
-               ID: {user.id.slice(0, 8)}
-             </p>
+            <div className="flex items-center gap-2 bg-[#F7F0E6] px-3 py-1.5 rounded-full border border-[#2E3344]/5">
+              <Clock className="h-3 w-3 text-[#A7653A]" />
+              <p className="text-[10px] font-black text-[#A7653A] uppercase tracking-widest">
+                Joined: {memberSince}
+              </p>
+            </div>
+            <p className="text-[10px] font-black text-[#746E73] bg-white border border-[#2E3344]/8 px-3 py-1.5 rounded-full uppercase tracking-widest shadow-sm">
+              ID: {user.id.slice(0, 8)}
+            </p>
           </div>
         </div>
       </div>
 
       {/* ── Main Layout Grid ─────────────────────────────────────────── */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
-        
         {/* Left Column: Settings & Community */}
         <div className="space-y-6">
           {/* Your Community Bento */}
-          <div 
+          <div
             onClick={() => router.push("/dashboard/saved")}
             className="rounded-[2.5rem] border border-[#2E3344]/8 bg-white p-7 shadow-sm group cursor-pointer hover:border-[#A7653A]/20 transition-all active:scale-[0.98]"
           >
@@ -473,14 +553,20 @@ export function ProfileTab({
                   <div className="grid h-10 w-10 place-items-center rounded-xl bg-[#F7F0E6] text-[#A7653A]">
                     <Store className="h-5 w-5" />
                   </div>
-                  <h3 className="text-xs font-black uppercase tracking-widest text-[#8D5132]">Local Network</h3>
+                  <h3 className="text-xs font-black uppercase tracking-widest text-[#8D5132]">
+                    Local Network
+                  </h3>
                 </div>
                 <ChevronDown className="h-4 w-4 -rotate-90 text-[#746E73] group-hover:text-[#A7653A] transition-colors" />
               </div>
               <div className="mt-5 flex items-end justify-between">
                 <div>
-                  <p className="text-3xl font-black text-[#27324A]">{savedShopCount}</p>
-                  <p className="text-sm font-bold text-[#746E73] mt-0.5">Favorite Shops</p>
+                  <p className="text-3xl font-black text-[#27324A]">
+                    {savedShopCount}
+                  </p>
+                  <p className="text-sm font-bold text-[#746E73] mt-0.5">
+                    Favorite Shops
+                  </p>
                 </div>
                 <span className="text-[10px] font-black uppercase tracking-widest text-[#A7653A] bg-[#F7F0E6] px-3 py-1.5 rounded-full">
                   View Saved
@@ -499,7 +585,7 @@ export function ProfileTab({
                 UI Text Scale
               </h3>
             </div>
-            
+
             <div className="space-y-4 px-1">
               <div className="flex p-1 bg-[#E8E3D1]/40 rounded-2xl gap-1">
                 {FONT_SIZES.map((sz) => (
@@ -518,31 +604,42 @@ export function ProfileTab({
                 ))}
               </div>
               <p className="text-[10px] text-[#746E73] font-medium leading-relaxed italic">
-                Pro-tip: Increase scale for easier reading on small mobile screens.
+                Pro-tip: Increase scale for easier reading on small mobile
+                screens.
               </p>
             </div>
           </div>
 
           {/* Collapsible Address Section */}
-          <div className={`rounded-[2.5rem] border transition-all duration-300 ${showAddresses ? "border-[#A7653A]/20 bg-white shadow-md" : "border-[#2E3344]/8 bg-[#F7F0E6]/30 hover:bg-[#F7F0E6]/50"}`}>
-            <button 
+          <div
+            className={`rounded-[2.5rem] border transition-all duration-300 ${showAddresses ? "border-[#A7653A]/20 bg-white shadow-md" : "border-[#2E3344]/8 bg-[#F7F0E6]/30 hover:bg-[#F7F0E6]/50"}`}
+          >
+            <button
               onClick={() => setShowAddresses(!showAddresses)}
               className="w-full flex items-center justify-between p-7"
             >
               <div className="flex items-center gap-4">
-                <div className={`h-12 w-12 rounded-2xl flex items-center justify-center transition-colors ${showAddresses ? "bg-[#A7653A] text-white" : "bg-white text-[#A7653A] shadow-sm"}`}>
+                <div
+                  className={`h-12 w-12 rounded-2xl flex items-center justify-center transition-colors ${showAddresses ? "bg-[#A7653A] text-white" : "bg-white text-[#A7653A] shadow-sm"}`}
+                >
                   <MapPin className="h-6 w-6" />
                 </div>
                 <div className="text-left">
-                  <h3 className="text-base font-black text-[#27324A] uppercase tracking-wider">Saved Addresses</h3>
-                  <p className="text-xs font-bold text-[#746E73]">{addresses.length} total locations</p>
+                  <h3 className="text-base font-black text-[#27324A] uppercase tracking-wider">
+                    Saved Addresses
+                  </h3>
+                  <p className="text-xs font-bold text-[#746E73]">
+                    {addresses.length} total locations
+                  </p>
                 </div>
               </div>
-              <div className={`h-10 w-10 rounded-full border border-[#2E3344]/8 flex items-center justify-center transition-transform duration-500 ${showAddresses ? "rotate-180 bg-[#27324A] text-white border-transparent" : "bg-white text-[#746E73]"}`}>
-                 <ChevronDown className="h-5 w-5" />
+              <div
+                className={`h-10 w-10 rounded-full border border-[#2E3344]/8 flex items-center justify-center transition-transform duration-500 ${showAddresses ? "rotate-180 bg-[#27324A] text-white border-transparent" : "bg-white text-[#746E73]"}`}
+              >
+                <ChevronDown className="h-5 w-5" />
               </div>
             </button>
-            
+
             {showAddresses && (
               <div className="px-7 pb-8 animate-in fade-in slide-in-from-top-2 duration-300">
                 <div className="h-px bg-[#2E3344]/8 mb-6" />
@@ -554,29 +651,39 @@ export function ProfileTab({
 
         {/* Right Column: Dynamic Content */}
         <div className="space-y-6">
-          
           {/* Notifications Card - Professional Placeholder */}
           <div className="rounded-[2.5rem] bg-[#27324A] p-7 text-white shadow-xl shadow-[#27324A]/10 relative overflow-hidden group">
-             <div className="absolute top-0 right-0 p-6 opacity-[0.05] group-hover:rotate-12 transition-transform">
-                <Bell className="h-20 w-20" />
-             </div>
-             <div className="relative z-10">
-                <h3 className="text-xs font-black uppercase tracking-widest text-[#D8C99A]">Communication</h3>
-                <p className="text-xl font-black mt-3">Notification Settings</p>
-                <div className="mt-5 space-y-3">
-                   {[
-                     { label: "Order Status Updates", active: true },
-                     { label: "Promotions & Coins", active: false }
-                   ].map((item) => (
-                     <div key={item.label} className="flex items-center justify-between py-2 border-b border-white/5 last:border-0">
-                        <span className="text-xs font-bold text-white/80">{item.label}</span>
-                        <div className={`h-5 w-9 rounded-full transition-colors relative ${item.active ? "bg-[#A7653A]" : "bg-white/10"}`}>
-                           <div className={`absolute top-1 h-3 w-3 rounded-full bg-white transition-all ${item.active ? "left-5" : "left-1"}`} />
-                        </div>
-                     </div>
-                   ))}
-                </div>
-             </div>
+            <div className="absolute top-0 right-0 p-6 opacity-[0.05] group-hover:rotate-12 transition-transform">
+              <Bell className="h-20 w-20" />
+            </div>
+            <div className="relative z-10">
+              <h3 className="text-xs font-black uppercase tracking-widest text-[#D8C99A]">
+                Communication
+              </h3>
+              <p className="text-xl font-black mt-3">Notification Settings</p>
+              <div className="mt-5 space-y-3">
+                {[
+                  { label: "Order Status Updates", active: true },
+                  { label: "Promotions & Coins", active: false },
+                ].map((item) => (
+                  <div
+                    key={item.label}
+                    className="flex items-center justify-between py-2 border-b border-white/5 last:border-0"
+                  >
+                    <span className="text-xs font-bold text-white/80">
+                      {item.label}
+                    </span>
+                    <div
+                      className={`h-5 w-9 rounded-full transition-colors relative ${item.active ? "bg-[#A7653A]" : "bg-white/10"}`}
+                    >
+                      <div
+                        className={`absolute top-1 h-3 w-3 rounded-full bg-white transition-all ${item.active ? "left-5" : "left-1"}`}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
 
           {/* Security Bento */}
@@ -589,22 +696,27 @@ export function ProfileTab({
                 Security Settings
               </h3>
             </div>
-            
+
             <div className="px-1">
-               {isGoogleUser && (
+              {isGoogleUser && (
                 <div className="bg-[#F7F0E6]/40 p-4 rounded-2xl border border-[#2E3344]/5 mb-6">
-                  <p className="text-xs font-bold text-[#27324A]">Google Connected</p>
+                  <p className="text-xs font-bold text-[#27324A]">
+                    Google Connected
+                  </p>
                   <p className="text-[10px] text-[#746E73] mt-1 font-medium leading-relaxed">
-                    Set a password below to enable standard email sign-in for your account.
+                    Set a password below to enable standard email sign-in for
+                    your account.
                   </p>
                 </div>
-               )}
+              )}
 
               <form onSubmit={handleChangePassword} className="space-y-4">
                 <div className="space-y-3">
                   {!isGoogleUser && (
                     <label className="block">
-                      <span className="text-[11px] font-bold text-[#746E73] uppercase tracking-wider ml-1">Current password</span>
+                      <span className="text-[11px] font-bold text-[#746E73] uppercase tracking-wider ml-1">
+                        Current password
+                      </span>
                       <div className="relative mt-1.5">
                         <input
                           type={showPw.current ? "text" : "password"}
@@ -612,16 +724,30 @@ export function ProfileTab({
                           required
                           className="w-full px-5 py-3 rounded-2xl bg-[#F7F0E6]/30 border border-[#2E3344]/8 text-sm font-bold text-[#27324A] outline-none focus:ring-2 focus:ring-[#A7653A]/20"
                           value={pwForm.current}
-                          onChange={(e) => setPwForm({ ...pwForm, current: e.target.value })}
+                          onChange={(e) =>
+                            setPwForm({ ...pwForm, current: e.target.value })
+                          }
                         />
-                        <button type="button" onClick={() => setShowPw({...showPw, current: !showPw.current})} className="absolute right-4 top-3.5 text-[#746E73]">
-                          {showPw.current ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setShowPw({ ...showPw, current: !showPw.current })
+                          }
+                          className="absolute right-4 top-3.5 text-[#746E73]"
+                        >
+                          {showPw.current ? (
+                            <EyeOff className="h-4 w-4" />
+                          ) : (
+                            <Eye className="h-4 w-4" />
+                          )}
                         </button>
                       </div>
                     </label>
                   )}
                   <label className="block">
-                    <span className="text-[11px] font-bold text-[#746E73] uppercase tracking-wider ml-1">New password</span>
+                    <span className="text-[11px] font-bold text-[#746E73] uppercase tracking-wider ml-1">
+                      New password
+                    </span>
                     <div className="relative mt-1.5">
                       <input
                         type={showPw.next ? "text" : "password"}
@@ -630,15 +756,29 @@ export function ProfileTab({
                         minLength={8}
                         className="w-full px-5 py-3 rounded-2xl bg-[#F7F0E6]/30 border border-[#2E3344]/8 text-sm font-bold text-[#27324A] outline-none focus:ring-2 focus:ring-[#A7653A]/20"
                         value={pwForm.next}
-                        onChange={(e) => setPwForm({ ...pwForm, next: e.target.value })}
+                        onChange={(e) =>
+                          setPwForm({ ...pwForm, next: e.target.value })
+                        }
                       />
-                      <button type="button" onClick={() => setShowPw({...showPw, next: !showPw.current})} className="absolute right-4 top-3.5 text-[#746E73]">
-                        {showPw.next ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setShowPw({ ...showPw, next: !showPw.current })
+                        }
+                        className="absolute right-4 top-3.5 text-[#746E73]"
+                      >
+                        {showPw.next ? (
+                          <EyeOff className="h-4 w-4" />
+                        ) : (
+                          <Eye className="h-4 w-4" />
+                        )}
                       </button>
                     </div>
                   </label>
                   <label className="block">
-                    <span className="text-[11px] font-bold text-[#746E73] uppercase tracking-wider ml-1">Confirm new password</span>
+                    <span className="text-[11px] font-bold text-[#746E73] uppercase tracking-wider ml-1">
+                      Confirm new password
+                    </span>
                     <div className="relative mt-1.5">
                       <input
                         type={showPw.confirm ? "text" : "password"}
@@ -646,7 +786,9 @@ export function ProfileTab({
                         required
                         className="w-full px-5 py-3 rounded-2xl bg-[#F7F0E6]/30 border border-[#2E3344]/8 text-sm font-bold text-[#27324A] outline-none focus:ring-2 focus:ring-[#A7653A]/20"
                         value={pwForm.confirm}
-                        onChange={(e) => setPwForm({ ...pwForm, confirm: e.target.value })}
+                        onChange={(e) =>
+                          setPwForm({ ...pwForm, confirm: e.target.value })
+                        }
                       />
                     </div>
                   </label>
@@ -656,12 +798,15 @@ export function ProfileTab({
                   disabled={changingPw}
                   className="w-full h-12 rounded-full bg-[#27324A] text-white text-xs font-black uppercase tracking-widest hover:bg-[#1a2233] transition disabled:opacity-50"
                 >
-                  {changingPw ? "Updating..." : (isGoogleUser ? "Setup Password" : "Change Password")}
+                  {changingPw
+                    ? "Updating..."
+                    : isGoogleUser
+                      ? "Setup Password"
+                      : "Change Password"}
                 </button>
               </form>
             </div>
           </div>
-
         </div>
       </div>
     </div>

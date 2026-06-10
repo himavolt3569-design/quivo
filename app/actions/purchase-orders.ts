@@ -41,21 +41,27 @@ const ReceivePoSchema = z.object({
 
 async function authed() {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) throw new Error("Unauthorized");
   return { supabase, user };
 }
 
-export async function createPurchaseOrder(input: z.infer<typeof CreatePoSchema>) {
+export async function createPurchaseOrder(
+  input: z.infer<typeof CreatePoSchema>,
+) {
   const parse = CreatePoSchema.safeParse(input);
-  if (!parse.success) return { error: parse.error.issues[0]?.message ?? "Invalid PO input" };
+  if (!parse.success)
+    return { error: parse.error.issues[0]?.message ?? "Invalid PO input" };
   const data = parse.data;
 
   try {
     const { supabase, user } = await authed();
-    const total = Math.round(
-      data.lines.reduce((a, l) => a + l.qty_ordered * l.unit_cost, 0) * 100
-    ) / 100;
+    const total =
+      Math.round(
+        data.lines.reduce((a, l) => a + l.qty_ordered * l.unit_cost, 0) * 100,
+      ) / 100;
 
     const { data: po, error } = await supabase
       .from("purchase_orders")
@@ -73,7 +79,10 @@ export async function createPurchaseOrder(input: z.infer<typeof CreatePoSchema>)
       .select("id")
       .single();
     if (error || !po) {
-      log.error("createPO insert failed", { code: error?.code, message: error?.message });
+      log.error("createPO insert failed", {
+        code: error?.code,
+        message: error?.message,
+      });
       return { error: error?.message ?? "Could not create PO" };
     }
 
@@ -87,25 +96,36 @@ export async function createPurchaseOrder(input: z.infer<typeof CreatePoSchema>)
           unit_cost: l.unit_cost,
           expected_expiry: l.expected_expiry ?? null,
           notes: l.notes ?? null,
-        }))
+        })),
       );
     if (lineErr) {
-      log.error("createPO line insert failed", { code: lineErr.code, message: lineErr.message });
-      await supabase.from("purchase_orders").delete().eq("id", po.id as string);
+      log.error("createPO line insert failed", {
+        code: lineErr.code,
+        message: lineErr.message,
+      });
+      await supabase
+        .from("purchase_orders")
+        .delete()
+        .eq("id", po.id as string);
       return { error: lineErr.message };
     }
 
     revalidatePath(`/dashboard/owner/suppliers/${data.supplierId}`);
-    revalidatePath(`/dashboard/owner/suppliers/${data.supplierId}/purchase-orders`);
+    revalidatePath(
+      `/dashboard/owner/suppliers/${data.supplierId}/purchase-orders`,
+    );
     return { id: po.id as string };
   } catch (err) {
     return { error: err instanceof Error ? err.message : String(err) };
   }
 }
 
-export async function receivePurchaseOrder(input: z.infer<typeof ReceivePoSchema>) {
+export async function receivePurchaseOrder(
+  input: z.infer<typeof ReceivePoSchema>,
+) {
   const parse = ReceivePoSchema.safeParse(input);
-  if (!parse.success) return { error: parse.error.issues[0]?.message ?? "Invalid input" };
+  if (!parse.success)
+    return { error: parse.error.issues[0]?.message ?? "Invalid input" };
   try {
     const { supabase } = await authed();
     const { error } = await supabase.rpc("receive_purchase_order", {
@@ -113,7 +133,10 @@ export async function receivePurchaseOrder(input: z.infer<typeof ReceivePoSchema
       p_received_lines: parse.data.lines,
     });
     if (error) {
-      log.error("receivePO RPC failed", { code: error.code, message: error.message });
+      log.error("receivePO RPC failed", {
+        code: error.code,
+        message: error.message,
+      });
       return { error: error.message };
     }
     revalidatePath("/dashboard/owner/suppliers");

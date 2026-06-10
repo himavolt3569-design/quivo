@@ -24,10 +24,15 @@ interface HealthBody {
   };
 }
 
-async function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T | { __timeout: true }> {
+async function withTimeout<T>(
+  promise: Promise<T>,
+  ms: number,
+): Promise<T | { __timeout: true }> {
   return Promise.race([
     promise,
-    new Promise<{ __timeout: true }>((resolve) => setTimeout(() => resolve({ __timeout: true }), ms)),
+    new Promise<{ __timeout: true }>((resolve) =>
+      setTimeout(() => resolve({ __timeout: true }), ms),
+    ),
   ]);
 }
 
@@ -36,7 +41,7 @@ async function checkDb(): Promise<ServiceStatus> {
     const admin = createAdminClient();
     // PostgrestFilterBuilder is thenable but not a Promise; wrap it.
     const query = Promise.resolve(
-      admin.from("shops").select("id", { count: "exact", head: true }).limit(1)
+      admin.from("shops").select("id", { count: "exact", head: true }).limit(1),
     );
     const res = await withTimeout(query, 1000);
     if (res && typeof res === "object" && "__timeout" in res) return "down";

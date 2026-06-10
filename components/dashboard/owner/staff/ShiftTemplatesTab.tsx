@@ -6,11 +6,17 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
 import {
-  upsertShiftTemplate, deleteShiftTemplate, generateShiftsFromTemplates,
+  upsertShiftTemplate,
+  deleteShiftTemplate,
+  generateShiftsFromTemplates,
 } from "@/app/actions/shifts";
 
 export interface ShiftTemplateRow {
@@ -63,8 +69,14 @@ function addDays(d: Date, n: number): Date {
   return out;
 }
 
-export function ShiftTemplatesTab({ shopId, staffOptions, initialTemplates, onGenerated }: Props) {
-  const [templates, setTemplates] = useState<ShiftTemplateRow[]>(initialTemplates);
+export function ShiftTemplatesTab({
+  shopId,
+  staffOptions,
+  initialTemplates,
+  onGenerated,
+}: Props) {
+  const [templates, setTemplates] =
+    useState<ShiftTemplateRow[]>(initialTemplates);
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<ShiftTemplateRow | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -72,7 +84,7 @@ export function ShiftTemplatesTab({ shopId, staffOptions, initialTemplates, onGe
 
   const activeStaff = useMemo(
     () => staffOptions.filter((s) => s.status === "active"),
-    [staffOptions]
+    [staffOptions],
   );
 
   const [form, setForm] = useState({
@@ -84,7 +96,9 @@ export function ShiftTemplatesTab({ shopId, staffOptions, initialTemplates, onGe
     active: true,
   });
 
-  const [genWeek, setGenWeek] = useState<string>(() => toDateInput(startOfWeek(new Date())));
+  const [genWeek, setGenWeek] = useState<string>(() =>
+    toDateInput(startOfWeek(new Date())),
+  );
   const [genDays, setGenDays] = useState<number>(7);
 
   const openCreate = () => {
@@ -115,8 +129,14 @@ export function ShiftTemplatesTab({ shopId, staffOptions, initialTemplates, onGe
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.staffId) { toast.error("Pick a staff member"); return; }
-    if (form.startTime === form.endTime) { toast.error("Start and end can't be equal"); return; }
+    if (!form.staffId) {
+      toast.error("Pick a staff member");
+      return;
+    }
+    if (form.startTime === form.endTime) {
+      toast.error("Start and end can't be equal");
+      return;
+    }
 
     startTransition(async () => {
       const res = await upsertShiftTemplate({
@@ -129,9 +149,13 @@ export function ShiftTemplatesTab({ shopId, staffOptions, initialTemplates, onGe
         notes: form.notes.trim() || null,
         active: form.active,
       });
-      if (res.error) { toast.error(res.error); return; }
+      if (res.error) {
+        toast.error(res.error);
+        return;
+      }
       toast.success(editing ? "Template updated" : "Template added");
-      const staffName = activeStaff.find((s) => s.id === form.staffId)?.name ?? null;
+      const staffName =
+        activeStaff.find((s) => s.id === form.staffId)?.name ?? null;
       const newRow: ShiftTemplateRow = {
         id: res.id!,
         staff_id: form.staffId,
@@ -152,17 +176,26 @@ export function ShiftTemplatesTab({ shopId, staffOptions, initialTemplates, onGe
   };
 
   const handleDelete = (id: string) => {
-    if (!confirm("Delete this template? Shifts already generated stay in place.")) return;
+    if (
+      !confirm("Delete this template? Shifts already generated stay in place.")
+    )
+      return;
     startTransition(async () => {
       const res = await deleteShiftTemplate(id);
-      if (res.error) { toast.error(res.error); return; }
+      if (res.error) {
+        toast.error(res.error);
+        return;
+      }
       setTemplates((prev) => prev.filter((t) => t.id !== id));
       toast.success("Template deleted");
     });
   };
 
   const handleGenerate = () => {
-    if (!genWeek) { toast.error("Pick a start date"); return; }
+    if (!genWeek) {
+      toast.error("Pick a start date");
+      return;
+    }
     const start = new Date(genWeek + "T00:00:00");
     const end = addDays(start, Math.max(genDays - 1, 0));
     const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
@@ -174,7 +207,10 @@ export function ShiftTemplatesTab({ shopId, staffOptions, initialTemplates, onGe
         endDate: toDateInput(end),
         timezone: tz,
       });
-      if (res.error) { toast.error(res.error); return; }
+      if (res.error) {
+        toast.error(res.error);
+        return;
+      }
       const n = res.created ?? 0;
       if (n === 0) toast.info("All shifts already exist for this range");
       else toast.success(`${n} shift${n === 1 ? "" : "s"} generated`);
@@ -184,9 +220,16 @@ export function ShiftTemplatesTab({ shopId, staffOptions, initialTemplates, onGe
 
   // Group by staff for display
   const grouped = useMemo(() => {
-    const map = new Map<string, { staff_id: string; staff_name: string | null; items: ShiftTemplateRow[] }>();
+    const map = new Map<
+      string,
+      { staff_id: string; staff_name: string | null; items: ShiftTemplateRow[] }
+    >();
     for (const t of templates) {
-      const entry = map.get(t.staff_id) ?? { staff_id: t.staff_id, staff_name: t.staff_name, items: [] };
+      const entry = map.get(t.staff_id) ?? {
+        staff_id: t.staff_id,
+        staff_name: t.staff_name,
+        items: [],
+      };
       entry.items.push(t);
       map.set(t.staff_id, entry);
     }
@@ -201,19 +244,34 @@ export function ShiftTemplatesTab({ shopId, staffOptions, initialTemplates, onGe
       <div className="bg-[#F7F0E6]/40 border border-[#A7653A]/15 rounded-2xl p-4 sm:p-5">
         <div className="flex items-center gap-2 mb-1">
           <CalendarPlus className="h-4 w-4 text-[#A7653A]" />
-          <h3 className="text-sm font-black text-[#27324A]">Generate shifts from templates</h3>
+          <h3 className="text-sm font-black text-[#27324A]">
+            Generate shifts from templates
+          </h3>
         </div>
         <p className="text-xs text-[#746E73] mb-4">
-          Materialises real shifts from your active templates over the chosen range. Re-running is safe — existing shifts are skipped.
+          Materialises real shifts from your active templates over the chosen
+          range. Re-running is safe — existing shifts are skipped.
         </p>
         <div className="flex flex-wrap items-end gap-3">
           <div>
-            <Label className="text-[10px] font-black uppercase tracking-wider text-[#746E73]">Week starting</Label>
-            <Input type="date" value={genWeek} onChange={(e) => setGenWeek(e.target.value)} className="mt-1 h-10 rounded-xl w-44 bg-white" />
+            <Label className="text-[10px] font-black uppercase tracking-wider text-[#746E73]">
+              Week starting
+            </Label>
+            <Input
+              type="date"
+              value={genWeek}
+              onChange={(e) => setGenWeek(e.target.value)}
+              className="mt-1 h-10 rounded-xl w-44 bg-white"
+            />
           </div>
           <div>
-            <Label className="text-[10px] font-black uppercase tracking-wider text-[#746E73]">For</Label>
-            <Select value={String(genDays)} onValueChange={(v) => setGenDays(Number(v))}>
+            <Label className="text-[10px] font-black uppercase tracking-wider text-[#746E73]">
+              For
+            </Label>
+            <Select
+              value={String(genDays)}
+              onValueChange={(v) => setGenDays(Number(v))}
+            >
               <SelectTrigger className="mt-1 h-10 rounded-xl w-36 bg-white">
                 <SelectValue />
               </SelectTrigger>
@@ -226,10 +284,14 @@ export function ShiftTemplatesTab({ shopId, staffOptions, initialTemplates, onGe
           </div>
           <Button
             onClick={handleGenerate}
-            disabled={generating || templates.filter((t) => t.active).length === 0}
+            disabled={
+              generating || templates.filter((t) => t.active).length === 0
+            }
             className="h-10 rounded-xl bg-[#A7653A] hover:bg-[#8D5132] text-white font-bold"
           >
-            <Repeat className={`h-4 w-4 mr-2 ${generating ? "animate-spin" : ""}`} />
+            <Repeat
+              className={`h-4 w-4 mr-2 ${generating ? "animate-spin" : ""}`}
+            />
             {generating ? "Generating…" : "Generate"}
           </Button>
         </div>
@@ -237,7 +299,9 @@ export function ShiftTemplatesTab({ shopId, staffOptions, initialTemplates, onGe
 
       {/* Template list + add */}
       <div className="flex items-center justify-between">
-        <h3 className="text-[11px] font-black uppercase tracking-widest text-[#8D5132]">Recurring templates</h3>
+        <h3 className="text-[11px] font-black uppercase tracking-widest text-[#8D5132]">
+          Recurring templates
+        </h3>
         <Button
           onClick={() => (showForm ? setShowForm(false) : openCreate())}
           disabled={activeStaff.length === 0}
@@ -249,29 +313,46 @@ export function ShiftTemplatesTab({ shopId, staffOptions, initialTemplates, onGe
       </div>
 
       {showForm && activeStaff.length > 0 && (
-        <form onSubmit={handleSubmit} className="grid sm:grid-cols-2 gap-3 p-4 bg-[#F7F0E6]/30 rounded-2xl border border-[#2E3344]/8">
+        <form
+          onSubmit={handleSubmit}
+          className="grid sm:grid-cols-2 gap-3 p-4 bg-[#F7F0E6]/30 rounded-2xl border border-[#2E3344]/8"
+        >
           <div className="sm:col-span-2">
-            <Label className="text-[10px] font-black uppercase tracking-wider text-[#746E73]">Staff member</Label>
-            <Select value={form.staffId} onValueChange={(v) => setForm((f) => ({ ...f, staffId: v }))}>
+            <Label className="text-[10px] font-black uppercase tracking-wider text-[#746E73]">
+              Staff member
+            </Label>
+            <Select
+              value={form.staffId}
+              onValueChange={(v) => setForm((f) => ({ ...f, staffId: v }))}
+            >
               <SelectTrigger className="mt-1 h-11 rounded-xl bg-white">
                 <SelectValue placeholder="Pick staff" />
               </SelectTrigger>
               <SelectContent>
                 {activeStaff.map((s) => (
-                  <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
+                  <SelectItem key={s.id} value={s.id}>
+                    {s.name}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
           <div>
-            <Label className="text-[10px] font-black uppercase tracking-wider text-[#746E73]">Day of week</Label>
-            <Select value={form.dayOfWeek} onValueChange={(v) => setForm((f) => ({ ...f, dayOfWeek: v }))}>
+            <Label className="text-[10px] font-black uppercase tracking-wider text-[#746E73]">
+              Day of week
+            </Label>
+            <Select
+              value={form.dayOfWeek}
+              onValueChange={(v) => setForm((f) => ({ ...f, dayOfWeek: v }))}
+            >
               <SelectTrigger className="mt-1 h-11 rounded-xl bg-white">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
                 {DAYS.map((day, idx) => (
-                  <SelectItem key={day} value={String(idx)}>{day}</SelectItem>
+                  <SelectItem key={day} value={String(idx)}>
+                    {day}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -281,27 +362,66 @@ export function ShiftTemplatesTab({ shopId, staffOptions, initialTemplates, onGe
               <input
                 type="checkbox"
                 checked={form.active}
-                onChange={(e) => setForm((f) => ({ ...f, active: e.target.checked }))}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, active: e.target.checked }))
+                }
                 className="h-4 w-4 rounded border-[#2E3344]/30"
               />
               Active
             </label>
           </div>
           <div>
-            <Label className="text-[10px] font-black uppercase tracking-wider text-[#746E73]">Start</Label>
-            <Input type="time" value={form.startTime} onChange={(e) => setForm((f) => ({ ...f, startTime: e.target.value }))} required className="mt-1 h-11 rounded-xl bg-white" />
+            <Label className="text-[10px] font-black uppercase tracking-wider text-[#746E73]">
+              Start
+            </Label>
+            <Input
+              type="time"
+              value={form.startTime}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, startTime: e.target.value }))
+              }
+              required
+              className="mt-1 h-11 rounded-xl bg-white"
+            />
           </div>
           <div>
-            <Label className="text-[10px] font-black uppercase tracking-wider text-[#746E73]">End</Label>
-            <Input type="time" value={form.endTime} onChange={(e) => setForm((f) => ({ ...f, endTime: e.target.value }))} required className="mt-1 h-11 rounded-xl bg-white" />
+            <Label className="text-[10px] font-black uppercase tracking-wider text-[#746E73]">
+              End
+            </Label>
+            <Input
+              type="time"
+              value={form.endTime}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, endTime: e.target.value }))
+              }
+              required
+              className="mt-1 h-11 rounded-xl bg-white"
+            />
           </div>
           <div className="sm:col-span-2">
-            <Label className="text-[10px] font-black uppercase tracking-wider text-[#746E73]">Notes (optional)</Label>
-            <Input value={form.notes} onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))} placeholder="e.g. weekend rush" className="mt-1 h-11 rounded-xl bg-white" />
+            <Label className="text-[10px] font-black uppercase tracking-wider text-[#746E73]">
+              Notes (optional)
+            </Label>
+            <Input
+              value={form.notes}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, notes: e.target.value }))
+              }
+              placeholder="e.g. weekend rush"
+              className="mt-1 h-11 rounded-xl bg-white"
+            />
           </div>
           <div className="sm:col-span-2 flex justify-end">
-            <Button type="submit" disabled={isPending} className="h-11 px-6 rounded-xl bg-[#27324A] hover:bg-[#1b2333] text-white font-bold">
-              {isPending ? "Saving…" : editing ? "Update template" : "Add template"}
+            <Button
+              type="submit"
+              disabled={isPending}
+              className="h-11 px-6 rounded-xl bg-[#27324A] hover:bg-[#1b2333] text-white font-bold"
+            >
+              {isPending
+                ? "Saving…"
+                : editing
+                  ? "Update template"
+                  : "Add template"}
             </Button>
           </div>
         </form>
@@ -315,24 +435,39 @@ export function ShiftTemplatesTab({ shopId, staffOptions, initialTemplates, onGe
         <ul className="space-y-4">
           {grouped.map((g) => (
             <li key={g.staff_id}>
-              <p className="text-xs font-black uppercase tracking-wider text-[#27324A] ml-1 mb-2">{g.staff_name ?? "Unknown"}</p>
+              <p className="text-xs font-black uppercase tracking-wider text-[#27324A] ml-1 mb-2">
+                {g.staff_name ?? "Unknown"}
+              </p>
               <ul className="space-y-1.5">
                 {g.items.map((t) => (
                   <li
                     key={t.id}
                     className={`flex items-center gap-3 p-3 rounded-xl border ${
-                      t.active ? "border-[#2E3344]/8 bg-[#f8f8f7]" : "border-[#2E3344]/5 bg-white opacity-60"
+                      t.active
+                        ? "border-[#2E3344]/8 bg-[#f8f8f7]"
+                        : "border-[#2E3344]/5 bg-white opacity-60"
                     }`}
                   >
                     <div className="h-10 w-12 rounded-lg bg-[#F7F0E6] flex flex-col items-center justify-center">
-                      <span className="text-[9px] font-black uppercase tracking-widest text-[#A7653A]">{DAYS[t.day_of_week]}</span>
+                      <span className="text-[9px] font-black uppercase tracking-widest text-[#A7653A]">
+                        {DAYS[t.day_of_week]}
+                      </span>
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-bold text-[#27324A] flex items-center gap-1">
-                        <Clock className="h-3 w-3" /> {trimSeconds(t.start_time)} – {trimSeconds(t.end_time)}
-                        {!t.active && <span className="text-[10px] font-bold text-[#746E73] ml-2">(inactive)</span>}
+                        <Clock className="h-3 w-3" />{" "}
+                        {trimSeconds(t.start_time)} – {trimSeconds(t.end_time)}
+                        {!t.active && (
+                          <span className="text-[10px] font-bold text-[#746E73] ml-2">
+                            (inactive)
+                          </span>
+                        )}
                       </p>
-                      {t.notes && <p className="text-[11px] text-[#746E73] italic truncate">&ldquo;{t.notes}&rdquo;</p>}
+                      {t.notes && (
+                        <p className="text-[11px] text-[#746E73] italic truncate">
+                          &ldquo;{t.notes}&rdquo;
+                        </p>
+                      )}
                     </div>
                     <button
                       type="button"

@@ -3,7 +3,13 @@
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
-import { EmailSchema, MoneyAmountSchema, CurrencyCodeSchema, TimeOfDaySchema, OptionalShortText } from "@/lib/validation";
+import {
+  EmailSchema,
+  MoneyAmountSchema,
+  CurrencyCodeSchema,
+  TimeOfDaySchema,
+  OptionalShortText,
+} from "@/lib/validation";
 
 const IdSchema = z.string().uuid("Invalid ID");
 
@@ -14,7 +20,6 @@ const ScheduleShiftSchema = z.object({
   end: z.string().datetime({ offset: true }),
   notes: z.string().trim().max(500).optional().nullable(),
 });
-
 
 export async function scheduleShift(input: {
   shopId: string;
@@ -41,43 +46,58 @@ export async function scheduleShift(input: {
   return { id: data as string };
 }
 
-export async function cancelShift(shiftId: string): Promise<{ error?: string }> {
+export async function cancelShift(
+  shiftId: string,
+): Promise<{ error?: string }> {
   const parse = IdSchema.safeParse(shiftId);
   if (!parse.success) return { error: parse.error.issues[0].message };
 
   const supabase = await createClient();
-  const { error } = await supabase.rpc("cancel_shift", { p_shift_id: parse.data });
+  const { error } = await supabase.rpc("cancel_shift", {
+    p_shift_id: parse.data,
+  });
   if (error) return { error: error.message };
   revalidatePath("/dashboard/owner/staff");
   revalidatePath("/dashboard/staff");
   return {};
 }
 
-export async function clockInShift(shiftId: string): Promise<{ error?: string; at?: string }> {
+export async function clockInShift(
+  shiftId: string,
+): Promise<{ error?: string; at?: string }> {
   const parse = IdSchema.safeParse(shiftId);
   if (!parse.success) return { error: parse.error.issues[0].message };
 
   const supabase = await createClient();
-  const { data, error } = await supabase.rpc("clock_in_shift", { p_shift_id: parse.data });
+  const { data, error } = await supabase.rpc("clock_in_shift", {
+    p_shift_id: parse.data,
+  });
   if (error) return { error: error.message };
   revalidatePath("/dashboard/staff");
   revalidatePath("/dashboard/owner/staff");
   return { at: data as string };
 }
 
-export async function clockOutShift(shiftId: string): Promise<{ error?: string; at?: string }> {
+export async function clockOutShift(
+  shiftId: string,
+): Promise<{ error?: string; at?: string }> {
   const parse = IdSchema.safeParse(shiftId);
   if (!parse.success) return { error: parse.error.issues[0].message };
 
   const supabase = await createClient();
-  const { data, error } = await supabase.rpc("clock_out_shift", { p_shift_id: parse.data });
+  const { data, error } = await supabase.rpc("clock_out_shift", {
+    p_shift_id: parse.data,
+  });
   if (error) return { error: error.message };
   revalidatePath("/dashboard/staff");
   revalidatePath("/dashboard/owner/staff");
   return { at: data as string };
 }
 
-export async function linkStaffToUser(staffId: string, email: string): Promise<{ error?: string; userId?: string }> {
+export async function linkStaffToUser(
+  staffId: string,
+  email: string,
+): Promise<{ error?: string; userId?: string }> {
   const idParse = IdSchema.safeParse(staffId);
   const emailParse = EmailSchema.safeParse(email);
   if (!idParse.success) return { error: idParse.error.issues[0].message };
@@ -93,12 +113,16 @@ export async function linkStaffToUser(staffId: string, email: string): Promise<{
   return { userId: data as string };
 }
 
-export async function unlinkStaffUser(staffId: string): Promise<{ error?: string }> {
+export async function unlinkStaffUser(
+  staffId: string,
+): Promise<{ error?: string }> {
   const parse = IdSchema.safeParse(staffId);
   if (!parse.success) return { error: parse.error.issues[0].message };
 
   const supabase = await createClient();
-  const { error } = await supabase.rpc("unlink_staff_user", { p_staff_id: parse.data });
+  const { error } = await supabase.rpc("unlink_staff_user", {
+    p_staff_id: parse.data,
+  });
   if (error) return { error: error.message };
   revalidatePath("/dashboard/owner/staff");
   return {};
@@ -109,7 +133,10 @@ export async function unlinkStaffUser(staffId: string): Promise<{ error?: string
 const SetRateSchema = z.object({
   shopId: IdSchema,
   staffId: IdSchema,
-  hourlyRate: MoneyAmountSchema.refine((n) => n <= 1_000_000, "Rate is too high"),
+  hourlyRate: MoneyAmountSchema.refine(
+    (n) => n <= 1_000_000,
+    "Rate is too high",
+  ),
   effectiveFrom: z.string().datetime({ offset: true }).optional().nullable(),
   currency: CurrencyCodeSchema.default("NPR"),
   note: OptionalShortText(200, "Note"),
@@ -141,12 +168,16 @@ export async function setStaffRate(input: {
   return { id: data as string };
 }
 
-export async function deleteStaffRate(rateId: string): Promise<{ error?: string }> {
+export async function deleteStaffRate(
+  rateId: string,
+): Promise<{ error?: string }> {
   const parse = IdSchema.safeParse(rateId);
   if (!parse.success) return { error: parse.error.issues[0].message };
 
   const supabase = await createClient();
-  const { error } = await supabase.rpc("delete_staff_rate", { p_rate_id: parse.data });
+  const { error } = await supabase.rpc("delete_staff_rate", {
+    p_rate_id: parse.data,
+  });
   if (error) return { error: error.message };
   revalidatePath("/dashboard/owner/payroll");
   return {};
@@ -267,12 +298,16 @@ export async function upsertShiftTemplate(input: {
   return { id: data as string };
 }
 
-export async function deleteShiftTemplate(templateId: string): Promise<{ error?: string }> {
+export async function deleteShiftTemplate(
+  templateId: string,
+): Promise<{ error?: string }> {
   const parse = IdSchema.safeParse(templateId);
   if (!parse.success) return { error: parse.error.issues[0].message };
 
   const supabase = await createClient();
-  const { error } = await supabase.rpc("delete_shift_template", { p_template_id: parse.data });
+  const { error } = await supabase.rpc("delete_shift_template", {
+    p_template_id: parse.data,
+  });
   if (error) return { error: error.message };
   revalidatePath("/dashboard/owner/staff");
   return {};

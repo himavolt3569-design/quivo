@@ -22,7 +22,9 @@ function Textarea({
   } = useComposition<HTMLTextAreaElement>({
     onKeyDown: (e) => {
       // Check if this is an Enter key that should be blocked
-      const isComposing = (e.nativeEvent as Event & { isComposing?: boolean }).isComposing || dialogComposition.justEndedComposing();
+      const isComposing =
+        (e.nativeEvent as Event & { isComposing?: boolean }).isComposing ||
+        dialogComposition.justEndedComposing();
 
       // If Enter key is pressed while composing or just after composition ended,
       // don't call the user's onKeyDown (this blocks the business logic)
@@ -34,11 +36,11 @@ function Textarea({
       // Otherwise, call the user's onKeyDown
       onKeyDown?.(e);
     },
-    onCompositionStart: e => {
+    onCompositionStart: (e) => {
       dialogComposition.setComposing(true);
       onCompositionStart?.(e);
     },
-    onCompositionEnd: e => {
+    onCompositionEnd: (e) => {
       // Mark that composition just ended - this helps handle the Enter key that confirms input
       dialogComposition.markCompositionEnd();
       // Delay setting composing to false to handle Safari's event order
@@ -55,7 +57,7 @@ function Textarea({
       data-slot="textarea"
       className={cn(
         "border-[#2E3344]/8 dark:border-white/10 placeholder:text-[#746E73] dark:placeholder:text-white/50 focus-visible:border-[#A7653A] focus-visible:ring-[#A7653A]/20 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:bg-[#1B2030] flex field-sizing-content min-h-[100px] w-full rounded-xl border bg-white px-4 py-3 text-sm font-medium text-[#27324A] dark:text-white shadow-sm transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50 resize-y",
-        className
+        className,
       )}
       onCompositionStart={handleCompositionStart}
       onCompositionEnd={handleCompositionEnd}

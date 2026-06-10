@@ -4,7 +4,13 @@ import * as React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Check, ChevronsUpDown, Store, PlusCircle, Loader2 } from "lucide-react";
+import {
+  Check,
+  ChevronsUpDown,
+  Store,
+  PlusCircle,
+  Loader2,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { setActiveShop } from "@/app/actions/owner";
@@ -41,19 +47,25 @@ function formatRole(role: string): string {
   return role.charAt(0).toUpperCase() + role.slice(1);
 }
 
-export function OwnerShopSwitcher({ shops, activeShopId }: OwnerShopSwitcherProps) {
+export function OwnerShopSwitcher({
+  shops,
+  activeShopId,
+}: OwnerShopSwitcherProps) {
   const router = useRouter();
   const [open, setOpen] = React.useState(false);
   const [switching, setSwitching] = React.useState(false);
 
-  const initial =
-    shops.find((s) => s.id === activeShopId) ?? shops[0] ?? null;
-  const [selectedShop, setSelectedShop] = React.useState<SwitcherShop | null>(initial);
+  const initial = shops.find((s) => s.id === activeShopId) ?? shops[0] ?? null;
+  const [selectedShop, setSelectedShop] = React.useState<SwitcherShop | null>(
+    initial,
+  );
 
   // Keep local state in sync when shops list changes (e.g. after creating a new shop)
   React.useEffect(() => {
     React.startTransition(() => {
-      setSelectedShop(shops.find((s) => s.id === activeShopId) ?? shops[0] ?? null);
+      setSelectedShop(
+        shops.find((s) => s.id === activeShopId) ?? shops[0] ?? null,
+      );
     });
   }, [shops, activeShopId]);
 
@@ -94,7 +106,9 @@ export function OwnerShopSwitcher({ shops, activeShopId }: OwnerShopSwitcherProp
           <PlusCircle className="h-4 w-4" />
         </div>
         <div className="flex flex-col items-start truncate">
-          <span className="text-sm font-bold text-[#A7653A]">Set up your shop</span>
+          <span className="text-sm font-bold text-[#A7653A]">
+            Set up your shop
+          </span>
           <span className="text-[10px] text-[#746E73] font-medium uppercase tracking-widest">
             Get started
           </span>
@@ -152,7 +166,7 @@ export function OwnerShopSwitcher({ shops, activeShopId }: OwnerShopSwitcherProp
                   <Check
                     className={cn(
                       "ml-auto h-4 w-4 text-[#27324A]",
-                      selectedShop.id === shop.id ? "opacity-100" : "opacity-0"
+                      selectedShop.id === shop.id ? "opacity-100" : "opacity-0",
                     )}
                   />
                 </CommandItem>

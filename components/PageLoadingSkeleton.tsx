@@ -49,20 +49,20 @@ function InnerPageSkeleton() {
       <div className="bg-white border border-[#2E3344]/8 rounded-[2rem] shadow-sm overflow-hidden p-6 space-y-4">
         {/* Table Header mock */}
         <div className="flex justify-between items-center pb-4 border-b border-[#2E3344]/5">
-           <Block className="h-4 w-24 rounded-md" />
-           <Block className="h-4 w-32 rounded-md hidden sm:block" />
-           <Block className="h-4 w-20 rounded-md hidden sm:block" />
-           <Block className="h-4 w-16 rounded-md" />
+          <Block className="h-4 w-24 rounded-md" />
+          <Block className="h-4 w-32 rounded-md hidden sm:block" />
+          <Block className="h-4 w-20 rounded-md hidden sm:block" />
+          <Block className="h-4 w-16 rounded-md" />
         </div>
         {/* Rows */}
         {[1, 2, 3, 4, 5].map((i) => (
           <div key={i} className="flex justify-between items-center py-3">
             <div className="flex items-center gap-4">
-               <Block className="h-10 w-10 rounded-full" />
-               <div className="space-y-2">
-                 <Block className="h-4 w-32 rounded-md" />
-                 <Block className="h-3 w-20 rounded-md" />
-               </div>
+              <Block className="h-10 w-10 rounded-full" />
+              <div className="space-y-2">
+                <Block className="h-4 w-32 rounded-md" />
+                <Block className="h-3 w-20 rounded-md" />
+              </div>
             </div>
             <Block className="h-4 w-24 rounded-md hidden sm:block" />
             <Block className="h-4 w-16 rounded-md hidden sm:block" />
@@ -120,7 +120,10 @@ function StorefrontSkeleton() {
         </div>
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4 mt-8">
           {Array.from({ length: 8 }).map((_, index) => (
-            <div key={index} className="rounded-[2rem] border border-[#2E3344]/8 bg-white p-4 shadow-sm flex flex-col">
+            <div
+              key={index}
+              className="rounded-[2rem] border border-[#2E3344]/8 bg-white p-4 shadow-sm flex flex-col"
+            >
               <Block className="aspect-[4/5] w-full rounded-[1.5rem]" />
               <div className="pt-4 space-y-3 flex-1 flex flex-col">
                 <Block className="h-5 w-4/5 rounded-md" />
@@ -222,7 +225,10 @@ function ProductSkeleton() {
           <Block className="h-5 w-36 rounded-md" />
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="bg-white rounded-2xl p-3 border border-[#2E3344]/8 flex flex-col gap-2 shadow-sm">
+              <div
+                key={i}
+                className="bg-white rounded-2xl p-3 border border-[#2E3344]/8 flex flex-col gap-2 shadow-sm"
+              >
                 <Block className="aspect-[4/5] w-full rounded-xl" />
                 <Block className="h-4 w-5/6 rounded-md mt-1" />
                 <Block className="h-3 w-1/2 rounded-md" />
@@ -352,7 +358,10 @@ function POSSkeleton() {
           {/* Cart Items List */}
           <div className="space-y-4 flex-1 overflow-hidden">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="flex justify-between items-center gap-3 py-2">
+              <div
+                key={i}
+                className="flex justify-between items-center gap-3 py-2"
+              >
                 <div className="space-y-2 flex-1">
                   <Block className="h-4 w-32 rounded-md" />
                   <Block className="h-3 w-16 rounded-sm" />
@@ -375,13 +384,13 @@ function POSSkeleton() {
               <Block className="h-5 w-20 rounded-md" />
               <Block className="h-6 w-24 rounded-md" />
             </div>
-            
+
             {/* Quick cash / custom discount buttons */}
             <div className="grid grid-cols-2 gap-3 mt-4 pt-2">
               <Block className="h-12 rounded-xl" />
               <Block className="h-12 rounded-xl" />
             </div>
-            
+
             {/* Main Checkout CTA */}
             <Block className="h-14 w-full rounded-2xl mt-4" />
           </div>
@@ -408,7 +417,10 @@ function OnboardingSkeleton() {
           {/* Stepper Progress dots */}
           <div className="flex items-center justify-between relative pt-2">
             {[1, 2, 3, 4, 5].map((i) => (
-              <Block key={i} className="h-7 w-7 rounded-full bg-white/10 border-none shrink-0" />
+              <Block
+                key={i}
+                className="h-7 w-7 rounded-full bg-white/10 border-none shrink-0"
+              />
             ))}
           </div>
         </div>

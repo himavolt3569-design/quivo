@@ -1,12 +1,33 @@
 "use client";
 
-import { useState, useTransition, useEffect, useCallback, useMemo, useRef } from "react";
+import {
+  useState,
+  useTransition,
+  useEffect,
+  useCallback,
+  useMemo,
+  useRef,
+} from "react";
 import { Reorder, useDragControls } from "framer-motion";
 import {
-  QrCode, Download, Share2, Globe2, Palette, Eye,
-  CheckCircle2, Copy, MessageSquare, Send,
-  List, Type, Megaphone, Star, Phone, X,
-  RefreshCw, GripVertical,
+  QrCode,
+  Download,
+  Share2,
+  Globe2,
+  Palette,
+  Eye,
+  CheckCircle2,
+  Copy,
+  MessageSquare,
+  Send,
+  List,
+  Type,
+  Megaphone,
+  Star,
+  Phone,
+  X,
+  RefreshCw,
+  GripVertical,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,7 +36,10 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { updateStorefrontSettings } from "@/app/actions/storefront";
 import { createClient } from "@/lib/supabase/client";
-import { sendOwnerChatReply, markChatSessionRead } from "@/app/actions/storefront";
+import {
+  sendOwnerChatReply,
+  markChatSessionRead,
+} from "@/app/actions/storefront";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -55,13 +79,42 @@ interface StorefrontManagerProps {
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const THEME_COLORS = ["#A7653A", "#27324A", "#41A560", "#D84B4B", "#6B46C1", "#0EA5E9", "#F59E0B", "#EC4899"];
+const THEME_COLORS = [
+  "#A7653A",
+  "#27324A",
+  "#41A560",
+  "#D84B4B",
+  "#6B46C1",
+  "#0EA5E9",
+  "#F59E0B",
+  "#EC4899",
+];
 
 const TEMPLATES = [
-  { id: "modern", name: "Modern", desc: "Grid layout, colorful & energetic", preview: "bg-gradient-to-br from-amber-500 to-amber-600" },
-  { id: "boutique", name: "Boutique", desc: "Elegant imagery, fashion-forward", preview: "bg-gradient-to-br from-slate-800 to-slate-900" },
-  { id: "minimal", name: "Minimal", desc: "Clean, white-space driven", preview: "bg-white border border-gray-200" },
-  { id: "dark", name: "Dark", desc: "Bold & luxurious, dark theme", preview: "bg-gradient-to-br from-gray-950 to-slate-900" },
+  {
+    id: "modern",
+    name: "Modern",
+    desc: "Grid layout, colorful & energetic",
+    preview: "bg-gradient-to-br from-amber-500 to-amber-600",
+  },
+  {
+    id: "boutique",
+    name: "Boutique",
+    desc: "Elegant imagery, fashion-forward",
+    preview: "bg-gradient-to-br from-slate-800 to-slate-900",
+  },
+  {
+    id: "minimal",
+    name: "Minimal",
+    desc: "Clean, white-space driven",
+    preview: "bg-white border border-gray-200",
+  },
+  {
+    id: "dark",
+    name: "Dark",
+    desc: "Bold & luxurious, dark theme",
+    preview: "bg-gradient-to-br from-gray-950 to-slate-900",
+  },
 ];
 
 const FONTS = [
@@ -75,10 +128,26 @@ const FONTS = [
 // Sections the owner can reorder in the storefront body. Hero, announcement and
 // category filter are structural (always at top) and not in this list.
 const ALL_SECTIONS: { id: string; label: string; icon: React.ReactNode }[] = [
-  { id: "featured", label: "Featured Products", icon: <Star className="h-3.5 w-3.5" /> },
-  { id: "products", label: "Product Grid", icon: <List className="h-3.5 w-3.5" /> },
-  { id: "about", label: "About Section", icon: <Type className="h-3.5 w-3.5" /> },
-  { id: "contact", label: "Contact Info", icon: <Phone className="h-3.5 w-3.5" /> },
+  {
+    id: "featured",
+    label: "Featured Products",
+    icon: <Star className="h-3.5 w-3.5" />,
+  },
+  {
+    id: "products",
+    label: "Product Grid",
+    icon: <List className="h-3.5 w-3.5" />,
+  },
+  {
+    id: "about",
+    label: "About Section",
+    icon: <Type className="h-3.5 w-3.5" />,
+  },
+  {
+    id: "contact",
+    label: "Contact Info",
+    icon: <Phone className="h-3.5 w-3.5" />,
+  },
 ];
 
 function timeAgo(dateStr: string): string {
@@ -118,7 +187,9 @@ function SectionDragItem({
         <GripVertical className="h-4 w-4" />
       </button>
       <span className="text-[#A7653A]">{section.icon}</span>
-      <span className="text-sm font-bold text-[#27324A] flex-1">{section.label}</span>
+      <span className="text-sm font-bold text-[#27324A] flex-1">
+        {section.label}
+      </span>
     </Reorder.Item>
   );
 }
@@ -126,10 +197,22 @@ function SectionDragItem({
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function StorefrontManager({
-  shopId, shopName, shopSlug, publicUrl, qrDataUrl, scanCount,
-  initialThemeColor, initialThemeLayout, initialTemplate, initialFontFamily,
-  initialHeroHeadline, initialHeroSubtext, initialAnnouncementText,
-  initialAnnouncementActive, initialSectionsOrder, initialWhatsapp,
+  shopId,
+  shopName,
+  shopSlug,
+  publicUrl,
+  qrDataUrl,
+  scanCount,
+  initialThemeColor,
+  initialThemeLayout,
+  initialTemplate,
+  initialFontFamily,
+  initialHeroHeadline,
+  initialHeroSubtext,
+  initialAnnouncementText,
+  initialAnnouncementActive,
+  initialSectionsOrder,
+  initialWhatsapp,
 }: StorefrontManagerProps) {
   const [activeTab, setActiveTab] = useState<"qr" | "customize" | "chat">("qr");
   const [isPending, startTransition] = useTransition();
@@ -140,10 +223,16 @@ export function StorefrontManager({
   const [fontFamily, setFontFamily] = useState(initialFontFamily || "inter");
   const [heroHeadline, setHeroHeadline] = useState(initialHeroHeadline || "");
   const [heroSubtext, setHeroSubtext] = useState(initialHeroSubtext || "");
-  const [announcementText, setAnnouncementText] = useState(initialAnnouncementText || "");
-  const [announcementActive, setAnnouncementActive] = useState(initialAnnouncementActive);
+  const [announcementText, setAnnouncementText] = useState(
+    initialAnnouncementText || "",
+  );
+  const [announcementActive, setAnnouncementActive] = useState(
+    initialAnnouncementActive,
+  );
   const [sectionsOrder, setSectionsOrder] = useState<string[]>(
-    initialSectionsOrder?.length ? initialSectionsOrder : ALL_SECTIONS.map((s) => s.id)
+    initialSectionsOrder?.length
+      ? initialSectionsOrder
+      : ALL_SECTIONS.map((s) => s.id),
   );
   const [whatsapp, setWhatsapp] = useState(initialWhatsapp || "");
 
@@ -156,7 +245,9 @@ export function StorefrontManager({
   const supabase = useMemo(() => createClient(), []);
   const activeSessionRef = useRef<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  useEffect(() => { activeSessionRef.current = activeSession; }, [activeSession]);
+  useEffect(() => {
+    activeSessionRef.current = activeSession;
+  }, [activeSession]);
 
   const handlePublish = () => {
     startTransition(async () => {
@@ -215,25 +306,37 @@ export function StorefrontManager({
         sessionMap[msg.session_id].unread++;
       }
     }
-    setSessions(Object.values(sessionMap).sort((a, b) => new Date(b.last_at).getTime() - new Date(a.last_at).getTime()));
+    setSessions(
+      Object.values(sessionMap).sort(
+        (a, b) => new Date(b.last_at).getTime() - new Date(a.last_at).getTime(),
+      ),
+    );
   }, [supabase, shopId]);
 
-  const loadSessionMessages = useCallback(async (sessionId: string) => {
-    const { data } = await supabase
-      .from("chat_messages")
-      .select("id, sender, message, created_at")
-      .eq("shop_id", shopId)
-      .eq("session_id", sessionId)
-      .order("created_at", { ascending: true });
-    if (data) setSessionMessages(data as ChatMessage[]);
-  }, [supabase, shopId]);
+  const loadSessionMessages = useCallback(
+    async (sessionId: string) => {
+      const { data } = await supabase
+        .from("chat_messages")
+        .select("id, sender, message, created_at")
+        .eq("shop_id", shopId)
+        .eq("session_id", sessionId)
+        .order("created_at", { ascending: true });
+      if (data) setSessionMessages(data as ChatMessage[]);
+    },
+    [supabase, shopId],
+  );
 
-  const openSession = useCallback(async (sessionId: string) => {
-    setActiveSession(sessionId);
-    await loadSessionMessages(sessionId);
-    await markChatSessionRead(shopId, sessionId);
-    setSessions((prev) => prev.map((s) => s.session_id === sessionId ? { ...s, unread: 0 } : s));
-  }, [loadSessionMessages, shopId]);
+  const openSession = useCallback(
+    async (sessionId: string) => {
+      setActiveSession(sessionId);
+      await loadSessionMessages(sessionId);
+      await markChatSessionRead(shopId, sessionId);
+      setSessions((prev) =>
+        prev.map((s) => (s.session_id === sessionId ? { ...s, unread: 0 } : s)),
+      );
+    },
+    [loadSessionMessages, shopId],
+  );
 
   // Realtime: subscribe once for the shop. Inserts trigger session list refresh
   // and, if the message belongs to the currently open thread, append it live.
@@ -252,22 +355,35 @@ export function StorefrontManager({
           filter: `shop_id=eq.${shopId}`,
         },
         (payload) => {
-          const msg = payload.new as ChatMessage & { session_id: string; customer_name: string | null };
+          const msg = payload.new as ChatMessage & {
+            session_id: string;
+            customer_name: string | null;
+          };
           loadChatSessions();
           if (activeSessionRef.current === msg.session_id) {
             setSessionMessages((prev) => {
               if (prev.some((m) => m.id === msg.id)) return prev;
-              return [...prev, { id: msg.id, sender: msg.sender, message: msg.message, created_at: msg.created_at }];
+              return [
+                ...prev,
+                {
+                  id: msg.id,
+                  sender: msg.sender,
+                  message: msg.message,
+                  created_at: msg.created_at,
+                },
+              ];
             });
             if (msg.sender === "customer") {
               markChatSessionRead(shopId, msg.session_id).catch(() => {});
             }
           }
-        }
+        },
       )
       .subscribe();
 
-    return () => { supabase.removeChannel(channel); };
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [supabase, shopId, loadChatSessions]);
 
   // Auto-scroll thread on new messages
@@ -282,9 +398,15 @@ export function StorefrontManager({
     setChatInput("");
     // Optimistic: realtime echo will reconcile by id
     const tempId = `temp_${Date.now()}`;
-    setSessionMessages((prev) => [...prev, {
-      id: tempId, sender: "owner", message: text, created_at: new Date().toISOString(),
-    }]);
+    setSessionMessages((prev) => [
+      ...prev,
+      {
+        id: tempId,
+        sender: "owner",
+        message: text,
+        created_at: new Date().toISOString(),
+      },
+    ]);
     startChatTransition(async () => {
       const result = await sendOwnerChatReply(shopId, sessionId, text);
       if (result.error) {
@@ -302,8 +424,16 @@ export function StorefrontManager({
 
   const TABS = [
     { id: "qr", label: "QR & Share", icon: <QrCode className="h-4 w-4" /> },
-    { id: "customize", label: "Customize", icon: <Palette className="h-4 w-4" /> },
-    { id: "chat", label: "Chat Inbox", icon: <MessageSquare className="h-4 w-4" /> },
+    {
+      id: "customize",
+      label: "Customize",
+      icon: <Palette className="h-4 w-4" />,
+    },
+    {
+      id: "chat",
+      label: "Chat Inbox",
+      icon: <MessageSquare className="h-4 w-4" />,
+    },
   ] as const;
 
   return (
@@ -312,10 +442,16 @@ export function StorefrontManager({
       <div>
         <h1 className="text-2xl font-black text-[#27324A]">Storefront & QR</h1>
         <p className="text-sm font-medium text-[#746E73] mt-1">
-          Customize your public shop page, manage your QR code, and reply to customer chats.
+          Customize your public shop page, manage your QR code, and reply to
+          customer chats.
         </p>
         {publicUrl && (
-          <a href={publicUrl} target="_blank" rel="noopener noreferrer" className="text-xs font-bold text-[#A7653A] hover:underline mt-1 inline-flex items-center gap-1">
+          <a
+            href={publicUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-xs font-bold text-[#A7653A] hover:underline mt-1 inline-flex items-center gap-1"
+          >
             <Globe2 className="h-3.5 w-3.5" /> {publicUrl} ↗
           </a>
         )}
@@ -343,9 +479,12 @@ export function StorefrontManager({
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <div className="space-y-6">
             <div className="bg-white p-6 rounded-[2rem] border border-[#2E3344]/8 shadow-sm">
-              <h2 className="text-lg font-black text-[#27324A]">Share Your Shop</h2>
+              <h2 className="text-lg font-black text-[#27324A]">
+                Share Your Shop
+              </h2>
               <p className="text-xs text-[#746E73] font-medium mt-1">
-                Customers scan this QR to visit your storefront, browse products, and place orders.
+                Customers scan this QR to visit your storefront, browse
+                products, and place orders.
               </p>
               {scanCount > 0 && (
                 <p className="text-xs font-bold text-[#A7653A] mt-2">
@@ -356,10 +495,21 @@ export function StorefrontManager({
               <div className="mt-6 space-y-4">
                 {publicUrl && (
                   <div>
-                    <Label className="font-bold text-[#27324A]">Public URL</Label>
+                    <Label className="font-bold text-[#27324A]">
+                      Public URL
+                    </Label>
                     <div className="flex items-center mt-1.5 gap-2">
-                      <Input readOnly value={publicUrl} className="h-12 rounded-xl bg-[#f8f8f7] font-mono text-sm" />
-                      <Button type="button" variant="outline" onClick={handleCopyUrl} className="h-12 rounded-xl border-[#2E3344]/10 text-[#27324A] font-bold px-4">
+                      <Input
+                        readOnly
+                        value={publicUrl}
+                        className="h-12 rounded-xl bg-[#f8f8f7] font-mono text-sm"
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={handleCopyUrl}
+                        className="h-12 rounded-xl border-[#2E3344]/10 text-[#27324A] font-bold px-4"
+                      >
                         <Copy className="h-4 w-4" />
                       </Button>
                     </div>
@@ -367,15 +517,32 @@ export function StorefrontManager({
                 )}
                 {!publicUrl && (
                   <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-xs font-medium text-amber-900">
-                    Your shop needs a slug to get a public URL. Complete shop setup first.
+                    Your shop needs a slug to get a public URL. Complete shop
+                    setup first.
                   </div>
                 )}
                 {qrDataUrl && (
                   <div className="grid grid-cols-2 gap-3 pt-4 border-t border-[#2E3344]/5">
-                    <Button type="button" onClick={handleDownloadQR} className="h-12 rounded-xl bg-[#27324A] hover:bg-[#1b2333] text-white font-bold w-full">
+                    <Button
+                      type="button"
+                      onClick={handleDownloadQR}
+                      className="h-12 rounded-xl bg-[#27324A] hover:bg-[#1b2333] text-white font-bold w-full"
+                    >
                       <Download className="h-4 w-4 mr-2" /> Download PNG
                     </Button>
-                    <Button type="button" variant="outline" onClick={() => { if (publicUrl) navigator.share?.({ url: publicUrl, title: shopName }); else handleCopyUrl(); }} className="h-12 rounded-xl border-[#2E3344]/10 text-[#27324A] font-bold w-full">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => {
+                        if (publicUrl)
+                          navigator.share?.({
+                            url: publicUrl,
+                            title: shopName,
+                          });
+                        else handleCopyUrl();
+                      }}
+                      className="h-12 rounded-xl border-[#2E3344]/10 text-[#27324A] font-bold w-full"
+                    >
                       <Share2 className="h-4 w-4 mr-2" /> Share
                     </Button>
                   </div>
@@ -388,9 +555,15 @@ export function StorefrontManager({
                 <Globe2 className="h-4 w-4 text-[#A7653A]" /> Usage Ideas
               </h3>
               <ul className="mt-3 space-y-2 text-xs font-medium text-[#746E73]">
-                {["Print on billing receipts", "Stick on shop counter", "Share in WhatsApp broadcasts", "Add to Instagram bio link"].map((tip) => (
+                {[
+                  "Print on billing receipts",
+                  "Stick on shop counter",
+                  "Share in WhatsApp broadcasts",
+                  "Add to Instagram bio link",
+                ].map((tip) => (
                   <li key={tip} className="flex items-center gap-2">
-                    <CheckCircle2 className="h-3 w-3 text-green-600 shrink-0" /> {tip}
+                    <CheckCircle2 className="h-3 w-3 text-green-600 shrink-0" />{" "}
+                    {tip}
                   </li>
                 ))}
               </ul>
@@ -400,20 +573,31 @@ export function StorefrontManager({
           {/* QR Preview */}
           <div className="flex items-center justify-center bg-[#f8f8f7] p-8 rounded-[2.5rem] border border-[#2E3344]/5">
             <div className="bg-white p-8 rounded-[2rem] shadow-xl text-center w-full max-w-sm border border-[#2E3344]/5">
-              <div className="mx-auto h-16 w-16 text-white rounded-2xl flex items-center justify-center font-black text-xl mb-4 shadow-sm" style={{ backgroundColor: themeColor }}>
+              <div
+                className="mx-auto h-16 w-16 text-white rounded-2xl flex items-center justify-center font-black text-xl mb-4 shadow-sm"
+                style={{ backgroundColor: themeColor }}
+              >
                 {shopInitial}
               </div>
               <h3 className="text-xl font-black text-[#27324A]">{shopName}</h3>
-              <p className="text-[10px] uppercase tracking-widest text-[#A7653A] font-bold mt-1">Scan to order online</p>
+              <p className="text-[10px] uppercase tracking-widest text-[#A7653A] font-bold mt-1">
+                Scan to order online
+              </p>
               <div className="mt-8 mb-6 p-4 bg-white border-4 border-[#2E3344] rounded-3xl inline-block">
                 {qrDataUrl ? (
-                  <img src={qrDataUrl} alt="Shop QR Code" className="h-48 w-48 object-contain" />
+                  <img
+                    src={qrDataUrl}
+                    alt="Shop QR Code"
+                    className="h-48 w-48 object-contain"
+                  />
                 ) : (
                   <QrCode className="h-48 w-48 text-[#27324A]" />
                 )}
               </div>
               <p className="text-xs font-bold text-[#746E73] font-mono">
-                {shopSlug ? `quivo-hazel.vercel.app/s/${shopSlug}` : "QR not generated yet"}
+                {shopSlug
+                  ? `quivo-hazel.vercel.app/s/${shopSlug}`
+                  : "QR not generated yet"}
               </p>
             </div>
           </div>
@@ -425,10 +609,11 @@ export function StorefrontManager({
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Controls */}
           <div className="lg:col-span-2 space-y-6">
-
             {/* Template Picker */}
             <div className="bg-white p-6 rounded-[2rem] border border-[#2E3344]/8 shadow-sm">
-              <Label className="font-black text-[#27324A] text-sm uppercase tracking-wider mb-4 block">Choose Template</Label>
+              <Label className="font-black text-[#27324A] text-sm uppercase tracking-wider mb-4 block">
+                Choose Template
+              </Label>
               <div className="grid grid-cols-2 gap-3">
                 {TEMPLATES.map((t) => (
                   <button
@@ -438,11 +623,21 @@ export function StorefrontManager({
                     className={`border-2 rounded-2xl p-4 text-left transition ${template === t.id ? "border-[#A7653A]" : "border-[#2E3344]/10 hover:border-[#A7653A]/40"}`}
                   >
                     {/* Mini preview swatch */}
-                    <div className={`h-12 rounded-xl mb-3 ${t.preview} flex items-center justify-center`}>
-                      <Eye className={`h-4 w-4 ${t.id === "minimal" ? "text-gray-400" : "text-white/60"}`} />
+                    <div
+                      className={`h-12 rounded-xl mb-3 ${t.preview} flex items-center justify-center`}
+                    >
+                      <Eye
+                        className={`h-4 w-4 ${t.id === "minimal" ? "text-gray-400" : "text-white/60"}`}
+                      />
                     </div>
-                    <p className={`text-sm font-black ${template === t.id ? "text-[#A7653A]" : "text-[#27324A]"}`}>{t.name}</p>
-                    <p className="text-[10px] text-[#746E73] font-medium mt-0.5">{t.desc}</p>
+                    <p
+                      className={`text-sm font-black ${template === t.id ? "text-[#A7653A]" : "text-[#27324A]"}`}
+                    >
+                      {t.name}
+                    </p>
+                    <p className="text-[10px] text-[#746E73] font-medium mt-0.5">
+                      {t.desc}
+                    </p>
                   </button>
                 ))}
               </div>
@@ -450,10 +645,14 @@ export function StorefrontManager({
 
             {/* Appearance */}
             <div className="bg-white p-6 rounded-[2rem] border border-[#2E3344]/8 shadow-sm space-y-5">
-              <h2 className="text-sm font-black text-[#27324A] uppercase tracking-wider">Appearance</h2>
+              <h2 className="text-sm font-black text-[#27324A] uppercase tracking-wider">
+                Appearance
+              </h2>
 
               <div>
-                <Label className="font-bold text-[#27324A] mb-2 block">Brand Color</Label>
+                <Label className="font-bold text-[#27324A] mb-2 block">
+                  Brand Color
+                </Label>
                 <div className="flex flex-wrap gap-2">
                   {THEME_COLORS.map((color) => (
                     <button
@@ -475,7 +674,9 @@ export function StorefrontManager({
               </div>
 
               <div>
-                <Label className="font-bold text-[#27324A] mb-2 block">Font Family</Label>
+                <Label className="font-bold text-[#27324A] mb-2 block">
+                  Font Family
+                </Label>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                   {FONTS.map((f) => (
                     <button
@@ -493,7 +694,9 @@ export function StorefrontManager({
 
             {/* Hero Section */}
             <div className="bg-white p-6 rounded-[2rem] border border-[#2E3344]/8 shadow-sm space-y-4">
-              <h2 className="text-sm font-black text-[#27324A] uppercase tracking-wider">Hero Section</h2>
+              <h2 className="text-sm font-black text-[#27324A] uppercase tracking-wider">
+                Hero Section
+              </h2>
               <div>
                 <Label className="font-bold text-[#27324A]">Headline</Label>
                 <Input
@@ -505,7 +708,9 @@ export function StorefrontManager({
                 />
               </div>
               <div>
-                <Label className="font-bold text-[#27324A]">Subtext / Tagline</Label>
+                <Label className="font-bold text-[#27324A]">
+                  Subtext / Tagline
+                </Label>
                 <Input
                   value={heroSubtext}
                   onChange={(e) => setHeroSubtext(e.target.value)}
@@ -520,14 +725,17 @@ export function StorefrontManager({
             <div className="bg-white p-6 rounded-[2rem] border border-[#2E3344]/8 shadow-sm space-y-4">
               <div className="flex items-center justify-between">
                 <h2 className="text-sm font-black text-[#27324A] uppercase tracking-wider flex items-center gap-2">
-                  <Megaphone className="h-4 w-4 text-[#A7653A]" /> Announcement Ribbon
+                  <Megaphone className="h-4 w-4 text-[#A7653A]" /> Announcement
+                  Ribbon
                 </h2>
                 <button
                   type="button"
                   onClick={() => setAnnouncementActive(!announcementActive)}
                   className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${announcementActive ? "bg-[#A7653A]" : "bg-gray-200"}`}
                 >
-                  <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${announcementActive ? "translate-x-6" : "translate-x-1"}`} />
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${announcementActive ? "translate-x-6" : "translate-x-1"}`}
+                  />
                 </button>
               </div>
               <Input
@@ -542,7 +750,9 @@ export function StorefrontManager({
 
             {/* Section Order — drag-and-drop */}
             <div className="bg-white p-6 rounded-[2rem] border border-[#2E3344]/8 shadow-sm space-y-4">
-              <h2 className="text-sm font-black text-[#27324A] uppercase tracking-wider">Section Order</h2>
+              <h2 className="text-sm font-black text-[#27324A] uppercase tracking-wider">
+                Section Order
+              </h2>
               <p className="text-xs text-[#746E73] font-medium -mt-2">
                 Drag sections to reorder how they appear on your storefront.
               </p>
@@ -564,11 +774,17 @@ export function StorefrontManager({
 
             {/* Contact */}
             <div className="bg-white p-6 rounded-[2rem] border border-[#2E3344]/8 shadow-sm space-y-4">
-              <h2 className="text-sm font-black text-[#27324A] uppercase tracking-wider">Contact & Integrations</h2>
+              <h2 className="text-sm font-black text-[#27324A] uppercase tracking-wider">
+                Contact & Integrations
+              </h2>
               <div>
-                <Label className="font-bold text-[#27324A]">WhatsApp Number</Label>
+                <Label className="font-bold text-[#27324A]">
+                  WhatsApp Number
+                </Label>
                 <div className="flex items-start mt-1.5">
-                  <span className="h-12 px-3 flex items-center bg-[#f8f8f7] border border-r-0 border-[#2E3344]/10 rounded-l-xl text-sm font-bold text-[#746E73]">+977</span>
+                  <span className="h-12 px-3 flex items-center bg-[#f8f8f7] border border-r-0 border-[#2E3344]/10 rounded-l-xl text-sm font-bold text-[#746E73]">
+                    +977
+                  </span>
                   <div className="flex-1">
                     <PhoneInput
                       name="whatsapp_number"
@@ -579,7 +795,10 @@ export function StorefrontManager({
                     />
                   </div>
                 </div>
-                <p className="text-[10px] text-[#746E73] mt-1">Customers can reach you directly via WhatsApp from the storefront.</p>
+                <p className="text-[10px] text-[#746E73] mt-1">
+                  Customers can reach you directly via WhatsApp from the
+                  storefront.
+                </p>
               </div>
             </div>
           </div>
@@ -588,24 +807,53 @@ export function StorefrontManager({
           <div className="lg:col-span-1">
             <div className="sticky top-6 space-y-4">
               <div className="bg-white p-5 rounded-[2rem] border border-[#2E3344]/8 shadow-sm">
-                <h3 className="text-sm font-black text-[#27324A] mb-3">Live Preview</h3>
+                <h3 className="text-sm font-black text-[#27324A] mb-3">
+                  Live Preview
+                </h3>
                 {publicUrl ? (
-                  <a href={publicUrl} target="_blank" rel="noopener noreferrer" className="block w-full py-3 rounded-xl text-center text-xs font-bold bg-[#f8f8f7] text-[#A7653A] hover:bg-[#F7F0E6] transition border border-[#2E3344]/5">
+                  <a
+                    href={publicUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block w-full py-3 rounded-xl text-center text-xs font-bold bg-[#f8f8f7] text-[#A7653A] hover:bg-[#F7F0E6] transition border border-[#2E3344]/5"
+                  >
                     <Eye className="h-4 w-4 inline mr-1.5" /> Open Storefront ↗
                   </a>
                 ) : (
-                  <p className="text-xs text-[#746E73] text-center">Set up your shop slug to enable preview.</p>
+                  <p className="text-xs text-[#746E73] text-center">
+                    Set up your shop slug to enable preview.
+                  </p>
                 )}
 
                 {/* Mini preview */}
-                <div className="mt-4 rounded-2xl overflow-hidden border border-[#2E3344]/8" style={{ height: "200px", backgroundColor: template === "dark" ? "#0c0c12" : template === "minimal" ? "#fff" : themeColor }}>
+                <div
+                  className="mt-4 rounded-2xl overflow-hidden border border-[#2E3344]/8"
+                  style={{
+                    height: "200px",
+                    backgroundColor:
+                      template === "dark"
+                        ? "#0c0c12"
+                        : template === "minimal"
+                          ? "#fff"
+                          : themeColor,
+                  }}
+                >
                   <div className="h-full flex flex-col items-center justify-center text-center p-4">
                     <div className="h-10 w-10 rounded-xl bg-white/20 flex items-center justify-center font-black text-white mb-2">
                       {shopInitial}
                     </div>
-                    <p className="font-black text-white text-sm">{heroHeadline || shopName}</p>
-                    {heroSubtext && <p className="text-white/60 text-[10px] mt-1 line-clamp-2">{heroSubtext}</p>}
-                    <div className="mt-3 h-1 w-16 rounded-full" style={{ backgroundColor: "rgba(255,255,255,0.3)" }} />
+                    <p className="font-black text-white text-sm">
+                      {heroHeadline || shopName}
+                    </p>
+                    {heroSubtext && (
+                      <p className="text-white/60 text-[10px] mt-1 line-clamp-2">
+                        {heroSubtext}
+                      </p>
+                    )}
+                    <div
+                      className="mt-3 h-1 w-16 rounded-full"
+                      style={{ backgroundColor: "rgba(255,255,255,0.3)" }}
+                    />
                   </div>
                 </div>
               </div>
@@ -618,7 +866,9 @@ export function StorefrontManager({
               >
                 {isPending ? "Publishing..." : "Publish Changes"}
               </Button>
-              <p className="text-[10px] text-center text-[#746E73] font-medium">Changes go live immediately for all visitors.</p>
+              <p className="text-[10px] text-center text-[#746E73] font-medium">
+                Changes go live immediately for all visitors.
+              </p>
             </div>
           </div>
         </div>
@@ -626,12 +876,20 @@ export function StorefrontManager({
 
       {/* ── Chat Inbox Tab ── */}
       {activeTab === "chat" && (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6" style={{ minHeight: "500px" }}>
+        <div
+          className="grid grid-cols-1 lg:grid-cols-3 gap-6"
+          style={{ minHeight: "500px" }}
+        >
           {/* Session list */}
           <div className="bg-white rounded-[2rem] border border-[#2E3344]/8 shadow-sm overflow-hidden flex flex-col">
             <div className="p-5 border-b border-[#2E3344]/8 flex items-center justify-between">
-              <h2 className="font-black text-[#27324A] text-sm">Customer Chats</h2>
-              <button onClick={loadChatSessions} className="h-8 w-8 rounded-xl bg-[#f8f8f7] flex items-center justify-center text-[#746E73] hover:bg-[#F7F0E6] transition">
+              <h2 className="font-black text-[#27324A] text-sm">
+                Customer Chats
+              </h2>
+              <button
+                onClick={loadChatSessions}
+                className="h-8 w-8 rounded-xl bg-[#f8f8f7] flex items-center justify-center text-[#746E73] hover:bg-[#F7F0E6] transition"
+              >
                 <RefreshCw className="h-3.5 w-3.5" />
               </button>
             </div>
@@ -640,7 +898,9 @@ export function StorefrontManager({
                 <div className="p-6 text-center text-[#746E73]">
                   <MessageSquare className="h-10 w-10 mx-auto opacity-20 mb-2" />
                   <p className="text-xs font-medium">No customer chats yet.</p>
-                  <p className="text-[10px] mt-1">Chats from your storefront appear here.</p>
+                  <p className="text-[10px] mt-1">
+                    Chats from your storefront appear here.
+                  </p>
                 </div>
               ) : (
                 sessions.map((s) => (
@@ -650,13 +910,23 @@ export function StorefrontManager({
                     className={`w-full text-left px-5 py-4 border-b border-[#2E3344]/5 hover:bg-[#f8f8f7] transition ${activeSession === s.session_id ? "bg-[#F7F0E6]/60" : ""}`}
                   >
                     <div className="flex justify-between items-start mb-1">
-                      <span className="text-sm font-bold text-[#27324A]">{s.customer_name || "Anonymous"}</span>
+                      <span className="text-sm font-bold text-[#27324A]">
+                        {s.customer_name || "Anonymous"}
+                      </span>
                       <div className="flex items-center gap-1.5">
-                        {s.unread > 0 && <span className="h-4 w-4 bg-[#A7653A] text-white text-[9px] font-black rounded-full flex items-center justify-center">{s.unread}</span>}
-                        <span className="text-[10px] text-[#746E73]">{timeAgo(s.last_at)}</span>
+                        {s.unread > 0 && (
+                          <span className="h-4 w-4 bg-[#A7653A] text-white text-[9px] font-black rounded-full flex items-center justify-center">
+                            {s.unread}
+                          </span>
+                        )}
+                        <span className="text-[10px] text-[#746E73]">
+                          {timeAgo(s.last_at)}
+                        </span>
                       </div>
                     </div>
-                    <p className="text-xs text-[#746E73] line-clamp-1 font-medium">{s.last_message}</p>
+                    <p className="text-xs text-[#746E73] line-clamp-1 font-medium">
+                      {s.last_message}
+                    </p>
                   </button>
                 ))
               )}
@@ -669,7 +939,9 @@ export function StorefrontManager({
               <div className="flex-1 flex flex-col items-center justify-center text-[#746E73] p-6 text-center">
                 <MessageSquare className="h-12 w-12 opacity-20 mb-3" />
                 <p className="text-sm font-medium">Select a conversation</p>
-                <p className="text-xs mt-1">Click a chat from the left panel to view and reply.</p>
+                <p className="text-xs mt-1">
+                  Click a chat from the left panel to view and reply.
+                </p>
               </div>
             ) : (
               <>
@@ -677,23 +949,43 @@ export function StorefrontManager({
                 <div className="p-5 border-b border-[#2E3344]/8 flex items-center justify-between">
                   <div>
                     <h3 className="font-black text-[#27324A] text-sm">
-                      {sessions.find((s) => s.session_id === activeSession)?.customer_name || "Anonymous"}
+                      {sessions.find((s) => s.session_id === activeSession)
+                        ?.customer_name || "Anonymous"}
                     </h3>
-                    <p className="text-[10px] text-[#746E73] font-medium mt-0.5">Session: {activeSession.slice(-12)}</p>
+                    <p className="text-[10px] text-[#746E73] font-medium mt-0.5">
+                      Session: {activeSession.slice(-12)}
+                    </p>
                   </div>
-                  <button onClick={() => setActiveSession(null)} className="h-8 w-8 rounded-xl bg-[#f8f8f7] flex items-center justify-center text-[#746E73] hover:bg-red-50 hover:text-red-500 transition">
+                  <button
+                    onClick={() => setActiveSession(null)}
+                    className="h-8 w-8 rounded-xl bg-[#f8f8f7] flex items-center justify-center text-[#746E73] hover:bg-red-50 hover:text-red-500 transition"
+                  >
                     <X className="h-3.5 w-3.5" />
                   </button>
                 </div>
 
                 {/* Messages */}
-                <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-[#f8f8f7]/50" style={{ minHeight: "300px" }}>
+                <div
+                  className="flex-1 overflow-y-auto p-4 space-y-3 bg-[#f8f8f7]/50"
+                  style={{ minHeight: "300px" }}
+                >
                   {sessionMessages.map((msg) => (
-                    <div key={msg.id} className={`flex ${msg.sender === "owner" ? "justify-end" : "justify-start"}`}>
-                      <div className={`max-w-xs px-4 py-2.5 rounded-2xl text-sm ${msg.sender === "owner" ? "text-white rounded-tr-sm" : "bg-white text-[#27324A] rounded-tl-sm shadow-sm border border-[#2E3344]/5"}`}
-                        style={msg.sender === "owner" ? { backgroundColor: "#27324A" } : {}}>
+                    <div
+                      key={msg.id}
+                      className={`flex ${msg.sender === "owner" ? "justify-end" : "justify-start"}`}
+                    >
+                      <div
+                        className={`max-w-xs px-4 py-2.5 rounded-2xl text-sm ${msg.sender === "owner" ? "text-white rounded-tr-sm" : "bg-white text-[#27324A] rounded-tl-sm shadow-sm border border-[#2E3344]/5"}`}
+                        style={
+                          msg.sender === "owner"
+                            ? { backgroundColor: "#27324A" }
+                            : {}
+                        }
+                      >
                         {msg.message}
-                        <p className="text-[9px] mt-1 opacity-50">{timeAgo(msg.created_at)}</p>
+                        <p className="text-[9px] mt-1 opacity-50">
+                          {timeAgo(msg.created_at)}
+                        </p>
                       </div>
                     </div>
                   ))}
@@ -705,7 +997,11 @@ export function StorefrontManager({
                   <Input
                     value={chatInput}
                     onChange={(e) => setChatInput(e.target.value)}
-                    onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && (e.preventDefault(), handleSendReply())}
+                    onKeyDown={(e) =>
+                      e.key === "Enter" &&
+                      !e.shiftKey &&
+                      (e.preventDefault(), handleSendReply())
+                    }
                     placeholder="Type your reply..."
                     className="flex-1 h-11 rounded-xl"
                   />

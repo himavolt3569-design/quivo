@@ -11,7 +11,10 @@ export default async function AddProductPage() {
     return (
       <div className="flex flex-col items-center justify-center h-64 gap-4 text-center">
         <p className="text-lg font-bold text-[#27324A]">No shop selected.</p>
-        <Link href="/onboarding/owner" className="text-sm text-[#A7653A] hover:underline font-bold">
+        <Link
+          href="/onboarding/owner"
+          className="text-sm text-[#A7653A] hover:underline font-bold"
+        >
           Create your first shop →
         </Link>
       </div>
@@ -21,10 +24,18 @@ export default async function AddProductPage() {
   const supabase = await createClient();
   const { data: catalog } = await supabase
     .from("products")
-    .select("id, name, brand, category, unit, variant, price, stock, barcode, image_url, images")
+    .select(
+      "id, name, brand, category, unit, variant, price, stock, barcode, image_url, images",
+    )
     .eq("shop_id", shop.id)
     .neq("status", "archived")
     .order("name");
 
-  return <ProductForm shopId={shop.id} shopSlug={shop.slug} catalog={catalog ?? []} />;
+  return (
+    <ProductForm
+      shopId={shop.id}
+      shopSlug={shop.slug}
+      catalog={catalog ?? []}
+    />
+  );
 }

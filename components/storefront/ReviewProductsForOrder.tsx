@@ -33,18 +33,37 @@ interface LineState {
   submitted: boolean;
 }
 
-export function ReviewProductsForOrder({ orderId, items, existing = [] }: Props) {
+export function ReviewProductsForOrder({
+  orderId,
+  items,
+  existing = [],
+}: Props) {
   const initial: Record<string, LineState> = {};
-  for (const e of existing) initial[e.productId] = { rating: e.rating, body: e.body ?? "", submitted: true };
+  for (const e of existing)
+    initial[e.productId] = {
+      rating: e.rating,
+      body: e.body ?? "",
+      submitted: true,
+    };
 
   const [state, setState] = useState<Record<string, LineState>>(initial);
   const [isPending, startTransition] = useTransition();
 
-  const reviewable = items.filter((it): it is OrderLine & { id: string } => typeof it.id === "string");
+  const reviewable = items.filter(
+    (it): it is OrderLine & { id: string } => typeof it.id === "string",
+  );
   if (reviewable.length === 0) return null;
 
   const update = (pid: string, patch: Partial<LineState>) => {
-    setState((s) => ({ ...s, [pid]: { rating: s[pid]?.rating ?? 0, body: s[pid]?.body ?? "", submitted: s[pid]?.submitted ?? false, ...patch } }));
+    setState((s) => ({
+      ...s,
+      [pid]: {
+        rating: s[pid]?.rating ?? 0,
+        body: s[pid]?.body ?? "",
+        submitted: s[pid]?.submitted ?? false,
+        ...patch,
+      },
+    }));
   };
 
   const handleSubmit = (pid: string) => {
@@ -60,7 +79,10 @@ export function ReviewProductsForOrder({ orderId, items, existing = [] }: Props)
         rating: line.rating,
         body: line.body.trim() || null,
       });
-      if (res.error) { toast.error(res.error); return; }
+      if (res.error) {
+        toast.error(res.error);
+        return;
+      }
       toast.success("Thanks for the review!");
       update(pid, { submitted: true });
     });
@@ -69,8 +91,12 @@ export function ReviewProductsForOrder({ orderId, items, existing = [] }: Props)
   return (
     <section className="bg-white rounded-3xl shadow-sm border border-gray-100 p-5 space-y-4">
       <div>
-        <p className="text-[10px] font-black uppercase tracking-wider text-gray-400">Leave a review</p>
-        <h2 className="text-base font-black text-gray-900 mt-0.5">How was each item?</h2>
+        <p className="text-[10px] font-black uppercase tracking-wider text-gray-400">
+          Leave a review
+        </p>
+        <h2 className="text-base font-black text-gray-900 mt-0.5">
+          How was each item?
+        </h2>
       </div>
       <ul className="divide-y divide-gray-100">
         {reviewable.map((it) => {
@@ -93,7 +119,12 @@ export function ReviewProductsForOrder({ orderId, items, existing = [] }: Props)
               />
               <textarea
                 value={s.body}
-                onChange={(e) => update(pid, { body: e.target.value.slice(0, 2000), submitted: false })}
+                onChange={(e) =>
+                  update(pid, {
+                    body: e.target.value.slice(0, 2000),
+                    submitted: false,
+                  })
+                }
                 placeholder="Optional — share what worked or didn't."
                 rows={2}
                 className="w-full rounded-xl border border-black/10 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#A7653A]/30"

@@ -11,7 +11,10 @@ export default async function SuppliersPage() {
     return (
       <div className="flex flex-col items-center justify-center h-64 gap-4 text-center">
         <p className="text-lg font-bold text-[#27324A]">No shop selected.</p>
-        <Link href="/onboarding/owner" className="text-sm text-[#A7653A] hover:underline font-bold">
+        <Link
+          href="/onboarding/owner"
+          className="text-sm text-[#A7653A] hover:underline font-bold"
+        >
           Create your first shop →
         </Link>
       </div>
@@ -21,7 +24,9 @@ export default async function SuppliersPage() {
   const supabase = await createClient();
   const { data: suppliers } = await supabase
     .from("shop_suppliers")
-    .select("id, name, contact_person, phone, email, address, category, logo_url, tax_id, notes, opening_balance, balance_due, status, created_at")
+    .select(
+      "id, name, contact_person, phone, email, address, category, logo_url, tax_id, notes, opening_balance, balance_due, status, created_at",
+    )
     .eq("shop_id", shopId)
     .eq("status", "active")
     .order("balance_due", { ascending: false });

@@ -2,7 +2,10 @@ import "server-only";
 
 import { createAdminClient } from "@/lib/supabase/admin";
 import { sendEmail } from "@/lib/email/send";
-import { renderOrderStatusUpdateEmail, type OrderStatus } from "@/emails/OrderStatusUpdateEmail";
+import {
+  renderOrderStatusUpdateEmail,
+  type OrderStatus,
+} from "@/emails/OrderStatusUpdateEmail";
 import { getSiteUrl } from "@/lib/security";
 import { log } from "@/lib/log";
 
@@ -13,7 +16,9 @@ interface Payload {
   status?: OrderStatus;
 }
 
-export async function handleOrderStatusChanged(payload: Payload): Promise<void> {
+export async function handleOrderStatusChanged(
+  payload: Payload,
+): Promise<void> {
   if (!payload.order_id || !payload.status) {
     log.warn("order.status_changed handler: missing fields", { payload });
     return;
@@ -21,7 +26,9 @@ export async function handleOrderStatusChanged(payload: Payload): Promise<void> 
   const admin = createAdminClient();
   const { data: order } = await admin
     .from("orders")
-    .select("order_number, customer_name, customer_email, tracking_token, eta_minutes, shop_id")
+    .select(
+      "order_number, customer_name, customer_email, tracking_token, eta_minutes, shop_id",
+    )
     .eq("id", payload.order_id)
     .maybeSingle();
   if (!order || !order.customer_email) return;

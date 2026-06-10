@@ -2,7 +2,13 @@
 
 import { useState, useTransition } from "react";
 import Link from "next/link";
-import { ChevronLeft, MessageSquare, Eye, EyeOff, AlertCircle } from "lucide-react";
+import {
+  ChevronLeft,
+  MessageSquare,
+  Eye,
+  EyeOff,
+  AlertCircle,
+} from "lucide-react";
 import { toast } from "sonner";
 
 import type { OwnerReviewRow } from "@/app/actions/reviews";
@@ -22,14 +28,23 @@ export function ReviewModerationList({ shopName, rows, initialError }: Props) {
   const [localRows, setLocalRows] = useState<OwnerReviewRow[]>(rows);
   const [isPending, startTransition] = useTransition();
 
-  const visible = localRows.filter((r) => filter === "all" || r.status === filter);
+  const visible = localRows.filter(
+    (r) => filter === "all" || r.status === filter,
+  );
 
   const apply = (id: string, action: "publish" | "hide") => {
     startTransition(async () => {
       const res = await moderateReview(id, action);
-      if (res.error) { toast.error(res.error); return; }
+      if (res.error) {
+        toast.error(res.error);
+        return;
+      }
       setLocalRows((cur) =>
-        cur.map((r) => (r.id === id ? { ...r, status: action === "publish" ? "published" : "hidden" } : r))
+        cur.map((r) =>
+          r.id === id
+            ? { ...r, status: action === "publish" ? "published" : "hidden" }
+            : r,
+        ),
       );
       toast.success(action === "publish" ? "Published" : "Hidden");
     });
@@ -38,14 +53,18 @@ export function ReviewModerationList({ shopName, rows, initialError }: Props) {
   return (
     <div className="space-y-6 max-w-4xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500 pb-12">
       <div>
-        <Link href="/dashboard/owner/customers" className="inline-flex items-center gap-1 text-xs font-bold text-[#746E73] hover:text-[#27324A] mb-2">
+        <Link
+          href="/dashboard/owner/customers"
+          className="inline-flex items-center gap-1 text-xs font-bold text-[#746E73] hover:text-[#27324A] mb-2"
+        >
           <ChevronLeft className="h-3 w-3" /> Back to Customers
         </Link>
         <h1 className="text-2xl font-black text-[#27324A] flex items-center gap-2">
           <MessageSquare className="h-6 w-6 text-[#A7653A]" /> Reviews
         </h1>
         <p className="text-sm font-medium text-[#746E73] mt-1">
-          Moderate reviews for {shopName}. New reviews publish immediately; you can hide any that violate policy.
+          Moderate reviews for {shopName}. New reviews publish immediately; you
+          can hide any that violate policy.
         </p>
       </div>
 
@@ -74,18 +93,31 @@ export function ReviewModerationList({ shopName, rows, initialError }: Props) {
       ) : (
         <ul className="space-y-3">
           {visible.map((r) => (
-            <li key={r.id} className="rounded-2xl bg-white border border-[#2E3344]/10 p-4 space-y-3">
+            <li
+              key={r.id}
+              className="rounded-2xl bg-white border border-[#2E3344]/10 p-4 space-y-3"
+            >
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
-                  <p className="text-xs font-bold text-[#27324A] truncate">{r.product_name ?? "Product"}</p>
+                  <p className="text-xs font-bold text-[#27324A] truncate">
+                    {r.product_name ?? "Product"}
+                  </p>
                   <div className="flex items-center gap-2 mt-1">
                     <StarRating value={r.rating} size="sm" />
-                    <span className="text-[10px] text-[#746E73]">{new Date(r.created_at).toLocaleDateString()}</span>
-                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                      r.status === "published" ? "bg-green-50 text-green-700" :
-                      r.status === "hidden"    ? "bg-red-50 text-red-700" :
-                                                 "bg-amber-50 text-amber-700"
-                    }`}>{r.status}</span>
+                    <span className="text-[10px] text-[#746E73]">
+                      {new Date(r.created_at).toLocaleDateString()}
+                    </span>
+                    <span
+                      className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                        r.status === "published"
+                          ? "bg-green-50 text-green-700"
+                          : r.status === "hidden"
+                            ? "bg-red-50 text-red-700"
+                            : "bg-amber-50 text-amber-700"
+                      }`}
+                    >
+                      {r.status}
+                    </span>
                   </div>
                 </div>
                 <div className="flex gap-1.5">
@@ -110,7 +142,9 @@ export function ReviewModerationList({ shopName, rows, initialError }: Props) {
                 </div>
               </div>
               {r.body && (
-                <p className="text-sm text-[#27324A] leading-relaxed rounded-xl bg-[#F7F0E6] px-3 py-2">{r.body}</p>
+                <p className="text-sm text-[#27324A] leading-relaxed rounded-xl bg-[#F7F0E6] px-3 py-2">
+                  {r.body}
+                </p>
               )}
             </li>
           ))}
