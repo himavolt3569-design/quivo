@@ -182,7 +182,11 @@ export function OwnerShopSwitcher({
                   // is blocked for owners who already have a shop, so the
                   // cookie is the only legitimate entry point.
                   // Legitimate entry point.
-                  startNewShopOnboarding().catch((e) => {
+                  startNewShopOnboarding().then((res) => {
+                    if (res && res.error) {
+                      toast.error(`Failed: ${res.error}`);
+                    }
+                  }).catch((e) => {
                     // Next.js redirect throws an error, so we only want to
                     // report actual errors that aren't redirects.
                     if (e && typeof e === 'object' && 'digest' in e && (e as any).digest?.startsWith('NEXT_REDIRECT')) {

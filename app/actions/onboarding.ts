@@ -21,7 +21,7 @@ import {
   ONBOARDING_TOKEN_TTL_MS,
 } from "@/lib/onboarding-token";
 
-export async function startNewShopOnboarding(): Promise<void> {
+export async function startNewShopOnboarding(): Promise<{ error: string } | void> {
   const supabase = await createClient();
   const {
     data: { user },
@@ -38,7 +38,13 @@ export async function startNewShopOnboarding(): Promise<void> {
   if (!profile) redirect("/auth/revoked");
   if (profile.role !== "owner") redirect("/dashboard/home");
 
-  const token = issueOnboardingToken(user!.id);
+  let token: string;
+  try {
+    token = issueOnboardingToken(user!.id);
+  } catch (err: any) {
+    return { error: err.message };
+  }
+
   const jar = await cookies();
   jar.set(ONBOARDING_COOKIE_NAME, token, {
     httpOnly: true,
