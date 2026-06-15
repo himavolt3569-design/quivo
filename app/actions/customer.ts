@@ -576,6 +576,111 @@ export async function lookupProductByBarcode(
   };
 }
 
+export interface BarcodeShopMatch {
+  productId: string;
+  shopId: string;
+  shopSlug: string;
+  shopName: string;
+  shopLogoUrl: string | null;
+  shopCategory: string | null;
+  shopAddress: string | null;
+  shopLat: number | null;
+  shopLng: number | null;
+  isVerified: boolean;
+  productName: string;
+  brand: string | null;
+  unit: string | null;
+  variant: string | null;
+  price: number;
+  stock: number;
+  image: string | null;
+  barcode: string;
+  /** Great-circle distance in km, or null when the customer's location is unknown. */
+  distanceKm: number | null;
+}
+
+/**
+ * Cross-shop barcode discovery: returns every active, in-stock shop that
+ * carries the scanned barcode, ordered by distance when coordinates are
+ * supplied. Powers the scanner results step and the /find/[barcode] page.
+ *
+ * @param radiusKm  Distance cap in km, or null for "entire Nepal" (no cap).
+ *                  Only applied when lat/lng are provided.
+ */
+export async function findShopsByBarcode(
+  barcode: string,
+  lat?: number | null,
+  lng?: number | null,
+  radiusKm?: number | null,
+): Promise<{ matches?: BarcodeShopMatch[]; error?: string }> {
+  const trimmed = barcode.trim();
+  if (!trimmed) return { matches: [] };
+
+  const hasCoords =
+    typeof lat === "number" &&
+    Number.isFinite(lat) &&
+    typeof lng === "number" &&
+    Number.isFinite(lng);
+
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("get_shops_with_barcode_nearby", {
+    p_barcode: trimmed,
+    p_lat: hasCoords ? lat : null,
+    p_lng: hasCoords ? lng : null,
+    p_radius_km:
+      radiusKm != null && Number.isFinite(radiusKm) ? radiusKm : null,
+  });
+
+  if (error) return { error: error.message };
+
+  const rows = (data ?? []) as Array<{
+    product_id: string;
+    shop_id: string;
+    shop_slug: string;
+    shop_name: string;
+    shop_logo_url: string | null;
+    shop_category: string | null;
+    shop_address: string | null;
+    shop_lat: number | null;
+    shop_lng: number | null;
+    verification_status: string | null;
+    name: string;
+    brand: string | null;
+    unit: string | null;
+    variant: string | null;
+    price: number;
+    stock: number;
+    image_url: string | null;
+    images: string[] | null;
+    barcode: string;
+    distance_km: number | null;
+  }>;
+
+  return {
+    matches: rows.map((r) => ({
+      productId: r.product_id,
+      shopId: r.shop_id,
+      shopSlug: r.shop_slug,
+      shopName: r.shop_name,
+      shopLogoUrl: r.shop_logo_url,
+      shopCategory: r.shop_category,
+      shopAddress: r.shop_address,
+      shopLat: r.shop_lat,
+      shopLng: r.shop_lng,
+      isVerified: r.verification_status === "verified",
+      productName: r.name,
+      brand: r.brand,
+      unit: r.unit,
+      variant: r.variant,
+      price: Number(r.price),
+      stock: Number(r.stock),
+      image: r.images?.[0] ?? r.image_url ?? null,
+      barcode: r.barcode,
+      distanceKm: r.distance_km != null ? Number(r.distance_km) : null,
+    })),
+  };
+}
+
 export interface ChatShop {
   id: string;
   name: string;
