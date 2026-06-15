@@ -1,11 +1,25 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Banknote, ArrowUpRight, ArrowDownRight, ArrowRight, ReceiptText, FileText, X } from "lucide-react";
+import {
+  Banknote,
+  ArrowUpRight,
+  ArrowDownRight,
+  ArrowRight,
+  ReceiptText,
+  FileText,
+  X,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { toast } from "sonner";
 import { addExpense } from "@/app/actions/owner";
 
@@ -34,11 +48,19 @@ function pctDelta(current: number, previous: number): number | null {
   return Math.round(((current - previous) / Math.abs(previous)) * 1000) / 10;
 }
 
-function DeltaChip({ delta, goodWhenUp = true }: { delta: number | null; goodWhenUp?: boolean }) {
-  if (delta === null) return <span className="text-[11px] font-bold text-[#746E73]">— new</span>;
+function DeltaChip({
+  delta,
+  goodWhenUp = true,
+}: {
+  delta: number | null;
+  goodWhenUp?: boolean;
+}) {
+  if (delta === null)
+    return <span className="text-[11px] font-bold text-[#746E73]">— new</span>;
   const up = delta > 0;
   const good = up === goodWhenUp;
-  const color = delta === 0 ? "text-[#746E73]" : good ? "text-emerald-600" : "text-red-600";
+  const color =
+    delta === 0 ? "text-[#746E73]" : good ? "text-emerald-600" : "text-red-600";
   return (
     <span className={`text-[11px] font-bold ${color}`}>
       {up ? "▲" : delta < 0 ? "▼" : "•"} {Math.abs(delta)}% vs last month
@@ -53,7 +75,10 @@ function timeAgo(date: string) {
   if (minutes < 60) return `${minutes}m ago`;
   const hours = Math.floor(minutes / 60);
   if (hours < 24) return `${hours}h ago`;
-  return new Date(date).toLocaleDateString("en-NP", { month: "short", day: "numeric" });
+  return new Date(date).toLocaleDateString("en-NP", {
+    month: "short",
+    day: "numeric",
+  });
 }
 
 const TYPE_LABEL: Record<string, string> = {
@@ -63,19 +88,35 @@ const TYPE_LABEL: Record<string, string> = {
   supplier_payment: "Supplier Payment",
 };
 
-export function FinanceDashboard({ shopId, monthlyIncome, monthlyExpenses, recentTransactions, prevIncome, prevExpenses }: FinanceDashboardProps) {
+export function FinanceDashboard({
+  shopId,
+  monthlyIncome,
+  monthlyExpenses,
+  recentTransactions,
+  prevIncome,
+  prevExpenses,
+}: FinanceDashboardProps) {
   const [isPending, startTransition] = useTransition();
   const [showExpenseModal, setShowExpenseModal] = useState(false);
   const [expenseAmount, setExpenseAmount] = useState("");
   const [expenseDesc, setExpenseDesc] = useState("");
   const [expenseMethod, setExpenseMethod] = useState("cash");
-  const [localTransactions, setLocalTransactions] = useState(recentTransactions);
+  const [localTransactions, setLocalTransactions] =
+    useState(recentTransactions);
 
   const netProfit = monthlyIncome - monthlyExpenses;
-  const incomeDelta = prevIncome === undefined ? undefined : pctDelta(monthlyIncome, prevIncome);
-  const expenseDelta = prevExpenses === undefined ? undefined : pctDelta(monthlyExpenses, prevExpenses);
-  const prevNet = prevIncome !== undefined && prevExpenses !== undefined ? prevIncome - prevExpenses : undefined;
-  const netDelta = prevNet === undefined ? undefined : pctDelta(netProfit, prevNet);
+  const incomeDelta =
+    prevIncome === undefined ? undefined : pctDelta(monthlyIncome, prevIncome);
+  const expenseDelta =
+    prevExpenses === undefined
+      ? undefined
+      : pctDelta(monthlyExpenses, prevExpenses);
+  const prevNet =
+    prevIncome !== undefined && prevExpenses !== undefined
+      ? prevIncome - prevExpenses
+      : undefined;
+  const netDelta =
+    prevNet === undefined ? undefined : pctDelta(netProfit, prevNet);
 
   const handleAddExpense = () => {
     const formData = new FormData();
@@ -100,7 +141,9 @@ export function FinanceDashboard({ shopId, monthlyIncome, monthlyExpenses, recen
     <div className="space-y-6 max-w-7xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500 pb-10">
       <div>
         <h1 className="text-2xl font-black text-[#27324A]">Finances</h1>
-        <p className="text-sm font-medium text-[#746E73] mt-1">Track income, expenses, and generate invoices.</p>
+        <p className="text-sm font-medium text-[#746E73] mt-1">
+          Track income, expenses, and generate invoices.
+        </p>
       </div>
 
       {/* KPI Cards */}
@@ -119,9 +162,15 @@ export function FinanceDashboard({ shopId, monthlyIncome, monthlyExpenses, recen
               Rs. {monthlyIncome.toLocaleString()}
             </p>
           ) : (
-            <p className="text-lg font-bold text-[#746E73] mt-4">No sales yet</p>
+            <p className="text-lg font-bold text-[#746E73] mt-4">
+              No sales yet
+            </p>
           )}
-          {incomeDelta !== undefined && <div className="mt-1"><DeltaChip delta={incomeDelta} goodWhenUp /></div>}
+          {incomeDelta !== undefined && (
+            <div className="mt-1">
+              <DeltaChip delta={incomeDelta} goodWhenUp />
+            </div>
+          )}
         </div>
 
         <div className="bg-white p-6 rounded-[2rem] border border-[#2E3344]/8 shadow-sm">
@@ -136,23 +185,35 @@ export function FinanceDashboard({ shopId, monthlyIncome, monthlyExpenses, recen
           <p className="text-3xl font-black text-[#27324A] mt-4">
             Rs. {monthlyExpenses.toLocaleString()}
           </p>
-          {expenseDelta !== undefined && <div className="mt-1"><DeltaChip delta={expenseDelta} goodWhenUp={false} /></div>}
+          {expenseDelta !== undefined && (
+            <div className="mt-1">
+              <DeltaChip delta={expenseDelta} goodWhenUp={false} />
+            </div>
+          )}
         </div>
 
-        <div className={`p-6 rounded-[2rem] shadow-xl ${netProfit >= 0 ? "bg-[#27324A]" : "bg-red-700"} text-white`}>
+        <div
+          className={`p-6 rounded-[2rem] shadow-xl ${netProfit >= 0 ? "bg-[#27324A]" : "bg-red-700"} text-white`}
+        >
           <div className="flex items-center gap-3 mb-2">
             <div className="h-10 w-10 rounded-xl bg-white/10 flex items-center justify-center">
               <Banknote className="h-5 w-5 text-[#D8C99A]" />
             </div>
-            <span className="text-[10px] font-bold uppercase tracking-widest text-[#D8C99A]">Net Profit</span>
+            <span className="text-[10px] font-bold uppercase tracking-widest text-[#D8C99A]">
+              Net Profit
+            </span>
           </div>
           <p className="text-3xl font-black mt-4">
             {netProfit >= 0 ? "+" : ""}Rs. {netProfit.toLocaleString()}
           </p>
           {netDelta !== undefined && (
             <div className="mt-1">
-              <span className={`text-[11px] font-bold ${netDelta === null ? "text-[#D8C99A]" : netDelta >= 0 ? "text-emerald-300" : "text-red-300"}`}>
-                {netDelta === null ? "— new" : `${netDelta > 0 ? "▲" : netDelta < 0 ? "▼" : "•"} ${Math.abs(netDelta)}% vs last month`}
+              <span
+                className={`text-[11px] font-bold ${netDelta === null ? "text-[#D8C99A]" : netDelta >= 0 ? "text-emerald-300" : "text-red-300"}`}
+              >
+                {netDelta === null
+                  ? "— new"
+                  : `${netDelta > 0 ? "▲" : netDelta < 0 ? "▼" : "•"} ${Math.abs(netDelta)}% vs last month`}
               </span>
             </div>
           )}
@@ -169,8 +230,12 @@ export function FinanceDashboard({ shopId, monthlyIncome, monthlyExpenses, recen
                 <FileText className="h-5 w-5" />
               </div>
               <div className="text-left">
-                <p className="text-sm font-bold text-[#27324A]">Create Custom Invoice</p>
-                <p className="text-[10px] font-bold text-[#746E73] uppercase tracking-wider mt-0.5">Coming Soon</p>
+                <p className="text-sm font-bold text-[#27324A]">
+                  Create Custom Invoice
+                </p>
+                <p className="text-[10px] font-bold text-[#746E73] uppercase tracking-wider mt-0.5">
+                  Coming Soon
+                </p>
               </div>
             </div>
           </button>
@@ -184,7 +249,9 @@ export function FinanceDashboard({ shopId, monthlyIncome, monthlyExpenses, recen
                 <ReceiptText className="h-5 w-5" />
               </div>
               <div className="text-left">
-                <p className="text-sm font-bold text-[#27324A]">Record Expense</p>
+                <p className="text-sm font-bold text-[#27324A]">
+                  Record Expense
+                </p>
                 <p className="text-[10px] font-bold text-[#746E73] uppercase tracking-wider mt-0.5">
                   Rent, Electricity, Salary
                 </p>
@@ -196,7 +263,9 @@ export function FinanceDashboard({ shopId, monthlyIncome, monthlyExpenses, recen
 
         {/* Recent Transactions */}
         <div className="bg-white rounded-[2rem] border border-[#2E3344]/8 p-6 shadow-sm">
-          <h2 className="text-lg font-black text-[#27324A] mb-4">Recent Transactions</h2>
+          <h2 className="text-lg font-black text-[#27324A] mb-4">
+            Recent Transactions
+          </h2>
           {localTransactions.length === 0 ? (
             <div className="text-center py-8 text-[#746E73] font-medium text-sm">
               No transactions yet. Transactions from the POS will appear here.
@@ -204,15 +273,23 @@ export function FinanceDashboard({ shopId, monthlyIncome, monthlyExpenses, recen
           ) : (
             <div className="space-y-3">
               {localTransactions.map((txn) => (
-                <div key={txn.id} className="flex items-center justify-between p-3 rounded-xl border border-[#2E3344]/5">
+                <div
+                  key={txn.id}
+                  className="flex items-center justify-between p-3 rounded-xl border border-[#2E3344]/5"
+                >
                   <div>
-                    <p className="text-xs font-bold text-[#27324A]">{txn.description ?? TYPE_LABEL[txn.type] ?? txn.type}</p>
+                    <p className="text-xs font-bold text-[#27324A]">
+                      {txn.description ?? TYPE_LABEL[txn.type] ?? txn.type}
+                    </p>
                     <p className="text-[10px] text-[#746E73] font-bold uppercase tracking-widest mt-0.5">
                       {timeAgo(txn.created_at)} • {txn.payment_method ?? "cash"}
                     </p>
                   </div>
-                  <span className={`text-sm font-black ${["sale", "udhar_payment"].includes(txn.type) ? "text-green-600" : "text-red-600"}`}>
-                    {["sale", "udhar_payment"].includes(txn.type) ? "+" : "−"}Rs. {txn.amount.toLocaleString()}
+                  <span
+                    className={`text-sm font-black ${["sale", "udhar_payment"].includes(txn.type) ? "text-green-600" : "text-red-600"}`}
+                  >
+                    {["sale", "udhar_payment"].includes(txn.type) ? "+" : "−"}
+                    Rs. {txn.amount.toLocaleString()}
                   </span>
                 </div>
               ))}
@@ -226,14 +303,21 @@ export function FinanceDashboard({ shopId, monthlyIncome, monthlyExpenses, recen
         <div className="fixed inset-0 z-50 bg-black/40 flex items-end sm:items-center justify-center p-4">
           <div className="bg-white rounded-[2rem] w-full max-w-md shadow-2xl p-6 space-y-5 animate-in slide-in-from-bottom-4 duration-300">
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-black text-[#27324A]">Record Expense</h2>
-              <button onClick={() => setShowExpenseModal(false)} className="text-[#746E73] hover:text-[#27324A] p-1">
+              <h2 className="text-lg font-black text-[#27324A]">
+                Record Expense
+              </h2>
+              <button
+                onClick={() => setShowExpenseModal(false)}
+                className="text-[#746E73] hover:text-[#27324A] p-1"
+              >
                 <X className="h-5 w-5" />
               </button>
             </div>
             <div className="space-y-4">
               <div>
-                <Label className="font-bold text-[#27324A]">Amount (Rs.) *</Label>
+                <Label className="font-bold text-[#27324A]">
+                  Amount (Rs.) *
+                </Label>
                 <Input
                   type="number"
                   min="0.01"
@@ -245,7 +329,9 @@ export function FinanceDashboard({ shopId, monthlyIncome, monthlyExpenses, recen
                 />
               </div>
               <div>
-                <Label className="font-bold text-[#27324A]">Description *</Label>
+                <Label className="font-bold text-[#27324A]">
+                  Description *
+                </Label>
                 <Input
                   value={expenseDesc}
                   onChange={(e) => setExpenseDesc(e.target.value)}
@@ -254,7 +340,9 @@ export function FinanceDashboard({ shopId, monthlyIncome, monthlyExpenses, recen
                 />
               </div>
               <div>
-                <Label className="font-bold text-[#27324A]">Payment Method</Label>
+                <Label className="font-bold text-[#27324A]">
+                  Payment Method
+                </Label>
                 <Select
                   value={expenseMethod}
                   onValueChange={(v) => setExpenseMethod(v)}
@@ -265,7 +353,9 @@ export function FinanceDashboard({ shopId, monthlyIncome, monthlyExpenses, recen
                   <SelectContent>
                     <SelectItem value="cash">Cash</SelectItem>
                     <SelectItem value="card">Card</SelectItem>
-                    <SelectItem value="online">Online (eSewa / Bank)</SelectItem>
+                    <SelectItem value="online">
+                      Online (eSewa / Bank)
+                    </SelectItem>
                   </SelectContent>
                 </Select>
               </div>

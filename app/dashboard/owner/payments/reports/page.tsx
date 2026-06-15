@@ -1,9 +1,22 @@
-import { getOwnerShops, getOwnerPaymentsOverview, getOwnerPaymentsList } from "@/app/actions/payment-config";
-import { PAYMENT_METHOD_LABELS, PAYMENT_STATUS_LABELS } from "@/lib/payments/constants";
+import {
+  getOwnerShops,
+  getOwnerPaymentsOverview,
+  getOwnerPaymentsList,
+} from "@/app/actions/payment-config";
+import {
+  PAYMENT_METHOD_LABELS,
+  PAYMENT_STATUS_LABELS,
+} from "@/lib/payments/constants";
 import type { PaymentMethod, PaymentStatus } from "@/lib/payments";
 import Link from "next/link";
 import { ArrowLeft, BarChart3 } from "lucide-react";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const SUCCESS_STATUSES: Set<string> = new Set(["payment_verified", "cod_paid"]);
 
@@ -16,7 +29,9 @@ interface SP {
 
 export default async function PaymentsReportsPage({
   searchParams,
-}: { searchParams: Promise<SP> }) {
+}: {
+  searchParams: Promise<SP>;
+}) {
   const sp = await searchParams;
   const days = Math.max(1, Math.min(365, parseInt(sp.days ?? "30", 10) || 30));
   const to = new Date();
@@ -30,7 +45,8 @@ export default async function PaymentsReportsPage({
       shopId: sp.shop || null,
       method: (sp.method as PaymentMethod) || null,
       status: sp.status || null,
-      from, to,
+      from,
+      to,
       limit: 100,
     }),
   ]);
@@ -44,18 +60,40 @@ export default async function PaymentsReportsPage({
     .filter((r) => SUCCESS_STATUSES.has(r.payment_status))
     .reduce((s, r) => s + Number(r.total_amount), 0);
   const totalPending = overview
-    .filter((r) => !SUCCESS_STATUSES.has(r.payment_status)
-                && r.payment_status !== "payment_rejected"
-                && r.payment_status !== "payment_failed")
+    .filter(
+      (r) =>
+        !SUCCESS_STATUSES.has(r.payment_status) &&
+        r.payment_status !== "payment_rejected" &&
+        r.payment_status !== "payment_failed",
+    )
     .reduce((s, r) => s + Number(r.total_amount), 0);
 
   // Per-shop summary
-  const byShop = new Map<string, { name: string; slug: string; received: number; pending: number; count: number }>();
+  const byShop = new Map<
+    string,
+    {
+      name: string;
+      slug: string;
+      received: number;
+      pending: number;
+      count: number;
+    }
+  >();
   for (const r of overview) {
-    const entry = byShop.get(r.shop_id) ?? { name: r.shop_name, slug: r.shop_slug, received: 0, pending: 0, count: 0 };
+    const entry = byShop.get(r.shop_id) ?? {
+      name: r.shop_name,
+      slug: r.shop_slug,
+      received: 0,
+      pending: 0,
+      count: 0,
+    };
     entry.count += Number(r.payment_count);
-    if (SUCCESS_STATUSES.has(r.payment_status)) entry.received += Number(r.total_amount);
-    else if (r.payment_status !== "payment_rejected" && r.payment_status !== "payment_failed") {
+    if (SUCCESS_STATUSES.has(r.payment_status))
+      entry.received += Number(r.total_amount);
+    else if (
+      r.payment_status !== "payment_rejected" &&
+      r.payment_status !== "payment_failed"
+    ) {
       entry.pending += Number(r.total_amount);
     }
     byShop.set(r.shop_id, entry);
@@ -66,14 +104,17 @@ export default async function PaymentsReportsPage({
   for (const r of overview) {
     const e = byMethod.get(r.payment_method) ?? { count: 0, received: 0 };
     e.count += Number(r.payment_count);
-    if (SUCCESS_STATUSES.has(r.payment_status)) e.received += Number(r.total_amount);
+    if (SUCCESS_STATUSES.has(r.payment_status))
+      e.received += Number(r.total_amount);
     byMethod.set(r.payment_method, e);
   }
 
   return (
     <div className="space-y-5 pb-12">
-      <Link href="/dashboard/owner/payments"
-        className="inline-flex items-center gap-1.5 text-sm font-bold text-[#27324A] hover:text-[#A7653A]">
+      <Link
+        href="/dashboard/owner/payments"
+        className="inline-flex items-center gap-1.5 text-sm font-bold text-[#27324A] hover:text-[#A7653A]"
+      >
         <ArrowLeft className="h-4 w-4" /> Back to Payments
       </Link>
 
@@ -82,8 +123,13 @@ export default async function PaymentsReportsPage({
           <BarChart3 className="h-5 w-5 text-white" />
         </div>
         <div>
-          <h1 className="text-2xl font-black text-[#27324A]">Cross-Shop Payments Report</h1>
-          <p className="text-xs text-[#746E73]">All {shops.length} shop{shops.length !== 1 ? "s" : ""} you own, last {days} days.</p>
+          <h1 className="text-2xl font-black text-[#27324A]">
+            Cross-Shop Payments Report
+          </h1>
+          <p className="text-xs text-[#746E73]">
+            All {shops.length} shop{shops.length !== 1 ? "s" : ""} you own, last{" "}
+            {days} days.
+          </p>
         </div>
       </div>
 
@@ -95,7 +141,11 @@ export default async function PaymentsReportsPage({
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="">All shops</SelectItem>
-            {shops.map((s) => <SelectItem key={s.shop_id} value={s.shop_id}>{s.shop_name}</SelectItem>)}
+            {shops.map((s) => (
+              <SelectItem key={s.shop_id} value={s.shop_id}>
+                {s.shop_name}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
 
@@ -105,8 +155,19 @@ export default async function PaymentsReportsPage({
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="">All methods</SelectItem>
-            {(["cod","esewa","khalti","bank_transfer","qr_code"] as PaymentMethod[]).map((m) =>
-              <SelectItem key={m} value={m}>{PAYMENT_METHOD_LABELS[m]}</SelectItem>)}
+            {(
+              [
+                "cod",
+                "esewa",
+                "khalti",
+                "bank_transfer",
+                "qr_code",
+              ] as PaymentMethod[]
+            ).map((m) => (
+              <SelectItem key={m} value={m}>
+                {PAYMENT_METHOD_LABELS[m]}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
 
@@ -116,8 +177,11 @@ export default async function PaymentsReportsPage({
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="">All statuses</SelectItem>
-            {Object.entries(PAYMENT_STATUS_LABELS).map(([k, v]) =>
-              <SelectItem key={k} value={k}>{v}</SelectItem>)}
+            {Object.entries(PAYMENT_STATUS_LABELS).map(([k, v]) => (
+              <SelectItem key={k} value={k}>
+                {v}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
 
@@ -133,15 +197,35 @@ export default async function PaymentsReportsPage({
               <SelectItem value="365">Last year</SelectItem>
             </SelectContent>
           </Select>
-          <button type="submit" className="h-10 px-4 rounded-xl bg-[#27324A] text-white text-xs font-bold transition-all duration-300 active:scale-[0.98]">Apply</button>
+          <button
+            type="submit"
+            className="h-10 px-4 rounded-xl bg-[#27324A] text-white text-xs font-bold transition-all duration-300 active:scale-[0.98]"
+          >
+            Apply
+          </button>
         </div>
       </form>
 
       {/* Top-line stats */}
       <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-        <StatCard label={`Total received (${days}d)`} amount={totalReceived} accent="text-green-700" bg="bg-green-50 border-green-200" />
-        <StatCard label="Pending action" amount={totalPending} accent="text-amber-700" bg="bg-amber-50 border-amber-200" />
-        <StatCard label="Shops reporting" raw={`${byShop.size}/${shops.length}`} accent="text-[#27324A]" bg="bg-white border-[#2E3344]/8" />
+        <StatCard
+          label={`Total received (${days}d)`}
+          amount={totalReceived}
+          accent="text-green-700"
+          bg="bg-green-50 border-green-200"
+        />
+        <StatCard
+          label="Pending action"
+          amount={totalPending}
+          accent="text-amber-700"
+          bg="bg-amber-50 border-amber-200"
+        />
+        <StatCard
+          label="Shops reporting"
+          raw={`${byShop.size}/${shops.length}`}
+          accent="text-[#27324A]"
+          bg="bg-white border-[#2E3344]/8"
+        />
       </div>
 
       {/* Per-shop */}
@@ -152,14 +236,27 @@ export default async function PaymentsReportsPage({
           </div>
           <ul className="divide-y divide-[#2E3344]/8">
             {Array.from(byShop.entries()).map(([id, s]) => (
-              <li key={id} className="px-5 py-3 flex items-center justify-between gap-3">
+              <li
+                key={id}
+                className="px-5 py-3 flex items-center justify-between gap-3"
+              >
                 <div className="min-w-0">
-                  <p className="font-bold text-[#27324A] text-sm truncate">{s.name}</p>
-                  <p className="text-[10px] text-[#746E73]">{s.count} payments · /s/{s.slug}</p>
+                  <p className="font-bold text-[#27324A] text-sm truncate">
+                    {s.name}
+                  </p>
+                  <p className="text-[10px] text-[#746E73]">
+                    {s.count} payments · /s/{s.slug}
+                  </p>
                 </div>
                 <div className="text-right shrink-0">
-                  <p className="text-sm font-black text-green-700">Rs. {s.received.toLocaleString()}</p>
-                  {s.pending > 0 && <p className="text-[10px] text-amber-700">Rs. {s.pending.toLocaleString()} pending</p>}
+                  <p className="text-sm font-black text-green-700">
+                    Rs. {s.received.toLocaleString()}
+                  </p>
+                  {s.pending > 0 && (
+                    <p className="text-[10px] text-amber-700">
+                      Rs. {s.pending.toLocaleString()} pending
+                    </p>
+                  )}
                 </div>
               </li>
             ))}
@@ -175,11 +272,20 @@ export default async function PaymentsReportsPage({
           </div>
           <ul className="divide-y divide-[#2E3344]/8">
             {Array.from(byMethod.entries()).map(([m, e]) => (
-              <li key={m} className="px-5 py-3 flex items-center justify-between gap-3">
-                <p className="font-bold text-[#27324A] text-sm">{PAYMENT_METHOD_LABELS[m as PaymentMethod]}</p>
+              <li
+                key={m}
+                className="px-5 py-3 flex items-center justify-between gap-3"
+              >
+                <p className="font-bold text-[#27324A] text-sm">
+                  {PAYMENT_METHOD_LABELS[m as PaymentMethod]}
+                </p>
                 <div className="text-right">
-                  <p className="text-sm font-black text-green-700">Rs. {e.received.toLocaleString()}</p>
-                  <p className="text-[10px] text-[#746E73]">{e.count} payments</p>
+                  <p className="text-sm font-black text-green-700">
+                    Rs. {e.received.toLocaleString()}
+                  </p>
+                  <p className="text-[10px] text-[#746E73]">
+                    {e.count} payments
+                  </p>
                 </div>
               </li>
             ))}
@@ -190,24 +296,42 @@ export default async function PaymentsReportsPage({
       {/* Recent list */}
       <div className="bg-white rounded-3xl border border-[#2E3344]/8 shadow-sm overflow-hidden">
         <div className="px-5 py-4 border-b border-[#2E3344]/8">
-          <h2 className="font-black text-[#27324A]">Recent Payments {list.length === 100 && <span className="text-[10px] font-bold text-[#746E73]">(first 100)</span>}</h2>
+          <h2 className="font-black text-[#27324A]">
+            Recent Payments{" "}
+            {list.length === 100 && (
+              <span className="text-[10px] font-bold text-[#746E73]">
+                (first 100)
+              </span>
+            )}
+          </h2>
         </div>
         {list.length === 0 ? (
-          <p className="px-5 py-10 text-center text-sm text-[#746E73]">No payments matched these filters.</p>
+          <p className="px-5 py-10 text-center text-sm text-[#746E73]">
+            No payments matched these filters.
+          </p>
         ) : (
           <ul className="divide-y divide-[#2E3344]/8">
             {list.map((r) => (
-              <li key={r.payment_id} className="px-5 py-3 flex items-center justify-between gap-3">
+              <li
+                key={r.payment_id}
+                className="px-5 py-3 flex items-center justify-between gap-3"
+              >
                 <div className="min-w-0">
-                  <p className="font-mono font-black text-sm text-[#27324A] truncate">{r.order_number}</p>
+                  <p className="font-mono font-black text-sm text-[#27324A] truncate">
+                    {r.order_number}
+                  </p>
                   <p className="text-[10px] text-[#746E73] truncate">
-                    {r.shop_name} · {PAYMENT_METHOD_LABELS[r.payment_method]} · {r.customer_name ?? "Anonymous"}
+                    {r.shop_name} · {PAYMENT_METHOD_LABELS[r.payment_method]} ·{" "}
+                    {r.customer_name ?? "Anonymous"}
                   </p>
                 </div>
                 <div className="text-right shrink-0">
-                  <p className="text-sm font-black text-[#27324A]">Rs. {Number(r.amount).toLocaleString()}</p>
+                  <p className="text-sm font-black text-[#27324A]">
+                    Rs. {Number(r.amount).toLocaleString()}
+                  </p>
                   <p className="text-[10px] font-bold text-[#746E73]">
-                    {PAYMENT_STATUS_LABELS[r.payment_status as PaymentStatus] ?? r.payment_status}
+                    {PAYMENT_STATUS_LABELS[r.payment_status as PaymentStatus] ??
+                      r.payment_status}
                   </p>
                 </div>
               </li>
@@ -220,11 +344,23 @@ export default async function PaymentsReportsPage({
 }
 
 function StatCard({
-  label, amount, raw, accent, bg,
-}: { label: string; amount?: number; raw?: string; accent: string; bg: string }) {
+  label,
+  amount,
+  raw,
+  accent,
+  bg,
+}: {
+  label: string;
+  amount?: number;
+  raw?: string;
+  accent: string;
+  bg: string;
+}) {
   return (
     <div className={`rounded-2xl border p-4 ${bg}`}>
-      <p className="text-[10px] font-black uppercase tracking-wider text-[#746E73]">{label}</p>
+      <p className="text-[10px] font-black uppercase tracking-wider text-[#746E73]">
+        {label}
+      </p>
       <p className={`text-xl font-black mt-1 ${accent}`}>
         {raw ?? `Rs. ${(amount ?? 0).toLocaleString()}`}
       </p>

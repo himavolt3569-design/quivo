@@ -12,7 +12,10 @@ export default async function SettingsPage() {
     return (
       <div className="flex flex-col items-center justify-center h-64 gap-4 text-center">
         <p className="text-lg font-bold text-[#27324A]">No shop selected.</p>
-        <Link href="/onboarding/owner" className="text-sm text-[#A7653A] hover:underline font-bold">
+        <Link
+          href="/onboarding/owner"
+          className="text-sm text-[#A7653A] hover:underline font-bold"
+        >
           Create your first shop →
         </Link>
       </div>
@@ -22,7 +25,9 @@ export default async function SettingsPage() {
   const supabase = await createClient();
   const { data: shop } = await supabase
     .from("shops")
-    .select("id, name, description, phone, address, opening_time, closing_time, pan_number, logo_url, vat_registered, vat_rate, timezone")
+    .select(
+      "id, name, description, phone, address, opening_time, closing_time, pan_number, logo_url, vat_registered, vat_rate, timezone",
+    )
     .eq("id", activeShop.id)
     .single();
 
@@ -39,7 +44,9 @@ export default async function SettingsPage() {
           </span>
           <div>
             <p className="font-bold text-[#27324A] text-sm">Audit log</p>
-            <p className="text-[11px] text-[#746E73]">Payment lifecycle + security events for this shop.</p>
+            <p className="text-[11px] text-[#746E73]">
+              Payment lifecycle + security events for this shop.
+            </p>
           </div>
         </Link>
         <Link
@@ -51,7 +58,9 @@ export default async function SettingsPage() {
           </span>
           <div>
             <p className="font-bold text-[#27324A] text-sm">VAT-3 export</p>
-            <p className="text-[11px] text-[#746E73]">Monthly IRD-format report for VAT-registered shops.</p>
+            <p className="text-[11px] text-[#746E73]">
+              Monthly IRD-format report for VAT-registered shops.
+            </p>
           </div>
         </Link>
         <Link
@@ -63,12 +72,17 @@ export default async function SettingsPage() {
           </span>
           <div>
             <p className="font-bold text-[#27324A] text-sm">Notifications</p>
-            <p className="text-[11px] text-[#746E73]">Pick which updates land where (in-app, email).</p>
+            <p className="text-[11px] text-[#746E73]">
+              Pick which updates land where (in-app, email).
+            </p>
           </div>
         </Link>
       </div>
 
-      <ShopSettings shopId={activeShop.id} initialData={shop ?? { id: activeShop.id, name: activeShop.name }} />
+      <ShopSettings
+        shopId={activeShop.id}
+        initialData={shop ?? { id: activeShop.id, name: activeShop.name }}
+      />
     </div>
   );
 }

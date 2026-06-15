@@ -15,8 +15,19 @@ import {
 import { toast } from "sonner";
 import type { User as SupabaseUser } from "@supabase/supabase-js";
 
-import { toggleSavedShop, toggleSavedProduct, placeOrder } from "@/app/actions/customer";
-import type { Order, Profile, SavedShop, SavedProduct, TrendingProduct, NearbyShop } from "@/lib/types";
+import {
+  toggleSavedShop,
+  toggleSavedProduct,
+  placeOrder,
+} from "@/app/actions/customer";
+import type {
+  Order,
+  Profile,
+  SavedShop,
+  SavedProduct,
+  TrendingProduct,
+  NearbyShop,
+} from "@/lib/types";
 
 import { OrderCard } from "./OrderCard";
 import { ReceiptSheet } from "./ReceiptSheet";
@@ -67,19 +78,22 @@ export function HomeTab({
   const router = useRouter();
 
   const [savedShopNames, setSavedShopNames] = useState<Set<string>>(
-    new Set(savedShops.map((s) => s.shop_name))
+    new Set(savedShops.map((s) => s.shop_name)),
   );
   const [savedProductIds, setSavedProductIds] = useState<Set<string>>(
-    new Set(savedProducts.map((p) => p.product_id))
+    new Set(savedProducts.map((p) => p.product_id)),
   );
   const [scannerOpen, setScannerOpen] = useState(false);
   const [receiptOrder, setReceiptOrder] = useState<Order | null>(null);
 
   // ── Reorder engine: top items by order frequency ───────────────────────────
   const topReorderItems = (() => {
-    const freq: Record<string, { item: OrderItem & { shop: string }; count: number }> = {};
+    const freq: Record<
+      string,
+      { item: OrderItem & { shop: string }; count: number }
+    > = {};
     for (const order of pastOrders) {
-      for (const item of (order.items as OrderItem[])) {
+      for (const item of order.items as OrderItem[]) {
         const key = `${item.name}::${order.shop_name}`;
         if (!freq[key]) {
           freq[key] = { item: { ...item, shop: order.shop_name }, count: 0 };
@@ -93,9 +107,7 @@ export function HomeTab({
   })();
 
   const firstName =
-    profile?.full_name?.split(" ")[0] ||
-    user.email?.split("@")[0] ||
-    "there";
+    profile?.full_name?.split(" ")[0] || user.email?.split("@")[0] || "there";
 
   const handleToggleShop = async (shop: NearbyShop) => {
     const wasSaved = savedShopNames.has(shop.name);
@@ -136,14 +148,16 @@ export function HomeTab({
         {/* Welcome Card */}
         <div className="md:col-span-8 flex flex-col justify-between rounded-[2rem] bg-white border border-[#2E3344]/8 p-6 md:p-8 relative overflow-hidden shadow-sm group">
           <div className="absolute top-0 right-0 p-8 opacity-[0.03] group-hover:opacity-[0.05] transition-opacity">
-             <Barcode className="h-32 w-32 rotate-12" />
+            <Barcode className="h-32 w-32 rotate-12" />
           </div>
           <div>
             <h1 className="text-3xl sm:text-4xl font-bold tracking-[-0.03em] text-[#27324A]">
-              {getGreeting()}, <span className="text-[#A7653A]">{firstName}</span>.
+              {getGreeting()},{" "}
+              <span className="text-[#A7653A]">{firstName}</span>.
             </h1>
             <p className="mt-2 text-base font-medium text-[#746E73] max-w-md">
-              Your neighborhood is ready. Scan any product barcode to find local stock and order in minutes.
+              Your neighborhood is ready. Scan any product barcode to find local
+              stock and order in minutes.
             </p>
           </div>
           <div className="mt-8 flex flex-wrap gap-4 items-center">
@@ -156,12 +170,20 @@ export function HomeTab({
             </button>
             <div className="flex gap-2">
               <div className="px-4 py-3 rounded-2xl bg-[#F7F0E6] flex flex-col justify-center">
-                <p className="text-[10px] font-bold uppercase tracking-widest text-[#8D5132] leading-none">Spent this month</p>
-                <p className="text-lg font-bold text-[#27324A] mt-1">Rs. {monthlySpend.toLocaleString()}</p>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-[#8D5132] leading-none">
+                  Spent this month
+                </p>
+                <p className="text-lg font-bold text-[#27324A] mt-1">
+                  Rs. {monthlySpend.toLocaleString()}
+                </p>
               </div>
               <div className="px-4 py-3 rounded-2xl bg-[#F7F0E6] flex flex-col justify-center">
-                <p className="text-[10px] font-bold uppercase tracking-widest text-[#8D5132] leading-none">Total orders</p>
-                <p className="text-lg font-bold text-[#27324A] mt-1">{totalOrderCount}</p>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-[#8D5132] leading-none">
+                  Total orders
+                </p>
+                <p className="text-lg font-bold text-[#27324A] mt-1">
+                  {totalOrderCount}
+                </p>
               </div>
             </div>
           </div>
@@ -169,7 +191,7 @@ export function HomeTab({
 
         {/* Wallet Card - Compact Bento */}
         <div className="md:col-span-4 h-full">
-           <WalletSection
+          <WalletSection
             walletBalance={profile?.wallet_balance ?? 0}
             quivoCoins={profile?.quivo_coins ?? 0}
             recentTransactions={recentTransactions}
@@ -179,10 +201,8 @@ export function HomeTab({
 
       {/* ── Secondary Bento Row ─────────────────────────────────────── */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        
         {/* Main Content Area */}
         <div className="lg:col-span-8 space-y-6">
-          
           {/* Active Orders Horizontal */}
           {activeOrders.length > 0 && (
             <section className="rounded-[2rem] bg-[#F7F0E6]/40 border border-[#A7653A]/10 p-6 md:p-8">
@@ -229,7 +249,7 @@ export function HomeTab({
                     className="flex min-w-[180px] max-w-[180px] snap-start flex-col rounded-2xl border border-[#2E3344]/8 bg-white p-4 shadow-sm hover:shadow-md transition"
                   >
                     <div className="mb-3">
-                       <span className="rounded-full bg-[#F7F0E6] px-2.5 py-1 text-[10px] font-bold text-[#A7653A]">
+                      <span className="rounded-full bg-[#F7F0E6] px-2.5 py-1 text-[10px] font-bold text-[#A7653A]">
                         Ordered {count}×
                       </span>
                     </div>
@@ -242,10 +262,13 @@ export function HomeTab({
                     <p className="mt-2 text-base font-bold text-[#27324A]">
                       Rs. {item.price.toLocaleString()}
                     </p>
-                    <ReorderButton item={item} onSuccess={() => {
-                      router.push("/dashboard/orders");
-                      router.refresh();
-                    }} />
+                    <ReorderButton
+                      item={item}
+                      onSuccess={() => {
+                        router.push("/dashboard/orders");
+                        router.refresh();
+                      }}
+                    />
                   </div>
                 ))}
               </div>
@@ -283,20 +306,30 @@ export function HomeTab({
                             />
                           ) : (
                             <div className="h-full w-full flex items-center justify-center">
-                              <span className="text-2xl font-black text-[#A7653A]/30">{product.name[0]}</span>
+                              <span className="text-2xl font-black text-[#A7653A]/30">
+                                {product.name[0]}
+                              </span>
                             </div>
                           )}
                           <button
                             onClick={() => handleToggleProduct(product)}
                             className={`absolute right-1.5 top-1.5 rounded-full p-1.5 backdrop-blur-md transition ${
-                              isSaved ? "bg-[#A7653A] text-white" : "bg-white/60 text-[#746E73] hover:text-[#A7653A]"
+                              isSaved
+                                ? "bg-[#A7653A] text-white"
+                                : "bg-white/60 text-[#746E73] hover:text-[#A7653A]"
                             }`}
                           >
-                            <Heart className={`h-3 w-3 ${isSaved ? "fill-current" : ""}`} />
+                            <Heart
+                              className={`h-3 w-3 ${isSaved ? "fill-current" : ""}`}
+                            />
                           </button>
                         </div>
-                        <h4 className="line-clamp-1 text-[11px] font-bold text-[#27324A]">{product.name}</h4>
-                        <p className="text-[10px] font-semibold text-[#A7653A]">Rs. {product.price.toLocaleString()}</p>
+                        <h4 className="line-clamp-1 text-[11px] font-bold text-[#27324A]">
+                          {product.name}
+                        </h4>
+                        <p className="text-[10px] font-semibold text-[#A7653A]">
+                          Rs. {product.price.toLocaleString()}
+                        </p>
                       </div>
                     );
                   })}
@@ -326,22 +359,36 @@ export function HomeTab({
                         <div className="h-10 w-10 rounded-xl bg-[#F7F0E6] overflow-hidden shrink-0 flex items-center justify-center">
                           {shop.image_url ? (
                             // eslint-disable-next-line @next/next/no-img-element
-                            <img src={shop.image_url} alt={shop.name} className="h-10 w-10 object-cover" />
+                            <img
+                              src={shop.image_url}
+                              alt={shop.name}
+                              className="h-10 w-10 object-cover"
+                            />
                           ) : (
-                            <span className="text-sm font-black text-[#A7653A]">{shop.name[0]}</span>
+                            <span className="text-sm font-black text-[#A7653A]">
+                              {shop.name[0]}
+                            </span>
                           )}
                         </div>
                         <div className="min-w-0 flex-1">
-                          <p className="truncate text-xs font-bold text-[#27324A]">{shop.name}</p>
-                          <p className="text-[10px] text-[#746E73]">{shop.category ?? "Shop"}</p>
+                          <p className="truncate text-xs font-bold text-[#27324A]">
+                            {shop.name}
+                          </p>
+                          <p className="text-[10px] text-[#746E73]">
+                            {shop.category ?? "Shop"}
+                          </p>
                         </div>
                         <button
                           onClick={() => handleToggleShop(shop)}
                           className={`shrink-0 rounded-full p-1.5 transition ${
-                            isSaved ? "bg-[#A7653A] text-white" : "bg-[#F7F0E6] text-[#746E73] hover:text-[#A7653A]"
+                            isSaved
+                              ? "bg-[#A7653A] text-white"
+                              : "bg-[#F7F0E6] text-[#746E73] hover:text-[#A7653A]"
                           }`}
                         >
-                          <Heart className={`h-3.5 w-3.5 ${isSaved ? "fill-current" : ""}`} />
+                          <Heart
+                            className={`h-3.5 w-3.5 ${isSaved ? "fill-current" : ""}`}
+                          />
                         </button>
                       </div>
                     );
@@ -354,56 +401,78 @@ export function HomeTab({
 
         {/* Manage Sidebar - Right Column */}
         <aside className="lg:col-span-4 space-y-6">
-           {/* Quick Actions Panel */}
-           <div className="rounded-[2rem] bg-[#27324A] p-6 md:p-8 text-white shadow-xl shadow-[#27324A]/10">
-              <h2 className="text-xs font-bold uppercase tracking-widest text-[#D8C99A] mb-5">
-                Quick Actions
-              </h2>
-              <div className="grid grid-cols-2 gap-3">
-                {[
-                  { Icon: ReceiptText, label: "History", href: "/dashboard/orders" },
-                  { Icon: Bookmark, label: "Wishlist", href: "/dashboard/saved" },
-                  { Icon: MapPin, label: "Map Pins", href: "/dashboard/profile" },
-                  { Icon: Store, label: "All Shops", href: "/dashboard/shops" },
-                ].map(({ Icon, label, href }) => (
-                  <Link
-                    key={label}
-                    href={href}
-                    className="flex flex-col items-center gap-2 rounded-2xl bg-white/5 p-4 transition hover:bg-white/10 active:scale-95"
-                  >
-                    <Icon className="h-5 w-5 text-[#D8C99A]" />
-                    <span className="text-[10px] font-bold uppercase tracking-wider">{label}</span>
-                  </Link>
-                ))}
-              </div>
-           </div>
+          {/* Quick Actions Panel */}
+          <div className="rounded-[2rem] bg-[#27324A] p-6 md:p-8 text-white shadow-xl shadow-[#27324A]/10">
+            <h2 className="text-xs font-bold uppercase tracking-widest text-[#D8C99A] mb-5">
+              Quick Actions
+            </h2>
+            <div className="grid grid-cols-2 gap-3">
+              {[
+                {
+                  Icon: ReceiptText,
+                  label: "History",
+                  href: "/dashboard/orders",
+                },
+                { Icon: Bookmark, label: "Wishlist", href: "/dashboard/saved" },
+                { Icon: MapPin, label: "Map Pins", href: "/dashboard/profile" },
+                { Icon: Store, label: "All Shops", href: "/dashboard/shops" },
+              ].map(({ Icon, label, href }) => (
+                <Link
+                  key={label}
+                  href={href}
+                  className="flex flex-col items-center gap-2 rounded-2xl bg-white/5 p-4 transition hover:bg-white/10 active:scale-95"
+                >
+                  <Icon className="h-5 w-5 text-[#D8C99A]" />
+                  <span className="text-[10px] font-bold uppercase tracking-wider">
+                    {label}
+                  </span>
+                </Link>
+              ))}
+            </div>
+          </div>
 
-           {/* Membership / Stats Badge */}
-           <div className="rounded-[2rem] bg-gradient-to-br from-[#F7F0E6] to-[#EFE5D6] p-6 md:p-8 border border-[#2E3344]/5">
-              <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-xl bg-white flex items-center justify-center shadow-sm">
-                  <Package className="h-5 w-5 text-[#A7653A]" />
-                </div>
-                <div>
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-[#8D5132]">Member Activity</p>
-                  <p className="text-sm font-bold text-[#27324A]">{pastOrderCount} completed orders</p>
-                </div>
+          {/* Membership / Stats Badge */}
+          <div className="rounded-[2rem] bg-gradient-to-br from-[#F7F0E6] to-[#EFE5D6] p-6 md:p-8 border border-[#2E3344]/5">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-xl bg-white flex items-center justify-center shadow-sm">
+                <Package className="h-5 w-5 text-[#A7653A]" />
               </div>
-              <div className="mt-4 pt-4 border-t border-[#2E3344]/5 flex items-center justify-between">
-                 <div className="text-center">
-                    <p className="text-[10px] font-bold text-[#746E73] uppercase">Addresses</p>
-                    <p className="text-lg font-bold text-[#27324A]">{addressCount}</p>
-                 </div>
-                 <div className="text-center border-l border-r border-[#2E3344]/10 px-6">
-                    <p className="text-[10px] font-bold text-[#746E73] uppercase">Saved</p>
-                    <p className="text-lg font-bold text-[#27324A]">{savedProductIds.size}</p>
-                 </div>
-                 <div className="text-center">
-                    <p className="text-[10px] font-bold text-[#746E73] uppercase">Items</p>
-                    <p className="text-lg font-bold text-[#27324A]">{totalOrderCount}</p>
-                 </div>
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-[#8D5132]">
+                  Member Activity
+                </p>
+                <p className="text-sm font-bold text-[#27324A]">
+                  {pastOrderCount} completed orders
+                </p>
               </div>
-           </div>
+            </div>
+            <div className="mt-4 pt-4 border-t border-[#2E3344]/5 flex items-center justify-between">
+              <div className="text-center">
+                <p className="text-[10px] font-bold text-[#746E73] uppercase">
+                  Addresses
+                </p>
+                <p className="text-lg font-bold text-[#27324A]">
+                  {addressCount}
+                </p>
+              </div>
+              <div className="text-center border-l border-r border-[#2E3344]/10 px-6">
+                <p className="text-[10px] font-bold text-[#746E73] uppercase">
+                  Saved
+                </p>
+                <p className="text-lg font-bold text-[#27324A]">
+                  {savedProductIds.size}
+                </p>
+              </div>
+              <div className="text-center">
+                <p className="text-[10px] font-bold text-[#746E73] uppercase">
+                  Items
+                </p>
+                <p className="text-lg font-bold text-[#27324A]">
+                  {totalOrderCount}
+                </p>
+              </div>
+            </div>
+          </div>
         </aside>
       </div>
 
@@ -414,7 +483,10 @@ export function HomeTab({
       />
 
       {/* Receipt sheet for active orders on home */}
-      <ReceiptSheet order={receiptOrder} onClose={() => setReceiptOrder(null)} />
+      <ReceiptSheet
+        order={receiptOrder}
+        onClose={() => setReceiptOrder(null)}
+      />
     </div>
   );
 }

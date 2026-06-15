@@ -3,7 +3,10 @@ import "server-only";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { sendEmail } from "@/lib/email/send";
 import { notifyUser } from "@/lib/events/notify";
-import { renderLowStockDigestEmail, type LowStockLine } from "@/emails/LowStockDigestEmail";
+import {
+  renderLowStockDigestEmail,
+  type LowStockLine,
+} from "@/emails/LowStockDigestEmail";
 import { getSiteUrl } from "@/lib/security";
 import { log } from "@/lib/log";
 
@@ -14,14 +17,20 @@ interface Payload {
 
 export async function handleLowStockDetected(payload: Payload): Promise<void> {
   if (!payload.shop_id || !payload.items || payload.items.length === 0) {
-    log.debug("low_stock.detected: no items to dispatch", { shopId: payload.shop_id });
+    log.debug("low_stock.detected: no items to dispatch", {
+      shopId: payload.shop_id,
+    });
     return;
   }
 
   const admin = createAdminClient();
 
   const [{ data: shop }, { data: members }] = await Promise.all([
-    admin.from("shops").select("name, logo_url, theme_color").eq("id", payload.shop_id).maybeSingle(),
+    admin
+      .from("shops")
+      .select("name, logo_url, theme_color")
+      .eq("id", payload.shop_id)
+      .maybeSingle(),
     admin
       .from("shop_members")
       .select("user_id, role")

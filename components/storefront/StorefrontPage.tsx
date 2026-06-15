@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useReducer } from "react";
+import { useEffect, useRef, useState, useReducer } from "react";
+import { toast } from "sonner";
 import type { ShopData, StoreProduct } from "./templates/types";
 import type { CartItem } from "./CartDrawer";
 import { CartDrawer } from "./CartDrawer";
@@ -10,6 +11,9 @@ import { ModernTemplate } from "./templates/ModernTemplate";
 import { BoutiqueTemplate } from "./templates/BoutiqueTemplate";
 import { MinimalTemplate } from "./templates/MinimalTemplate";
 import { DarkTemplate } from "./templates/DarkTemplate";
+import { syncCartToServer, clearServerCart } from "@/app/actions/cart";
+
+const REORDER_KEY = "quivo-reorder";
 
 const FONT_MAP: Record<string, string> = {
   inter: "Inter, sans-serif",
@@ -22,6 +26,7 @@ const FONT_MAP: Record<string, string> = {
 type CartAction =
   | { type: "ADD"; product: StoreProduct }
   | { type: "UPDATE_QTY"; id: string; delta: number }
+  | { type: "SEED"; items: CartItem[] }
   | { type: "CLEAR" };
 
 function cartReducer(state: CartItem[], action: CartAction): CartItem[] {
@@ -33,7 +38,17 @@ function cartReducer(state: CartItem[], action: CartAction): CartItem[] {
         if (existing.qty >= existing.maxStock) return state;
         return state.map((i) => (i.id === p.id ? { ...i, qty: i.qty + 1 } : i));
       }
-      return [...state, { id: p.id, name: p.name, price: p.price, qty: 1, maxStock: p.stock, image_url: p.image_url }];
+      return [
+        ...state,
+        {
+          id: p.id,
+          name: p.name,
+          price: p.price,
+          qty: 1,
+          maxStock: p.stock,
+          image_url: p.image_url,
+        },
+      ];
     }
     case "UPDATE_QTY": {
       return state
@@ -46,6 +61,8 @@ function cartReducer(state: CartItem[], action: CartAction): CartItem[] {
         })
         .filter(Boolean);
     }
+    case "SEED":
+      return action.items;
     case "CLEAR":
       return [];
     default:
@@ -62,9 +79,72 @@ export function StorefrontPage({ shop, products }: StorefrontPageProps) {
   const [cart, dispatch] = useReducer(cartReducer, []);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
-  const [confirmedOrder, setConfirmedOrder] = useState<{ orderNumber: string; trackingToken: string } | null>(null);
+  const [confirmedOrder, setConfirmedOrder] = useState<{
+    orderNumber: string;
+    trackingToken: string;
+  } | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
+
+  // Hydrate cart from a reorder handoff. Defer the state writes to a
+  // microtask so we don't trigger a cascading re-render mid-effect.
+  useEffect(() => {
+    let cancelled = false;
+    queueMicrotask(() => {
+      if (cancelled) return;
+      try {
+        const raw = sessionStorage.getItem(REORDER_KEY);
+        if (!raw) return;
+        const payload = JSON.parse(raw) as {
+          shopSlug: string;
+          items: CartItem[];
+          skipped?: Array<{ name: string; reason: string }>;
+        };
+        if (!payload || payload.shopSlug !== shop.slug) return;
+        if (Array.isArray(payload.items) && payload.items.length > 0) {
+          dispatch({ type: "SEED", items: payload.items });
+          setIsCartOpen(true);
+          const skipped = payload.skipped ?? [];
+          if (skipped.length > 0) {
+            toast.info(
+              `Reorder added ${payload.items.length} item${payload.items.length === 1 ? "" : "s"}; ${skipped.length} unavailable.`,
+            );
+          } else {
+            toast.success(
+              `Reorder added ${payload.items.length} item${payload.items.length === 1 ? "" : "s"}.`,
+            );
+          }
+        }
+        sessionStorage.removeItem(REORDER_KEY);
+      } catch {
+        sessionStorage.removeItem(REORDER_KEY);
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [shop.slug]);
+
+  // Debounced server-cart sync. Anonymous users no-op silently.
+  const syncTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastSynced = useRef<string>("");
+  useEffect(() => {
+    if (syncTimer.current) clearTimeout(syncTimer.current);
+    syncTimer.current = setTimeout(() => {
+      const payload = JSON.stringify(
+        cart.map((i) => ({ id: i.id, qty: i.qty })),
+      );
+      if (payload === lastSynced.current) return;
+      lastSynced.current = payload;
+      void syncCartToServer({
+        shopId: shop.id,
+        items: cart.map((i) => ({ id: i.id, qty: i.qty })),
+      });
+    }, 600);
+    return () => {
+      if (syncTimer.current) clearTimeout(syncTimer.current);
+    };
+  }, [cart, shop.id]);
 
   const themeColor = shop.theme_color || "#A7653A";
   const fontFamily = FONT_MAP[shop.font_family] ?? FONT_MAP.inter;
@@ -74,7 +154,8 @@ export function StorefrontPage({ shop, products }: StorefrontPageProps) {
     products,
     cart,
     onAddToCart: (p: StoreProduct) => dispatch({ type: "ADD", product: p }),
-    onUpdateQty: (id: string, delta: number) => dispatch({ type: "UPDATE_QTY", id, delta }),
+    onUpdateQty: (id: string, delta: number) =>
+      dispatch({ type: "UPDATE_QTY", id, delta }),
     onOpenCart: () => setIsCartOpen(true),
     onOpenChat: () => {},
     searchQuery,
@@ -88,14 +169,20 @@ export function StorefrontPage({ shop, products }: StorefrontPageProps) {
     setIsCheckoutOpen(false);
     setIsCartOpen(false);
     dispatch({ type: "CLEAR" });
+    // Drop the server cart so the abandoned-cart cron doesn't email us.
+    void clearServerCart(shop.id);
   };
 
   const renderTemplate = () => {
     switch (shop.template) {
-      case "boutique": return <BoutiqueTemplate {...templateProps} />;
-      case "minimal": return <MinimalTemplate {...templateProps} />;
-      case "dark": return <DarkTemplate {...templateProps} />;
-      default: return <ModernTemplate {...templateProps} />;
+      case "boutique":
+        return <BoutiqueTemplate {...templateProps} />;
+      case "minimal":
+        return <MinimalTemplate {...templateProps} />;
+      case "dark":
+        return <DarkTemplate {...templateProps} />;
+      default:
+        return <ModernTemplate {...templateProps} />;
     }
   };
 
@@ -108,7 +195,10 @@ export function StorefrontPage({ shop, products }: StorefrontPageProps) {
         onClose={() => setIsCartOpen(false)}
         cart={cart}
         onUpdateQty={(id, delta) => dispatch({ type: "UPDATE_QTY", id, delta })}
-        onCheckout={() => { setIsCartOpen(false); setIsCheckoutOpen(true); }}
+        onCheckout={() => {
+          setIsCartOpen(false);
+          setIsCheckoutOpen(true);
+        }}
         themeColor={themeColor}
       />
 
@@ -136,7 +226,11 @@ export function StorefrontPage({ shop, products }: StorefrontPageProps) {
         />
       )}
 
-      <ChatWidget shopId={shop.id} shopName={shop.name} themeColor={themeColor} />
+      <ChatWidget
+        shopId={shop.id}
+        shopName={shop.name}
+        themeColor={themeColor}
+      />
     </div>
   );
 }

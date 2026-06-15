@@ -50,7 +50,8 @@ export function formatPhoneForStorage(raw: string): string {
 export function prettyPhone(raw: string | null | undefined): string {
   if (!raw) return "";
   const d = formatPhoneForStorage(raw);
-  if (/^9[6-9]\d{8}$/.test(d)) return `${d.slice(0, 3)} ${d.slice(3, 7)} ${d.slice(7)}`;
+  if (/^9[6-9]\d{8}$/.test(d))
+    return `${d.slice(0, 3)} ${d.slice(3, 7)} ${d.slice(7)}`;
   if (/^01\d{6,8}$/.test(d)) return `${d.slice(0, 2)}-${d.slice(2)}`;
   return d;
 }
@@ -77,7 +78,10 @@ export const OptionalPhoneSchema = z
   .union([z.string(), z.null(), z.undefined()])
   .transform((v) => (v == null ? "" : v.trim()))
   .transform((v) => (v === "" ? "" : formatPhoneForStorage(v)))
-  .refine((d) => d === "" || MOBILE_RE.test(d) || LANDLINE_RE.test(d), PHONE_MESSAGE)
+  .refine(
+    (d) => d === "" || MOBILE_RE.test(d) || LANDLINE_RE.test(d),
+    PHONE_MESSAGE,
+  )
   .transform((d) => (d === "" ? null : d));
 
 /** Cheap client-side test — returns boolean only, useful for `onBlur` hints. */
@@ -100,7 +104,10 @@ export const EmailSchema = z
 export const OptionalEmailSchema = z
   .union([z.string(), z.null(), z.undefined()])
   .transform((v) => (v == null ? "" : v.trim().toLowerCase()))
-  .refine((v) => v === "" || z.string().email().safeParse(v).success, "Enter a valid email address")
+  .refine(
+    (v) => v === "" || z.string().email().safeParse(v).success,
+    "Enter a valid email address",
+  )
   .refine((v) => v.length <= EMAIL_MAX_LEN, "Email is too long")
   .transform((v) => (v === "" ? null : v));
 
@@ -132,7 +139,10 @@ export const PersonNameSchema = z
 export const OptionalPersonNameSchema = z
   .union([z.string(), z.null(), z.undefined()])
   .transform((v) => (v == null ? "" : cleanName(v)))
-  .refine((v) => v === "" || (v.length >= 2 && !/^\d+$/.test(v)), "Name must be at least 2 characters")
+  .refine(
+    (v) => v === "" || (v.length >= 2 && !/^\d+$/.test(v)),
+    "Name must be at least 2 characters",
+  )
   .refine((v) => v.length <= 120, "Name is too long")
   .transform((v) => (v === "" ? null : v));
 
@@ -145,15 +155,18 @@ export const ShopNameSchema = z
 // ─── Money + currency ────────────────────────────────────────────────────────
 
 /** Rounded to 2 decimals, non-negative, sane upper bound. */
-export const MoneyAmountSchema = z
-  .coerce.number({ message: "Enter a valid amount" })
+export const MoneyAmountSchema = z.coerce
+  .number({ message: "Enter a valid amount" })
   .finite("Enter a valid amount")
   .nonnegative("Amount cannot be negative")
   .max(100_000_000, "Amount is too large")
   .transform((n) => Math.round(n * 100) / 100);
 
 /** Strict positive amount — for things that must be > 0 (e.g. selling price). */
-export const PositiveMoneySchema = MoneyAmountSchema.refine((n) => n > 0, "Amount must be greater than 0");
+export const PositiveMoneySchema = MoneyAmountSchema.refine(
+  (n) => n > 0,
+  "Amount must be greater than 0",
+);
 
 /** Uppercase 3-letter ISO-4217-ish currency code. We don't enforce the full list. */
 export const CurrencyCodeSchema = z
@@ -176,23 +189,32 @@ export const HttpUrlSchema = z
   .trim()
   .max(2000, "URL is too long")
   .url("Enter a valid URL")
-  .refine((u) => /^https?:\/\//i.test(u), "URL must start with http:// or https://");
+  .refine(
+    (u) => /^https?:\/\//i.test(u),
+    "URL must start with http:// or https://",
+  );
 
 export const OptionalHttpUrlSchema = z
   .union([z.string(), z.null(), z.undefined()])
   .transform((v) => (v == null ? "" : v.trim()))
-  .refine((v) => v === "" || HttpUrlSchema.safeParse(v).success, "Enter a valid URL")
+  .refine(
+    (v) => v === "" || HttpUrlSchema.safeParse(v).success,
+    "Enter a valid URL",
+  )
   .transform((v) => (v === "" ? null : v));
 
 // ─── Quantities and stock ────────────────────────────────────────────────────
 
-export const QuantitySchema = z
-  .coerce.number({ message: "Enter a valid number" })
+export const QuantitySchema = z.coerce
+  .number({ message: "Enter a valid number" })
   .finite()
   .nonnegative("Quantity cannot be negative")
   .max(1_000_000, "Quantity is too large");
 
-export const PositiveQuantitySchema = QuantitySchema.refine((n) => n > 0, "Quantity must be greater than 0");
+export const PositiveQuantitySchema = QuantitySchema.refine(
+  (n) => n > 0,
+  "Quantity must be greater than 0",
+);
 
 // ─── Short text (notes, descriptions) ────────────────────────────────────────
 
@@ -207,7 +229,10 @@ export function OptionalShortText(maxLen: number, label = "Text") {
   return z
     .union([z.string(), z.null(), z.undefined()])
     .transform((v) => (v == null ? "" : v.replace(CONTROL_CHARS_RE, "").trim()))
-    .refine((v) => v.length <= maxLen, `${label} is too long (max ${maxLen} characters)`)
+    .refine(
+      (v) => v.length <= maxLen,
+      `${label} is too long (max ${maxLen} characters)`,
+    )
     .transform((v) => (v === "" ? null : v));
 }
 
@@ -215,18 +240,24 @@ export function OptionalShortText(maxLen: number, label = "Text") {
 
 export const AddressSchema = ShortText(300, "Address").refine(
   (v) => v.length >= 3,
-  "Address is too short"
+  "Address is too short",
 );
 
 export const OptionalAddressSchema = OptionalShortText(300, "Address").refine(
   (v) => v === null || v.length >= 3,
-  "Address is too short"
+  "Address is too short",
 );
 
 // ─── Latitude / longitude ────────────────────────────────────────────────────
 
-export const LatitudeSchema = z.coerce.number().min(-90, "Invalid latitude").max(90, "Invalid latitude");
-export const LongitudeSchema = z.coerce.number().min(-180, "Invalid longitude").max(180, "Invalid longitude");
+export const LatitudeSchema = z.coerce
+  .number()
+  .min(-90, "Invalid latitude")
+  .max(90, "Invalid latitude");
+export const LongitudeSchema = z.coerce
+  .number()
+  .min(-180, "Invalid longitude")
+  .max(180, "Invalid longitude");
 
 // ─── Generic UUID (kept here for one-stop shop) ──────────────────────────────
 

@@ -8,6 +8,7 @@ export interface StoreProduct {
   unit: string | null;
   variant: string | null;
   price: number;
+  original_price?: number;
   stock: number;
   image_url: string | null;
   images: string[] | null;
@@ -40,6 +41,7 @@ export interface ShopData {
   vat_registered: boolean;
   vat_rate: number;
   pan_number: string | null;
+  is_wholesale?: boolean;
 }
 
 export interface TemplateProps {

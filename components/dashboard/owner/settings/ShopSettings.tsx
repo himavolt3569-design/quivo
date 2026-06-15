@@ -2,7 +2,15 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { Save, Store, Clock, Type, Trash2, AlertTriangle, Loader2 } from "lucide-react";
+import {
+  Save,
+  Store,
+  Clock,
+  Type,
+  Trash2,
+  AlertTriangle,
+  Loader2,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PhoneInput } from "@/components/ui/validated-input";
@@ -36,14 +44,14 @@ interface ShopData {
 }
 
 const COMMON_TIMEZONES: { id: string; label: string }[] = [
-  { id: "Asia/Kathmandu",    label: "Asia / Kathmandu (Nepal)" },
-  { id: "Asia/Kolkata",      label: "Asia / Kolkata (India)" },
-  { id: "Asia/Dhaka",        label: "Asia / Dhaka (Bangladesh)" },
-  { id: "Asia/Karachi",      label: "Asia / Karachi (Pakistan)" },
-  { id: "Asia/Colombo",      label: "Asia / Colombo (Sri Lanka)" },
-  { id: "Asia/Singapore",    label: "Asia / Singapore" },
-  { id: "Asia/Dubai",        label: "Asia / Dubai (UAE)" },
-  { id: "UTC",               label: "UTC" },
+  { id: "Asia/Kathmandu", label: "Asia / Kathmandu (Nepal)" },
+  { id: "Asia/Kolkata", label: "Asia / Kolkata (India)" },
+  { id: "Asia/Dhaka", label: "Asia / Dhaka (Bangladesh)" },
+  { id: "Asia/Karachi", label: "Asia / Karachi (Pakistan)" },
+  { id: "Asia/Colombo", label: "Asia / Colombo (Sri Lanka)" },
+  { id: "Asia/Singapore", label: "Asia / Singapore" },
+  { id: "Asia/Dubai", label: "Asia / Dubai (UAE)" },
+  { id: "UTC", label: "UTC" },
 ];
 
 interface ShopSettingsProps {
@@ -68,23 +76,31 @@ export function ShopSettings({ shopId, initialData }: ShopSettingsProps) {
   const [openingTime, setOpeningTime] = useState(
     typeof initialData.opening_time === "string"
       ? initialData.opening_time.slice(0, 5)
-      : "07:00"
+      : "07:00",
   );
   const [closingTime, setClosingTime] = useState(
     typeof initialData.closing_time === "string"
       ? initialData.closing_time.slice(0, 5)
-      : "21:00"
+      : "21:00",
   );
-  const [vatRegistered, setVatRegistered] = useState(Boolean(initialData.vat_registered));
+  const [vatRegistered, setVatRegistered] = useState(
+    Boolean(initialData.vat_registered),
+  );
   const [vatRate, setVatRate] = useState<string>(
     initialData.vat_rate !== undefined && initialData.vat_rate !== null
       ? String(initialData.vat_rate)
-      : "13.00"
+      : "13.00",
   );
-  const [panNumber, setPanNumber] = useState<string>(initialData.pan_number ?? "");
-  const [timezone, setTimezone] = useState<string>(initialData.timezone ?? "Asia/Kathmandu");
+  const [panNumber, setPanNumber] = useState<string>(
+    initialData.pan_number ?? "",
+  );
+  const [timezone, setTimezone] = useState<string>(
+    initialData.timezone ?? "Asia/Kathmandu",
+  );
 
-  const handleUpdateFontSize = async (size: (typeof FONT_SIZES)[number]["id"]) => {
+  const handleUpdateFontSize = async (
+    size: (typeof FONT_SIZES)[number]["id"],
+  ) => {
     setUpdatingFontSize(true);
     setOwnerFontSize(size);
     const result = await updateOwnerFontSize(size);
@@ -132,271 +148,317 @@ export function ShopSettings({ shopId, initialData }: ShopSettingsProps) {
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-12">
       <form onSubmit={handleSave} className="space-y-6 max-w-4xl mx-auto">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-black text-[#27324A]">Shop Settings</h1>
-          <p className="text-sm font-medium text-[#746E73] mt-1">Manage your basic business information and preferences.</p>
-        </div>
-        <Button
-          type="submit"
-          disabled={isPending}
-          className="rounded-xl h-11 bg-[#27324A] hover:bg-[#1b2333] text-white font-bold px-6 shadow-sm"
-        >
-          <Save className="h-4 w-4 mr-2" />
-          {isPending ? "Saving..." : "Save Changes"}
-        </Button>
-      </div>
-
-      <div className="space-y-6">
-        {/* General Details */}
-        <div className="bg-white p-6 rounded-[2rem] border border-[#2E3344]/8 shadow-sm space-y-5">
-          <h2 className="text-sm font-black uppercase tracking-widest text-[#746E73] border-b border-[#2E3344]/5 pb-3 flex items-center gap-2">
-            <Store className="h-4 w-4" /> General Details
-          </h2>
-          <div className="space-y-4">
-            <div>
-              <Label className="font-bold text-[#27324A]">Store Name *</Label>
-              <Input
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
-                className="h-12 rounded-xl mt-1.5"
-              />
-            </div>
-            <div>
-              <Label className="font-bold text-[#27324A]">Description / Tagline</Label>
-              <Textarea
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                className="mt-1.5 rounded-xl resize-none"
-                rows={3}
-                placeholder="Tell customers about your shop..."
-              />
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label className="font-bold text-[#27324A]">Phone Number</Label>
-                <PhoneInput
-                  name="phone"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  className="h-12 rounded-xl mt-1.5"
-                  placeholder="98XXXXXXXX"
-                />
-              </div>
-              <div>
-                <Label className="font-bold text-[#27324A]">PAN Number</Label>
-                <Input
-                  value={panNumber}
-                  onChange={(e) => setPanNumber(e.target.value)}
-                  placeholder="9-digit PAN"
-                  className="h-12 rounded-xl mt-1.5"
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Tax & VAT */}
-        <div className="bg-white p-6 rounded-[2rem] border border-[#2E3344]/8 shadow-sm space-y-5">
-          <h2 className="text-sm font-black uppercase tracking-widest text-[#746E73] border-b border-[#2E3344]/5 pb-3 flex items-center gap-2">
-            <Type className="h-4 w-4" /> Tax &amp; VAT
-          </h2>
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <p className="font-bold text-[#27324A] text-sm">VAT registered shop</p>
-              <p className="text-xs text-[#746E73] mt-0.5">
-                When enabled, every POS receipt and storefront order itemises the configured VAT rate. Required for Nepal IRD VAT-3 filing.
-              </p>
-            </div>
-            <label className="inline-flex items-center cursor-pointer shrink-0 mt-1">
-              <input
-                type="checkbox"
-                className="sr-only peer"
-                checked={vatRegistered}
-                onChange={(e) => setVatRegistered(e.target.checked)}
-              />
-              <div className="relative w-12 h-6 bg-[#E8E3D1] rounded-full peer-checked:bg-[#27324A] transition">
-                <div className={`absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white shadow transition ${vatRegistered ? "translate-x-6" : ""}`} />
-              </div>
-            </label>
-          </div>
-          {vatRegistered && (
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label className="font-bold text-[#27324A]">VAT Rate (%)</Label>
-                <Input
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  max="100"
-                  value={vatRate}
-                  onChange={(e) => setVatRate(e.target.value)}
-                  className="h-12 rounded-xl mt-1.5"
-                />
-                <p className="text-[10px] text-[#746E73] mt-1">Standard Nepal rate: 13.00%</p>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Operations */}
-        <div className="bg-white p-6 rounded-[2rem] border border-[#2E3344]/8 shadow-sm space-y-5">
-          <h2 className="text-sm font-black uppercase tracking-widest text-[#746E73] border-b border-[#2E3344]/5 pb-3 flex items-center gap-2">
-            <Clock className="h-4 w-4" /> Business Hours
-          </h2>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label className="font-bold text-[#27324A]">Opening Time</Label>
-              <Input
-                type="time"
-                value={openingTime}
-                onChange={(e) => setOpeningTime(e.target.value)}
-                className="h-12 rounded-xl mt-1.5"
-              />
-            </div>
-            <div>
-              <Label className="font-bold text-[#27324A]">Closing Time</Label>
-              <Input
-                type="time"
-                value={closingTime}
-                onChange={(e) => setClosingTime(e.target.value)}
-                className="h-12 rounded-xl mt-1.5"
-              />
-            </div>
-            <div className="col-span-2">
-              <Label className="font-bold text-[#27324A]">Time zone</Label>
-              <select
-                value={timezone}
-                onChange={(e) => setTimezone(e.target.value)}
-                className="h-12 w-full px-3 rounded-xl border border-[#2E3344]/15 bg-white text-sm font-bold mt-1.5"
-              >
-                {COMMON_TIMEZONES.map((tz) => (
-                  <option key={tz.id} value={tz.id}>{tz.label}</option>
-                ))}
-              </select>
-              <p className="text-[10px] text-[#746E73] mt-1">Used by scheduled jobs (e.g. low-stock digest fires at 08:00 in your zone).</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Display Preference */}
-        <div className="bg-white p-6 rounded-[2rem] border border-[#2E3344]/8 shadow-sm space-y-5">
-          <h2 className="text-sm font-black uppercase tracking-widest text-[#746E73] border-b border-[#2E3344]/5 pb-3 flex items-center gap-2">
-            <Type className="h-4 w-4" /> Display Preference
-          </h2>
+        {/* Header */}
+        <div className="flex items-center justify-between">
           <div>
-            <Label className="font-bold text-[#27324A] mb-3 block text-xs uppercase tracking-wider opacity-60">
-              Dashboard UI Scale
-            </Label>
-            <div className="flex p-1 bg-[#E8E3D1]/40 rounded-2xl gap-1">
-              {FONT_SIZES.map((sz) => (
-                <button
-                  type="button"
-                  key={sz.id}
-                  disabled={updatingFontSize}
-                  onClick={() => handleUpdateFontSize(sz.id)}
-                  className={`flex-1 py-3 text-[10px] font-black uppercase tracking-wider rounded-xl transition ${
-                    ownerFontSize === sz.id
-                      ? "bg-white text-[#27324A] shadow-sm"
-                      : "text-[#746E73] hover:text-[#27324A]"
-                  }`}
-                >
-                  {sz.label}
-                </button>
-              ))}
-            </div>
-            <p className="text-[10px] text-[#746E73] mt-3 font-medium italic text-center">
-              This scale only applies to the Shop Owner dashboard.
+            <h1 className="text-2xl font-black text-[#27324A]">
+              Shop Settings
+            </h1>
+            <p className="text-sm font-medium text-[#746E73] mt-1">
+              Manage your basic business information and preferences.
             </p>
           </div>
+          <Button
+            type="submit"
+            disabled={isPending}
+            className="rounded-xl h-11 bg-[#27324A] hover:bg-[#1b2333] text-white font-bold px-6 shadow-sm"
+          >
+            <Save className="h-4 w-4 mr-2" />
+            {isPending ? "Saving..." : "Save Changes"}
+          </Button>
         </div>
+
+        <div className="space-y-6">
+          {/* General Details */}
+          <div className="bg-white p-6 rounded-[2rem] border border-[#2E3344]/8 shadow-sm space-y-5">
+            <h2 className="text-sm font-black uppercase tracking-widest text-[#746E73] border-b border-[#2E3344]/5 pb-3 flex items-center gap-2">
+              <Store className="h-4 w-4" /> General Details
+            </h2>
+            <div className="space-y-4">
+              <div>
+                <Label className="font-bold text-[#27324A]">Store Name *</Label>
+                <Input
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  required
+                  className="h-12 rounded-xl mt-1.5"
+                />
+              </div>
+              <div>
+                <Label className="font-bold text-[#27324A]">
+                  Description / Tagline
+                </Label>
+                <Textarea
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  className="mt-1.5 rounded-xl resize-none"
+                  rows={3}
+                  placeholder="Tell customers about your shop..."
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label className="font-bold text-[#27324A]">
+                    Phone Number
+                  </Label>
+                  <PhoneInput
+                    name="phone"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    className="h-12 rounded-xl mt-1.5"
+                    placeholder="98XXXXXXXX"
+                  />
+                </div>
+                <div>
+                  <Label className="font-bold text-[#27324A]">PAN Number</Label>
+                  <Input
+                    value={panNumber}
+                    onChange={(e) => setPanNumber(e.target.value)}
+                    placeholder="9-digit PAN"
+                    className="h-12 rounded-xl mt-1.5"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Tax & VAT */}
+          <div className="bg-white p-6 rounded-[2rem] border border-[#2E3344]/8 shadow-sm space-y-5">
+            <h2 className="text-sm font-black uppercase tracking-widest text-[#746E73] border-b border-[#2E3344]/5 pb-3 flex items-center gap-2">
+              <Type className="h-4 w-4" /> Tax &amp; VAT
+            </h2>
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="font-bold text-[#27324A] text-sm">
+                  VAT registered shop
+                </p>
+                <p className="text-xs text-[#746E73] mt-0.5">
+                  When enabled, every POS receipt and storefront order itemises
+                  the configured VAT rate. Required for Nepal IRD VAT-3 filing.
+                </p>
+              </div>
+              <label className="inline-flex items-center cursor-pointer shrink-0 mt-1">
+                <input
+                  type="checkbox"
+                  className="sr-only peer"
+                  checked={vatRegistered}
+                  onChange={(e) => setVatRegistered(e.target.checked)}
+                />
+                <div className="relative w-12 h-6 bg-[#E8E3D1] rounded-full peer-checked:bg-[#27324A] transition">
+                  <div
+                    className={`absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white shadow transition ${vatRegistered ? "translate-x-6" : ""}`}
+                  />
+                </div>
+              </label>
+            </div>
+            {vatRegistered && (
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label className="font-bold text-[#27324A]">
+                    VAT Rate (%)
+                  </Label>
+                  <Input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    max="100"
+                    value={vatRate}
+                    onChange={(e) => setVatRate(e.target.value)}
+                    className="h-12 rounded-xl mt-1.5"
+                  />
+                  <p className="text-[10px] text-[#746E73] mt-1">
+                    Standard Nepal rate: 13.00%
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Operations */}
+          <div className="bg-white p-6 rounded-[2rem] border border-[#2E3344]/8 shadow-sm space-y-5">
+            <h2 className="text-sm font-black uppercase tracking-widest text-[#746E73] border-b border-[#2E3344]/5 pb-3 flex items-center gap-2">
+              <Clock className="h-4 w-4" /> Business Hours
+            </h2>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label className="font-bold text-[#27324A]">Opening Time</Label>
+                <Input
+                  type="time"
+                  value={openingTime}
+                  onChange={(e) => setOpeningTime(e.target.value)}
+                  className="h-12 rounded-xl mt-1.5"
+                />
+              </div>
+              <div>
+                <Label className="font-bold text-[#27324A]">Closing Time</Label>
+                <Input
+                  type="time"
+                  value={closingTime}
+                  onChange={(e) => setClosingTime(e.target.value)}
+                  className="h-12 rounded-xl mt-1.5"
+                />
+              </div>
+              <div className="col-span-2">
+                <Label className="font-bold text-[#27324A]">Time zone</Label>
+                <select
+                  value={timezone}
+                  onChange={(e) => setTimezone(e.target.value)}
+                  className="h-12 w-full px-3 rounded-xl border border-[#2E3344]/15 bg-white text-sm font-bold mt-1.5"
+                >
+                  {COMMON_TIMEZONES.map((tz) => (
+                    <option key={tz.id} value={tz.id}>
+                      {tz.label}
+                    </option>
+                  ))}
+                </select>
+                <p className="text-[10px] text-[#746E73] mt-1">
+                  Used by scheduled jobs (e.g. low-stock digest fires at 08:00
+                  in your zone).
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Display Preference */}
+          <div className="bg-white p-6 rounded-[2rem] border border-[#2E3344]/8 shadow-sm space-y-5">
+            <h2 className="text-sm font-black uppercase tracking-widest text-[#746E73] border-b border-[#2E3344]/5 pb-3 flex items-center gap-2">
+              <Type className="h-4 w-4" /> Display Preference
+            </h2>
+            <div>
+              <Label className="font-bold text-[#27324A] mb-3 block text-xs uppercase tracking-wider opacity-60">
+                Dashboard UI Scale
+              </Label>
+              <div className="flex p-1 bg-[#E8E3D1]/40 rounded-2xl gap-1">
+                {FONT_SIZES.map((sz) => (
+                  <button
+                    type="button"
+                    key={sz.id}
+                    disabled={updatingFontSize}
+                    onClick={() => handleUpdateFontSize(sz.id)}
+                    className={`flex-1 py-3 text-[10px] font-black uppercase tracking-wider rounded-xl transition ${
+                      ownerFontSize === sz.id
+                        ? "bg-white text-[#27324A] shadow-sm"
+                        : "text-[#746E73] hover:text-[#27324A]"
+                    }`}
+                  >
+                    {sz.label}
+                  </button>
+                ))}
+              </div>
+              <p className="text-[10px] text-[#746E73] mt-3 font-medium italic text-center">
+                This scale only applies to the Shop Owner dashboard.
+              </p>
+            </div>
+          </div>
         </div>
       </form>
 
       {/* Danger Zone — rendered outside the save <form> so Save never triggers delete */}
       <div className="max-w-4xl mx-auto">
-      <div className="bg-white rounded-[2rem] border-2 border-red-100 shadow-sm overflow-hidden">
-        <div className="p-6 border-b border-red-100 flex items-center gap-3">
-          <Trash2 className="h-4 w-4 text-red-500" />
-          <h2 className="text-sm font-black uppercase tracking-widest text-red-500">Danger Zone</h2>
-        </div>
+        <div className="bg-white rounded-[2rem] border-2 border-red-100 shadow-sm overflow-hidden">
+          <div className="p-6 border-b border-red-100 flex items-center gap-3">
+            <Trash2 className="h-4 w-4 text-red-500" />
+            <h2 className="text-sm font-black uppercase tracking-widest text-red-500">
+              Danger Zone
+            </h2>
+          </div>
 
-        <div className="p-6 space-y-4">
-          {deleteStage === "idle" && (
-            <div className="flex items-center justify-between gap-6">
-              <div>
-                <p className="font-bold text-[#27324A] text-sm">Delete this shop</p>
-                <p className="text-xs text-[#746E73] mt-0.5">
-                  Permanently removes all products, orders, and data for <strong>{initialData.name}</strong>. This cannot be undone.
-                </p>
-              </div>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setDeleteStage("confirm")}
-                className="shrink-0 rounded-xl border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300 font-bold"
-              >
-                <Trash2 className="h-4 w-4 mr-2" />
-                Delete shop
-              </Button>
-            </div>
-          )}
-
-          {deleteStage === "confirm" && (
-            <div className="space-y-4">
-              <div className="flex items-start gap-3 bg-red-50 rounded-2xl p-4 border border-red-100">
-                <AlertTriangle className="h-5 w-5 text-red-500 shrink-0 mt-0.5" />
+          <div className="p-6 space-y-4">
+            {deleteStage === "idle" && (
+              <div className="flex items-center justify-between gap-6">
                 <div>
-                  <p className="font-bold text-red-700 text-sm">This will permanently delete your shop.</p>
-                  <p className="text-xs text-red-600 mt-1">
-                    All products, orders, customers, staff, transactions, and storefront data will be erased. There is no recovery.
+                  <p className="font-bold text-[#27324A] text-sm">
+                    Delete this shop
+                  </p>
+                  <p className="text-xs text-[#746E73] mt-0.5">
+                    Permanently removes all products, orders, and data for{" "}
+                    <strong>{initialData.name}</strong>. This cannot be undone.
                   </p>
                 </div>
-              </div>
-
-              <div>
-                <Label className="font-bold text-[#27324A] text-sm">
-                  Type <span className="font-mono bg-[#f8f8f7] px-1.5 py-0.5 rounded text-red-600">{initialData.name}</span> to confirm
-                </Label>
-                <Input
-                  value={deleteConfirmName}
-                  onChange={(e) => setDeleteConfirmName(e.target.value)}
-                  placeholder={initialData.name}
-                  className="h-12 rounded-xl mt-2 border-red-200 focus-visible:ring-red-300"
-                  autoComplete="off"
-                />
-              </div>
-
-              <div className="flex items-center gap-3">
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={() => { setDeleteStage("idle"); setDeleteConfirmName(""); }}
-                  className="rounded-xl font-bold flex-1"
-                  disabled={deleting}
+                  onClick={() => setDeleteStage("confirm")}
+                  className="shrink-0 rounded-xl border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300 font-bold"
                 >
-                  Cancel
-                </Button>
-                <Button
-                  type="button"
-                  onClick={handleDelete}
-                  disabled={deleteConfirmName.trim() !== initialData.name.trim() || deleting}
-                  className="rounded-xl font-bold flex-1 bg-red-600 hover:bg-red-700 text-white disabled:opacity-40"
-                >
-                  {deleting ? (
-                    <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Deleting…</>
-                  ) : (
-                    <><Trash2 className="h-4 w-4 mr-2" />Delete forever</>
-                  )}
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Delete shop
                 </Button>
               </div>
-            </div>
-          )}
+            )}
+
+            {deleteStage === "confirm" && (
+              <div className="space-y-4">
+                <div className="flex items-start gap-3 bg-red-50 rounded-2xl p-4 border border-red-100">
+                  <AlertTriangle className="h-5 w-5 text-red-500 shrink-0 mt-0.5" />
+                  <div>
+                    <p className="font-bold text-red-700 text-sm">
+                      This will permanently delete your shop.
+                    </p>
+                    <p className="text-xs text-red-600 mt-1">
+                      All products, orders, customers, staff, transactions, and
+                      storefront data will be erased. There is no recovery.
+                    </p>
+                  </div>
+                </div>
+
+                <div>
+                  <Label className="font-bold text-[#27324A] text-sm">
+                    Type{" "}
+                    <span className="font-mono bg-[#f8f8f7] px-1.5 py-0.5 rounded text-red-600">
+                      {initialData.name}
+                    </span>{" "}
+                    to confirm
+                  </Label>
+                  <Input
+                    value={deleteConfirmName}
+                    onChange={(e) => setDeleteConfirmName(e.target.value)}
+                    placeholder={initialData.name}
+                    className="h-12 rounded-xl mt-2 border-red-200 focus-visible:ring-red-300"
+                    autoComplete="off"
+                  />
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => {
+                      setDeleteStage("idle");
+                      setDeleteConfirmName("");
+                    }}
+                    className="rounded-xl font-bold flex-1"
+                    disabled={deleting}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    type="button"
+                    onClick={handleDelete}
+                    disabled={
+                      deleteConfirmName.trim() !== initialData.name.trim() ||
+                      deleting
+                    }
+                    className="rounded-xl font-bold flex-1 bg-red-600 hover:bg-red-700 text-white disabled:opacity-40"
+                  >
+                    {deleting ? (
+                      <>
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        Deleting…
+                      </>
+                    ) : (
+                      <>
+                        <Trash2 className="h-4 w-4 mr-2" />
+                        Delete forever
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
-    </div>
     </div>
   );
 }

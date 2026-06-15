@@ -53,13 +53,13 @@ export default async function CustomerLayout({
       <DashboardNav activeOrderCount={activeOrderCountResult.count ?? 0} />
       {isOwner && <RoleModeSwitch variant="pill" targetMode="owner" />}
       <main className="container px-4 pb-32 pt-8 sm:px-6 sm:pb-10 lg:pt-10">
-        <div className="mx-auto max-w-5xl">
-          {children}
-        </div>
+        <div className="mx-auto max-w-5xl">{children}</div>
       </main>
       <LiveChat
         currentUser={user!}
-        customerName={profile.full_name ?? user!.email?.split("@")[0] ?? "Customer"}
+        customerName={
+          profile.full_name ?? user!.email?.split("@")[0] ?? "Customer"
+        }
       />
     </div>
   );

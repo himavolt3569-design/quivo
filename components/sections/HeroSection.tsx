@@ -1,8 +1,7 @@
 "use client";
 
-import { useRef, useLayoutEffect, useState } from "react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useRef, useEffect, useState } from "react";
+import dynamic from "next/dynamic";
 import {
   ArrowRight,
   Barcode,
@@ -27,7 +26,16 @@ import {
   customerFallbackLocation,
 } from "@/lib/data";
 import { MapViewDynamic as MapView } from "@/components/MapDynamic";
-import { BarcodeScanner } from "../dashboard/customer/BarcodeScanner";
+
+// Loaded on demand: the scanner pulls in framer-motion + camera code that
+// has no business sitting in the landing page's initial bundle.
+const BarcodeScanner = dynamic(
+  () =>
+    import("../dashboard/customer/BarcodeScanner").then(
+      (m) => m.BarcodeScanner,
+    ),
+  { ssr: false },
+);
 
 type LocationPermissionState =
   | "idle"
@@ -41,7 +49,10 @@ interface HeroSectionProps {
   addProductToBasket?: (productId: string) => void;
 }
 
-export function HeroSection({ scrollToSection, addProductToBasket: propAddProduct }: HeroSectionProps) {
+export function HeroSection({
+  scrollToSection,
+  addProductToBasket: propAddProduct,
+}: HeroSectionProps) {
   const rootRef = useRef<HTMLDivElement | null>(null);
 
   const [scannerOpen, setScannerOpen] = useState(false);
@@ -182,17 +193,27 @@ export function HeroSection({ scrollToSection, addProductToBasket: propAddProduc
     });
   }
 
-  useLayoutEffect(() => {
-    gsap.registerPlugin(ScrollTrigger);
-
+  useEffect(() => {
     const reduceMotion = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
     ).matches;
     const isSmallScreen = window.matchMedia("(max-width: 639px)").matches;
     if (reduceMotion || isSmallScreen || !rootRef.current) return;
 
-    const context = gsap.context(() => {
-      const heroTimeline = gsap.timeline({ defaults: { ease: "power3.out" } });
+    let cleanup: (() => void) | undefined;
+    let cancelled = false;
+
+    Promise.all([import("gsap"), import("gsap/ScrollTrigger")]).then(
+      ([gsapModule, scrollTriggerModule]) => {
+        if (cancelled || !rootRef.current) return;
+
+        const gsap = gsapModule.default;
+        gsap.registerPlugin(scrollTriggerModule.ScrollTrigger);
+
+        const context = gsap.context(() => {
+          const heroTimeline = gsap.timeline({
+            defaults: { ease: "power3.out" },
+          });
       heroTimeline
         .from(".hero-kicker", {
           y: 18,
@@ -284,9 +305,16 @@ export function HeroSection({ scrollToSection, addProductToBasket: propAddProduc
           });
         });
       });
-    }, rootRef);
+        }, rootRef);
 
-    return () => context.revert();
+        cleanup = () => context.revert();
+      },
+    );
+
+    return () => {
+      cancelled = true;
+      cleanup?.();
+    };
   }, []);
 
   return (

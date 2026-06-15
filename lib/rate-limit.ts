@@ -22,7 +22,7 @@ interface RateLimitOptions {
 function fallbackRateLimit(
   identifier: string,
   maxAttempts: number,
-  windowMs: number
+  windowMs: number,
 ): { success: boolean; error?: string } {
   const now = Date.now();
   const record = store[identifier];
@@ -51,7 +51,7 @@ function fallbackRateLimit(
 async function checkUpstashRateLimit(
   identifier: string,
   maxAttempts: number,
-  windowMs: number
+  windowMs: number,
 ): Promise<{ success: boolean; error?: string } | null> {
   const url = process.env.UPSTASH_REDIS_REST_URL;
   const token = process.env.UPSTASH_REDIS_REST_TOKEN;
@@ -84,7 +84,10 @@ async function checkUpstashRateLimit(
         cache: "no-store",
       });
       const ttlJson = ttl.ok ? await ttl.json() : { result: windowMs };
-      const minutesLeft = Math.max(1, Math.ceil(Number(ttlJson.result ?? windowMs) / 60000));
+      const minutesLeft = Math.max(
+        1,
+        Math.ceil(Number(ttlJson.result ?? windowMs) / 60000),
+      );
       return {
         success: false,
         error: `Too many requests. Please try again in ${minutesLeft} minute(s).`,
@@ -99,10 +102,16 @@ async function checkUpstashRateLimit(
 
 export async function checkRateLimit(
   actionName: string,
-  options: RateLimitOptions = {}
+  options: RateLimitOptions = {},
 ): Promise<{ success: boolean; error?: string }> {
-  const maxAttempts = Math.max(1, Math.min(options.maxAttempts ?? DEFAULT_MAX_ATTEMPTS, 500));
-  const windowMs = Math.max(10_000, Math.min(options.windowMs ?? DEFAULT_WINDOW_MS, 24 * 60 * 60 * 1000));
+  const maxAttempts = Math.max(
+    1,
+    Math.min(options.maxAttempts ?? DEFAULT_MAX_ATTEMPTS, 500),
+  );
+  const windowMs = Math.max(
+    10_000,
+    Math.min(options.windowMs ?? DEFAULT_WINDOW_MS, 24 * 60 * 60 * 1000),
+  );
   const headersList = await headers();
   const forwarded = headersList.get("x-forwarded-for")?.split(",")[0]?.trim();
   const realIp = headersList.get("x-real-ip")?.trim();

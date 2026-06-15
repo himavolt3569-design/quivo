@@ -40,7 +40,11 @@ export function WalletSection({
               Quivo Wallet
             </p>
             <p className="mt-1 text-2xl font-bold text-white">
-              Rs. {walletBalance.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              Rs.{" "}
+              {walletBalance.toLocaleString("en-IN", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}
             </p>
           </div>
           <div className="grid h-12 w-12 place-items-center rounded-2xl bg-white/10">
@@ -62,8 +66,12 @@ export function WalletSection({
         <div className="flex items-center gap-2">
           <Gift className="h-4 w-4 text-[#A7653A] flex-shrink-0" />
           <p className="text-xs text-[#746E73] leading-relaxed">
-            <span className="font-semibold text-[#27324A]">Earn 2% cashback</span> on every order ·{" "}
-            <span className="font-semibold text-[#27324A]">50 bonus coins</span> on your first scan
+            <span className="font-semibold text-[#27324A]">
+              Earn 2% cashback
+            </span>{" "}
+            on every order ·{" "}
+            <span className="font-semibold text-[#27324A]">50 bonus coins</span>{" "}
+            on your first scan
           </p>
         </div>
       </div>
@@ -86,7 +94,9 @@ export function WalletSection({
                 >
                   <ArrowUpRight
                     className={`h-4 w-4 ${
-                      tx.type === "spend" ? "text-red-500 rotate-180" : "text-green-600"
+                      tx.type === "spend"
+                        ? "text-red-500 rotate-180"
+                        : "text-green-600"
                     }`}
                   />
                 </div>
@@ -103,7 +113,9 @@ export function WalletSection({
                 </div>
                 <div className="text-right flex-shrink-0">
                   {tx.amount > 0 && (
-                    <p className={`text-xs font-bold ${TYPE_COLOR[tx.type] ?? "text-green-600"}`}>
+                    <p
+                      className={`text-xs font-bold ${TYPE_COLOR[tx.type] ?? "text-green-600"}`}
+                    >
                       +Rs. {tx.amount.toFixed(2)}
                     </p>
                   )}

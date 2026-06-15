@@ -3,7 +3,10 @@ import { getOwnerContext } from "@/lib/shop";
 import { KYCForm } from "@/components/dashboard/owner/kyc/KYCForm";
 import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
-import { getKycCompliancePolicy, type VerificationStatus } from "@/lib/kyc-compliance";
+import {
+  getKycCompliancePolicy,
+  type VerificationStatus,
+} from "@/lib/kyc-compliance";
 
 export default async function KYCPage() {
   const ctx = await getOwnerContext();
@@ -13,7 +16,10 @@ export default async function KYCPage() {
     return (
       <div className="flex flex-col items-center justify-center h-64 gap-4 text-center">
         <p className="text-lg font-bold text-[#27324A]">No shop selected.</p>
-        <Link href="/onboarding/owner" className="text-sm text-[#A7653A] hover:underline font-bold">
+        <Link
+          href="/onboarding/owner"
+          className="text-sm text-[#A7653A] hover:underline font-bold"
+        >
           Create your first shop →
         </Link>
       </div>
@@ -23,11 +29,14 @@ export default async function KYCPage() {
   const supabase = await createClient();
   const { data: shopData } = await supabase
     .from("shops")
-    .select("verification_status, created_at, kyc_submitted_at, kyc_rejection_reason, kyc_document_urls, kyc_confidence, name")
+    .select(
+      "verification_status, created_at, kyc_submitted_at, kyc_rejection_reason, kyc_document_urls, kyc_confidence, name",
+    )
     .eq("id", shop.id)
     .single();
 
-  const verificationStatus = (shopData?.verification_status ?? "unverified") as VerificationStatus;
+  const verificationStatus = (shopData?.verification_status ??
+    "unverified") as VerificationStatus;
   const policy = getKycCompliancePolicy({
     verificationStatus,
     createdAt: shopData?.created_at ?? new Date().toISOString(),
@@ -44,8 +53,12 @@ export default async function KYCPage() {
           <ChevronLeft className="h-4 w-4 text-[#746E73]" />
         </Link>
         <div>
-          <h1 className="font-black text-2xl text-[#27324A]">KYC Verification</h1>
-          <p className="text-sm text-[#746E73]">Submit your business documents for review</p>
+          <h1 className="font-black text-2xl text-[#27324A]">
+            KYC Verification
+          </h1>
+          <p className="text-sm text-[#746E73]">
+            Submit your business documents for review
+          </p>
         </div>
       </div>
 

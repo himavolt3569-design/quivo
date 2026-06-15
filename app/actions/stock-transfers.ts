@@ -27,7 +27,9 @@ const TransferSchema = z
 
 async function authed() {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) throw new Error("Unauthorized");
   return { supabase, user };
 }
@@ -36,9 +38,12 @@ async function authed() {
  * Single-step transfer: create transfer + lines, then execute_stock_transfer
  * (FEFO-drains source, mirrors product on dest, writes a new batch).
  */
-export async function createAndExecuteTransfer(input: z.infer<typeof TransferSchema>) {
+export async function createAndExecuteTransfer(
+  input: z.infer<typeof TransferSchema>,
+) {
   const parse = TransferSchema.safeParse(input);
-  if (!parse.success) return { error: parse.error.issues[0]?.message ?? "Invalid input" };
+  if (!parse.success)
+    return { error: parse.error.issues[0]?.message ?? "Invalid input" };
 
   try {
     const { supabase, user } = await authed();
@@ -55,26 +60,40 @@ export async function createAndExecuteTransfer(input: z.infer<typeof TransferSch
       .select("id")
       .single();
     if (tErr || !transfer) {
-      log.error("createTransfer insert failed", { code: tErr?.code, message: tErr?.message });
+      log.error("createTransfer insert failed", {
+        code: tErr?.code,
+        message: tErr?.message,
+      });
       return { error: tErr?.message ?? "Could not create transfer" };
     }
 
-    const { error: lErr } = await supabase
-      .from("stock_transfer_lines")
-      .insert(parse.data.lines.map((l) => ({
+    const { error: lErr } = await supabase.from("stock_transfer_lines").insert(
+      parse.data.lines.map((l) => ({
         transfer_id: transfer.id,
         product_id: l.product_id,
         qty: l.qty,
-      })));
+      })),
+    );
     if (lErr) {
-      await supabase.from("stock_transfers").delete().eq("id", transfer.id as string);
-      log.error("createTransfer line insert failed", { code: lErr.code, message: lErr.message });
+      await supabase
+        .from("stock_transfers")
+        .delete()
+        .eq("id", transfer.id as string);
+      log.error("createTransfer line insert failed", {
+        code: lErr.code,
+        message: lErr.message,
+      });
       return { error: lErr.message };
     }
 
-    const { error: rpcErr } = await supabase.rpc("execute_stock_transfer", { p_id: transfer.id });
+    const { error: rpcErr } = await supabase.rpc("execute_stock_transfer", {
+      p_id: transfer.id,
+    });
     if (rpcErr) {
-      log.error("execute_stock_transfer RPC failed", { code: rpcErr.code, message: rpcErr.message });
+      log.error("execute_stock_transfer RPC failed", {
+        code: rpcErr.code,
+        message: rpcErr.message,
+      });
       // Leave the rows around for forensic review; the user can retry or cancel.
       return { error: rpcErr.message };
     }
@@ -94,11 +113,13 @@ export async function listRecentTransfers(shopId: string) {
     const { supabase } = await authed();
     const { data, error } = await supabase
       .from("stock_transfers")
-      .select(`
+      .select(
+        `
         id, from_shop_id, to_shop_id, status, notes, created_at, completed_at,
         lines:stock_transfer_lines(id, product_id, qty,
                                    product:products!inner(name))
-      `)
+      `,
+      )
       .or(`from_shop_id.eq.${parse.data},to_shop_id.eq.${parse.data}`)
       .order("created_at", { ascending: false })
       .limit(30);

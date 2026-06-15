@@ -22,11 +22,7 @@ export default async function ProfilePage() {
     { count: savedShopCount, error: shopsCountError },
     { count: savedProductCount, error: productsCountError },
   ] = await Promise.all([
-    supabase
-      .from("profiles")
-      .select("*")
-      .eq("id", user.id)
-      .single<Profile>(),
+    supabase.from("profiles").select("*").eq("id", user.id).single<Profile>(),
 
     supabase
       .from("addresses")

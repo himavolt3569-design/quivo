@@ -21,9 +21,11 @@ import {
   ONBOARDING_TOKEN_TTL_MS,
 } from "@/lib/onboarding-token";
 
-export async function startNewShopOnboarding(): Promise<void> {
+export async function startNewShopOnboarding(): Promise<{ error: string } | void> {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) redirect("/?login=true");
 
   // Only owner-role users may enter the shop-creation flow.  Block customers
@@ -36,14 +38,20 @@ export async function startNewShopOnboarding(): Promise<void> {
   if (!profile) redirect("/auth/revoked");
   if (profile.role !== "owner") redirect("/dashboard/home");
 
-  const token = issueOnboardingToken(user!.id);
+  let token: string;
+  try {
+    token = issueOnboardingToken(user!.id);
+  } catch (err: any) {
+    return { error: err.message };
+  }
+
   const jar = await cookies();
   jar.set(ONBOARDING_COOKIE_NAME, token, {
     httpOnly: true,
-    sameSite: "strict",
-    secure:  process.env.NODE_ENV === "production",
-    path:    "/onboarding",
-    maxAge:  Math.floor(ONBOARDING_TOKEN_TTL_MS / 1000),
+    sameSite: "lax", // Better for redirects across routes just in case
+    secure: process.env.NODE_ENV === "production",
+    path: "/",
+    maxAge: Math.floor(ONBOARDING_TOKEN_TTL_MS / 1000),
   });
 
   redirect("/onboarding/owner");

@@ -77,7 +77,8 @@ export function DeliveryMap({
         zoomControl: true,
       });
       L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        attribution:
+          '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
         maxZoom: 19,
         detectRetina: true,
       }).addTo(map);
@@ -87,13 +88,23 @@ export function DeliveryMap({
         if (shopName) m.bindPopup(escapeHtml(shopName));
       }
       if (deliveryLat != null && deliveryLng != null) {
-        const m = L.marker([deliveryLat, deliveryLng], { icon: DELIVERY_ICON }).addTo(map);
+        const m = L.marker([deliveryLat, deliveryLng], {
+          icon: DELIVERY_ICON,
+        }).addTo(map);
         if (deliveryAddress) m.bindPopup(escapeHtml(deliveryAddress));
       }
-      if (shopLat != null && shopLng != null && deliveryLat != null && deliveryLng != null) {
+      if (
+        shopLat != null &&
+        shopLng != null &&
+        deliveryLat != null &&
+        deliveryLng != null
+      ) {
         L.polyline(
-          [[shopLat, shopLng], [deliveryLat, deliveryLng]],
-          { color: "#A7653A", weight: 3, opacity: 0.7, dashArray: "6 6" }
+          [
+            [shopLat, shopLng],
+            [deliveryLat, deliveryLng],
+          ],
+          { color: "#A7653A", weight: 3, opacity: 0.7, dashArray: "6 6" },
         ).addTo(map);
         const bounds = L.latLngBounds([
           [shopLat, shopLng],
@@ -118,11 +129,15 @@ export function DeliveryMap({
   }, [shopLat, shopLng, deliveryLat, deliveryLng, shopName, deliveryAddress]);
 
   const hasAnyPin =
-    (shopLat != null && shopLng != null) || (deliveryLat != null && deliveryLng != null);
+    (shopLat != null && shopLng != null) ||
+    (deliveryLat != null && deliveryLng != null);
 
   return (
     <div className={`relative ${className ?? "w-full h-[320px]"}`}>
-      <div ref={containerRef} className="absolute inset-0 rounded-2xl overflow-hidden" />
+      <div
+        ref={containerRef}
+        className="absolute inset-0 rounded-2xl overflow-hidden"
+      />
       {!ready && hasAnyPin && (
         <div className="absolute inset-0 bg-gray-100 animate-pulse rounded-2xl pointer-events-none" />
       )}
@@ -136,7 +151,11 @@ export function DeliveryMap({
 }
 
 function escapeHtml(s: string): string {
-  return s.replace(/[&<>"']/g, (c) =>
-    ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]!)
+  return s.replace(
+    /[&<>"']/g,
+    (c) =>
+      ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[
+        c
+      ]!,
   );
 }

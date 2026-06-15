@@ -21,7 +21,14 @@ if (typeof performance !== "undefined") {
     } catch {
       // Return a minimal stand-in so callers that capture the return value
       // don't crash. The mark itself is non-critical (dev profiling only).
-      return { name: String(args[0]), startTime: 0, duration: 0, entryType: "mark", detail: null, toJSON: () => ({}) } as PerformanceMark;
+      return {
+        name: String(args[0]),
+        startTime: 0,
+        duration: 0,
+        entryType: "mark",
+        detail: null,
+        toJSON: () => ({}),
+      } as PerformanceMark;
     }
   };
 
@@ -32,7 +39,14 @@ if (typeof performance !== "undefined") {
     try {
       return _measure(...args);
     } catch {
-      return { name: String(args[0]), startTime: 0, duration: 0, entryType: "measure", detail: null, toJSON: () => ({}) } as PerformanceMeasure;
+      return {
+        name: String(args[0]),
+        startTime: 0,
+        duration: 0,
+        entryType: "measure",
+        detail: null,
+        toJSON: () => ({}),
+      } as PerformanceMeasure;
     }
   };
 }
@@ -48,7 +62,9 @@ type SentryBrowserLike = {
 const sentryDsn = process.env.NEXT_PUBLIC_SENTRY_DSN;
 if (sentryDsn) {
   const moduleName = "@sentry/nextjs";
-  const dyn = Function("m", "return import(m)") as (m: string) => Promise<unknown>;
+  const dyn = Function("m", "return import(m)") as (
+    m: string,
+  ) => Promise<unknown>;
   dyn(moduleName)
     .then((mod) => {
       const sdk = mod as SentryBrowserLike;

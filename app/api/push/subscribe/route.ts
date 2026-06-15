@@ -24,12 +24,18 @@ export async function POST(request: Request) {
   }
   const parse = Body.safeParse(payload);
   if (!parse.success) {
-    return NextResponse.json({ error: parse.error.issues[0]?.message ?? "invalid body" }, { status: 400 });
+    return NextResponse.json(
+      { error: parse.error.issues[0]?.message ?? "invalid body" },
+      { status: 400 },
+    );
   }
 
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user)
+    return NextResponse.json({ error: "unauthorized" }, { status: 401 });
 
   // Use service-role for the upsert: RLS UPDATE policy gates on the EXISTING
   // row's user_id, so a different user re-using the same browser endpoint
@@ -44,10 +50,13 @@ export async function POST(request: Request) {
       user_agent: parse.data.userAgent ?? null,
       last_seen: new Date().toISOString(),
     },
-    { onConflict: "endpoint" }
+    { onConflict: "endpoint" },
   );
   if (error) {
-    log.error("push/subscribe: upsert failed", { code: error.code, message: error.message });
+    log.error("push/subscribe: upsert failed", {
+      code: error.code,
+      message: error.message,
+    });
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
   return NextResponse.json({ ok: true });
@@ -56,17 +65,22 @@ export async function POST(request: Request) {
 export async function DELETE(request: Request) {
   const url = new URL(request.url);
   const endpoint = url.searchParams.get("endpoint");
-  if (!endpoint) return NextResponse.json({ error: "missing endpoint" }, { status: 400 });
+  if (!endpoint)
+    return NextResponse.json({ error: "missing endpoint" }, { status: 400 });
 
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user)
+    return NextResponse.json({ error: "unauthorized" }, { status: 401 });
 
   const { error } = await supabase
     .from("push_subscriptions")
     .delete()
     .eq("user_id", user.id)
     .eq("endpoint", endpoint);
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error)
+    return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json({ ok: true });
 }

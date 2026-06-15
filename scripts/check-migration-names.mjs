@@ -62,17 +62,17 @@ async function main() {
   }
 
   const collisions = [...byTimestamp.entries()].filter(
-    ([ts, files]) => files.length > 1 && !LEGACY_COLLISION_ALLOWLIST.has(ts)
+    ([ts, files]) => files.length > 1 && !LEGACY_COLLISION_ALLOWLIST.has(ts),
   );
 
   const grandfathered = [...byTimestamp.entries()].filter(
-    ([ts, files]) => files.length > 1 && LEGACY_COLLISION_ALLOWLIST.has(ts)
+    ([ts, files]) => files.length > 1 && LEGACY_COLLISION_ALLOWLIST.has(ts),
   );
 
   if (malformed.length === 0 && collisions.length === 0) {
     if (grandfathered.length > 0) {
       console.log(
-        `✓ ${sqlFiles.length} migrations look healthy (${grandfathered.length} grandfathered legacy collision[s] ignored).`
+        `✓ ${sqlFiles.length} migrations look healthy (${grandfathered.length} grandfathered legacy collision[s] ignored).`,
       );
     } else {
       console.log(`✓ ${sqlFiles.length} migrations look healthy.`);

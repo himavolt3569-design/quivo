@@ -9,6 +9,10 @@ import { handleOrderStatusChanged } from "./handlers/order-status-changed";
 import { handleRefundCompleted } from "./handlers/refund-completed";
 import { handleLowStockDetected } from "./handlers/low-stock-detected";
 import { handleKycStageDue } from "./handlers/kyc-stage-due";
+// Phase 6
+import { handleCartAbandoned } from "./handlers/cart-abandoned";
+import { handleBackInStock } from "./handlers/back-in-stock";
+import { handlePriceDrop } from "./handlers/price-drop";
 
 /**
  * Domain event dispatcher.
@@ -37,14 +41,35 @@ interface DomainEventRow {
   attempt_count: number;
 }
 
-const HANDLERS: Record<string, ((payload: Record<string, unknown>) => Promise<void>) | undefined> = {
-  "transaction.completed": (p) => handleTransactionCompleted(p as Parameters<typeof handleTransactionCompleted>[0]),
-  "order.placed":          (p) => handleOrderPlaced(p as Parameters<typeof handleOrderPlaced>[0]),
-  "order.status_changed":  (p) => handleOrderStatusChanged(p as Parameters<typeof handleOrderStatusChanged>[0]),
-  "refund.completed":      (p) => handleRefundCompleted(p as Parameters<typeof handleRefundCompleted>[0]),
-  "low_stock.detected":    (p) => handleLowStockDetected(p as Parameters<typeof handleLowStockDetected>[0]),
-  "kyc.stage_due":         (p) => handleKycStageDue(p as Parameters<typeof handleKycStageDue>[0]),
-  "test.event":            async () => { /* no-op */ },
+const HANDLERS: Record<
+  string,
+  ((payload: Record<string, unknown>) => Promise<void>) | undefined
+> = {
+  "transaction.completed": (p) =>
+    handleTransactionCompleted(
+      p as Parameters<typeof handleTransactionCompleted>[0],
+    ),
+  "order.placed": (p) =>
+    handleOrderPlaced(p as Parameters<typeof handleOrderPlaced>[0]),
+  "order.status_changed": (p) =>
+    handleOrderStatusChanged(
+      p as Parameters<typeof handleOrderStatusChanged>[0],
+    ),
+  "refund.completed": (p) =>
+    handleRefundCompleted(p as Parameters<typeof handleRefundCompleted>[0]),
+  "low_stock.detected": (p) =>
+    handleLowStockDetected(p as Parameters<typeof handleLowStockDetected>[0]),
+  "kyc.stage_due": (p) =>
+    handleKycStageDue(p as Parameters<typeof handleKycStageDue>[0]),
+  "cart.abandoned": (p) =>
+    handleCartAbandoned(p as Parameters<typeof handleCartAbandoned>[0]),
+  "back_in_stock.detected": (p) =>
+    handleBackInStock(p as Parameters<typeof handleBackInStock>[0]),
+  "price_drop.detected": (p) =>
+    handlePriceDrop(p as Parameters<typeof handlePriceDrop>[0]),
+  "test.event": async () => {
+    /* no-op */
+  },
 };
 
 const MAX_ATTEMPTS = 5;
@@ -56,7 +81,9 @@ export interface DispatchResult {
   abandoned: number;
 }
 
-export async function dispatchPendingEvents(opts?: { batchSize?: number }): Promise<DispatchResult> {
+export async function dispatchPendingEvents(opts?: {
+  batchSize?: number;
+}): Promise<DispatchResult> {
   const batchSize = Math.min(Math.max(opts?.batchSize ?? 25, 1), 200);
   const admin = createAdminClient();
 
@@ -69,7 +96,10 @@ export async function dispatchPendingEvents(opts?: { batchSize?: number }): Prom
     .limit(batchSize);
 
   if (error) {
-    log.error("dispatcher: select failed", { code: error.code, message: error.message });
+    log.error("dispatcher: select failed", {
+      code: error.code,
+      message: error.message,
+    });
     return { scanned: 0, processed: 0, failed: 0, abandoned: 0 };
   }
 
@@ -81,10 +111,16 @@ export async function dispatchPendingEvents(opts?: { batchSize?: number }): Prom
   for (const event of events) {
     const handler = HANDLERS[event.name];
     if (!handler) {
-      log.warn("dispatcher: no handler for event, skipping", { id: event.id, name: event.name });
+      log.warn("dispatcher: no handler for event, skipping", {
+        id: event.id,
+        name: event.name,
+      });
       await admin
         .from("domain_events")
-        .update({ processed_at: new Date().toISOString(), processing_error: "no_handler_registered" })
+        .update({
+          processed_at: new Date().toISOString(),
+          processing_error: "no_handler_registered",
+        })
         .eq("id", event.id);
       continue;
     }
@@ -93,10 +129,17 @@ export async function dispatchPendingEvents(opts?: { batchSize?: number }): Prom
       await handler(event.payload ?? {});
       const { error: ackErr } = await admin
         .from("domain_events")
-        .update({ processed_at: new Date().toISOString(), processing_error: null })
+        .update({
+          processed_at: new Date().toISOString(),
+          processing_error: null,
+        })
         .eq("id", event.id);
       if (ackErr) {
-        log.error("dispatcher: ack update failed", { id: event.id, code: ackErr.code, message: ackErr.message });
+        log.error("dispatcher: ack update failed", {
+          id: event.id,
+          code: ackErr.code,
+          message: ackErr.message,
+        });
         failed += 1;
       } else {
         processed += 1;
@@ -104,16 +147,29 @@ export async function dispatchPendingEvents(opts?: { batchSize?: number }): Prom
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
       const nextAttempt = (event.attempt_count ?? 0) + 1;
-      log.error("dispatcher: handler threw", { id: event.id, name: event.name, attempt: nextAttempt, message });
+      log.error("dispatcher: handler threw", {
+        id: event.id,
+        name: event.name,
+        attempt: nextAttempt,
+        message,
+      });
       await admin
         .from("domain_events")
-        .update({ attempt_count: nextAttempt, processing_error: message.slice(0, 1000) })
+        .update({
+          attempt_count: nextAttempt,
+          processing_error: message.slice(0, 1000),
+        })
         .eq("id", event.id);
       if (nextAttempt >= MAX_ATTEMPTS) abandoned += 1;
       else failed += 1;
     }
   }
 
-  log.info("dispatcher: pass complete", { scanned: events.length, processed, failed, abandoned });
+  log.info("dispatcher: pass complete", {
+    scanned: events.length,
+    processed,
+    failed,
+    abandoned,
+  });
   return { scanned: events.length, processed, failed, abandoned };
 }

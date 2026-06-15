@@ -27,14 +27,16 @@ export const AUTH_ERROR_MESSAGES: Record<
 > = {
   missing_profile: () => ({
     title: "Profile synchronization issue detected.",
-    description: "We're attempting to fix your account. Please try logging out and back in.",
+    description:
+      "We're attempting to fix your account. Please try logging out and back in.",
   }),
   role_conflict: (params) => {
     const actual = params.get("actual");
     if (actual === "customer") {
       return {
         title: "This email is already registered as a customer.",
-        description: "Please use the email login below — Google sign-in is for shop owners only.",
+        description:
+          "Please use the email login below — Google sign-in is for shop owners only.",
       };
     }
     return {

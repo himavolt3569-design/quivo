@@ -12,7 +12,9 @@
  */
 import type { InitiateContext, InitiateResult } from "../types";
 
-export async function initiateCod(ctx: InitiateContext): Promise<InitiateResult> {
+export async function initiateCod(
+  ctx: InitiateContext,
+): Promise<InitiateResult> {
   return {
     redirectUrl: `${ctx.baseUrl}/s/${ctx.shopName ? "" : ""}order/${ctx.orderNumber}`,
     redirectMethod: "GET",
@@ -20,7 +22,9 @@ export async function initiateCod(ctx: InitiateContext): Promise<InitiateResult>
   };
 }
 
-export async function initiateBankTransfer(ctx: InitiateContext): Promise<InitiateResult> {
+export async function initiateBankTransfer(
+  ctx: InitiateContext,
+): Promise<InitiateResult> {
   return {
     redirectUrl: `${ctx.baseUrl}/order/${ctx.orderNumber}`,
     redirectMethod: "GET",
@@ -28,7 +32,9 @@ export async function initiateBankTransfer(ctx: InitiateContext): Promise<Initia
   };
 }
 
-export async function initiateQrCode(ctx: InitiateContext): Promise<InitiateResult> {
+export async function initiateQrCode(
+  ctx: InitiateContext,
+): Promise<InitiateResult> {
   return {
     redirectUrl: `${ctx.baseUrl}/order/${ctx.orderNumber}`,
     redirectMethod: "GET",

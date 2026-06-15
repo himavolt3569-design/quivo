@@ -10,7 +10,11 @@
  *   deadline — grace period has ended, owner features locked.
  */
 
-import { renderEmailLayout, escapeHtml, renderTextFromBlocks } from "@/lib/email/layout";
+import {
+  renderEmailLayout,
+  escapeHtml,
+  renderTextFromBlocks,
+} from "@/lib/email/layout";
 import type { BrandedShop } from "@/lib/email/layout";
 
 export type KycNotificationStage = "grace" | "warning" | "deadline";
@@ -32,8 +36,12 @@ export interface KycComplianceEmailOutput {
   text: string;
 }
 
-const SUBJECTS: Record<KycNotificationStage, (i: KycComplianceEmailInput) => string> = {
-  grace: (i) => `KYC documents due in ${i.graceWindowDays} days for ${i.shopName}`,
+const SUBJECTS: Record<
+  KycNotificationStage,
+  (i: KycComplianceEmailInput) => string
+> = {
+  grace: (i) =>
+    `KYC documents due in ${i.graceWindowDays} days for ${i.shopName}`,
   warning: (i) =>
     `KYC documents due in ${i.daysRemaining} day${i.daysRemaining === 1 ? "" : "s"} for ${i.shopName}`,
   deadline: (i) => `KYC documents are now required for ${i.shopName}`,
@@ -61,11 +69,14 @@ function intro(i: KycComplianceEmailInput): string {
   }
 }
 
-export function renderKycComplianceEmail(input: KycComplianceEmailInput): KycComplianceEmailOutput {
+export function renderKycComplianceEmail(
+  input: KycComplianceEmailInput,
+): KycComplianceEmailOutput {
   const subject = SUBJECTS[input.stage](input);
   const headline = HEADLINES[input.stage];
   const introCopy = intro(input);
-  const ctaUrl = input.ctaUrl ?? "https://quivo.app/dashboard/owner/settings/kyc";
+  const ctaUrl =
+    input.ctaUrl ?? "https://quivo.app/dashboard/owner/settings/kyc";
   const safeShop = escapeHtml(input.shopName);
   const safeCta = escapeHtml(ctaUrl);
 

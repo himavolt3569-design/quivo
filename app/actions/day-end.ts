@@ -26,12 +26,16 @@ export interface DayEndRow {
 
 async function authed() {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) throw new Error("Unauthorized");
   return { supabase, user };
 }
 
-export async function getCurrentDay(shopId: string): Promise<{ row?: DayEndRow | null; error?: string }> {
+export async function getCurrentDay(
+  shopId: string,
+): Promise<{ row?: DayEndRow | null; error?: string }> {
   const parse = ShopIdSchema.safeParse(shopId);
   if (!parse.success) return { error: "Invalid shop ID" };
   try {
@@ -51,10 +55,15 @@ export async function getCurrentDay(shopId: string): Promise<{ row?: DayEndRow |
   }
 }
 
-export async function openDay(shopId: string, openingCash: number, notes?: string) {
+export async function openDay(
+  shopId: string,
+  openingCash: number,
+  notes?: string,
+) {
   const parse = ShopIdSchema.safeParse(shopId);
   if (!parse.success) return { error: "Invalid shop ID" };
-  if (!Number.isFinite(openingCash) || openingCash < 0) return { error: "Opening cash must be ≥ 0" };
+  if (!Number.isFinite(openingCash) || openingCash < 0)
+    return { error: "Opening cash must be ≥ 0" };
 
   try {
     const { supabase, user } = await authed();
@@ -70,7 +79,8 @@ export async function openDay(shopId: string, openingCash: number, notes?: strin
       .single();
     if (error) {
       log.error("openDay failed", { code: error.code, message: error.message });
-      if (error.code === "23505") return { error: "A day is already open for this shop." };
+      if (error.code === "23505")
+        return { error: "A day is already open for this shop." };
       return { error: error.message };
     }
     revalidatePath("/dashboard/owner/finances/day-end");
@@ -80,10 +90,15 @@ export async function openDay(shopId: string, openingCash: number, notes?: strin
   }
 }
 
-export async function closeDay(rowId: string, countedCash: number, notes?: string) {
+export async function closeDay(
+  rowId: string,
+  countedCash: number,
+  notes?: string,
+) {
   const parse = RowIdSchema.safeParse(rowId);
   if (!parse.success) return { error: "Invalid day-end ID" };
-  if (!Number.isFinite(countedCash) || countedCash < 0) return { error: "Counted cash must be ≥ 0" };
+  if (!Number.isFinite(countedCash) || countedCash < 0)
+    return { error: "Counted cash must be ≥ 0" };
 
   try {
     const { supabase } = await authed();
@@ -93,7 +108,10 @@ export async function closeDay(rowId: string, countedCash: number, notes?: strin
       p_notes: notes ?? null,
     });
     if (error) {
-      log.error("closeDay failed", { code: error.code, message: error.message });
+      log.error("closeDay failed", {
+        code: error.code,
+        message: error.message,
+      });
       return { error: error.message };
     }
     revalidatePath("/dashboard/owner/finances/day-end");
@@ -149,7 +167,9 @@ export interface ZReport {
  * Compute the Z-report for a given day. Uses admin to bypass shop_members RLS
  * on the joins (the caller's membership is verified separately).
  */
-export async function getZReport(rowId: string): Promise<{ report?: ZReport; error?: string }> {
+export async function getZReport(
+  rowId: string,
+): Promise<{ report?: ZReport; error?: string }> {
   const parse = RowIdSchema.safeParse(rowId);
   if (!parse.success) return { error: "Invalid day-end ID" };
 
@@ -175,7 +195,9 @@ export async function getZReport(rowId: string): Promise<{ report?: ZReport; err
 
     const { data: txns } = await admin
       .from("shop_transactions")
-      .select("id, amount, subtotal, discount_amount, tax_amount, payment_method, type, created_by, created_at")
+      .select(
+        "id, amount, subtotal, discount_amount, tax_amount, payment_method, type, created_by, created_at",
+      )
       .eq("shop_id", day.shop_id as string)
       .gte("created_at", start)
       .lt("created_at", end);
@@ -191,23 +213,38 @@ export async function getZReport(rowId: string): Promise<{ report?: ZReport; err
       created_by: string | null;
     };
 
-    const txList = ((txns ?? []) as unknown as TxRow[]);
+    const txList = (txns ?? []) as unknown as TxRow[];
 
     // transaction_splits has no shop_id column; scope strictly via this
     // shop's transaction ids to avoid cross-shop bleed into method totals.
     const txIds = txList.map((t) => t.id);
-    const { data: splits } = txIds.length === 0
-      ? { data: [] as Array<{ transaction_id: string; payment_method: string; amount: number }> }
-      : await admin
-          .from("transaction_splits")
-          .select("transaction_id, payment_method, amount")
-          .in("transaction_id", txIds);
+    const { data: splits } =
+      txIds.length === 0
+        ? {
+            data: [] as Array<{
+              transaction_id: string;
+              payment_method: string;
+              amount: number;
+            }>,
+          }
+        : await admin
+            .from("transaction_splits")
+            .select("transaction_id, payment_method, amount")
+            .in("transaction_id", txIds);
 
     let gross_sales = 0;
     let tax_collected = 0;
     let discounts = 0;
     let refund_amount = 0;
-    const byMethod: Record<string, number> = { cash: 0, card: 0, qr: 0, online: 0, udhar: 0, wallet: 0, split: 0 };
+    const byMethod: Record<string, number> = {
+      cash: 0,
+      card: 0,
+      qr: 0,
+      online: 0,
+      udhar: 0,
+      wallet: 0,
+      split: 0,
+    };
     const staffMap = new Map<string, { sales_count: number; gross: number }>();
 
     for (const t of txList) {
@@ -233,7 +270,9 @@ export async function getZReport(rowId: string): Promise<{ report?: ZReport; err
     // bucket above, but for the per-method totals we want them attributed to
     // the underlying methods.
     if (splits && splits.length > 0) {
-      const splitParentIds = new Set(splits.map((s) => s.transaction_id as string));
+      const splitParentIds = new Set(
+        splits.map((s) => s.transaction_id as string),
+      );
       // Subtract the 'split' totals we accumulated for transactions that have
       // matching split rows, then add the per-method components.
       for (const t of txList) {
@@ -250,14 +289,20 @@ export async function getZReport(rowId: string): Promise<{ report?: ZReport; err
     const net_sales = Math.round((gross_sales - tax_collected) * 100) / 100;
 
     const staffIds = [...staffMap.keys()].filter((k) => k !== "unknown");
-    const { data: profiles } = staffIds.length > 0
-      ? await admin.from("profiles").select("id, full_name").in("id", staffIds)
-      : { data: [] };
+    const { data: profiles } =
+      staffIds.length > 0
+        ? await admin
+            .from("profiles")
+            .select("id, full_name")
+            .in("id", staffIds)
+        : { data: [] };
     const nameById = new Map<string, string>();
-    for (const p of profiles ?? []) nameById.set(p.id as string, (p.full_name as string) ?? "");
+    for (const p of profiles ?? [])
+      nameById.set(p.id as string, (p.full_name as string) ?? "");
 
     const by_staff = [...staffMap.entries()].map(([id, v]) => ({
-      staff_name: id === "unknown" ? "Unknown" : nameById.get(id) || id.slice(0, 8),
+      staff_name:
+        id === "unknown" ? "Unknown" : nameById.get(id) || id.slice(0, 8),
       sales_count: v.sales_count,
       gross: Math.round(v.gross * 100) / 100,
     }));

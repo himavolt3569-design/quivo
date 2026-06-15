@@ -17,7 +17,10 @@ export default async function SupplierLedgerPage({ params }: Props) {
     return (
       <div className="flex h-64 flex-col items-center justify-center gap-4 text-center">
         <p className="text-lg font-bold text-[#27324A]">No shop selected.</p>
-        <Link href="/onboarding/owner" className="text-sm font-bold text-[#A7653A] hover:underline">
+        <Link
+          href="/onboarding/owner"
+          className="text-sm font-bold text-[#A7653A] hover:underline"
+        >
           Create your first shop →
         </Link>
       </div>
@@ -28,14 +31,18 @@ export default async function SupplierLedgerPage({ params }: Props) {
   const [{ data: supplier }, { data: transactions }] = await Promise.all([
     supabase
       .from("shop_suppliers")
-      .select("id, name, contact_person, phone, email, address, category, logo_url, tax_id, notes, opening_balance, balance_due, created_at")
+      .select(
+        "id, name, contact_person, phone, email, address, category, logo_url, tax_id, notes, opening_balance, balance_due, created_at",
+      )
       .eq("id", supplierId)
       .eq("shop_id", shop.id)
       .neq("status", "inactive")
       .single(),
     supabase
       .from("shop_transactions")
-      .select("id, amount, type, reference_id, description, payment_method, created_at")
+      .select(
+        "id, amount, type, reference_id, description, payment_method, created_at",
+      )
       .eq("shop_id", shop.id)
       .eq("reference_id", supplierId)
       .in("type", ["expense", "supplier_payment"])
@@ -58,7 +65,11 @@ export default async function SupplierLedgerPage({ params }: Props) {
         shopId={shop.id}
         shopName={shop.name}
         supplier={supplier}
-        transactions={(transactions ?? []) as Parameters<typeof SupplierLedgerView>[0]["transactions"]}
+        transactions={
+          (transactions ?? []) as Parameters<
+            typeof SupplierLedgerView
+          >[0]["transactions"]
+        }
         generatedAt={new Date().toISOString()}
       />
     </div>

@@ -22,14 +22,17 @@ const ReceiveBatchSchema = z.object({
 
 async function authed() {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) throw new Error("Unauthorized");
   return { supabase, user };
 }
 
 export async function receiveBatch(input: z.infer<typeof ReceiveBatchSchema>) {
   const parse = ReceiveBatchSchema.safeParse(input);
-  if (!parse.success) return { error: parse.error.issues[0]?.message ?? "Invalid batch input" };
+  if (!parse.success)
+    return { error: parse.error.issues[0]?.message ?? "Invalid batch input" };
   const data = parse.data;
 
   try {
@@ -45,7 +48,10 @@ export async function receiveBatch(input: z.infer<typeof ReceiveBatchSchema>) {
       supplier_id: data.supplierId ?? null,
     });
     if (error) {
-      log.error("receiveBatch failed", { code: error.code, message: error.message });
+      log.error("receiveBatch failed", {
+        code: error.code,
+        message: error.message,
+      });
       return { error: error.message };
     }
     revalidatePath(`/dashboard/owner/products/${data.productId}/edit`);

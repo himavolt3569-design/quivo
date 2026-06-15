@@ -53,17 +53,22 @@ async function renderReactToHtml(element: unknown): Promise<string> {
     // String variable hides the module from static analysis so the dep stays
     // truly optional. Templates that bring their own HTML skip this path.
     const moduleName = "@react-email/render";
-    const dyn = Function("m", "return import(m)") as (m: string) => Promise<unknown>;
-    const mod = (await dyn(moduleName).catch(() => null)) as
-      | { render: (el: unknown, opts?: { pretty?: boolean }) => Promise<string> | string }
-      | null;
+    const dyn = Function("m", "return import(m)") as (
+      m: string,
+    ) => Promise<unknown>;
+    const mod = (await dyn(moduleName).catch(() => null)) as {
+      render: (
+        el: unknown,
+        opts?: { pretty?: boolean },
+      ) => Promise<string> | string;
+    } | null;
     if (!mod) {
       throw new Error("@react-email/render is not installed");
     }
     return await Promise.resolve(mod.render(element, { pretty: false }));
   } catch (err) {
     throw new Error(
-      `Failed to render React email: ${err instanceof Error ? err.message : String(err)}`
+      `Failed to render React email: ${err instanceof Error ? err.message : String(err)}`,
     );
   }
 }
@@ -73,7 +78,9 @@ function toArray(value: string | string[] | undefined): string[] | undefined {
   return Array.isArray(value) ? value : [value];
 }
 
-export async function sendEmail(input: SendEmailInput): Promise<SendEmailResult> {
+export async function sendEmail(
+  input: SendEmailInput,
+): Promise<SendEmailResult> {
   const apiKey = process.env.RESEND_API_KEY;
   const from = input.from ?? defaultFrom();
   const to = toArray(input.to);
@@ -87,12 +94,17 @@ export async function sendEmail(input: SendEmailInput): Promise<SendEmailResult>
     try {
       html = await renderReactToHtml(input.react);
     } catch (err) {
-      log.error("sendEmail: react render failed", { err: err instanceof Error ? err.message : String(err) });
+      log.error("sendEmail: react render failed", {
+        err: err instanceof Error ? err.message : String(err),
+      });
       return { ok: false, error: "Failed to render email body" };
     }
   }
   if (!html && !input.text) {
-    return { ok: false, error: "sendEmail: at least one of html/text/react is required" };
+    return {
+      ok: false,
+      error: "sendEmail: at least one of html/text/react is required",
+    };
   }
 
   if (!apiKey) {
@@ -101,7 +113,11 @@ export async function sendEmail(input: SendEmailInput): Promise<SendEmailResult>
       subject: input.subject,
       from,
     });
-    return { ok: false, skipped: true, reason: "RESEND_API_KEY not configured" };
+    return {
+      ok: false,
+      skipped: true,
+      reason: "RESEND_API_KEY not configured",
+    };
   }
 
   const payload: Record<string, unknown> = {
@@ -144,7 +160,9 @@ export async function sendEmail(input: SendEmailInput): Promise<SendEmailResult>
       };
     }
 
-    const data = (await response.json().catch(() => null)) as { id?: string } | null;
+    const data = (await response.json().catch(() => null)) as {
+      id?: string;
+    } | null;
     log.info("sendEmail delivered", {
       subject: input.subject,
       to,
@@ -153,7 +171,10 @@ export async function sendEmail(input: SendEmailInput): Promise<SendEmailResult>
     return { ok: true, id: data?.id };
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
-    log.error("sendEmail: network error", { error: message, subject: input.subject });
+    log.error("sendEmail: network error", {
+      error: message,
+      subject: input.subject,
+    });
     return { ok: false, error: message };
   }
 }

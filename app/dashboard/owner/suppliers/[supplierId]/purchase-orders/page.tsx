@@ -18,7 +18,10 @@ export default async function SupplierPurchaseOrdersPage({
     return (
       <div className="flex flex-col items-center justify-center h-64 gap-4 text-center">
         <p className="text-lg font-bold text-[#27324A]">No shop selected.</p>
-        <Link href="/onboarding/owner" className="text-sm text-[#A7653A] hover:underline font-bold">
+        <Link
+          href="/onboarding/owner"
+          className="text-sm text-[#A7653A] hover:underline font-bold"
+        >
           Create your first shop →
         </Link>
       </div>
@@ -27,38 +30,46 @@ export default async function SupplierPurchaseOrdersPage({
 
   const supabase = await createClient();
 
-  const [{ data: supplier }, { data: products }, { data: pos }] = await Promise.all([
-    supabase
-      .from("shop_suppliers")
-      .select("id, name")
-      .eq("id", supplierId)
-      .eq("shop_id", shop.id)
-      .maybeSingle(),
-    supabase
-      .from("products")
-      .select("id, name, unit, cost_price, stock, low_stock_threshold")
-      .eq("shop_id", shop.id)
-      .eq("status", "active")
-      .order("name"),
-    supabase
-      .from("purchase_orders")
-      .select(`
+  const [{ data: supplier }, { data: products }, { data: pos }] =
+    await Promise.all([
+      supabase
+        .from("shop_suppliers")
+        .select("id, name")
+        .eq("id", supplierId)
+        .eq("shop_id", shop.id)
+        .maybeSingle(),
+      supabase
+        .from("products")
+        .select("id, name, unit, cost_price, stock, low_stock_threshold")
+        .eq("shop_id", shop.id)
+        .eq("status", "active")
+        .order("name"),
+      supabase
+        .from("purchase_orders")
+        .select(
+          `
         id, status, ordered_at, expected_at, received_at, total_amount, notes,
         billed_after_receive, created_at,
         lines:purchase_order_lines(id, product_id, qty_ordered, qty_received, unit_cost,
                                    product:products!inner(name))
-      `)
-      .eq("shop_id", shop.id)
-      .eq("supplier_id", supplierId)
-      .order("created_at", { ascending: false })
-      .limit(50),
-  ]);
+      `,
+        )
+        .eq("shop_id", shop.id)
+        .eq("supplier_id", supplierId)
+        .order("created_at", { ascending: false })
+        .limit(50),
+    ]);
 
   if (!supplier) {
     return (
       <div className="flex flex-col items-center justify-center h-64 gap-4 text-center">
-        <p className="text-lg font-bold text-[#27324A]">Supplier not found in this shop.</p>
-        <Link href="/dashboard/owner/suppliers" className="text-sm text-[#A7653A] hover:underline font-bold">
+        <p className="text-lg font-bold text-[#27324A]">
+          Supplier not found in this shop.
+        </p>
+        <Link
+          href="/dashboard/owner/suppliers"
+          className="text-sm text-[#A7653A] hover:underline font-bold"
+        >
           ← Back to suppliers
         </Link>
       </div>
@@ -75,7 +86,13 @@ export default async function SupplierPurchaseOrdersPage({
   };
   type RawPO = {
     id: string;
-    status: "draft" | "submitted" | "partial" | "received" | "closed" | "cancelled";
+    status:
+      | "draft"
+      | "submitted"
+      | "partial"
+      | "received"
+      | "closed"
+      | "cancelled";
     ordered_at: string | null;
     expected_at: string | null;
     received_at: string | null;
@@ -118,14 +135,25 @@ export default async function SupplierPurchaseOrdersPage({
         >
           <ChevronLeft className="h-3 w-3" /> Back to supplier
         </Link>
-        <h1 className="text-2xl font-black text-[#27324A] mt-1">{supplier.name}</h1>
+        <h1 className="text-2xl font-black text-[#27324A] mt-1">
+          {supplier.name}
+        </h1>
       </div>
 
       <PurchaseOrdersView
         shopId={shop.id}
         supplierId={supplierId}
         supplierName={(supplier.name as string) ?? "Supplier"}
-        products={(products ?? []) as { id: string; name: string; unit: string | null; cost_price: number | null; stock: number; low_stock_threshold: number | null }[]}
+        products={
+          (products ?? []) as {
+            id: string;
+            name: string;
+            unit: string | null;
+            cost_price: number | null;
+            stock: number;
+            low_stock_threshold: number | null;
+          }[]
+        }
         initialOrders={orders}
       />
     </div>

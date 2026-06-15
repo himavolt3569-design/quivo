@@ -44,7 +44,7 @@ function Dialog({
         }, 150);
       },
     }),
-    []
+    [],
   );
 
   return (
@@ -81,7 +81,7 @@ function DialogOverlay({
       data-slot="dialog-overlay"
       className={cn(
         "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-50 bg-black/40 backdrop-blur-sm",
-        className
+        className,
       )}
       {...props}
     />
@@ -105,7 +105,9 @@ function DialogContent({
     (e: KeyboardEvent) => {
       // Check both the native isComposing property and our context state
       // This handles Safari's timing issues with composition events
-      const isCurrentlyComposing = (e as KeyboardEvent & { isComposing?: boolean }).isComposing || isComposing();
+      const isCurrentlyComposing =
+        (e as KeyboardEvent & { isComposing?: boolean }).isComposing ||
+        isComposing();
 
       // If IME is composing, prevent dialog from closing
       if (isCurrentlyComposing) {
@@ -116,7 +118,7 @@ function DialogContent({
       // Call user's onEscapeKeyDown if provided
       onEscapeKeyDown?.(e);
     },
-    [isComposing, onEscapeKeyDown]
+    [isComposing, onEscapeKeyDown],
   );
 
   return (
@@ -126,7 +128,7 @@ function DialogContent({
         data-slot="dialog-content"
         className={cn(
           "bg-white dark:bg-[#1B2030] text-[#27324A] dark:text-white data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 fixed top-[50%] left-[50%] z-50 grid w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] gap-6 rounded-[2.5rem] border border-[#2E3344]/8 dark:border-white/10 p-8 shadow-2xl duration-200 sm:max-w-lg",
-          className
+          className,
         )}
         onEscapeKeyDown={handleEscapeKeyDown}
         {...props}
@@ -162,7 +164,7 @@ function DialogFooter({ className, ...props }: React.ComponentProps<"div">) {
       data-slot="dialog-footer"
       className={cn(
         "flex flex-col-reverse gap-3 sm:flex-row sm:justify-end mt-2",
-        className
+        className,
       )}
       {...props}
     />
@@ -176,7 +178,10 @@ function DialogTitle({
   return (
     <DialogPrimitive.Title
       data-slot="dialog-title"
-      className={cn("text-2xl font-bold tracking-tight text-[#27324A] dark:text-white", className)}
+      className={cn(
+        "text-2xl font-bold tracking-tight text-[#27324A] dark:text-white",
+        className,
+      )}
       {...props}
     />
   );
@@ -189,7 +194,10 @@ function DialogDescription({
   return (
     <DialogPrimitive.Description
       data-slot="dialog-description"
-      className={cn("text-[#746E73] dark:text-white/60 text-sm font-medium leading-relaxed", className)}
+      className={cn(
+        "text-[#746E73] dark:text-white/60 text-sm font-medium leading-relaxed",
+        className,
+      )}
       {...props}
     />
   );
@@ -205,6 +213,5 @@ export {
   DialogOverlay,
   DialogPortal,
   DialogTitle,
-  DialogTrigger
+  DialogTrigger,
 };
-

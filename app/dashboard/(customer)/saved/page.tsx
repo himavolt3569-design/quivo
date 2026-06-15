@@ -35,7 +35,10 @@ export default async function SavedPage() {
   ]);
 
   if (shopsError || productsError) {
-    log.error("customer/saved: database query failures", { shopsError, productsError });
+    log.error("customer/saved: database query failures", {
+      shopsError,
+      productsError,
+    });
     throw new Error("Failed to load saved items. Please try again later.");
   }
 

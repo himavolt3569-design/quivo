@@ -42,9 +42,19 @@ export default function GlobalError({
               boxShadow: "0 1px 8px rgba(39, 50, 74, 0.08)",
             }}
           >
-            <h1 style={{ margin: 0, fontSize: "22px", fontWeight: 900 }}>Application error</h1>
-            <p style={{ margin: "12px 0 0", color: "#746E73", fontSize: "14px", lineHeight: 1.6 }}>
-              Quivo could not render this page. Retry the request after the app refreshes.
+            <h1 style={{ margin: 0, fontSize: "22px", fontWeight: 900 }}>
+              Application error
+            </h1>
+            <p
+              style={{
+                margin: "12px 0 0",
+                color: "#746E73",
+                fontSize: "14px",
+                lineHeight: 1.6,
+              }}
+            >
+              Quivo could not render this page. Retry the request after the app
+              refreshes.
             </p>
             {error.digest && (
               <p

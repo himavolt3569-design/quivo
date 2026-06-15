@@ -57,7 +57,13 @@ interface BarcodeModal {
   productUrl: string;
 }
 
-export function ProductList({ shopId, shopSlug, initialProducts, initialFilter, hasMultipleShops }: ProductListProps) {
+export function ProductList({
+  shopId,
+  shopSlug,
+  initialProducts,
+  initialFilter,
+  hasMultipleShops,
+}: ProductListProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [products, setProducts] = useState(initialProducts);
   const [filter, setFilter] = useState<FilterId>(initialFilter ?? "all");
@@ -81,7 +87,9 @@ export function ProductList({ shopId, shopSlug, initialProducts, initialFilter, 
     );
   });
 
-  const lowStockCount = products.filter((p) => p.stock <= (p.low_stock_threshold ?? 5)).length;
+  const lowStockCount = products.filter(
+    (p) => p.stock <= (p.low_stock_threshold ?? 5),
+  ).length;
   const outOfStockCount = products.filter((p) => p.stock <= 0).length;
 
   const handleDelete = (id: string) => {
@@ -103,7 +111,9 @@ export function ProductList({ shopId, shopSlug, initialProducts, initialFilter, 
         toast.error(result.error);
       } else {
         setProducts((prev) =>
-          prev.map((p) => p.id === productId ? { ...p, stock: result.newStock! } : p)
+          prev.map((p) =>
+            p.id === productId ? { ...p, stock: result.newStock! } : p,
+          ),
         );
         setStockAdjust((prev) => ({ ...prev, [productId]: 0 }));
       }
@@ -113,7 +123,11 @@ export function ProductList({ shopId, shopSlug, initialProducts, initialFilter, 
   const handleShowBarcode = (product: Product) => {
     if (!product.barcode) return;
     const productUrl = `${window.location.origin}/s/${shopSlug}/product/${product.barcode}`;
-    setBarcodeModal({ productId: product.id, barcode: product.barcode, productUrl });
+    setBarcodeModal({
+      productId: product.id,
+      barcode: product.barcode,
+      productUrl,
+    });
   };
 
   const getThumbnail = (p: Product) => {
@@ -125,19 +139,37 @@ export function ProductList({ shopId, shopSlug, initialProducts, initialFilter, 
     <>
       {/* Barcode Modal */}
       {barcodeModal && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={() => setBarcodeModal(null)}>
-          <div className="bg-white rounded-[2rem] p-8 space-y-5 text-center shadow-2xl max-w-sm w-full" onClick={(e) => e.stopPropagation()}>
+        <div
+          className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
+          onClick={() => setBarcodeModal(null)}
+        >
+          <div
+            className="bg-white rounded-[2rem] p-8 space-y-5 text-center shadow-2xl max-w-sm w-full"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="flex items-center justify-between">
               <h3 className="font-black text-[#27324A]">Product Barcode</h3>
-              <button onClick={() => setBarcodeModal(null)} className="h-8 w-8 rounded-full bg-[#f8f8f7] flex items-center justify-center">
+              <button
+                onClick={() => setBarcodeModal(null)}
+                className="h-8 w-8 rounded-full bg-[#f8f8f7] flex items-center justify-center"
+              >
                 <X className="h-4 w-4 text-[#746E73]" />
               </button>
             </div>
             <div className="flex justify-center overflow-hidden rounded-2xl border border-[#2E3344]/8 bg-white p-4">
-              <BarcodeImage value={barcodeModal.barcode} height={80} width={2} fontSize={13} />
+              <BarcodeImage
+                value={barcodeModal.barcode}
+                height={80}
+                width={2}
+                fontSize={13}
+              />
             </div>
-            <a href={barcodeModal.productUrl} target="_blank" rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 text-xs font-bold text-[#A7653A] hover:underline">
+            <a
+              href={barcodeModal.productUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-[#A7653A] hover:underline"
+            >
               <ExternalLink className="h-3 w-3" /> Product page
             </a>
           </div>
@@ -148,28 +180,53 @@ export function ProductList({ shopId, shopSlug, initialProducts, initialFilter, 
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-black text-[#27324A]">Inventory & Products</h1>
-            <p className="text-sm font-medium text-[#746E73] mt-1">Manage your catalog, stock levels, and barcodes.</p>
+            <h1 className="text-2xl font-black text-[#27324A]">
+              Inventory & Products
+            </h1>
+            <p className="text-sm font-medium text-[#746E73] mt-1">
+              Manage your catalog, stock levels, and barcodes.
+            </p>
           </div>
           <div className="flex gap-2 w-full sm:w-auto flex-wrap">
-            <Link href="/dashboard/owner/products/import" className="flex-1 sm:flex-initial">
-              <Button variant="outline" className="rounded-xl h-11 border-[#27324A]/15 text-[#27324A] font-bold w-full sm:w-auto">
+            <Link
+              href="/dashboard/owner/products/import"
+              className="flex-1 sm:flex-initial"
+            >
+              <Button
+                variant="outline"
+                className="rounded-xl h-11 border-[#27324A]/15 text-[#27324A] font-bold w-full sm:w-auto"
+              >
                 Import CSV
               </Button>
             </Link>
             {hasMultipleShops && (
-              <Link href="/dashboard/owner/products/transfers" className="flex-1 sm:flex-initial">
-                <Button variant="outline" className="rounded-xl h-11 border-[#27324A]/15 text-[#27324A] font-bold w-full sm:w-auto">
+              <Link
+                href="/dashboard/owner/products/transfers"
+                className="flex-1 sm:flex-initial"
+              >
+                <Button
+                  variant="outline"
+                  className="rounded-xl h-11 border-[#27324A]/15 text-[#27324A] font-bold w-full sm:w-auto"
+                >
                   Transfer
                 </Button>
               </Link>
             )}
-            <Link href="/dashboard/owner/products/stock-take" className="flex-1 sm:flex-initial">
-              <Button variant="outline" className="rounded-xl h-11 border-[#27324A]/15 text-[#27324A] font-bold w-full sm:w-auto">
+            <Link
+              href="/dashboard/owner/products/stock-take"
+              className="flex-1 sm:flex-initial"
+            >
+              <Button
+                variant="outline"
+                className="rounded-xl h-11 border-[#27324A]/15 text-[#27324A] font-bold w-full sm:w-auto"
+              >
                 Stock take
               </Button>
             </Link>
-            <Link href="/dashboard/owner/products/add" className="flex-1 sm:flex-initial">
+            <Link
+              href="/dashboard/owner/products/add"
+              className="flex-1 sm:flex-initial"
+            >
               <Button className="rounded-xl h-11 bg-[#A7653A] hover:bg-[#8D5132] text-white font-bold w-full">
                 <Plus className="h-4 w-4 mr-2" /> Add Product
               </Button>
@@ -189,22 +246,53 @@ export function ProductList({ shopId, shopSlug, initialProducts, initialFilter, 
             />
           </div>
           <div className="flex gap-2 overflow-x-auto hide-scrollbar -mx-1 px-1">
-            {([
-              { id: "all", label: `All`, count: products.length, accent: "bg-[#27324A] text-white" },
-              { id: "low_stock", label: `Low stock`, count: lowStockCount, accent: "bg-[#A7653A] text-white" },
-              { id: "out_of_stock", label: `Out of stock`, count: outOfStockCount, accent: "bg-red-600 text-white" },
-              { id: "active", label: `Active only`, count: products.filter((p) => p.status === "active").length, accent: "bg-emerald-600 text-white" },
-            ] as { id: FilterId; label: string; count: number; accent: string }[]).map((chip) => (
+            {(
+              [
+                {
+                  id: "all",
+                  label: `All`,
+                  count: products.length,
+                  accent: "bg-[#27324A] text-white",
+                },
+                {
+                  id: "low_stock",
+                  label: `Low stock`,
+                  count: lowStockCount,
+                  accent: "bg-[#A7653A] text-white",
+                },
+                {
+                  id: "out_of_stock",
+                  label: `Out of stock`,
+                  count: outOfStockCount,
+                  accent: "bg-red-600 text-white",
+                },
+                {
+                  id: "active",
+                  label: `Active only`,
+                  count: products.filter((p) => p.status === "active").length,
+                  accent: "bg-emerald-600 text-white",
+                },
+              ] as {
+                id: FilterId;
+                label: string;
+                count: number;
+                accent: string;
+              }[]
+            ).map((chip) => (
               <button
                 key={chip.id}
                 type="button"
                 onClick={() => setFilter(chip.id)}
                 className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition flex items-center gap-2 ${
-                  filter === chip.id ? chip.accent : "bg-[#f8f8f7] text-[#27324A] hover:bg-[#F7F0E6]"
+                  filter === chip.id
+                    ? chip.accent
+                    : "bg-[#f8f8f7] text-[#27324A] hover:bg-[#F7F0E6]"
                 }`}
               >
                 {chip.label}
-                <span className={`text-[10px] font-black ${filter === chip.id ? "opacity-80" : "opacity-50"}`}>
+                <span
+                  className={`text-[10px] font-black ${filter === chip.id ? "opacity-80" : "opacity-50"}`}
+                >
                   {chip.count}
                 </span>
               </button>
@@ -226,9 +314,12 @@ export function ProductList({ shopId, shopSlug, initialProducts, initialFilter, 
             <div className="h-16 w-16 rounded-2xl bg-[#F7F0E6] flex items-center justify-center">
               <Package className="h-8 w-8 text-[#A7653A]" />
             </div>
-            <h3 className="text-lg font-black text-[#27324A]">No products yet</h3>
+            <h3 className="text-lg font-black text-[#27324A]">
+              No products yet
+            </h3>
             <p className="text-sm text-[#746E73] font-medium max-w-xs">
-              Add your first product to start tracking inventory and enabling online ordering.
+              Add your first product to start tracking inventory and enabling
+              online ordering.
             </p>
             <Link href="/dashboard/owner/products/add">
               <Button className="rounded-xl h-11 bg-[#A7653A] hover:bg-[#8D5132] text-white font-bold">
@@ -255,27 +346,45 @@ export function ProductList({ shopId, shopSlug, initialProducts, initialFilter, 
                 </thead>
                 <tbody className="divide-y divide-[#2E3344]/5">
                   {filtered.map((product) => {
-                    const isLow = product.stock <= (product.low_stock_threshold ?? 5);
+                    const isLow =
+                      product.stock <= (product.low_stock_threshold ?? 5);
                     const thumb = getThumbnail(product);
                     return (
-                      <tr key={product.id} className="hover:bg-[#f8f8f7]/50 transition">
+                      <tr
+                        key={product.id}
+                        className="hover:bg-[#f8f8f7]/50 transition"
+                      >
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-3">
                             <div className="h-10 w-10 rounded-lg bg-[#E8E3D1]/50 flex items-center justify-center font-bold text-[#A7653A] text-xs shrink-0 overflow-hidden">
                               {thumb ? (
-                                <img src={thumb} alt={product.name} className="h-10 w-10 object-cover" />
-                              ) : product.name[0]}
+                                <img
+                                  src={thumb}
+                                  alt={product.name}
+                                  className="h-10 w-10 object-cover"
+                                />
+                              ) : (
+                                product.name[0]
+                              )}
                             </div>
                             <div>
-                              <p className="font-black text-[#27324A]">{product.name}</p>
+                              <p className="font-black text-[#27324A]">
+                                {product.name}
+                              </p>
                               <p className="text-[10px] font-bold text-[#746E73]">
-                                {[product.brand, product.unit, product.variant].filter(Boolean).join(" • ")}
+                                {[product.brand, product.unit, product.variant]
+                                  .filter(Boolean)
+                                  .join(" • ")}
                               </p>
                             </div>
                           </div>
                         </td>
-                        <td className="px-6 py-4 font-bold text-[#746E73]">{product.category ?? "—"}</td>
-                        <td className="px-6 py-4 font-black text-[#27324A]">Rs. {product.price}</td>
+                        <td className="px-6 py-4 font-bold text-[#746E73]">
+                          {product.category ?? "—"}
+                        </td>
+                        <td className="px-6 py-4 font-black text-[#27324A]">
+                          Rs. {product.price}
+                        </td>
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-2">
                             <button
@@ -287,10 +396,13 @@ export function ProductList({ shopId, shopSlug, initialProducts, initialFilter, 
                             </button>
                             {isLow ? (
                               <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-orange-50 text-orange-700 font-black text-xs border border-orange-100 min-w-[2.5rem] justify-center">
-                                <AlertTriangle className="h-3 w-3" /> {product.stock}
+                                <AlertTriangle className="h-3 w-3" />{" "}
+                                {product.stock}
                               </span>
                             ) : (
-                              <span className="font-black text-[#27324A] text-sm min-w-[2.5rem] text-center">{product.stock}</span>
+                              <span className="font-black text-[#27324A] text-sm min-w-[2.5rem] text-center">
+                                {product.stock}
+                              </span>
                             )}
                             <button
                               onClick={() => handleAdjustStock(product.id, 1)}
@@ -302,11 +414,13 @@ export function ProductList({ shopId, shopSlug, initialProducts, initialFilter, 
                           </div>
                         </td>
                         <td className="px-6 py-4">
-                          <span className={`inline-block px-2.5 py-1 rounded-md font-bold text-[10px] uppercase tracking-wider border ${
-                            product.status === "active"
-                              ? "bg-green-50 text-green-700 border-green-100"
-                              : "bg-[#f8f8f7] text-[#746E73] border-[#2E3344]/10"
-                          }`}>
+                          <span
+                            className={`inline-block px-2.5 py-1 rounded-md font-bold text-[10px] uppercase tracking-wider border ${
+                              product.status === "active"
+                                ? "bg-green-50 text-green-700 border-green-100"
+                                : "bg-[#f8f8f7] text-[#746E73] border-[#2E3344]/10"
+                            }`}
+                          >
                             {product.status}
                           </span>
                         </td>
@@ -321,7 +435,9 @@ export function ProductList({ shopId, shopSlug, initialProducts, initialFilter, 
                                 <BarcodeIcon className="h-3.5 w-3.5" />
                               </button>
                             )}
-                            <Link href={`/dashboard/owner/products/${product.id}/edit`}>
+                            <Link
+                              href={`/dashboard/owner/products/${product.id}/edit`}
+                            >
                               <button className="h-8 w-8 rounded-lg border border-[#2E3344]/10 flex items-center justify-center text-[#746E73] hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 transition">
                                 <Pencil className="h-3.5 w-3.5" />
                               </button>
@@ -351,16 +467,31 @@ export function ProductList({ shopId, shopSlug, initialProducts, initialFilter, 
               const isLow = product.stock <= (product.low_stock_threshold ?? 5);
               const thumb = getThumbnail(product);
               return (
-                <div key={product.id} className="bg-white p-4 rounded-[1.5rem] border border-[#2E3344]/8 shadow-sm space-y-4">
+                <div
+                  key={product.id}
+                  className="bg-white p-4 rounded-[1.5rem] border border-[#2E3344]/8 shadow-sm space-y-4"
+                >
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex items-center gap-3 min-w-0">
                       <div className="h-12 w-12 rounded-xl bg-[#E8E3D1]/50 flex items-center justify-center font-bold text-[#A7653A] text-lg shrink-0 overflow-hidden">
-                        {thumb ? <img src={thumb} alt={product.name} className="h-12 w-12 object-cover" /> : product.name[0]}
+                        {thumb ? (
+                          <img
+                            src={thumb}
+                            alt={product.name}
+                            className="h-12 w-12 object-cover"
+                          />
+                        ) : (
+                          product.name[0]
+                        )}
                       </div>
                       <div className="min-w-0">
-                        <p className="font-black text-[#27324A] truncate">{product.name}</p>
+                        <p className="font-black text-[#27324A] truncate">
+                          {product.name}
+                        </p>
                         <p className="text-xs font-bold text-[#746E73] mt-0.5 truncate">
-                          {[product.brand, product.unit, product.category].filter(Boolean).join(" • ")}
+                          {[product.brand, product.unit, product.category]
+                            .filter(Boolean)
+                            .join(" • ")}
                         </p>
                       </div>
                     </div>
@@ -373,7 +504,9 @@ export function ProductList({ shopId, shopSlug, initialProducts, initialFilter, 
                           <BarcodeIcon className="h-3.5 w-3.5" />
                         </button>
                       )}
-                      <Link href={`/dashboard/owner/products/${product.id}/edit`}>
+                      <Link
+                        href={`/dashboard/owner/products/${product.id}/edit`}
+                      >
                         <button className="h-8 w-8 rounded-lg border border-[#2E3344]/10 flex items-center justify-center text-[#746E73] hover:bg-blue-50 hover:text-blue-600">
                           <Pencil className="h-3.5 w-3.5" />
                         </button>
@@ -389,7 +522,9 @@ export function ProductList({ shopId, shopSlug, initialProducts, initialFilter, 
                   </div>
 
                   <div className="flex items-center justify-between pt-3 border-t border-[#2E3344]/5">
-                    <p className="font-black text-[#27324A]">Rs. {product.price}</p>
+                    <p className="font-black text-[#27324A]">
+                      Rs. {product.price}
+                    </p>
 
                     {/* Stock controls */}
                     <div className="flex items-center gap-2">
@@ -405,7 +540,9 @@ export function ProductList({ shopId, shopSlug, initialProducts, initialFilter, 
                           <AlertTriangle className="h-3 w-3" /> {product.stock}
                         </span>
                       ) : (
-                        <span className="text-sm font-black text-[#27324A] min-w-[2rem] text-center">{product.stock}</span>
+                        <span className="text-sm font-black text-[#27324A] min-w-[2rem] text-center">
+                          {product.stock}
+                        </span>
                       )}
                       <button
                         onClick={() => handleAdjustStock(product.id, 1)}
@@ -414,7 +551,9 @@ export function ProductList({ shopId, shopSlug, initialProducts, initialFilter, 
                       >
                         <ChevronUp className="h-3.5 w-3.5" />
                       </button>
-                      <span className="text-[10px] text-[#746E73] font-medium">in stock</span>
+                      <span className="text-[10px] text-[#746E73] font-medium">
+                        in stock
+                      </span>
                     </div>
                   </div>
                 </div>

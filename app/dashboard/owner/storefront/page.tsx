@@ -12,7 +12,10 @@ export default async function StorefrontPage() {
     return (
       <div className="flex flex-col items-center justify-center h-64 gap-4 text-center">
         <p className="text-lg font-bold text-[#27324A]">No shop selected.</p>
-        <Link href="/onboarding/owner" className="text-sm text-[#A7653A] hover:underline font-bold">
+        <Link
+          href="/onboarding/owner"
+          className="text-sm text-[#A7653A] hover:underline font-bold"
+        >
           Create your first shop →
         </Link>
       </div>
@@ -33,8 +36,8 @@ export default async function StorefrontPage() {
       .from("shops")
       .select(
         "name, slug, theme_color, theme_layout, template, font_family, " +
-        "hero_headline, hero_subtext, cover_image_url, " +
-        "announcement_text, announcement_active, sections_order, whatsapp_number"
+          "hero_headline, hero_subtext, cover_image_url, " +
+          "announcement_text, announcement_active, sections_order, whatsapp_number",
       )
       .eq("id", activeShop.id)
       .single(),
@@ -54,8 +57,9 @@ export default async function StorefrontPage() {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const shopData = shop && !("error" in (shop as any)) ? shop as any : null;
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://quivo-hazel.vercel.app";
+  const shopData = shop && !("error" in (shop as any)) ? (shop as any) : null;
+  const siteUrl =
+    process.env.NEXT_PUBLIC_SITE_URL ?? "https://quivo-hazel.vercel.app";
   const publicUrl = activeShop.slug ? `${siteUrl}/s/${activeShop.slug}` : null;
 
   return (
@@ -67,7 +71,9 @@ export default async function StorefrontPage() {
       qrDataUrl={qrDataUrl}
       scanCount={qrCode?.scan_count ?? 0}
       initialThemeColor={shopData?.theme_color ?? "#A7653A"}
-      initialThemeLayout={(shopData?.theme_layout as "modern" | "list") ?? "modern"}
+      initialThemeLayout={
+        (shopData?.theme_layout as "modern" | "list") ?? "modern"
+      }
       initialTemplate={shopData?.template ?? "modern"}
       initialFontFamily={shopData?.font_family ?? "inter"}
       initialHeroHeadline={shopData?.hero_headline ?? ""}

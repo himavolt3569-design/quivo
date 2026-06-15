@@ -45,7 +45,7 @@ function round2(n: number): number {
 export async function getVatReport(
   shopId: string,
   year: number,
-  month: number // 1-12
+  month: number, // 1-12
 ): Promise<{ error?: string; report?: VatReportSummary }> {
   const idParse = ShopIdSchema.safeParse(shopId);
   if (!idParse.success) return { error: "Invalid shop ID" };
@@ -58,7 +58,11 @@ export async function getVatReport(
   try {
     const supabase = await createClient();
 
-    const [{ data: shop, error: shopErr }, { data: posRows, error: posErr }, { data: orderRows, error: orderErr }] = await Promise.all([
+    const [
+      { data: shop, error: shopErr },
+      { data: posRows, error: posErr },
+      { data: orderRows, error: orderErr },
+    ] = await Promise.all([
       supabase
         .from("shops")
         .select("name, pan_number, vat_rate, vat_registered")
@@ -66,7 +70,9 @@ export async function getVatReport(
         .maybeSingle(),
       supabase
         .from("shop_transactions")
-        .select("id, created_at, subtotal, tax_amount, amount, payment_method, type, description")
+        .select(
+          "id, created_at, subtotal, tax_amount, amount, payment_method, type, description",
+        )
         .eq("shop_id", idParse.data)
         .eq("type", "sale")
         .gte("created_at", startIso)
@@ -74,25 +80,42 @@ export async function getVatReport(
         .order("created_at", { ascending: true }),
       supabase
         .from("orders")
-        .select("id, order_number, created_at, subtotal, tax_amount, total_amount, payment_status, customer_email")
+        .select(
+          "id, order_number, created_at, subtotal, tax_amount, total_amount, payment_status, customer_email",
+        )
         .eq("shop_id", idParse.data)
-        .in("payment_status", ["payment_verified", "cod_pending", "paid_pending_receipt_upload", "receipt_uploaded", "paid"])
+        .in("payment_status", [
+          "payment_verified",
+          "cod_pending",
+          "paid_pending_receipt_upload",
+          "receipt_uploaded",
+          "paid",
+        ])
         .gte("created_at", startIso)
         .lt("created_at", endIso)
         .order("created_at", { ascending: true }),
     ]);
 
     if (shopErr) {
-      log.error("getVatReport: shop lookup failed", { code: shopErr.code, message: shopErr.message });
+      log.error("getVatReport: shop lookup failed", {
+        code: shopErr.code,
+        message: shopErr.message,
+      });
       return { error: shopErr.message };
     }
     if (!shop) return { error: "Shop not found" };
     if (posErr) {
-      log.error("getVatReport: pos query failed", { code: posErr.code, message: posErr.message });
+      log.error("getVatReport: pos query failed", {
+        code: posErr.code,
+        message: posErr.message,
+      });
       return { error: posErr.message };
     }
     if (orderErr) {
-      log.error("getVatReport: order query failed", { code: orderErr.code, message: orderErr.message });
+      log.error("getVatReport: order query failed", {
+        code: orderErr.code,
+        message: orderErr.message,
+      });
       return { error: orderErr.message };
     }
 
@@ -119,7 +142,9 @@ export async function getVatReport(
       const total = round2(Number(r.total_amount ?? 0));
       rows.push({
         source: "online",
-        invoice_no: (r.order_number as string) ?? `ORD-${(r.id as string).slice(0, 8).toUpperCase()}`,
+        invoice_no:
+          (r.order_number as string) ??
+          `ORD-${(r.id as string).slice(0, 8).toUpperCase()}`,
         date_iso: r.created_at as string,
         customer_pan: null,
         taxable_amount: taxable,
@@ -136,7 +161,7 @@ export async function getVatReport(
         tax: round2(acc.tax + row.tax_amount),
         total: round2(acc.total + row.total),
       }),
-      { taxable: 0, tax: 0, total: 0 }
+      { taxable: 0, tax: 0, total: 0 },
     );
 
     return {

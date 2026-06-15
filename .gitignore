@@ -47,3 +47,17 @@ fix_backticks.py
 
 # tool artifacts
 .antigravitycli/
+
+
+
+.nx/cache
+.nx/workspace-data
+.nx/polygraph
+.codex
+.vscode
+.github
+.agents
+nx.json
+opencode.json
+AGENTS.md
+CLAUDE.md 

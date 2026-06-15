@@ -1,6 +1,12 @@
 "use client";
 
-import { startTransition, useEffect, useLayoutEffect, useRef, useState } from "react";
+import {
+  startTransition,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import * as L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { MapPin, Search, X } from "lucide-react";
@@ -40,12 +46,12 @@ interface AddressPinPickerProps {
 
 async function reverseGeocode(
   lat: number,
-  lng: number
+  lng: number,
 ): Promise<{ address: string; landmark?: string } | null> {
   try {
     const res = await fetch(
       `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&accept-language=en`,
-      { headers: { "User-Agent": "QuivoApp/1.0" } }
+      { headers: { "User-Agent": "QuivoApp/1.0" } },
     );
     if (!res.ok) return null;
     const data = await res.json();
@@ -63,12 +69,7 @@ async function reverseGeocode(
         : (data.display_name ?? "").split(",").slice(0, 3).join(",").trim();
 
     const landmark =
-      a.amenity ||
-      a.building ||
-      a.shop ||
-      a.tourism ||
-      a.leisure ||
-      undefined;
+      a.amenity || a.building || a.shop || a.tourism || a.leisure || undefined;
 
     return { address, landmark };
   } catch {
@@ -80,7 +81,7 @@ async function searchPlaces(query: string): Promise<SearchResult[]> {
   try {
     const res = await fetch(
       `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=5&accept-language=en&countrycodes=np`,
-      { headers: { "User-Agent": "QuivoApp/1.0" } }
+      { headers: { "User-Agent": "QuivoApp/1.0" } },
     );
     if (!res.ok) return [];
     return await res.json();
@@ -117,7 +118,10 @@ export function AddressPinPicker({
   // Debounced place search
   useEffect(() => {
     if (query.trim().length < 3) {
-      startTransition(() => { setResults([]); setShowResults(false); });
+      startTransition(() => {
+        setResults([]);
+        setShowResults(false);
+      });
       return;
     }
     const timer = setTimeout(async () => {
@@ -133,7 +137,10 @@ export function AddressPinPicker({
   // Close dropdown on outside click
   useEffect(() => {
     const handler = (e: MouseEvent) => {
-      if (searchWrapRef.current && !searchWrapRef.current.contains(e.target as Node)) {
+      if (
+        searchWrapRef.current &&
+        !searchWrapRef.current.contains(e.target as Node)
+      ) {
         setShowResults(false);
       }
     };
@@ -150,7 +157,9 @@ export function AddressPinPicker({
       return;
     }
     markerRef.current.setLatLng([value.lat, value.lng]);
-    mapRef.current.setView([value.lat, value.lng], mapRef.current.getZoom(), { animate: true });
+    mapRef.current.setView([value.lat, value.lng], mapRef.current.getZoom(), {
+      animate: true,
+    });
   }, [value]);
 
   // Stable ref-based position handler — safe to use inside Leaflet event closures

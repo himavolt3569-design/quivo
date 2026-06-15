@@ -47,12 +47,26 @@ export function PushSubscribeButton() {
     let cancelled = false;
     (async () => {
       if (typeof window === "undefined") return;
-      if (!("serviceWorker" in navigator) || !("PushManager" in window) || !("Notification" in window)) {
-        if (!cancelled) setState((s) => ({ ...s, supported: false, reason: "Browser doesn't support web push." }));
+      if (
+        !("serviceWorker" in navigator) ||
+        !("PushManager" in window) ||
+        !("Notification" in window)
+      ) {
+        if (!cancelled)
+          setState((s) => ({
+            ...s,
+            supported: false,
+            reason: "Browser doesn't support web push.",
+          }));
         return;
       }
       if (!VAPID_PUBLIC) {
-        if (!cancelled) setState((s) => ({ ...s, supported: false, reason: "Operator hasn't set NEXT_PUBLIC_VAPID_PUBLIC_KEY." }));
+        if (!cancelled)
+          setState((s) => ({
+            ...s,
+            supported: false,
+            reason: "Operator hasn't set NEXT_PUBLIC_VAPID_PUBLIC_KEY.",
+          }));
         return;
       }
       try {
@@ -66,14 +80,18 @@ export function PushSubscribeButton() {
           endpoint: existing?.endpoint,
         });
       } catch (err) {
-        if (!cancelled) setState((s) => ({
-          ...s,
-          supported: false,
-          reason: err instanceof Error ? err.message : "Service worker not ready.",
-        }));
+        if (!cancelled)
+          setState((s) => ({
+            ...s,
+            supported: false,
+            reason:
+              err instanceof Error ? err.message : "Service worker not ready.",
+          }));
       }
     })();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const enable = () => {
@@ -88,26 +106,39 @@ export function PushSubscribeButton() {
         }
         const sub = await reg.pushManager.subscribe({
           userVisibleOnly: true,
-          applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC) as unknown as BufferSource,
+          applicationServerKey: urlBase64ToUint8Array(
+            VAPID_PUBLIC,
+          ) as unknown as BufferSource,
         });
-        const json = sub.toJSON() as { endpoint?: string; keys?: { p256dh?: string; auth?: string } };
+        const json = sub.toJSON() as {
+          endpoint?: string;
+          keys?: { p256dh?: string; auth?: string };
+        };
         const res = await fetch("/api/push/subscribe", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             endpoint: json.endpoint,
             keys: { p256dh: json.keys?.p256dh, auth: json.keys?.auth },
-            userAgent: typeof navigator !== "undefined" ? navigator.userAgent : null,
+            userAgent:
+              typeof navigator !== "undefined" ? navigator.userAgent : null,
           }),
         });
         if (!res.ok) {
           const body = await res.json().catch(() => ({}));
           throw new Error(body?.error ?? `HTTP ${res.status}`);
         }
-        setState({ supported: true, permission: "granted", subscribed: true, endpoint: sub.endpoint });
+        setState({
+          supported: true,
+          permission: "granted",
+          subscribed: true,
+          endpoint: sub.endpoint,
+        });
         toast.success("Push notifications enabled for this device.");
       } catch (err) {
-        toast.error(err instanceof Error ? err.message : "Could not enable push.");
+        toast.error(
+          err instanceof Error ? err.message : "Could not enable push.",
+        );
       }
     });
   };
@@ -123,11 +154,20 @@ export function PushSubscribeButton() {
         }
         const endpoint = sub.endpoint;
         await sub.unsubscribe();
-        await fetch(`/api/push/subscribe?endpoint=${encodeURIComponent(endpoint)}`, { method: "DELETE" });
-        setState({ supported: true, permission: Notification.permission, subscribed: false });
+        await fetch(
+          `/api/push/subscribe?endpoint=${encodeURIComponent(endpoint)}`,
+          { method: "DELETE" },
+        );
+        setState({
+          supported: true,
+          permission: Notification.permission,
+          subscribed: false,
+        });
         toast.success("Push notifications disabled on this device.");
       } catch (err) {
-        toast.error(err instanceof Error ? err.message : "Could not disable push.");
+        toast.error(
+          err instanceof Error ? err.message : "Could not disable push.",
+        );
       }
     });
   };
@@ -137,7 +177,9 @@ export function PushSubscribeButton() {
       <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex items-start gap-3 text-xs">
         <AlertCircle className="h-4 w-4 text-amber-700 mt-0.5 shrink-0" />
         <div>
-          <p className="font-bold text-amber-900">Push notifications unavailable on this device</p>
+          <p className="font-bold text-amber-900">
+            Push notifications unavailable on this device
+          </p>
           <p className="text-amber-800 mt-1">{state.reason ?? "—"}</p>
         </div>
       </div>
@@ -152,7 +194,11 @@ export function PushSubscribeButton() {
         disabled={busy}
         className="h-11 px-4 rounded-xl border border-[#27324A]/15 text-[#27324A] font-bold text-sm flex items-center gap-2 hover:bg-[#f8f8f7] disabled:opacity-40"
       >
-        {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <BellOff className="h-4 w-4" />}
+        {busy ? (
+          <Loader2 className="h-4 w-4 animate-spin" />
+        ) : (
+          <BellOff className="h-4 w-4" />
+        )}
         Disable push on this device
       </button>
     );
@@ -165,7 +211,11 @@ export function PushSubscribeButton() {
       disabled={busy}
       className="h-11 px-4 rounded-xl bg-[#27324A] hover:bg-[#1b2333] text-white font-bold text-sm flex items-center gap-2 disabled:opacity-40"
     >
-      {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <BellRing className="h-4 w-4" />}
+      {busy ? (
+        <Loader2 className="h-4 w-4 animate-spin" />
+      ) : (
+        <BellRing className="h-4 w-4" />
+      )}
       Enable push notifications
     </button>
   );

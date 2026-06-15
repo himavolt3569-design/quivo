@@ -23,19 +23,38 @@ export function ReportDateBar({ from, to, onChange, right }: Props) {
   return (
     <div className="bg-white p-4 rounded-2xl border border-[#2E3344]/8 shadow-sm flex flex-wrap items-end gap-3">
       <div>
-        <label className="text-[10px] font-black uppercase tracking-wider text-[#746E73] mb-1 block">From</label>
-        <Input type="date" value={from} max={to} onChange={(e) => onChange(e.target.value, to)} className="h-11 rounded-xl" />
+        <label className="text-[10px] font-black uppercase tracking-wider text-[#746E73] mb-1 block">
+          From
+        </label>
+        <Input
+          type="date"
+          value={from}
+          max={to}
+          onChange={(e) => onChange(e.target.value, to)}
+          className="h-11 rounded-xl"
+        />
       </div>
       <div>
-        <label className="text-[10px] font-black uppercase tracking-wider text-[#746E73] mb-1 block">To</label>
-        <Input type="date" value={to} min={from} onChange={(e) => onChange(from, e.target.value)} className="h-11 rounded-xl" />
+        <label className="text-[10px] font-black uppercase tracking-wider text-[#746E73] mb-1 block">
+          To
+        </label>
+        <Input
+          type="date"
+          value={to}
+          min={from}
+          onChange={(e) => onChange(from, e.target.value)}
+          className="h-11 rounded-xl"
+        />
       </div>
       <div className="flex gap-1.5 flex-wrap">
         {PRESETS.map((p) => (
           <button
             key={p.id}
             type="button"
-            onClick={() => { const r = presetRange(p.id); onChange(r.from, r.to); }}
+            onClick={() => {
+              const r = presetRange(p.id);
+              onChange(r.from, r.to);
+            }}
             className="h-9 px-3 rounded-lg text-xs font-bold bg-[#f8f8f7] text-[#27324A] hover:bg-[#F7F0E6] transition"
           >
             {p.label}

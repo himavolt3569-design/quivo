@@ -67,8 +67,13 @@ export function SupplierList({ shopId, initialSuppliers }: SupplierListProps) {
   const [showAddModal, setShowAddModal] = useState(false);
   const [form, setForm] = useState(emptyForm);
 
-  const totalDues = suppliers.reduce((acc, s) => acc + Number(s.balance_due ?? 0), 0);
-  const suppliersWithDues = suppliers.filter((s) => Number(s.balance_due ?? 0) > 0).length;
+  const totalDues = suppliers.reduce(
+    (acc, s) => acc + Number(s.balance_due ?? 0),
+    0,
+  );
+  const suppliersWithDues = suppliers.filter(
+    (s) => Number(s.balance_due ?? 0) > 0,
+  ).length;
 
   const filtered = suppliers.filter((s) => {
     const term = search.trim().toLowerCase();
@@ -99,7 +104,9 @@ export function SupplierList({ shopId, initialSuppliers }: SupplierListProps) {
   };
 
   const handlePay = (supplierId: string, supplierName: string) => {
-    const amountStr = window.prompt(`Enter payment amount for ${supplierName} (Rs.):`);
+    const amountStr = window.prompt(
+      `Enter payment amount for ${supplierName} (Rs.):`,
+    );
     if (!amountStr) return;
     const amount = parseFloat(amountStr);
     if (isNaN(amount) || amount <= 0) {
@@ -115,9 +122,12 @@ export function SupplierList({ shopId, initialSuppliers }: SupplierListProps) {
         setSuppliers((prev) =>
           prev.map((s) =>
             s.id === supplierId
-              ? { ...s, balance_due: Math.max(0, Number(s.balance_due ?? 0) - amount) }
-              : s
-          )
+              ? {
+                  ...s,
+                  balance_due: Math.max(0, Number(s.balance_due ?? 0) - amount),
+                }
+              : s,
+          ),
         );
         toast.success("Payment recorded.");
       }
@@ -128,21 +138,32 @@ export function SupplierList({ shopId, initialSuppliers }: SupplierListProps) {
     <div className="space-y-6 max-w-7xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500 pb-10">
       <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
         <div>
-          <p className="text-[10px] font-black uppercase tracking-widest text-[#A7653A]">Payables ledger</p>
+          <p className="text-[10px] font-black uppercase tracking-widest text-[#A7653A]">
+            Payables ledger
+          </p>
           <h1 className="text-2xl font-black text-[#27324A]">Suppliers</h1>
           <p className="text-sm font-medium text-[#746E73] mt-1">
-            Manage distributors, supplier profiles, purchases, payments, and printable ledgers.
+            Manage distributors, supplier profiles, purchases, payments, and
+            printable ledgers.
           </p>
         </div>
 
         <div className="grid grid-cols-2 gap-3 sm:flex sm:items-center">
           <div className="rounded-2xl border border-[#2E3344]/8 bg-white px-4 py-3 shadow-sm">
-            <p className="text-[10px] font-black uppercase tracking-widest text-[#746E73]">Open Suppliers</p>
-            <p className="text-xl font-black text-[#27324A]">{suppliersWithDues}</p>
+            <p className="text-[10px] font-black uppercase tracking-widest text-[#746E73]">
+              Open Suppliers
+            </p>
+            <p className="text-xl font-black text-[#27324A]">
+              {suppliersWithDues}
+            </p>
           </div>
           <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 shadow-sm">
-            <p className="text-[10px] font-black uppercase tracking-widest text-red-600">Total Payable</p>
-            <p className="text-xl font-black text-red-700">Rs. {totalDues.toLocaleString()}</p>
+            <p className="text-[10px] font-black uppercase tracking-widest text-red-600">
+              Total Payable
+            </p>
+            <p className="text-xl font-black text-red-700">
+              Rs. {totalDues.toLocaleString()}
+            </p>
           </div>
           <Button
             onClick={() => setShowAddModal(true)}
@@ -164,7 +185,8 @@ export function SupplierList({ shopId, initialSuppliers }: SupplierListProps) {
           />
         </div>
         <p className="text-xs font-bold text-[#746E73]">
-          {filtered.length} of {suppliers.length} supplier{suppliers.length === 1 ? "" : "s"}
+          {filtered.length} of {suppliers.length} supplier
+          {suppliers.length === 1 ? "" : "s"}
         </p>
       </div>
 
@@ -173,9 +195,12 @@ export function SupplierList({ shopId, initialSuppliers }: SupplierListProps) {
           <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[#F7F0E6]">
             <Truck className="h-8 w-8 text-[#A7653A]" />
           </div>
-          <h3 className="text-lg font-black text-[#27324A]">No suppliers yet</h3>
+          <h3 className="text-lg font-black text-[#27324A]">
+            No suppliers yet
+          </h3>
           <p className="max-w-sm text-sm font-medium text-[#746E73]">
-            Add supplier details once, then use the ledger page to record bills, payments, and print statements.
+            Add supplier details once, then use the ledger page to record bills,
+            payments, and print statements.
           </p>
           <Button
             onClick={() => setShowAddModal(true)}
@@ -197,15 +222,24 @@ export function SupplierList({ shopId, initialSuppliers }: SupplierListProps) {
               <div className="flex items-start justify-between gap-4">
                 <div className="flex min-w-0 items-center gap-3">
                   <Avatar className="h-14 w-14 rounded-2xl border border-[#2E3344]/8 bg-[#F7F0E6]">
-                    {supplier.logo_url && <AvatarImage src={supplier.logo_url} alt={`${supplier.name} logo`} />}
+                    {supplier.logo_url && (
+                      <AvatarImage
+                        src={supplier.logo_url}
+                        alt={`${supplier.name} logo`}
+                      />
+                    )}
                     <AvatarFallback className="rounded-2xl bg-[#F7F0E6] text-lg font-black text-[#A7653A]">
                       {supplier.name[0]?.toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
                   <div className="min-w-0">
-                    <h3 className="truncate text-base font-black text-[#27324A]">{supplier.name}</h3>
+                    <h3 className="truncate text-base font-black text-[#27324A]">
+                      {supplier.name}
+                    </h3>
                     <p className="truncate text-xs font-bold text-[#746E73]">
-                      {supplier.contact_person || supplier.category || "Supplier account"}
+                      {supplier.contact_person ||
+                        supplier.category ||
+                        "Supplier account"}
                     </p>
                     <div className="mt-1 flex flex-wrap gap-1.5">
                       {supplier.category && (
@@ -223,18 +257,41 @@ export function SupplierList({ shopId, initialSuppliers }: SupplierListProps) {
                 </div>
 
                 <div className="text-right">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-[#746E73]">Current Payable</p>
-                  <p className={balance > 0 ? "text-lg font-black text-red-600" : "text-lg font-black text-green-600"}>
+                  <p className="text-[10px] font-black uppercase tracking-widest text-[#746E73]">
+                    Current Payable
+                  </p>
+                  <p
+                    className={
+                      balance > 0
+                        ? "text-lg font-black text-red-600"
+                        : "text-lg font-black text-green-600"
+                    }
+                  >
                     Rs. {balance.toLocaleString()}
                   </p>
                 </div>
               </div>
 
               <div className="mt-5 grid gap-2 text-sm sm:grid-cols-2">
-                <ContactLine icon={Phone} text={supplier.phone} fallback="No phone" />
-                <ContactLine icon={Mail} text={supplier.email} fallback="No email" />
-                <ContactLine icon={MapPin} text={supplier.address} fallback="No address" />
-                <ContactLine icon={Building2} text={`Opening Rs. ${Number(supplier.opening_balance ?? 0).toLocaleString()}`} />
+                <ContactLine
+                  icon={Phone}
+                  text={supplier.phone}
+                  fallback="No phone"
+                />
+                <ContactLine
+                  icon={Mail}
+                  text={supplier.email}
+                  fallback="No email"
+                />
+                <ContactLine
+                  icon={MapPin}
+                  text={supplier.address}
+                  fallback="No address"
+                />
+                <ContactLine
+                  icon={Building2}
+                  text={`Opening Rs. ${Number(supplier.opening_balance ?? 0).toLocaleString()}`}
+                />
               </div>
 
               {supplier.notes && (
@@ -269,7 +326,9 @@ export function SupplierList({ shopId, initialSuppliers }: SupplierListProps) {
       </div>
 
       {suppliers.length > 0 && filtered.length === 0 && (
-        <div className="py-12 text-center font-medium text-[#746E73]">No suppliers match your search.</div>
+        <div className="py-12 text-center font-medium text-[#746E73]">
+          No suppliers match your search.
+        </div>
       )}
 
       {showAddModal && (
@@ -277,10 +336,17 @@ export function SupplierList({ shopId, initialSuppliers }: SupplierListProps) {
           <div className="max-h-[92vh] w-full max-w-2xl overflow-y-auto rounded-[1.5rem] bg-white p-6 shadow-2xl animate-in slide-in-from-bottom-4 duration-300">
             <div className="mb-5 flex items-center justify-between">
               <div>
-                <p className="text-[10px] font-black uppercase tracking-widest text-[#A7653A]">Supplier profile</p>
-                <h2 className="text-lg font-black text-[#27324A]">Add Supplier</h2>
+                <p className="text-[10px] font-black uppercase tracking-widest text-[#A7653A]">
+                  Supplier profile
+                </p>
+                <h2 className="text-lg font-black text-[#27324A]">
+                  Add Supplier
+                </h2>
               </div>
-              <button onClick={() => setShowAddModal(false)} className="rounded-lg p-1 text-[#746E73] hover:text-[#27324A]">
+              <button
+                onClick={() => setShowAddModal(false)}
+                className="rounded-lg p-1 text-[#746E73] hover:text-[#27324A]"
+              >
                 <X className="h-5 w-5" />
               </button>
             </div>
@@ -289,7 +355,9 @@ export function SupplierList({ shopId, initialSuppliers }: SupplierListProps) {
               <Field label="Supplier / Distributor Name *">
                 <Input
                   value={form.name}
-                  onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, name: e.target.value }))
+                  }
                   placeholder="e.g. CG Foods Distributor"
                   className="h-12 rounded-xl"
                 />
@@ -297,7 +365,9 @@ export function SupplierList({ shopId, initialSuppliers }: SupplierListProps) {
               <Field label="Logo URL">
                 <Input
                   value={form.logo_url}
-                  onChange={(e) => setForm((f) => ({ ...f, logo_url: e.target.value }))}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, logo_url: e.target.value }))
+                  }
                   placeholder="https://..."
                   className="h-12 rounded-xl"
                 />
@@ -305,7 +375,9 @@ export function SupplierList({ shopId, initialSuppliers }: SupplierListProps) {
               <Field label="Contact Person">
                 <Input
                   value={form.contact_person}
-                  onChange={(e) => setForm((f) => ({ ...f, contact_person: e.target.value }))}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, contact_person: e.target.value }))
+                  }
                   placeholder="Name of sales rep"
                   className="h-12 rounded-xl"
                 />
@@ -313,7 +385,9 @@ export function SupplierList({ shopId, initialSuppliers }: SupplierListProps) {
               <Field label="Category">
                 <Input
                   value={form.category}
-                  onChange={(e) => setForm((f) => ({ ...f, category: e.target.value }))}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, category: e.target.value }))
+                  }
                   placeholder="Grocery, dairy, packaging..."
                   className="h-12 rounded-xl"
                 />
@@ -321,7 +395,9 @@ export function SupplierList({ shopId, initialSuppliers }: SupplierListProps) {
               <Field label="Phone Number">
                 <PhoneInput
                   value={form.phone}
-                  onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, phone: e.target.value }))
+                  }
                   placeholder="98XXXXXXXX"
                   className="h-12 rounded-xl"
                 />
@@ -329,7 +405,9 @@ export function SupplierList({ shopId, initialSuppliers }: SupplierListProps) {
               <Field label="Email">
                 <EmailInput
                   value={form.email}
-                  onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, email: e.target.value }))
+                  }
                   placeholder="supplier@example.com"
                   className="h-12 rounded-xl"
                 />
@@ -337,7 +415,9 @@ export function SupplierList({ shopId, initialSuppliers }: SupplierListProps) {
               <Field label="PAN / Tax ID">
                 <Input
                   value={form.tax_id}
-                  onChange={(e) => setForm((f) => ({ ...f, tax_id: e.target.value }))}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, tax_id: e.target.value }))
+                  }
                   placeholder="Optional"
                   className="h-12 rounded-xl"
                 />
@@ -347,7 +427,9 @@ export function SupplierList({ shopId, initialSuppliers }: SupplierListProps) {
                   type="number"
                   min="0"
                   value={form.opening_balance}
-                  onChange={(e) => setForm((f) => ({ ...f, opening_balance: e.target.value }))}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, opening_balance: e.target.value }))
+                  }
                   placeholder="0"
                   className="h-12 rounded-xl"
                 />
@@ -355,7 +437,9 @@ export function SupplierList({ shopId, initialSuppliers }: SupplierListProps) {
               <Field label="Address" className="sm:col-span-2">
                 <Textarea
                   value={form.address}
-                  onChange={(e) => setForm((f) => ({ ...f, address: e.target.value }))}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, address: e.target.value }))
+                  }
                   placeholder="Billing or warehouse address"
                   className="min-h-20 rounded-xl"
                 />
@@ -363,7 +447,9 @@ export function SupplierList({ shopId, initialSuppliers }: SupplierListProps) {
               <Field label="Notes" className="sm:col-span-2">
                 <Textarea
                   value={form.notes}
-                  onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, notes: e.target.value }))
+                  }
                   placeholder="Credit terms, delivery schedule, account manager details..."
                   className="min-h-20 rounded-xl"
                 />

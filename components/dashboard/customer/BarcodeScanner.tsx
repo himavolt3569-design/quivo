@@ -11,7 +11,13 @@ interface BarcodeScannerProps {
   onClose: () => void;
 }
 
-type ScanState = "requesting" | "scanning" | "detected" | "unsupported" | "denied" | "redirecting";
+type ScanState =
+  | "requesting"
+  | "scanning"
+  | "detected"
+  | "unsupported"
+  | "denied"
+  | "redirecting";
 
 export function BarcodeScanner({ open, onClose }: BarcodeScannerProps) {
   const router = useRouter();
@@ -41,7 +47,9 @@ export function BarcodeScanner({ open, onClose }: BarcodeScannerProps) {
       // a "Not Available" state and surfaces "More like this" alternatives.
       setState("redirecting");
       stopCamera();
-      router.push(`/s/${result.product.shopSlug}/product/${encodeURIComponent(result.product.barcode)}`);
+      router.push(
+        `/s/${result.product.shopSlug}/product/${encodeURIComponent(result.product.barcode)}`,
+      );
       onClose();
       return;
     }
@@ -67,20 +75,37 @@ export function BarcodeScanner({ open, onClose }: BarcodeScannerProps) {
       setState("requesting");
       try {
         const stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: { ideal: "environment" }, width: { ideal: 1280 } },
+          video: {
+            facingMode: { ideal: "environment" },
+            width: { ideal: 1280 },
+          },
         });
-        if (!alive) { stream.getTracks().forEach((t) => t.stop()); return; }
+        if (!alive) {
+          stream.getTracks().forEach((t) => t.stop());
+          return;
+        }
         streamRef.current = stream;
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
           await videoRef.current.play();
         }
 
-        if (!("BarcodeDetector" in window)) { setState("unsupported"); return; }
+        if (!("BarcodeDetector" in window)) {
+          setState("unsupported");
+          return;
+        }
 
         // @ts-expect-error — BarcodeDetector not yet in TS lib
         const detector = new window.BarcodeDetector({
-          formats: ["ean_13", "ean_8", "qr_code", "code_128", "upc_a", "upc_e", "code_39"],
+          formats: [
+            "ean_13",
+            "ean_8",
+            "qr_code",
+            "code_128",
+            "upc_a",
+            "upc_e",
+            "code_39",
+          ],
         });
 
         setState("scanning");
@@ -95,23 +120,35 @@ export function BarcodeScanner({ open, onClose }: BarcodeScannerProps) {
               await handleBarcodeScan(raw);
               return;
             }
-          } catch { /* continue */ }
+          } catch {
+            /* continue */
+          }
           rafRef.current = requestAnimationFrame(loop);
         };
         loop();
       } catch (err: unknown) {
         if (!alive) return;
         const name = (err as { name?: string })?.name;
-        setState(name === "NotAllowedError" || name === "PermissionDeniedError" ? "denied" : "unsupported");
+        setState(
+          name === "NotAllowedError" || name === "PermissionDeniedError"
+            ? "denied"
+            : "unsupported",
+        );
       }
     };
 
     start();
-    return () => { alive = false; stopCamera(); };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    return () => {
+      alive = false;
+      stopCamera();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, scanKey]);
 
-  const handleRescan = () => { stopCamera(); setScanKey((k) => k + 1); };
+  const handleRescan = () => {
+    stopCamera();
+    setScanKey((k) => k + 1);
+  };
 
   const handleManualLookup = async () => {
     const trimmed = manualInput.trim();
@@ -132,10 +169,15 @@ export function BarcodeScanner({ open, onClose }: BarcodeScannerProps) {
       >
         <div className="flex items-center gap-2">
           <Barcode className="h-5 w-5 text-[#A7653A]" />
-          <span className="text-white font-semibold text-sm tracking-wide">Barcode Scanner</span>
+          <span className="text-white font-semibold text-sm tracking-wide">
+            Barcode Scanner
+          </span>
         </div>
         <button
-          onClick={() => { stopCamera(); onClose(); }}
+          onClick={() => {
+            stopCamera();
+            onClose();
+          }}
           className="rounded-full bg-white/10 p-2.5 text-white hover:bg-white/20 transition active:scale-95"
           aria-label="Close scanner"
         >
@@ -148,15 +190,25 @@ export function BarcodeScanner({ open, onClose }: BarcodeScannerProps) {
         <video
           ref={videoRef}
           className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-300 ${
-            state === "detected" || state === "denied" || state === "unsupported" || state === "redirecting" ? "opacity-20" : "opacity-100"
+            state === "detected" ||
+            state === "denied" ||
+            state === "unsupported" ||
+            state === "redirecting"
+              ? "opacity-20"
+              : "opacity-100"
           }`}
-          playsInline muted autoPlay
+          playsInline
+          muted
+          autoPlay
         />
 
         {/* Viewfinder */}
         {(state === "scanning" || state === "requesting") && (
           <div className="absolute inset-0 flex items-center justify-center">
-            <div className="relative h-60 w-60" style={{ boxShadow: "0 0 0 9999px rgba(0,0,0,0.62)" }}>
+            <div
+              className="relative h-60 w-60"
+              style={{ boxShadow: "0 0 0 9999px rgba(0,0,0,0.62)" }}
+            >
               <span className="absolute top-0 left-0 h-9 w-9 border-t-[3.5px] border-l-[3.5px] border-[#A7653A] rounded-tl-xl" />
               <span className="absolute top-0 right-0 h-9 w-9 border-t-[3.5px] border-r-[3.5px] border-[#A7653A] rounded-tr-xl" />
               <span className="absolute bottom-0 left-0 h-9 w-9 border-b-[3.5px] border-l-[3.5px] border-[#A7653A] rounded-bl-xl" />
@@ -165,7 +217,12 @@ export function BarcodeScanner({ open, onClose }: BarcodeScannerProps) {
                 <motion.div
                   className="absolute left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[#A7653A] to-transparent"
                   animate={{ top: ["10%", "88%"] }}
-                  transition={{ duration: 1.8, repeat: Infinity, repeatType: "reverse", ease: "easeInOut" }}
+                  transition={{
+                    duration: 1.8,
+                    repeat: Infinity,
+                    repeatType: "reverse",
+                    ease: "easeInOut",
+                  }}
                 />
               )}
             </div>
@@ -185,7 +242,9 @@ export function BarcodeScanner({ open, onClose }: BarcodeScannerProps) {
               <AlertCircle className="h-14 w-14 text-red-400" />
               <div className="text-center">
                 <h3 className="text-lg font-bold text-white mb-1.5">
-                  {state === "denied" ? "Camera access denied" : "Auto-scan not available"}
+                  {state === "denied"
+                    ? "Camera access denied"
+                    : "Auto-scan not available"}
                 </h3>
                 <p className="text-sm text-white/55 leading-relaxed">
                   {state === "denied"
@@ -224,7 +283,9 @@ export function BarcodeScanner({ open, onClose }: BarcodeScannerProps) {
               className="absolute inset-0 flex flex-col items-center justify-center gap-3"
             >
               <Loader2 className="h-8 w-8 text-[#A7653A] animate-spin" />
-              <p className="text-sm font-semibold text-white/85">Opening product…</p>
+              <p className="text-sm font-semibold text-white/85">
+                Opening product…
+              </p>
             </motion.div>
           )}
 
@@ -237,12 +298,18 @@ export function BarcodeScanner({ open, onClose }: BarcodeScannerProps) {
               exit={{ opacity: 0, y: 48 }}
               transition={{ type: "spring", damping: 26, stiffness: 320 }}
               className="absolute inset-x-0 bottom-0 px-4 pt-4"
-              style={{ paddingBottom: "max(env(safe-area-inset-bottom), 1rem)" }}
+              style={{
+                paddingBottom: "max(env(safe-area-inset-bottom), 1rem)",
+              }}
             >
               <div className="rounded-3xl bg-white p-5 shadow-2xl">
                 <div className="mb-5">
-                  <p className="text-xs font-medium text-[#746E73] mb-1">Barcode: {scannedBarcode}</p>
-                  <h3 className="font-bold text-[#27324A]">Product not found</h3>
+                  <p className="text-xs font-medium text-[#746E73] mb-1">
+                    Barcode: {scannedBarcode}
+                  </p>
+                  <h3 className="font-bold text-[#27324A]">
+                    Product not found
+                  </h3>
                   <p className="text-sm text-[#746E73] mt-1">
                     No shop in your area carries this item yet.
                   </p>
@@ -262,9 +329,18 @@ export function BarcodeScanner({ open, onClose }: BarcodeScannerProps) {
       </div>
 
       {state !== "detected" && (
-        <div className="pt-5 text-center" style={{ paddingBottom: "max(env(safe-area-inset-bottom), 1.25rem)" }}>
-          {state === "scanning" && <p className="text-xs text-white/45">Point the camera at any product barcode</p>}
-          {state === "requesting" && <p className="text-xs text-white/45">Requesting camera access…</p>}
+        <div
+          className="pt-5 text-center"
+          style={{ paddingBottom: "max(env(safe-area-inset-bottom), 1.25rem)" }}
+        >
+          {state === "scanning" && (
+            <p className="text-xs text-white/45">
+              Point the camera at any product barcode
+            </p>
+          )}
+          {state === "requesting" && (
+            <p className="text-xs text-white/45">Requesting camera access…</p>
+          )}
         </div>
       )}
     </div>

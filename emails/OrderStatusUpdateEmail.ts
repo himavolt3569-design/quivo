@@ -1,4 +1,8 @@
-import { renderEmailLayout, escapeHtml, renderTextFromBlocks } from "@/lib/email/layout";
+import {
+  renderEmailLayout,
+  escapeHtml,
+  renderTextFromBlocks,
+} from "@/lib/email/layout";
 import type { BrandedShop } from "@/lib/email/layout";
 import type { RenderedEmail } from "@/emails/OrderConfirmationEmail";
 
@@ -31,10 +35,13 @@ const HEADLINES: Record<OrderStatus, string> = {
 const COPY: Record<OrderStatus, (eta: string) => string> = {
   placed: () => "We've got your order and will confirm it shortly.",
   confirmed: () => "Your order is confirmed. We'll start preparing it now.",
-  packing: () => "Your items are being packed. We'll let you know when they leave the shop.",
-  out_for_delivery: (eta) => `Your order is on its way${eta ? ` — estimated arrival ${eta}` : ""}.`,
+  packing: () =>
+    "Your items are being packed. We'll let you know when they leave the shop.",
+  out_for_delivery: (eta) =>
+    `Your order is on its way${eta ? ` — estimated arrival ${eta}` : ""}.`,
   delivered: () => "Your order has been delivered. Enjoy!",
-  cancelled: () => "Your order has been cancelled. Get in touch if this was a mistake.",
+  cancelled: () =>
+    "Your order has been cancelled. Get in touch if this was a mistake.",
 };
 
 function fmtEta(min: number | null | undefined): string {
@@ -46,7 +53,7 @@ function fmtEta(min: number | null | undefined): string {
 }
 
 export function renderOrderStatusUpdateEmail(
-  input: OrderStatusUpdateEmailInput
+  input: OrderStatusUpdateEmailInput,
 ): RenderedEmail {
   const headline = HEADLINES[input.status];
   const eta = fmtEta(input.etaMinutes ?? null);

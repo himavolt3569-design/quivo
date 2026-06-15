@@ -10,10 +10,13 @@ export default function OfflinePage() {
         <div className="h-14 w-14 rounded-2xl bg-[#27324A]/10 text-[#27324A] flex items-center justify-center mx-auto mb-4">
           <WifiOff className="h-7 w-7" />
         </div>
-        <h1 className="text-xl font-black text-[#27324A]">You&apos;re offline</h1>
+        <h1 className="text-xl font-black text-[#27324A]">
+          You&apos;re offline
+        </h1>
         <p className="text-sm text-[#746E73] mt-2">
-          Quivo can&apos;t reach the server right now. POS sales rung up while offline are queued
-          and replay automatically when the connection comes back.
+          Quivo can&apos;t reach the server right now. POS sales rung up while
+          offline are queued and replay automatically when the connection comes
+          back.
         </p>
         <div className="mt-6 flex flex-col sm:flex-row gap-2">
           <Link
@@ -30,7 +33,8 @@ export default function OfflinePage() {
           </Link>
         </div>
         <p className="text-[11px] text-[#a4a09a] mt-6">
-          If the issue persists, your network may be blocking quivo.app. Check your wifi / mobile data.
+          If the issue persists, your network may be blocking quivo.app. Check
+          your wifi / mobile data.
         </p>
       </div>
     </main>

@@ -43,7 +43,7 @@ export interface EmitResult {
 }
 
 export async function emit<TPayload = Record<string, unknown>>(
-  input: EmitInput<TPayload>
+  input: EmitInput<TPayload>,
 ): Promise<EmitResult> {
   if (!input.name || typeof input.name !== "string") {
     return { ok: false, error: "emit: event name is required" };
@@ -91,7 +91,11 @@ export async function emit<TPayload = Record<string, unknown>>(
     return { ok: false, error: error.message };
   }
 
-  log.debug("emit ok", { name: input.name, id: data?.id, shopId: input.shopId });
+  log.debug("emit ok", {
+    name: input.name,
+    id: data?.id,
+    shopId: input.shopId,
+  });
   return { ok: true, id: data?.id };
 }
 

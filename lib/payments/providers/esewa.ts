@@ -13,16 +13,20 @@
  */
 import crypto from "node:crypto";
 import type {
-  InitiateContext, InitiateResult, VerifyContext, VerifyResult, PaymentSecrets,
+  InitiateContext,
+  InitiateResult,
+  VerifyContext,
+  VerifyResult,
+  PaymentSecrets,
 } from "../types";
 
 const ESEWA_ENDPOINTS = {
   sandbox: {
-    form:   "https://rc-epay.esewa.com.np/api/epay/main/v2/form",
+    form: "https://rc-epay.esewa.com.np/api/epay/main/v2/form",
     status: "https://rc.esewa.com.np/api/epay/transaction/status/",
   },
   production: {
-    form:   "https://epay.esewa.com.np/api/epay/main/v2/form",
+    form: "https://epay.esewa.com.np/api/epay/main/v2/form",
     status: "https://epay.esewa.com.np/api/epay/transaction/status/",
   },
 };
@@ -36,7 +40,7 @@ function esewaSign(message: string, secret: string): string {
 
 export async function initiateEsewa(
   ctx: InitiateContext,
-  secrets: PaymentSecrets
+  secrets: PaymentSecrets,
 ): Promise<InitiateResult> {
   if (!secrets.esewa_merchant_code || !secrets.esewa_secret_key) {
     throw new Error("ESEWA_NOT_CONFIGURED");
@@ -49,13 +53,14 @@ export async function initiateEsewa(
   const transactionUuid = ctx.transactionReference;
 
   const signedFieldNames = "total_amount,transaction_uuid,product_code";
-  const signatureSource =
-    `total_amount=${totalAmount},transaction_uuid=${transactionUuid},product_code=${productCode}`;
+  const signatureSource = `total_amount=${totalAmount},transaction_uuid=${transactionUuid},product_code=${productCode}`;
   const signature = esewaSign(signatureSource, secrets.esewa_secret_key);
 
-  const successUrl = `${ctx.baseUrl}/api/payments/esewa/callback` +
+  const successUrl =
+    `${ctx.baseUrl}/api/payments/esewa/callback` +
     `?payment_id=${encodeURIComponent(ctx.paymentId)}&result=success`;
-  const failureUrl = `${ctx.baseUrl}/api/payments/esewa/callback` +
+  const failureUrl =
+    `${ctx.baseUrl}/api/payments/esewa/callback` +
     `?payment_id=${encodeURIComponent(ctx.paymentId)}&result=failure`;
 
   return {
@@ -79,7 +84,9 @@ export async function initiateEsewa(
 }
 
 /** Decode the `data` query param eSewa appends to the success redirect. */
-export function decodeEsewaCallback(rawData: string): Record<string, string> | null {
+export function decodeEsewaCallback(
+  rawData: string,
+): Record<string, string> | null {
   try {
     const json = Buffer.from(rawData, "base64").toString("utf-8");
     const parsed = JSON.parse(json);
@@ -91,7 +98,11 @@ export function decodeEsewaCallback(rawData: string): Record<string, string> | n
 }
 
 function amountsMatch(left: number, right: number) {
-  return Number.isFinite(left) && Number.isFinite(right) && Math.abs(left - right) <= 0.01;
+  return (
+    Number.isFinite(left) &&
+    Number.isFinite(right) &&
+    Math.abs(left - right) <= 0.01
+  );
 }
 
 export async function verifyEsewa(ctx: VerifyContext): Promise<VerifyResult> {
@@ -108,7 +119,11 @@ export async function verifyEsewa(ctx: VerifyContext): Promise<VerifyResult> {
   if (!decoded) return { ok: false, reason: "INVALID_CALLBACK_DATA" };
 
   if (decoded.status !== "COMPLETE") {
-    return { ok: false, reason: `GATEWAY_STATUS:${decoded.status}`, rawResponse: decoded };
+    return {
+      ok: false,
+      reason: `GATEWAY_STATUS:${decoded.status}`,
+      rawResponse: decoded,
+    };
   }
   if (decoded.transaction_uuid !== transactionReference) {
     return { ok: false, reason: "TXN_REF_MISMATCH", rawResponse: decoded };
@@ -116,7 +131,9 @@ export async function verifyEsewa(ctx: VerifyContext): Promise<VerifyResult> {
   if (decoded.product_code !== secrets.esewa_merchant_code) {
     return { ok: false, reason: "MERCHANT_MISMATCH", rawResponse: decoded };
   }
-  if (!amountsMatch(parseFloat(decoded.total_amount.replace(/,/g, "")), amount)) {
+  if (
+    !amountsMatch(parseFloat(decoded.total_amount.replace(/,/g, "")), amount)
+  ) {
     return { ok: false, reason: "AMOUNT_MISMATCH", rawResponse: decoded };
   }
 
@@ -124,7 +141,11 @@ export async function verifyEsewa(ctx: VerifyContext): Promise<VerifyResult> {
   const signedFields = (decoded.signed_field_names ?? "").split(",");
   for (const required of ["total_amount", "transaction_uuid", "product_code"]) {
     if (!signedFields.includes(required)) {
-      return { ok: false, reason: "SIGNED_FIELDS_MISSING_REQUIRED", rawResponse: decoded };
+      return {
+        ok: false,
+        reason: "SIGNED_FIELDS_MISSING_REQUIRED",
+        rawResponse: decoded,
+      };
     }
   }
   const signatureSource = signedFields
@@ -137,17 +158,26 @@ export async function verifyEsewa(ctx: VerifyContext): Promise<VerifyResult> {
 
   // 3. Authoritative status check against eSewa
   const env = secrets.esewa_environment;
-  const statusUrl = `${ESEWA_ENDPOINTS[env].status}` +
+  const statusUrl =
+    `${ESEWA_ENDPOINTS[env].status}` +
     `?product_code=${encodeURIComponent(secrets.esewa_merchant_code)}` +
     `&total_amount=${encodeURIComponent(amount.toFixed(2))}` +
     `&transaction_uuid=${encodeURIComponent(transactionReference)}`;
 
   try {
     const signal = AbortSignal.timeout(FETCH_TIMEOUT_MS);
-    const res = await fetch(statusUrl, { method: "GET", cache: "no-store", signal });
+    const res = await fetch(statusUrl, {
+      method: "GET",
+      cache: "no-store",
+      signal,
+    });
     const lookup = await res.json().catch(() => null);
     if (!res.ok || !lookup) {
-      return { ok: false, reason: "STATUS_LOOKUP_FAILED", rawResponse: decoded };
+      return {
+        ok: false,
+        reason: "STATUS_LOOKUP_FAILED",
+        rawResponse: decoded,
+      };
     }
     if (lookup.status !== "COMPLETE") {
       return {
@@ -162,6 +192,10 @@ export async function verifyEsewa(ctx: VerifyContext): Promise<VerifyResult> {
       rawResponse: { callback: decoded, lookup },
     };
   } catch {
-    return { ok: false, reason: "STATUS_LOOKUP_NETWORK_ERROR", rawResponse: decoded };
+    return {
+      ok: false,
+      reason: "STATUS_LOOKUP_NETWORK_ERROR",
+      rawResponse: decoded,
+    };
   }
 }

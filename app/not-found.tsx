@@ -13,7 +13,10 @@ export default function NotFound() {
         <p className="mt-2 text-sm font-medium text-[#746E73]">
           The page you are looking for does not exist or is no longer available.
         </p>
-        <Button asChild className="mt-6 h-11 rounded-xl bg-[#27324A] px-6 font-bold text-white hover:bg-[#1b2333]">
+        <Button
+          asChild
+          className="mt-6 h-11 rounded-xl bg-[#27324A] px-6 font-bold text-white hover:bg-[#1b2333]"
+        >
           <Link href="/dashboard/owner">Go to dashboard</Link>
         </Button>
       </div>

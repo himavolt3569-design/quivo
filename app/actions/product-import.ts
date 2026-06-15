@@ -18,7 +18,12 @@ const RowSchema = z.object({
   price: z.coerce.number().min(0).max(10_000_000),
   cost_price: z.coerce.number().min(0).max(10_000_000).optional().nullable(),
   stock: z.coerce.number().min(0).max(1_000_000).default(0),
-  low_stock_threshold: z.coerce.number().min(0).max(1_000_000).optional().nullable(),
+  low_stock_threshold: z.coerce
+    .number()
+    .min(0)
+    .max(1_000_000)
+    .optional()
+    .nullable(),
   barcode: z.string().trim().max(40).optional().nullable(),
 });
 
@@ -40,19 +45,29 @@ export interface ImportReport {
 
 async function authed() {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) throw new Error("Unauthorized");
   return { supabase, user };
 }
 
-export async function bulkImportProducts(input: z.infer<typeof BulkSchema>): Promise<{ report?: ImportReport; error?: string }> {
+export async function bulkImportProducts(
+  input: z.infer<typeof BulkSchema>,
+): Promise<{ report?: ImportReport; error?: string }> {
   const parse = BulkSchema.safeParse(input);
-  if (!parse.success) return { error: parse.error.issues[0]?.message ?? "Invalid input" };
+  if (!parse.success)
+    return { error: parse.error.issues[0]?.message ?? "Invalid input" };
   const data = parse.data;
 
   try {
     const { supabase } = await authed();
-    const report: ImportReport = { inserted: 0, updated: 0, skipped: 0, errors: [] };
+    const report: ImportReport = {
+      inserted: 0,
+      updated: 0,
+      skipped: 0,
+      errors: [],
+    };
 
     // Build the list of barcodes present in the import so we can pre-fetch
     // existing rows to know which are updates vs inserts.
@@ -68,7 +83,8 @@ export async function bulkImportProducts(input: z.infer<typeof BulkSchema>): Pro
         .eq("shop_id", data.shopId)
         .in("barcode", barcodes);
       for (const row of existing ?? []) {
-        if (row.barcode) existingByBarcode.set(row.barcode as string, row.id as string);
+        if (row.barcode)
+          existingByBarcode.set(row.barcode as string, row.id as string);
       }
     } else {
       existingByBarcode = new Map();
@@ -83,7 +99,10 @@ export async function bulkImportProducts(input: z.infer<typeof BulkSchema>): Pro
 
     data.rows.forEach((r, idx) => {
       if (r.barcode && seenBarcodes.has(r.barcode)) {
-        report.errors.push({ index: idx, message: `Duplicate barcode in file: ${r.barcode}` });
+        report.errors.push({
+          index: idx,
+          message: `Duplicate barcode in file: ${r.barcode}`,
+        });
         report.skipped += 1;
         return;
       }
@@ -105,7 +124,9 @@ export async function bulkImportProducts(input: z.infer<typeof BulkSchema>): Pro
         low_stock_threshold: r.low_stock_threshold ?? null,
         barcode: r.barcode ?? null,
       };
-      const existingId = r.barcode ? existingByBarcode.get(r.barcode) : undefined;
+      const existingId = r.barcode
+        ? existingByBarcode.get(r.barcode)
+        : undefined;
       if (existingId && data.upsertByBarcode) {
         updates.push({ id: existingId, patch: fields });
       } else {
@@ -119,7 +140,9 @@ export async function bulkImportProducts(input: z.infer<typeof BulkSchema>): Pro
       const { error } = await supabase.from("products").insert(chunk);
       if (error) {
         log.error("bulkImportProducts: insert chunk failed", {
-          chunkStart: i, code: error.code, message: error.message,
+          chunkStart: i,
+          code: error.code,
+          message: error.message,
         });
         report.errors.push({ index: i, message: error.message });
         report.skipped += chunk.length;
@@ -136,7 +159,10 @@ export async function bulkImportProducts(input: z.infer<typeof BulkSchema>): Pro
         .eq("id", u.id)
         .eq("shop_id", data.shopId);
       if (error) {
-        report.errors.push({ index: -1, message: `${error.code}: ${error.message}` });
+        report.errors.push({
+          index: -1,
+          message: `${error.code}: ${error.message}`,
+        });
         report.skipped += 1;
       } else {
         report.updated += 1;
@@ -154,7 +180,9 @@ export async function bulkImportProducts(input: z.infer<typeof BulkSchema>): Pro
  * Returns a string the client can validate per-row before submitting.
  * Centralises the schema so the UI and the action agree on what's valid.
  */
-export async function validateImportRow(row: unknown): Promise<{ ok: true } | { ok: false; error: string }> {
+export async function validateImportRow(
+  row: unknown,
+): Promise<{ ok: true } | { ok: false; error: string }> {
   const r = RowSchema.safeParse(row);
   if (r.success) return { ok: true };
   return { ok: false, error: r.error.issues[0]?.message ?? "Invalid row" };

@@ -21,11 +21,18 @@ export default async function DashboardLayout({
     // redirect("/?login=true");
   }
 
-  const { data: profile } = user ? await supabase
-    .from("profiles")
-    .select("full_name, avatar_url, font_size, owner_font_size")
-    .eq("id", user.id)
-    .single<Pick<Profile, "full_name" | "avatar_url" | "font_size" | "owner_font_size">>() : { data: null };
+  const { data: profile } = user
+    ? await supabase
+        .from("profiles")
+        .select("full_name, avatar_url, font_size, owner_font_size")
+        .eq("id", user.id)
+        .single<
+          Pick<
+            Profile,
+            "full_name" | "avatar_url" | "font_size" | "owner_font_size"
+          >
+        >()
+    : { data: null };
 
   const { data: notifications } = user
     ? await supabase
@@ -37,7 +44,7 @@ export default async function DashboardLayout({
     : { data: null };
 
   return (
-    <FontProvider 
+    <FontProvider
       initialCustomerFontSize={profile?.font_size ?? "standard"}
       initialOwnerFontSize={profile?.owner_font_size ?? "standard"}
     >
@@ -56,10 +63,16 @@ export default async function DashboardLayout({
               {user && <NotificationBell initial={notifications ?? []} />}
               <div className="flex items-center gap-3">
                 {profile?.avatar_url ? (
-                  <img src={profile.avatar_url} alt="Profile" className="h-8 w-8 rounded-full object-cover border border-[#2E3344]/10" />
+                  <img
+                    src={profile.avatar_url}
+                    alt="Profile"
+                    className="h-8 w-8 rounded-full object-cover border border-[#2E3344]/10"
+                  />
                 ) : (
                   <div className="h-8 w-8 rounded-full bg-[#27324A] flex items-center justify-center text-white text-xs font-bold">
-                    {(profile?.full_name ?? user?.email ?? "U")[0].toUpperCase()}
+                    {(profile?.full_name ??
+                      user?.email ??
+                      "U")[0].toUpperCase()}
                   </div>
                 )}
                 <span className="hidden text-sm font-medium text-[#746E73] sm:inline-block">

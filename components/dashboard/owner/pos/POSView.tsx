@@ -29,10 +29,18 @@ import {
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import { toast } from "sonner";
 import { completePOSSale } from "@/app/actions/owner";
-import { enqueue as enqueueOffline, notifyQueueChanged } from "@/lib/offline/pos-queue";
+import {
+  enqueue as enqueueOffline,
+  notifyQueueChanged,
+} from "@/lib/offline/pos-queue";
 import { OfflineSync } from "./OfflineSync";
 import {
   parkSale,
@@ -117,13 +125,74 @@ interface POSViewProps {
 
 // ─── Unit intelligence ────────────────────────────────────────────────────────
 
-const WEIGHT_UNITS = ["g", "kg", "gm", "gram", "grams", "kilogram", "kilograms", "mg", "milligram"];
-const VOLUME_UNITS = ["l", "ml", "litre", "litres", "liter", "liters", "millilitre", "milliliter", "lt"];
-const COUNT_UNITS  = ["pcs", "pkt", "packet", "packets", "piece", "pieces", "box", "boxes", "bottle", "bottles", "can", "cans", "unit", "units", "nos", "no.", "pack", "packs", "roll", "rolls", "bag", "bags", "dozen", "pair", "pairs", "sheet", "sheets", "strip", "strips", "tube", "tubes", "sachet", "sachets"];
+const WEIGHT_UNITS = [
+  "g",
+  "kg",
+  "gm",
+  "gram",
+  "grams",
+  "kilogram",
+  "kilograms",
+  "mg",
+  "milligram",
+];
+const VOLUME_UNITS = [
+  "l",
+  "ml",
+  "litre",
+  "litres",
+  "liter",
+  "liters",
+  "millilitre",
+  "milliliter",
+  "lt",
+];
+const COUNT_UNITS = [
+  "pcs",
+  "pkt",
+  "packet",
+  "packets",
+  "piece",
+  "pieces",
+  "box",
+  "boxes",
+  "bottle",
+  "bottles",
+  "can",
+  "cans",
+  "unit",
+  "units",
+  "nos",
+  "no.",
+  "pack",
+  "packs",
+  "roll",
+  "rolls",
+  "bag",
+  "bags",
+  "dozen",
+  "pair",
+  "pairs",
+  "sheet",
+  "sheets",
+  "strip",
+  "strips",
+  "tube",
+  "tubes",
+  "sachet",
+  "sachets",
+];
 
 function parseUnit(rawUnit: string | null): UnitConfig {
   if (!rawUnit || rawUnit.trim() === "") {
-    return { kind: "count", step: 1, min: 1, label: "pc", priceLabel: "each", digits: 0 };
+    return {
+      kind: "count",
+      step: 1,
+      min: 1,
+      label: "pc",
+      priceLabel: "each",
+      digits: 0,
+    };
   }
 
   const norm = rawUnit.trim().toLowerCase();
@@ -132,34 +201,86 @@ function parseUnit(rawUnit: string | null): UnitConfig {
 
   if (WEIGHT_UNITS.includes(typeToken)) {
     if (["g", "gm", "gram", "grams", "mg", "milligram"].includes(typeToken)) {
-      return { kind: "count", step: 1, min: 1, label: "pkt", priceLabel: "per pack", digits: 0 };
+      return {
+        kind: "count",
+        step: 1,
+        min: 1,
+        label: "pkt",
+        priceLabel: "per pack",
+        digits: 0,
+      };
     }
-    return { kind: "weight", step: 0.5, min: 0.5, label: "kg", priceLabel: "per kg", digits: 1 };
+    return {
+      kind: "weight",
+      step: 0.5,
+      min: 0.5,
+      label: "kg",
+      priceLabel: "per kg",
+      digits: 1,
+    };
   }
 
   if (VOLUME_UNITS.includes(typeToken)) {
     if (["ml", "millilitre", "milliliter"].includes(typeToken)) {
-      return { kind: "count", step: 1, min: 1, label: "btl", priceLabel: "per bottle", digits: 0 };
+      return {
+        kind: "count",
+        step: 1,
+        min: 1,
+        label: "btl",
+        priceLabel: "per bottle",
+        digits: 0,
+      };
     }
-    return { kind: "volume", step: 0.5, min: 0.5, label: "L", priceLabel: "per L", digits: 1 };
+    return {
+      kind: "volume",
+      step: 0.5,
+      min: 0.5,
+      label: "L",
+      priceLabel: "per L",
+      digits: 1,
+    };
   }
 
-  if (COUNT_UNITS.some(cu => typeToken.includes(cu))) {
-    const label = typeToken.includes("packet") ? "pkt"
-      : typeToken.includes("piece") ? "pc"
-      : typeToken.includes("box") ? "box"
-      : typeToken.includes("bottle") ? "btl"
-      : typeToken.includes("can") ? "can"
-      : typeToken.includes("roll") ? "roll"
-      : typeToken.includes("bag") ? "bag"
-      : typeToken.includes("dozen") ? "dz"
-      : typeToken.includes("strip") ? "strip"
-      : typeToken.includes("sachet") ? "sachet"
-      : "pc";
-    return { kind: "count", step: 1, min: 1, label, priceLabel: `per ${label}`, digits: 0 };
+  if (COUNT_UNITS.some((cu) => typeToken.includes(cu))) {
+    const label = typeToken.includes("packet")
+      ? "pkt"
+      : typeToken.includes("piece")
+        ? "pc"
+        : typeToken.includes("box")
+          ? "box"
+          : typeToken.includes("bottle")
+            ? "btl"
+            : typeToken.includes("can")
+              ? "can"
+              : typeToken.includes("roll")
+                ? "roll"
+                : typeToken.includes("bag")
+                  ? "bag"
+                  : typeToken.includes("dozen")
+                    ? "dz"
+                    : typeToken.includes("strip")
+                      ? "strip"
+                      : typeToken.includes("sachet")
+                        ? "sachet"
+                        : "pc";
+    return {
+      kind: "count",
+      step: 1,
+      min: 1,
+      label,
+      priceLabel: `per ${label}`,
+      digits: 0,
+    };
   }
 
-  return { kind: "count", step: 1, min: 1, label: typeToken.slice(0, 4), priceLabel: `per ${typeToken.slice(0, 4)}`, digits: 0 };
+  return {
+    kind: "count",
+    step: 1,
+    min: 1,
+    label: typeToken.slice(0, 4),
+    priceLabel: `per ${typeToken.slice(0, 4)}`,
+    digits: 0,
+  };
 }
 
 function fmtQty(qty: number, cfg: UnitConfig): string {
@@ -173,29 +294,55 @@ function round2(n: number): number {
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const CATEGORY_COLORS: Record<string, string> = {
-  Grocery:         "bg-green-50",
-  Dairy:           "bg-blue-50",
-  Beverages:       "bg-cyan-50",
-  Snacks:          "bg-yellow-50",
+  Grocery: "bg-green-50",
+  Dairy: "bg-blue-50",
+  Beverages: "bg-cyan-50",
+  Snacks: "bg-yellow-50",
   "Personal Care": "bg-pink-50",
-  Electronics:     "bg-purple-50",
-  Household:       "bg-orange-50",
-  Other:           "bg-gray-50",
+  Electronics: "bg-purple-50",
+  Household: "bg-orange-50",
+  Other: "bg-gray-50",
 };
 
-const PAYMENT_METHODS: { id: SplitMethod; label: string; icon: typeof Banknote; color: string }[] = [
-  { id: "cash",   label: "Cash",   icon: Banknote, color: "bg-[#27324A] text-white" },
-  { id: "online", label: "eSewa",  icon: QrCode,   color: "bg-[#41A560]/10 text-[#41A560] border border-[#41A560]/20 hover:bg-[#41A560]/20" },
-  { id: "udhar",  label: "Udhar",  icon: User,     color: "bg-[#F7F0E6] text-[#A7653A] border border-[#A7653A]/20 hover:bg-[#A7653A] hover:text-white" },
+const PAYMENT_METHODS: {
+  id: SplitMethod;
+  label: string;
+  icon: typeof Banknote;
+  color: string;
+}[] = [
+  {
+    id: "cash",
+    label: "Cash",
+    icon: Banknote,
+    color: "bg-[#27324A] text-white",
+  },
+  {
+    id: "online",
+    label: "eSewa",
+    icon: QrCode,
+    color:
+      "bg-[#41A560]/10 text-[#41A560] border border-[#41A560]/20 hover:bg-[#41A560]/20",
+  },
+  {
+    id: "udhar",
+    label: "Udhar",
+    icon: User,
+    color:
+      "bg-[#F7F0E6] text-[#A7653A] border border-[#A7653A]/20 hover:bg-[#A7653A] hover:text-white",
+  },
 ];
 
-const SPLIT_METHODS: { id: SplitMethod; label: string; icon: typeof Banknote }[] = [
-  { id: "cash",   label: "Cash",   icon: Banknote },
-  { id: "card",   label: "Card",   icon: CreditCard },
-  { id: "qr",     label: "QR",     icon: QrCode },
+const SPLIT_METHODS: {
+  id: SplitMethod;
+  label: string;
+  icon: typeof Banknote;
+}[] = [
+  { id: "cash", label: "Cash", icon: Banknote },
+  { id: "card", label: "Card", icon: CreditCard },
+  { id: "qr", label: "QR", icon: QrCode },
   { id: "online", label: "Online", icon: QrCode },
   { id: "wallet", label: "Wallet", icon: Wallet },
-  { id: "udhar",  label: "Udhar",  icon: User },
+  { id: "udhar", label: "Udhar", icon: User },
 ];
 
 // ─── Stateless sub-components ────────────────────────────────────────────────
@@ -209,16 +356,22 @@ function UnitIcon({ kind }: { kind: UnitKind }) {
 // ─── Bill Print ───────────────────────────────────────────────────────────────
 
 function esc(s: string): string {
-  return s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!);
+  return s.replace(
+    /[&<>"']/g,
+    (c) =>
+      ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[
+        c
+      ]!,
+  );
 }
 
 function paymentLabel(method: string): string {
-  if (method === "udhar")  return "Udhar (credit)";
+  if (method === "udhar") return "Udhar (credit)";
   if (method === "online") return "eSewa / Online";
-  if (method === "card")   return "Card";
-  if (method === "qr")     return "QR";
+  if (method === "card") return "Card";
+  if (method === "qr") return "QR";
   if (method === "wallet") return "Wallet";
-  if (method === "split")  return "Split payment";
+  if (method === "split") return "Split payment";
   return "Cash";
 }
 
@@ -226,11 +379,12 @@ function printBill(
   bill: CompletedBill,
   shopName: string,
   ownerName: string,
-  panNumber: string | null
+  panNumber: string | null,
 ) {
-  const lines = bill.items.map((item) => {
-    const lineSubtotal = item.price * item.qty;
-    return `<tr>
+  const lines = bill.items
+    .map((item) => {
+      const lineSubtotal = item.price * item.qty;
+      return `<tr>
       <td style="padding:4px 6px;font-size:12px;vertical-align:top;">
         ${esc(item.name)}
         <div style="font-size:10px;color:#666;">${fmtQty(item.qty, item.cfg)} &times; Rs. ${item.price.toFixed(2)}</div>
@@ -238,15 +392,29 @@ function printBill(
       </td>
       <td style="padding:4px 6px;font-size:12px;text-align:right;vertical-align:top;font-weight:bold;">Rs. ${(lineSubtotal - item.lineDiscount).toFixed(2)}</td>
     </tr>`;
-  }).join("");
+    })
+    .join("");
 
   const ts = bill.timestamp;
-  const dateStr = ts.toLocaleDateString("en-IN", { year: "numeric", month: "short", day: "2-digit" });
-  const timeStr = ts.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" });
+  const dateStr = ts.toLocaleDateString("en-IN", {
+    year: "numeric",
+    month: "short",
+    day: "2-digit",
+  });
+  const timeStr = ts.toLocaleTimeString("en-IN", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 
-  const splitRowsHtml = bill.splits && bill.splits.length > 0
-    ? bill.splits.map((s) => `<div class="row"><span>${esc(paymentLabel(s.method))}</span><strong>Rs. ${s.amount.toFixed(2)}</strong></div>`).join("")
-    : "";
+  const splitRowsHtml =
+    bill.splits && bill.splits.length > 0
+      ? bill.splits
+          .map(
+            (s) =>
+              `<div class="row"><span>${esc(paymentLabel(s.method))}</span><strong>Rs. ${s.amount.toFixed(2)}</strong></div>`,
+          )
+          .join("")
+      : "";
 
   const html = `<!DOCTYPE html>
 <html><head><meta charset="utf-8"/>
@@ -282,18 +450,26 @@ ${bill.taxAmount > 0 ? `<div class="row"><span>VAT (${bill.taxRate.toFixed(2)}%)
   <td>TOTAL</td>
   <td style="text-align:right;">Rs. ${bill.total.toFixed(2)}</td>
 </tr></table>
-${splitRowsHtml
-  ? `<div class="divider"></div>${splitRowsHtml}`
-  : `<div class="row" style="margin-top:6px;"><span>Payment</span><strong>${esc(paymentLabel(bill.paymentMethod))}</strong></div>`}
+${
+  splitRowsHtml
+    ? `<div class="divider"></div>${splitRowsHtml}`
+    : `<div class="row" style="margin-top:6px;"><span>Payment</span><strong>${esc(paymentLabel(bill.paymentMethod))}</strong></div>`
+}
 <div class="footer">Thank you for shopping at ${esc(shopName)}!<br/>Powered by Quivo</div>
 </body></html>`;
 
   const w = window.open("", "_blank", "width=400,height=600");
-  if (!w) { toast.error("Allow pop-ups to print receipts."); return; }
+  if (!w) {
+    toast.error("Allow pop-ups to print receipts.");
+    return;
+  }
   w.document.write(html);
   w.document.close();
   w.focus();
-  setTimeout(() => { w.print(); w.close(); }, 400);
+  setTimeout(() => {
+    w.print();
+    w.close();
+  }, 400);
 }
 
 // ─── Main Component ───────────────────────────────────────────────────────────
@@ -313,21 +489,32 @@ export function POSView({
   const [activeCategory, setActiveCategory] = useState("All");
   const [isMobileCartOpen, setIsMobileCartOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
-  const [completedBill, setCompletedBill] = useState<CompletedBill | null>(null);
-  const [lastReceiptBill, setLastReceiptBill] = useState<CompletedBill | null>(null);
+  const [completedBill, setCompletedBill] = useState<CompletedBill | null>(
+    null,
+  );
+  const [lastReceiptBill, setLastReceiptBill] = useState<CompletedBill | null>(
+    null,
+  );
   const [udharName, setUdharName] = useState("");
   const [showUdharPrompt, setShowUdharPrompt] = useState(false);
   const [buyerName, setBuyerName] = useState("");
   const [orderDiscountValue, setOrderDiscountValue] = useState(0);
-  const [orderDiscountKind, setOrderDiscountKind] = useState<"flat" | "percent">("flat");
+  const [orderDiscountKind, setOrderDiscountKind] = useState<
+    "flat" | "percent"
+  >("flat");
   const [splitMode, setSplitMode] = useState(false);
-  const [splits, setSplits] = useState<{ method: SplitMethod; amount: string; reference?: string }[]>([]);
-  const [heldSales, setHeldSales] = useState<HeldSaleSummary[]>(initialHeldSales);
+  const [splits, setSplits] = useState<
+    { method: SplitMethod; amount: string; reference?: string }[]
+  >([]);
+  const [heldSales, setHeldSales] =
+    useState<HeldSaleSummary[]>(initialHeldSales);
   const [isHeldSheetOpen, setIsHeldSheetOpen] = useState(false);
   const udharInputRef = useRef<HTMLInputElement>(null);
 
   const categories = useMemo(() => {
-    const cats = new Set(catalogProducts.map((p) => p.category).filter(Boolean));
+    const cats = new Set(
+      catalogProducts.map((p) => p.category).filter(Boolean),
+    );
     return ["All", ...Array.from(cats)] as string[];
   }, [catalogProducts]);
 
@@ -338,7 +525,8 @@ export function POSView({
         p.name.toLowerCase().includes(search.toLowerCase()) ||
         (p.brand ?? "").toLowerCase().includes(search.toLowerCase()) ||
         (p.variant ?? "").toLowerCase().includes(search.toLowerCase());
-      const matchesCategory = activeCategory === "All" || p.category === activeCategory;
+      const matchesCategory =
+        activeCategory === "All" || p.category === activeCategory;
       return matchesSearch && matchesCategory;
     });
   }, [catalogProducts, search, activeCategory]);
@@ -346,32 +534,45 @@ export function POSView({
   // ─── Money math ────────────────────────────────────────────────────────────
   const subtotal = useMemo(
     () => round2(cart.reduce((acc, item) => acc + item.price * item.qty, 0)),
-    [cart]
+    [cart],
   );
   const lineDiscountTotal = useMemo(
-    () => round2(cart.reduce((acc, item) => acc + Math.min(item.lineDiscount, item.price * item.qty), 0)),
-    [cart]
+    () =>
+      round2(
+        cart.reduce(
+          (acc, item) =>
+            acc + Math.min(item.lineDiscount, item.price * item.qty),
+          0,
+        ),
+      ),
+    [cart],
   );
   const orderDiscount = useMemo(() => {
     if (orderDiscountValue <= 0) return 0;
     const base = Math.max(0, subtotal - lineDiscountTotal);
-    const raw = orderDiscountKind === "percent" ? (base * orderDiscountValue) / 100 : orderDiscountValue;
+    const raw =
+      orderDiscountKind === "percent"
+        ? (base * orderDiscountValue) / 100
+        : orderDiscountValue;
     return round2(Math.min(Math.max(raw, 0), base));
   }, [subtotal, lineDiscountTotal, orderDiscountKind, orderDiscountValue]);
   const taxBase = useMemo(
     () => Math.max(0, round2(subtotal - lineDiscountTotal - orderDiscount)),
-    [subtotal, lineDiscountTotal, orderDiscount]
+    [subtotal, lineDiscountTotal, orderDiscount],
   );
   const taxRate = shopVatRegistered ? shopVatRate : 0;
   const taxAmount = useMemo(
     () => (shopVatRegistered ? round2((taxBase * taxRate) / 100) : 0),
-    [shopVatRegistered, taxBase, taxRate]
+    [shopVatRegistered, taxBase, taxRate],
   );
-  const total = useMemo(() => round2(taxBase + taxAmount), [taxBase, taxAmount]);
+  const total = useMemo(
+    () => round2(taxBase + taxAmount),
+    [taxBase, taxAmount],
+  );
 
   const splitSum = useMemo(
     () => round2(splits.reduce((acc, s) => acc + (Number(s.amount) || 0), 0)),
-    [splits]
+    [splits],
   );
   const splitRemaining = round2(total - splitSum);
 
@@ -382,27 +583,46 @@ export function POSView({
       const existing = prev.find((i) => i.id === product.id);
       if (existing) {
         const newQty = parseFloat((existing.qty + cfg.step).toFixed(3));
-        if (newQty > existing.maxStock) { toast.error("Not enough stock."); return prev; }
-        return prev.map((i) => i.id === product.id ? { ...i, qty: newQty } : i);
+        if (newQty > existing.maxStock) {
+          toast.error("Not enough stock.");
+          return prev;
+        }
+        return prev.map((i) =>
+          i.id === product.id ? { ...i, qty: newQty } : i,
+        );
       }
-      return [...prev, {
-        id: product.id, name: product.name, price: product.price, qty: cfg.min,
-        maxStock: product.stock, unit: product.unit, cfg, lineDiscount: 0,
-      }];
+      return [
+        ...prev,
+        {
+          id: product.id,
+          name: product.name,
+          price: product.price,
+          qty: cfg.min,
+          maxStock: product.stock,
+          unit: product.unit,
+          cfg,
+          lineDiscount: 0,
+        },
+      ];
     });
   };
 
   const updateQty = (id: string, delta: number) => {
     setCart((prev) =>
-      prev.map((i) => {
-        if (i.id !== id) return i;
-        const newQty = parseFloat((i.qty + delta * i.cfg.step).toFixed(3));
-        if (newQty <= 0) return null as unknown as CartItem;
-        if (newQty > i.maxStock) { toast.error("Not enough stock."); return i; }
-        // Cap the line discount if the new line subtotal can't absorb it.
-        const cappedDiscount = Math.min(i.lineDiscount, i.price * newQty);
-        return { ...i, qty: newQty, lineDiscount: cappedDiscount };
-      }).filter(Boolean)
+      prev
+        .map((i) => {
+          if (i.id !== id) return i;
+          const newQty = parseFloat((i.qty + delta * i.cfg.step).toFixed(3));
+          if (newQty <= 0) return null as unknown as CartItem;
+          if (newQty > i.maxStock) {
+            toast.error("Not enough stock.");
+            return i;
+          }
+          // Cap the line discount if the new line subtotal can't absorb it.
+          const cappedDiscount = Math.min(i.lineDiscount, i.price * newQty);
+          return { ...i, qty: newQty, lineDiscount: cappedDiscount };
+        })
+        .filter(Boolean),
     );
   };
 
@@ -413,7 +633,7 @@ export function POSView({
         const cap = i.price * i.qty;
         const safe = Math.max(0, Math.min(value, cap));
         return { ...i, lineDiscount: round2(safe) };
-      })
+      }),
     );
   };
 
@@ -435,7 +655,10 @@ export function POSView({
   };
 
   const handlePark = () => {
-    if (!cart.length) { toast.error("Cart is empty."); return; }
+    if (!cart.length) {
+      toast.error("Cart is empty.");
+      return;
+    }
     startTransition(async () => {
       const res = await parkSale({
         shopId,
@@ -450,7 +673,10 @@ export function POSView({
         orderDiscountKind,
         orderDiscountValue,
       });
-      if (res.error) { toast.error(res.error); return; }
+      if (res.error) {
+        toast.error(res.error);
+        return;
+      }
       toast.success("Sale parked. Resume any time from Held Sales.");
       resetCart();
       await refreshHeldSales();
@@ -460,7 +686,10 @@ export function POSView({
   const handleResume = (id: string) => {
     startTransition(async () => {
       const res = await getHeldSale(id);
-      if (res.error || !res.row) { toast.error(res.error ?? "Could not load held sale"); return; }
+      if (res.error || !res.row) {
+        toast.error(res.error ?? "Could not load held sale");
+        return;
+      }
       const payload = (res.row.cart ?? {}) as {
         cart?: CartItem[];
         orderDiscount?: number;
@@ -489,7 +718,10 @@ export function POSView({
   const handleCancelHold = (id: string) => {
     startTransition(async () => {
       const res = await deleteHeldSale(id);
-      if (res.error) { toast.error(res.error); return; }
+      if (res.error) {
+        toast.error(res.error);
+        return;
+      }
       await refreshHeldSales();
       toast.success("Held sale cleared");
     });
@@ -497,16 +729,25 @@ export function POSView({
 
   // ─── Splits ─────────────────────────────────────────────────────────────────
   const toggleSplitMode = () => {
-    if (cart.length === 0) { toast.error("Cart is empty."); return; }
+    if (cart.length === 0) {
+      toast.error("Cart is empty.");
+      return;
+    }
     setSplitMode((prev) => !prev);
     if (splitMode) setSplits([]);
   };
 
   const addSplit = (method: SplitMethod) => {
     setSplits((prev) => {
-      if (prev.length >= 3) { toast.error("At most 3 split methods allowed."); return prev; }
+      if (prev.length >= 3) {
+        toast.error("At most 3 split methods allowed.");
+        return prev;
+      }
       const suggested = Math.max(0, splitRemaining);
-      return [...prev, { method, amount: suggested > 0 ? suggested.toFixed(2) : "" }];
+      return [
+        ...prev,
+        { method, amount: suggested > 0 ? suggested.toFixed(2) : "" },
+      ];
     });
   };
 
@@ -531,7 +772,7 @@ export function POSView({
   const buildBillRecord = (
     paymentMethod: string,
     finalBuyer: string | null,
-    splitsForBill: SplitEntry[] | null
+    splitsForBill: SplitEntry[] | null,
   ): CompletedBill => {
     const now = new Date();
     return {
@@ -553,20 +794,33 @@ export function POSView({
   };
 
   const buildNotes = (paymentMethod: string, finalBuyer: string | null) => {
-    const parts: string[] = [`POS Sale${paymentMethod === "udhar" ? " (Udhar)" : paymentMethod === "split" ? " (Split)" : ""}`];
+    const parts: string[] = [
+      `POS Sale${paymentMethod === "udhar" ? " (Udhar)" : paymentMethod === "split" ? " (Split)" : ""}`,
+    ];
     if (finalBuyer) parts.push(`Buyer: ${finalBuyer}`);
     if (orderDiscount > 0) {
-      const tag = orderDiscountKind === "percent" ? `${orderDiscountValue}%` : `Rs.${orderDiscountValue}`;
+      const tag =
+        orderDiscountKind === "percent"
+          ? `${orderDiscountValue}%`
+          : `Rs.${orderDiscountValue}`;
       parts.push(`Order discount: ${tag} (Rs.${orderDiscount.toFixed(2)})`);
     }
-    if (lineDiscountTotal > 0) parts.push(`Line discounts: Rs.${lineDiscountTotal.toFixed(2)}`);
-    if (taxAmount > 0) parts.push(`VAT ${taxRate.toFixed(2)}%: Rs.${taxAmount.toFixed(2)}`);
+    if (lineDiscountTotal > 0)
+      parts.push(`Line discounts: Rs.${lineDiscountTotal.toFixed(2)}`);
+    if (taxAmount > 0)
+      parts.push(`VAT ${taxRate.toFixed(2)}%: Rs.${taxAmount.toFixed(2)}`);
     return parts.join(" — ");
   };
 
   const handleCheckout = (paymentMethod: string, customerName?: string) => {
-    if (!cart.length) { toast.error("Cart is empty."); return; }
-    const finalBuyer = (paymentMethod === "udhar" ? customerName : null) || buyerName.trim() || null;
+    if (!cart.length) {
+      toast.error("Cart is empty.");
+      return;
+    }
+    const finalBuyer =
+      (paymentMethod === "udhar" ? customerName : null) ||
+      buyerName.trim() ||
+      null;
     const splitsForRpc: SplitEntry[] | null =
       paymentMethod === "split"
         ? splits.map((s) => ({
@@ -576,8 +830,13 @@ export function POSView({
           }))
         : null;
 
-    if (splitsForRpc && Math.abs(splitsForRpc.reduce((a, s) => a + s.amount, 0) - total) > 0.01) {
-      toast.error(`Splits (Rs. ${splitSum.toFixed(2)}) must total Rs. ${total.toFixed(2)}`);
+    if (
+      splitsForRpc &&
+      Math.abs(splitsForRpc.reduce((a, s) => a + s.amount, 0) - total) > 0.01
+    ) {
+      toast.error(
+        `Splits (Rs. ${splitSum.toFixed(2)}) must total Rs. ${total.toFixed(2)}`,
+      );
       return;
     }
 
@@ -613,7 +872,9 @@ export function POSView({
           resetCart();
           toast.success("Sale queued — will sync when online.");
         } catch (err) {
-          toast.error(err instanceof Error ? err.message : "Could not queue sale.");
+          toast.error(
+            err instanceof Error ? err.message : "Could not queue sale.",
+          );
         }
       });
       return;
@@ -636,7 +897,10 @@ export function POSView({
   };
 
   const handlePaymentClick = (pmId: SplitMethod) => {
-    if (!cart.length) { toast.error("Cart is empty."); return; }
+    if (!cart.length) {
+      toast.error("Cart is empty.");
+      return;
+    }
     if (splitMode) {
       addSplit(pmId);
       return;
@@ -651,7 +915,9 @@ export function POSView({
 
   const handleSplitConfirm = () => {
     if (Math.abs(splitRemaining) > 0.01) {
-      toast.error(`Remaining Rs. ${splitRemaining.toFixed(2)} must be 0 to confirm.`);
+      toast.error(
+        `Remaining Rs. ${splitRemaining.toFixed(2)} must be 0 to confirm.`,
+      );
       return;
     }
     handleCheckout("split");
@@ -775,8 +1041,12 @@ export function POSView({
             {catalogProducts.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full gap-4 text-center">
                 <Package className="h-16 w-16 text-[#746E73] opacity-20" />
-                <p className="font-bold text-[#27324A]">No products in catalog yet.</p>
-                <p className="text-sm text-[#746E73]">Add products in the Inventory section first.</p>
+                <p className="font-bold text-[#27324A]">
+                  No products in catalog yet.
+                </p>
+                <p className="text-sm text-[#746E73]">
+                  Add products in the Inventory section first.
+                </p>
               </div>
             ) : filteredProducts.length === 0 ? (
               <div className="text-center py-12 text-[#746E73] font-medium">
@@ -785,7 +1055,8 @@ export function POSView({
             ) : (
               <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-3 lg:gap-4">
                 {filteredProducts.map((p) => {
-                  const colorClass = CATEGORY_COLORS[p.category ?? "Other"] ?? "bg-gray-50";
+                  const colorClass =
+                    CATEGORY_COLORS[p.category ?? "Other"] ?? "bg-gray-50";
                   const cartItem = cart.find((i) => i.id === p.id);
                   const cfg = parseUnit(p.unit);
                   return (
@@ -804,7 +1075,9 @@ export function POSView({
                           className="absolute top-2 right-2 h-11 w-11 rounded-xl object-cover opacity-90 group-hover:opacity-100 transition-opacity"
                         />
                       ) : (
-                        <div className={`absolute top-0 right-0 w-16 h-16 -mr-8 -mt-8 rounded-full ${colorClass} opacity-50 group-hover:scale-150 transition-transform duration-500`} />
+                        <div
+                          className={`absolute top-0 right-0 w-16 h-16 -mr-8 -mt-8 rounded-full ${colorClass} opacity-50 group-hover:scale-150 transition-transform duration-500`}
+                        />
                       )}
                       {cartItem && (
                         <span className="absolute top-2 right-2 h-5 min-w-[1.25rem] px-1 bg-[#A7653A] text-white rounded-full text-[10px] font-black flex items-center justify-center z-10">
@@ -812,16 +1085,28 @@ export function POSView({
                         </span>
                       )}
                       <div className="mt-auto relative z-10">
-                        <span className="text-xs lg:text-sm font-black text-[#27324A] line-clamp-2 block">{p.name}</span>
-                        {p.variant && <span className="text-[9px] text-[#746E73] font-medium block">{p.variant}</span>}
+                        <span className="text-xs lg:text-sm font-black text-[#27324A] line-clamp-2 block">
+                          {p.name}
+                        </span>
+                        {p.variant && (
+                          <span className="text-[9px] text-[#746E73] font-medium block">
+                            {p.variant}
+                          </span>
+                        )}
                         <div className="flex items-center gap-1 mt-1">
-                          <span className="text-[10px] lg:text-xs font-bold text-[#A7653A]">Rs. {p.price}</span>
-                          <span className="text-[9px] text-[#746E73]">{cfg.priceLabel}</span>
+                          <span className="text-[10px] lg:text-xs font-bold text-[#A7653A]">
+                            Rs. {p.price}
+                          </span>
+                          <span className="text-[9px] text-[#746E73]">
+                            {cfg.priceLabel}
+                          </span>
                         </div>
                         <div className="flex items-center gap-1 mt-0.5">
                           <UnitIcon kind={cfg.kind} />
                           <span className="text-[9px] text-[#746E73] font-medium">
-                            {cfg.kind === "count" ? `Stock: ${Math.floor(p.stock)} ${cfg.label}` : `Stock: ${p.stock} ${cfg.label}`}
+                            {cfg.kind === "count"
+                              ? `Stock: ${Math.floor(p.stock)} ${cfg.label}`
+                              : `Stock: ${p.stock} ${cfg.label}`}
                           </span>
                         </div>
                       </div>
@@ -852,12 +1137,21 @@ export function POSView({
                       </span>
                     )}
                   </div>
-                  <span className="font-bold">{cart.length === 0 ? "Cart Empty" : `${cart.length} item${cart.length > 1 ? "s" : ""}`}</span>
+                  <span className="font-bold">
+                    {cart.length === 0
+                      ? "Cart Empty"
+                      : `${cart.length} item${cart.length > 1 ? "s" : ""}`}
+                  </span>
                 </div>
-                <span className="font-black text-lg">Rs. {total.toFixed(2)}</span>
+                <span className="font-black text-lg">
+                  Rs. {total.toFixed(2)}
+                </span>
               </Button>
             </SheetTrigger>
-            <SheetContent side="bottom" className="h-[85vh] p-0 rounded-t-[2rem]">
+            <SheetContent
+              side="bottom"
+              className="h-[85vh] p-0 rounded-t-[2rem]"
+            >
               <SheetTitle className="sr-only">Cart</SheetTitle>
               {cartContent}
             </SheetContent>
@@ -868,7 +1162,9 @@ export function POSView({
       {/* Re-print persistent button — visible once a sale is done. */}
       {lastReceiptBill && !completedBill && (
         <button
-          onClick={() => printBill(lastReceiptBill, shopName, ownerName, shopPanNumber)}
+          onClick={() =>
+            printBill(lastReceiptBill, shopName, ownerName, shopPanNumber)
+          }
           className="fixed bottom-24 lg:bottom-6 right-4 z-40 h-12 px-4 rounded-2xl bg-white border-2 border-[#27324A]/15 text-[#27324A] font-bold shadow-lg flex items-center gap-2 hover:bg-[#f8f8f7] transition"
           title={`Re-print receipt #${lastReceiptBill.receiptNo}`}
         >
@@ -888,22 +1184,37 @@ export function POSView({
               <h2 className="font-black text-xl">Sale Complete!</h2>
               <p className="text-white/70 text-sm mt-1">
                 Receipt #{completedBill.receiptNo} ·{" "}
-                {completedBill.timestamp.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}
+                {completedBill.timestamp.toLocaleTimeString("en-IN", {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
               </p>
             </div>
 
             <div className="p-6">
               <div className="space-y-2 max-h-48 overflow-y-auto">
                 {completedBill.items.map((item, idx) => (
-                  <div key={idx} className="flex justify-between items-center text-sm">
+                  <div
+                    key={idx}
+                    className="flex justify-between items-center text-sm"
+                  >
                     <div>
-                      <span className="font-bold text-[#27324A]">{item.name}</span>
-                      <span className="text-[#746E73] ml-2 text-xs">× {fmtQty(item.qty, item.cfg)}</span>
+                      <span className="font-bold text-[#27324A]">
+                        {item.name}
+                      </span>
+                      <span className="text-[#746E73] ml-2 text-xs">
+                        × {fmtQty(item.qty, item.cfg)}
+                      </span>
                       {item.lineDiscount > 0 && (
-                        <span className="text-[10px] text-[#A7653A] block">− Rs. {item.lineDiscount.toFixed(2)} line discount</span>
+                        <span className="text-[10px] text-[#A7653A] block">
+                          − Rs. {item.lineDiscount.toFixed(2)} line discount
+                        </span>
                       )}
                     </div>
-                    <span className="font-bold text-[#27324A]">Rs. {(item.price * item.qty - item.lineDiscount).toFixed(2)}</span>
+                    <span className="font-bold text-[#27324A]">
+                      Rs.{" "}
+                      {(item.price * item.qty - item.lineDiscount).toFixed(2)}
+                    </span>
                   </div>
                 ))}
               </div>
@@ -916,12 +1227,19 @@ export function POSView({
                 {completedBill.lineDiscountTotal > 0 && (
                   <div className="flex justify-between text-sm text-[#A7653A]">
                     <span>Line discounts</span>
-                    <span>− Rs. {completedBill.lineDiscountTotal.toFixed(2)}</span>
+                    <span>
+                      − Rs. {completedBill.lineDiscountTotal.toFixed(2)}
+                    </span>
                   </div>
                 )}
                 {completedBill.orderDiscount > 0 && (
                   <div className="flex justify-between text-sm font-bold text-[#A7653A]">
-                    <span>Order discount{completedBill.orderDiscountKind === "percent" ? ` (${completedBill.orderDiscountValue}%)` : ""}</span>
+                    <span>
+                      Order discount
+                      {completedBill.orderDiscountKind === "percent"
+                        ? ` (${completedBill.orderDiscountValue}%)`
+                        : ""}
+                    </span>
                     <span>− Rs. {completedBill.orderDiscount.toFixed(2)}</span>
                   </div>
                 )}
@@ -936,38 +1254,55 @@ export function POSView({
                   <span>Rs. {completedBill.total.toFixed(2)}</span>
                 </div>
                 <div className="flex items-center gap-2 mt-2 flex-wrap">
-                  <span className="text-xs font-bold text-[#746E73] uppercase tracking-wider">Paid via</span>
+                  <span className="text-xs font-bold text-[#746E73] uppercase tracking-wider">
+                    Paid via
+                  </span>
                   {completedBill.splits && completedBill.splits.length > 0 ? (
                     completedBill.splits.map((s, i) => (
-                      <span key={i} className="text-xs font-black px-2 py-1 rounded-lg bg-[#27324A]/10 text-[#27324A]">
+                      <span
+                        key={i}
+                        className="text-xs font-black px-2 py-1 rounded-lg bg-[#27324A]/10 text-[#27324A]"
+                      >
                         {paymentLabel(s.method)} · Rs. {s.amount.toFixed(2)}
                       </span>
                     ))
                   ) : (
-                    <span className={`text-xs font-black px-2 py-1 rounded-lg ${
-                      completedBill.paymentMethod === "cash" ? "bg-[#27324A]/10 text-[#27324A]"
-                      : completedBill.paymentMethod === "online" ? "bg-[#41A560]/10 text-[#41A560]"
-                      : completedBill.paymentMethod === "udhar" ? "bg-[#A7653A]/10 text-[#A7653A]"
-                      : "bg-[#27324A]/10 text-[#27324A]"
-                    }`}>
+                    <span
+                      className={`text-xs font-black px-2 py-1 rounded-lg ${
+                        completedBill.paymentMethod === "cash"
+                          ? "bg-[#27324A]/10 text-[#27324A]"
+                          : completedBill.paymentMethod === "online"
+                            ? "bg-[#41A560]/10 text-[#41A560]"
+                            : completedBill.paymentMethod === "udhar"
+                              ? "bg-[#A7653A]/10 text-[#A7653A]"
+                              : "bg-[#27324A]/10 text-[#27324A]"
+                      }`}
+                    >
                       {completedBill.paymentMethod === "udhar"
                         ? `Udhar${completedBill.customerName ? ` — ${completedBill.customerName}` : ""}`
                         : paymentLabel(completedBill.paymentMethod)}
                     </span>
                   )}
                 </div>
-                {completedBill.customerName && completedBill.paymentMethod !== "udhar" && (
-                  <div className="flex items-center gap-2 mt-1">
-                    <span className="text-xs font-bold text-[#746E73] uppercase tracking-wider">Buyer</span>
-                    <span className="text-xs font-bold text-[#27324A]">{completedBill.customerName}</span>
-                  </div>
-                )}
+                {completedBill.customerName &&
+                  completedBill.paymentMethod !== "udhar" && (
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className="text-xs font-bold text-[#746E73] uppercase tracking-wider">
+                        Buyer
+                      </span>
+                      <span className="text-xs font-bold text-[#27324A]">
+                        {completedBill.customerName}
+                      </span>
+                    </div>
+                  )}
               </div>
             </div>
 
             <div className="px-6 pb-6 flex gap-3">
               <button
-                onClick={() => printBill(completedBill, shopName, ownerName, shopPanNumber)}
+                onClick={() =>
+                  printBill(completedBill, shopName, ownerName, shopPanNumber)
+                }
                 className="flex-1 h-12 rounded-2xl border-2 border-[#27324A]/15 font-bold text-[#27324A] flex items-center justify-center gap-2 hover:bg-[#f8f8f7] transition"
               >
                 <Printer className="h-4 w-4" />
@@ -1030,14 +1365,41 @@ interface CartContentProps {
 
 function CartContent(props: CartContentProps) {
   const {
-    cart, subtotal, lineDiscountTotal, orderDiscount, orderDiscountValue, orderDiscountKind,
-    taxRate, taxAmount, total, vatRegistered, buyerName, isPending,
-    showUdharPrompt, udharName, udharInputRef,
-    splitMode, splits, splitSum, splitRemaining,
-    onClearCart, onUpdateQty, onUpdateLineDiscount, onPaymentClick, onCheckout,
-    onDismissUdhar, onUdharNameChange, onBuyerNameChange,
-    onDiscountValueChange, onDiscountKindChange,
-    onToggleSplit, onAddSplit, onUpdateSplitAmount, onRemoveSplit, onConfirmSplit, onPark,
+    cart,
+    subtotal,
+    lineDiscountTotal,
+    orderDiscount,
+    orderDiscountValue,
+    orderDiscountKind,
+    taxRate,
+    taxAmount,
+    total,
+    vatRegistered,
+    buyerName,
+    isPending,
+    showUdharPrompt,
+    udharName,
+    udharInputRef,
+    splitMode,
+    splits,
+    splitSum,
+    splitRemaining,
+    onClearCart,
+    onUpdateQty,
+    onUpdateLineDiscount,
+    onPaymentClick,
+    onCheckout,
+    onDismissUdhar,
+    onUdharNameChange,
+    onBuyerNameChange,
+    onDiscountValueChange,
+    onDiscountKindChange,
+    onToggleSplit,
+    onAddSplit,
+    onUpdateSplitAmount,
+    onRemoveSplit,
+    onConfirmSplit,
+    onPark,
   } = props;
 
   return (
@@ -1058,7 +1420,10 @@ function CartContent(props: CartContentProps) {
               <PauseCircle className="h-3.5 w-3.5" />
               Park
             </button>
-            <button onClick={onClearCart} className="text-xs font-bold text-red-500 hover:bg-red-50 px-3 py-1.5 rounded-lg transition">
+            <button
+              onClick={onClearCart}
+              className="text-xs font-bold text-red-500 hover:bg-red-50 px-3 py-1.5 rounded-lg transition"
+            >
               Clear
             </button>
           </div>
@@ -1079,10 +1444,17 @@ function CartContent(props: CartContentProps) {
               const lineSubtotal = item.price * item.qty;
               const lineNet = Math.max(0, lineSubtotal - item.lineDiscount);
               return (
-                <div key={item.id} className="flex flex-col p-3 hover:bg-[#f8f8f7] rounded-xl group transition">
+                <div
+                  key={item.id}
+                  className="flex flex-col p-3 hover:bg-[#f8f8f7] rounded-xl group transition"
+                >
                   <div className="flex justify-between items-start mb-2">
-                    <p className="text-sm font-bold text-[#27324A] line-clamp-1 pr-2">{item.name}</p>
-                    <p className="text-sm font-black text-[#27324A] shrink-0">Rs. {lineNet.toFixed(2)}</p>
+                    <p className="text-sm font-bold text-[#27324A] line-clamp-1 pr-2">
+                      {item.name}
+                    </p>
+                    <p className="text-sm font-black text-[#27324A] shrink-0">
+                      Rs. {lineNet.toFixed(2)}
+                    </p>
                   </div>
                   <div className="flex items-center justify-between gap-2 flex-wrap">
                     <span className="text-[9px] text-[#746E73] font-bold uppercase tracking-widest flex items-center gap-1">
@@ -1090,11 +1462,19 @@ function CartContent(props: CartContentProps) {
                       Rs. {item.price} {item.cfg.priceLabel}
                     </span>
                     <div className="flex items-center gap-2 bg-white border border-[#2E3344]/10 rounded-lg p-1">
-                      <button onClick={() => onUpdateQty(item.id, -1)} className="h-6 w-6 rounded bg-[#f8f8f7] hover:bg-[#E8E3D1] flex items-center justify-center text-[#27324A]">
+                      <button
+                        onClick={() => onUpdateQty(item.id, -1)}
+                        className="h-6 w-6 rounded bg-[#f8f8f7] hover:bg-[#E8E3D1] flex items-center justify-center text-[#27324A]"
+                      >
                         <Minus className="h-3 w-3" />
                       </button>
-                      <span className="text-xs font-black min-w-[3rem] text-center">{fmtQty(item.qty, item.cfg)}</span>
-                      <button onClick={() => onUpdateQty(item.id, 1)} className="h-6 w-6 rounded bg-[#F7F0E6] hover:bg-[#A7653A] hover:text-white flex items-center justify-center text-[#A7653A] transition">
+                      <span className="text-xs font-black min-w-[3rem] text-center">
+                        {fmtQty(item.qty, item.cfg)}
+                      </span>
+                      <button
+                        onClick={() => onUpdateQty(item.id, 1)}
+                        className="h-6 w-6 rounded bg-[#F7F0E6] hover:bg-[#A7653A] hover:text-white flex items-center justify-center text-[#A7653A] transition"
+                      >
                         <Plus className="h-3 w-3" />
                       </button>
                     </div>
@@ -1102,7 +1482,9 @@ function CartContent(props: CartContentProps) {
                   {/* Per-line discount */}
                   <div className="flex items-center gap-2 mt-2 text-[10px] font-bold text-[#746E73]">
                     <Tag className="h-3 w-3 text-[#A7653A]" />
-                    <span className="uppercase tracking-wider">Line discount</span>
+                    <span className="uppercase tracking-wider">
+                      Line discount
+                    </span>
                     <input
                       type="number"
                       inputMode="decimal"
@@ -1110,7 +1492,12 @@ function CartContent(props: CartContentProps) {
                       step="0.01"
                       max={lineSubtotal}
                       value={item.lineDiscount > 0 ? item.lineDiscount : ""}
-                      onChange={(e) => onUpdateLineDiscount(item.id, Number(e.target.value) || 0)}
+                      onChange={(e) =>
+                        onUpdateLineDiscount(
+                          item.id,
+                          Number(e.target.value) || 0,
+                        )
+                      }
                       placeholder="0"
                       className="flex-1 px-2 h-7 text-xs text-right outline-none border border-[#2E3344]/10 rounded bg-white"
                     />
@@ -1126,7 +1513,9 @@ function CartContent(props: CartContentProps) {
       {/* Udhar Customer Name Prompt */}
       {showUdharPrompt && (
         <div className="px-5 py-3 bg-[#F7F0E6]/60 border-t border-[#A7653A]/20">
-          <p className="text-xs font-bold text-[#A7653A] mb-2 uppercase tracking-wider">Customer name (Udhar)</p>
+          <p className="text-xs font-bold text-[#A7653A] mb-2 uppercase tracking-wider">
+            Customer name (Udhar)
+          </p>
           <div className="flex gap-2">
             <Input
               ref={udharInputRef}
@@ -1135,7 +1524,8 @@ function CartContent(props: CartContentProps) {
               placeholder="e.g. Ram Bahadur"
               className="h-9 text-sm rounded-xl"
               onKeyDown={(e) => {
-                if (e.key === "Enter") onCheckout("udhar", udharName || undefined);
+                if (e.key === "Enter")
+                  onCheckout("udhar", udharName || undefined);
                 if (e.key === "Escape") onDismissUdhar();
               }}
             />
@@ -1146,7 +1536,10 @@ function CartContent(props: CartContentProps) {
             >
               Confirm
             </button>
-            <button onClick={onDismissUdhar} className="h-9 w-9 rounded-xl border border-[#2E3344]/10 flex items-center justify-center shrink-0">
+            <button
+              onClick={onDismissUdhar}
+              className="h-9 w-9 rounded-xl border border-[#2E3344]/10 flex items-center justify-center shrink-0"
+            >
               <X className="h-4 w-4 text-[#746E73]" />
             </button>
           </div>
@@ -1170,7 +1563,9 @@ function CartContent(props: CartContentProps) {
         {/* Order discount */}
         {cart.length > 0 && (
           <div className="mb-3 flex gap-2 items-center">
-            <span className="text-[10px] font-black uppercase tracking-wider text-[#746E73] shrink-0">Order discount</span>
+            <span className="text-[10px] font-black uppercase tracking-wider text-[#746E73] shrink-0">
+              Order discount
+            </span>
             <div className="flex flex-1 rounded-xl border border-[#2E3344]/10 overflow-hidden bg-white">
               <button
                 type="button"
@@ -1194,7 +1589,9 @@ function CartContent(props: CartContentProps) {
                 min="0"
                 step="0.01"
                 value={orderDiscountValue || ""}
-                onChange={(e) => onDiscountValueChange(Number(e.target.value) || 0)}
+                onChange={(e) =>
+                  onDiscountValueChange(Number(e.target.value) || 0)
+                }
                 placeholder="0"
                 className="flex-1 px-2 h-9 text-sm outline-none bg-transparent"
               />
@@ -1205,7 +1602,9 @@ function CartContent(props: CartContentProps) {
         {/* Money breakdown */}
         <div className="space-y-1 mb-4">
           <div className="flex justify-between text-sm text-[#746E73] font-medium">
-            <span>Subtotal · {cart.length} item{cart.length !== 1 ? "s" : ""}</span>
+            <span>
+              Subtotal · {cart.length} item{cart.length !== 1 ? "s" : ""}
+            </span>
             <span>Rs. {subtotal.toFixed(2)}</span>
           </div>
           {lineDiscountTotal > 0 && (
@@ -1216,7 +1615,12 @@ function CartContent(props: CartContentProps) {
           )}
           {orderDiscount > 0 && (
             <div className="flex justify-between text-sm font-bold text-[#A7653A]">
-              <span>Order discount{orderDiscountKind === "percent" ? ` (${orderDiscountValue}%)` : ""}</span>
+              <span>
+                Order discount
+                {orderDiscountKind === "percent"
+                  ? ` (${orderDiscountValue}%)`
+                  : ""}
+              </span>
               <span>− Rs. {orderDiscount.toFixed(2)}</span>
             </div>
           )}
@@ -1251,7 +1655,9 @@ function CartContent(props: CartContentProps) {
         {splitMode && (
           <div className="mb-3 p-3 rounded-xl bg-white border border-[#27324A]/10 space-y-2">
             {splits.length === 0 ? (
-              <p className="text-[11px] font-bold text-[#746E73]">Tap a method below to start a split (max 3).</p>
+              <p className="text-[11px] font-bold text-[#746E73]">
+                Tap a method below to start a split (max 3).
+              </p>
             ) : (
               splits.map((s, idx) => (
                 <div key={idx} className="flex items-center gap-2">
@@ -1268,7 +1674,10 @@ function CartContent(props: CartContentProps) {
                     placeholder="0.00"
                     className="flex-1 h-9 px-2 text-sm border border-[#2E3344]/10 rounded-lg outline-none"
                   />
-                  <button onClick={() => onRemoveSplit(idx)} className="h-9 w-9 rounded-lg border border-[#2E3344]/10 flex items-center justify-center text-red-500 hover:bg-red-50">
+                  <button
+                    onClick={() => onRemoveSplit(idx)}
+                    className="h-9 w-9 rounded-lg border border-[#2E3344]/10 flex items-center justify-center text-red-500 hover:bg-red-50"
+                  >
                     <Trash2 className="h-3.5 w-3.5" />
                   </button>
                 </div>
@@ -1276,10 +1685,14 @@ function CartContent(props: CartContentProps) {
             )}
             <div className="flex items-center justify-between pt-1 text-[11px] font-bold">
               <span className="text-[#746E73]">Allocated</span>
-              <span className="text-[#27324A]">Rs. {splitSum.toFixed(2)} / Rs. {total.toFixed(2)}</span>
+              <span className="text-[#27324A]">
+                Rs. {splitSum.toFixed(2)} / Rs. {total.toFixed(2)}
+              </span>
             </div>
             {Math.abs(splitRemaining) > 0.01 && (
-              <p className={`text-[11px] font-bold ${splitRemaining > 0 ? "text-[#A7653A]" : "text-red-600"}`}>
+              <p
+                className={`text-[11px] font-bold ${splitRemaining > 0 ? "text-[#A7653A]" : "text-red-600"}`}
+              >
                 {splitRemaining > 0
                   ? `Remaining: Rs. ${splitRemaining.toFixed(2)}`
                   : `Over by: Rs. ${(-splitRemaining).toFixed(2)}`}
@@ -1287,7 +1700,11 @@ function CartContent(props: CartContentProps) {
             )}
             <button
               onClick={onConfirmSplit}
-              disabled={isPending || splits.length === 0 || Math.abs(splitRemaining) > 0.01}
+              disabled={
+                isPending ||
+                splits.length === 0 ||
+                Math.abs(splitRemaining) > 0.01
+              }
               className="w-full h-10 rounded-xl bg-[#27324A] text-white text-sm font-bold disabled:opacity-40"
             >
               Confirm split sale
@@ -1306,7 +1723,9 @@ function CartContent(props: CartContentProps) {
                 className={`py-3 rounded-xl flex flex-col items-center gap-1 active:scale-95 transition shadow-sm disabled:opacity-40 ${pm.color}`}
               >
                 <pm.icon className="h-5 w-5" />
-                <span className="text-[10px] font-bold uppercase tracking-wider">{pm.label}</span>
+                <span className="text-[10px] font-bold uppercase tracking-wider">
+                  {pm.label}
+                </span>
               </button>
             ))}
           </div>
@@ -1320,7 +1739,9 @@ function CartContent(props: CartContentProps) {
                 className="py-2 rounded-xl flex flex-col items-center gap-1 active:scale-95 transition shadow-sm disabled:opacity-40 bg-white border border-[#27324A]/15 text-[#27324A] hover:bg-[#f8f8f7]"
               >
                 <pm.icon className="h-4 w-4" />
-                <span className="text-[10px] font-bold uppercase tracking-wider">{pm.label}</span>
+                <span className="text-[10px] font-bold uppercase tracking-wider">
+                  {pm.label}
+                </span>
               </button>
             ))}
           </div>
@@ -1339,13 +1760,20 @@ interface HeldSalesPanelProps {
   isPending: boolean;
 }
 
-function HeldSalesPanel({ holds, onResume, onCancel, isPending }: HeldSalesPanelProps) {
+function HeldSalesPanel({
+  holds,
+  onResume,
+  onCancel,
+  isPending,
+}: HeldSalesPanelProps) {
   return (
     <div className="flex flex-col h-full bg-white">
       <div className="p-5 border-b border-[#2E3344]/8 flex items-center gap-2">
         <History className="h-5 w-5 text-[#A7653A]" />
         <h2 className="font-black text-[#27324A]">Held sales</h2>
-        <span className="ml-auto text-xs font-bold text-[#746E73]">{holds.length}</span>
+        <span className="ml-auto text-xs font-bold text-[#746E73]">
+          {holds.length}
+        </span>
       </div>
       <div className="flex-1 overflow-y-auto p-3">
         {holds.length === 0 ? (
@@ -1357,17 +1785,29 @@ function HeldSalesPanel({ holds, onResume, onCancel, isPending }: HeldSalesPanel
         ) : (
           <ul className="space-y-2">
             {holds.map((h) => (
-              <li key={h.id} className="p-3 rounded-2xl border border-[#2E3344]/8 bg-[#f8f8f7]/50 hover:bg-white transition">
+              <li
+                key={h.id}
+                className="p-3 rounded-2xl border border-[#2E3344]/8 bg-[#f8f8f7]/50 hover:bg-white transition"
+              >
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
-                    <p className="text-sm font-black text-[#27324A]">Rs. {h.total.toFixed(2)}</p>
+                    <p className="text-sm font-black text-[#27324A]">
+                      Rs. {h.total.toFixed(2)}
+                    </p>
                     <p className="text-[11px] font-bold text-[#746E73] mt-0.5">
                       {h.item_count} item{h.item_count !== 1 ? "s" : ""}
                       {h.customer_name ? ` · ${h.customer_name}` : ""}
                     </p>
-                    {h.note && <p className="text-[11px] text-[#746E73] mt-1 line-clamp-2">{h.note}</p>}
+                    {h.note && (
+                      <p className="text-[11px] text-[#746E73] mt-1 line-clamp-2">
+                        {h.note}
+                      </p>
+                    )}
                     <p className="text-[10px] text-[#a4a09a] mt-1">
-                      {new Date(h.created_at).toLocaleString("en-IN", { dateStyle: "short", timeStyle: "short" })}
+                      {new Date(h.created_at).toLocaleString("en-IN", {
+                        dateStyle: "short",
+                        timeStyle: "short",
+                      })}
                     </p>
                   </div>
                   <div className="flex flex-col gap-2">

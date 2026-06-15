@@ -1,4 +1,10 @@
-export const PAYMENT_METHODS = ["cod", "esewa", "khalti", "bank_transfer", "qr_code"] as const;
+export const PAYMENT_METHODS = [
+  "cod",
+  "esewa",
+  "khalti",
+  "bank_transfer",
+  "qr_code",
+] as const;
 export type PaymentMethod = (typeof PAYMENT_METHODS)[number];
 
 export const PAYMENT_STATUSES = [
@@ -29,10 +35,14 @@ export const PAYMENT_METHOD_LABELS: Record<PaymentMethod, string> = {
 
 export const PAYMENT_METHOD_DESCRIPTIONS: Record<PaymentMethod, string> = {
   cod: "Pay in cash when your order is delivered.",
-  esewa: "Pay securely using eSewa. You'll be redirected to the official eSewa page.",
-  khalti: "Pay securely using Khalti. You'll be redirected to the official Khalti page.",
-  bank_transfer: "Transfer the amount to the shop's bank account and upload a receipt.",
-  qr_code: "Scan the shop's QR code with any banking or wallet app and upload a receipt.",
+  esewa:
+    "Pay securely using eSewa. You'll be redirected to the official eSewa page.",
+  khalti:
+    "Pay securely using Khalti. You'll be redirected to the official Khalti page.",
+  bank_transfer:
+    "Transfer the amount to the shop's bank account and upload a receipt.",
+  qr_code:
+    "Scan the shop's QR code with any banking or wallet app and upload a receipt.",
 };
 
 export const PAYMENT_STATUS_LABELS: Record<PaymentStatus, string> = {

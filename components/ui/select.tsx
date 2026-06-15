@@ -37,7 +37,7 @@ function SelectTrigger({
       data-size={size}
       className={cn(
         "border-[#2E3344]/8 dark:border-white/10 data-[placeholder]:text-[#746E73] dark:data-[placeholder]:text-white/50 [&_svg:not([class*='text-'])]:text-[#746E73] dark:[&_svg:not([class*='text-'])]:text-white/50 focus-visible:border-[#A7653A] focus-visible:ring-[#A7653A]/20 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:bg-[#1B2030] dark:hover:bg-white/5 flex w-fit items-center justify-between gap-3 rounded-xl bg-white px-4 py-2.5 text-sm font-bold text-[#27324A] dark:text-white whitespace-nowrap shadow-sm transition-all duration-300 active:scale-[0.98] outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50 data-[size=default]:h-12 data-[size=sm]:h-10 *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-2 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
-        className
+        className,
       )}
       {...props}
     >
@@ -64,7 +64,7 @@ function SelectContent({
           "bg-white dark:bg-[#1B2030] text-[#27324A] dark:text-white data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 relative z-50 max-h-[var(--radix-select-content-available-height)] min-w-[12rem] origin-[var(--radix-select-content-transform-origin)] overflow-x-hidden overflow-y-auto rounded-2xl border border-[#2E3344]/8 dark:border-white/10 p-2 shadow-xl shadow-[#27324A]/10 dark:shadow-black/50 backdrop-blur-xl",
           position === "popper" &&
             "data-[side=bottom]:translate-y-1 data-[side=left]:-translate-x-1 data-[side=right]:translate-x-1 data-[side=top]:-translate-y-1",
-          className
+          className,
         )}
         position={position}
         align={align}
@@ -75,7 +75,7 @@ function SelectContent({
           className={cn(
             "p-1",
             position === "popper" &&
-              "h-[var(--radix-select-trigger-height)] w-full min-w-[var(--radix-select-trigger-width)] scroll-my-1"
+              "h-[var(--radix-select-trigger-height)] w-full min-w-[var(--radix-select-trigger-width)] scroll-my-1",
           )}
         >
           {children}
@@ -93,7 +93,10 @@ function SelectLabel({
   return (
     <SelectPrimitive.Label
       data-slot="select-label"
-      className={cn("px-3 py-2 text-xs font-black uppercase tracking-widest text-[#746E73] dark:text-white/50", className)}
+      className={cn(
+        "px-3 py-2 text-xs font-black uppercase tracking-widest text-[#746E73] dark:text-white/50",
+        className,
+      )}
       {...props}
     />
   );
@@ -109,7 +112,7 @@ function SelectItem({
       data-slot="select-item"
       className={cn(
         "focus:bg-[#F7F0E6] focus:text-[#A7653A] dark:focus:bg-white/10 dark:focus:text-white [&_svg:not([class*='text-'])]:text-[#746E73] dark:[&_svg:not([class*='text-'])]:text-white/60 relative flex w-full cursor-pointer items-center gap-3 rounded-xl px-3 py-2.5 pr-9 text-sm font-bold outline-none select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 *:[span]:last:flex *:[span]:last:items-center *:[span]:last:gap-2 transition-colors duration-200",
-        className
+        className,
       )}
       {...props}
     >
@@ -130,7 +133,10 @@ function SelectSeparator({
   return (
     <SelectPrimitive.Separator
       data-slot="select-separator"
-      className={cn("bg-[#2E3344]/8 dark:bg-white/10 pointer-events-none -mx-2 my-2 h-px", className)}
+      className={cn(
+        "bg-[#2E3344]/8 dark:bg-white/10 pointer-events-none -mx-2 my-2 h-px",
+        className,
+      )}
       {...props}
     />
   );
@@ -145,7 +151,7 @@ function SelectScrollUpButton({
       data-slot="select-scroll-up-button"
       className={cn(
         "flex cursor-pointer items-center justify-center py-2 hover:bg-[#F7F0E6] dark:hover:bg-white/10 text-[#A7653A] dark:text-white rounded-t-xl transition-colors",
-        className
+        className,
       )}
       {...props}
     >
@@ -163,7 +169,7 @@ function SelectScrollDownButton({
       data-slot="select-scroll-down-button"
       className={cn(
         "flex cursor-pointer items-center justify-center py-2 hover:bg-[#F7F0E6] dark:hover:bg-white/10 text-[#A7653A] dark:text-white rounded-b-xl transition-colors",
-        className
+        className,
       )}
       {...props}
     >

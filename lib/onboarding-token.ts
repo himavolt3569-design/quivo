@@ -27,7 +27,8 @@ export const ONBOARDING_TOKEN_TTL_MS = 10 * 60 * 1000; // 10 min
 
 function getSecret(): string {
   const s = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!s) throw new Error("Onboarding token: SUPABASE_SERVICE_ROLE_KEY is not set");
+  if (!s)
+    throw new Error("Onboarding token: SUPABASE_SERVICE_ROLE_KEY is not set");
   return s;
 }
 
@@ -42,7 +43,9 @@ export function issueOnboardingToken(userId: string): string {
 }
 
 /** Returns the user-id the token was issued for, or null if invalid/expired. */
-export function verifyOnboardingToken(raw: string | undefined | null): string | null {
+export function verifyOnboardingToken(
+  raw: string | undefined | null,
+): string | null {
   if (!raw) return null;
   const parts = raw.split(".");
   if (parts.length !== 3) return null;

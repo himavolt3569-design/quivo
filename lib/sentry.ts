@@ -37,7 +37,9 @@ async function loadSdk(): Promise<SentryLike | null> {
   cacheAttempted = true;
   try {
     const moduleName = "@sentry/nextjs";
-    const dyn = Function("m", "return import(m)") as (m: string) => Promise<unknown>;
+    const dyn = Function("m", "return import(m)") as (
+      m: string,
+    ) => Promise<unknown>;
     const mod = (await dyn(moduleName)) as SentryLike;
     cached = mod;
     return mod;
@@ -64,7 +66,10 @@ export async function initSentry(runtime: SentryRuntime): Promise<void> {
   }
   sdk.init({
     dsn,
-    environment: process.env.NEXT_PUBLIC_VERCEL_ENV ?? process.env.NODE_ENV ?? "development",
+    environment:
+      process.env.NEXT_PUBLIC_VERCEL_ENV ??
+      process.env.NODE_ENV ??
+      "development",
     release: process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_SHA ?? undefined,
     tracesSampleRate: runtime === "browser" ? 0.1 : 0.2,
     replaysSessionSampleRate: runtime === "browser" ? 0.05 : 0,
@@ -75,7 +80,7 @@ export async function initSentry(runtime: SentryRuntime): Promise<void> {
 
 export async function captureException(
   err: unknown,
-  context?: Record<string, unknown>
+  context?: Record<string, unknown>,
 ): Promise<void> {
   const sdk = await loadSdk();
   if (!sdk) {
@@ -91,12 +96,16 @@ export async function captureException(
   } catch (sentryErr) {
     log.error("captureException failed", {
       original: err instanceof Error ? err.message : String(err),
-      sentryError: sentryErr instanceof Error ? sentryErr.message : String(sentryErr),
+      sentryError:
+        sentryErr instanceof Error ? sentryErr.message : String(sentryErr),
     });
   }
 }
 
-export async function captureMessage(msg: string, level: "info" | "warning" | "error" = "info"): Promise<void> {
+export async function captureMessage(
+  msg: string,
+  level: "info" | "warning" | "error" = "info",
+): Promise<void> {
   const sdk = await loadSdk();
   if (!sdk) {
     log.info("captureMessage (Sentry inactive)", { msg, level });
@@ -113,7 +122,9 @@ export async function captureMessage(msg: string, level: "info" | "warning" | "e
   }
 }
 
-export async function setSentryUser(user: { id?: string; email?: string } | null): Promise<void> {
+export async function setSentryUser(
+  user: { id?: string; email?: string } | null,
+): Promise<void> {
   const sdk = await loadSdk();
   sdk?.setUser?.(user);
 }

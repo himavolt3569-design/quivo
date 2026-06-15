@@ -22,7 +22,7 @@ export function SecuritySection() {
             title: "Local workflows",
             copy: "Nepali calendar and bilingual support.",
           },
-        ].map(item => {
+        ].map((item) => {
           const Icon = item.icon;
           return (
             <article

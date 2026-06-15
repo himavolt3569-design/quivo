@@ -32,11 +32,24 @@ export const lowStockDigestJob: CronJobDefinition = {
       .not("low_stock_threshold", "is", null);
 
     if (candidatesErr) {
-      log.error("low-stock-digest: candidates query failed", { code: candidatesErr.code, message: candidatesErr.message });
-      throw new Error(`low-stock candidate query failed: ${candidatesErr.message}`);
+      log.error("low-stock-digest: candidates query failed", {
+        code: candidatesErr.code,
+        message: candidatesErr.message,
+      });
+      throw new Error(
+        `low-stock candidate query failed: ${candidatesErr.message}`,
+      );
     }
 
-    const byShop = new Map<string, { name: string; current: number; threshold: number; unit: string | null }[]>();
+    const byShop = new Map<
+      string,
+      {
+        name: string;
+        current: number;
+        threshold: number;
+        unit: string | null;
+      }[]
+    >();
 
     for (const p of candidates ?? []) {
       const stock = Number(p.stock ?? 0);

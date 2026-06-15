@@ -1,7 +1,15 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { HomeTab } from "@/components/dashboard/customer/HomeTab";
-import type { Order, Profile, SavedShop, SavedProduct, Transaction, TrendingProduct, NearbyShop } from "@/lib/types";
+import type {
+  Order,
+  Profile,
+  SavedShop,
+  SavedProduct,
+  Transaction,
+  TrendingProduct,
+  NearbyShop,
+} from "@/lib/types";
 import { log } from "@/lib/log";
 
 export default async function HomePage() {
@@ -19,7 +27,7 @@ export default async function HomePage() {
   const monthStart = new Date(
     now.getFullYear(),
     now.getMonth(),
-    1
+    1,
   ).toISOString();
 
   const [
@@ -36,11 +44,7 @@ export default async function HomePage() {
     { data: rawTrending },
     { data: rawNearbyShops },
   ] = await Promise.all([
-    supabase
-      .from("profiles")
-      .select("*")
-      .eq("id", user.id)
-      .single<Profile>(),
+    supabase.from("profiles").select("*").eq("id", user.id).single<Profile>(),
 
     supabase
       .from("orders")
@@ -106,7 +110,9 @@ export default async function HomePage() {
     // Trending products from real catalog (non-archived, newest first)
     supabase
       .from("products")
-      .select("id, name, price, stock, image_url, barcode, shop_id, shops(name, slug)")
+      .select(
+        "id, name, price, stock, image_url, barcode, shop_id, shops(name, slug)",
+      )
       .eq("status", "active")
       .order("created_at", { ascending: false })
       .limit(8),

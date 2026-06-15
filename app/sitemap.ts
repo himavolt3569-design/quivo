@@ -10,7 +10,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
 
   const entries: MetadataRoute.Sitemap = [
-    { url: `${site}/`, lastModified: now, changeFrequency: "weekly", priority: 1 },
+    {
+      url: `${site}/`,
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 1,
+    },
   ];
 
   try {
@@ -22,7 +27,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       .order("updated_at", { ascending: false })
       .limit(5000);
     if (error) {
-      log.error("sitemap: shops query failed", { code: error.code, message: error.message });
+      log.error("sitemap: shops query failed", {
+        code: error.code,
+        message: error.message,
+      });
       return entries;
     }
     for (const s of shops ?? []) {
@@ -54,7 +62,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       });
     }
   } catch (err) {
-    log.error("sitemap: build failed", { err: err instanceof Error ? err.message : String(err) });
+    log.error("sitemap: build failed", {
+      err: err instanceof Error ? err.message : String(err),
+    });
   }
 
   return entries;

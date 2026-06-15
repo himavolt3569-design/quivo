@@ -17,7 +17,11 @@ import { PhoneInput, EmailInput } from "@/components/ui/validated-input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { addShopCustomer, settleUdhar, deleteShopCustomer } from "@/app/actions/owner";
+import {
+  addShopCustomer,
+  settleUdhar,
+  deleteShopCustomer,
+} from "@/app/actions/owner";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -70,11 +74,18 @@ export function CustomerList({ shopId, initialCustomers }: CustomerListProps) {
   const [addPhone, setAddPhone] = useState("");
   const [addEmail, setAddEmail] = useState("");
 
-  const [customerToDelete, setCustomerToDelete] = useState<Customer | null>(null);
-  const [customerToSettle, setCustomerToSettle] = useState<Customer | null>(null);
+  const [customerToDelete, setCustomerToDelete] = useState<Customer | null>(
+    null,
+  );
+  const [customerToSettle, setCustomerToSettle] = useState<Customer | null>(
+    null,
+  );
   const [settleAmount, setSettleAmount] = useState("");
 
-  const totalUdhar = customers.reduce((acc, c) => acc + (c.udhar_balance ?? 0), 0);
+  const totalUdhar = customers.reduce(
+    (acc, c) => acc + (c.udhar_balance ?? 0),
+    0,
+  );
 
   const filtered = customers.filter((c) => {
     const matchesSearch =
@@ -106,7 +117,7 @@ export function CustomerList({ shopId, initialCustomers }: CustomerListProps) {
   };
 
   const handleSettle = (customerId: string) => {
-    const customer = customers.find(c => c.id === customerId);
+    const customer = customers.find((c) => c.id === customerId);
     if (customer) {
       setCustomerToSettle(customer);
       setSettleAmount(customer.udhar_balance.toString());
@@ -116,7 +127,10 @@ export function CustomerList({ shopId, initialCustomers }: CustomerListProps) {
   const confirmSettle = () => {
     if (!customerToSettle) return;
     const amount = parseFloat(settleAmount);
-    if (isNaN(amount) || amount <= 0) { toast.error("Invalid amount"); return; }
+    if (isNaN(amount) || amount <= 0) {
+      toast.error("Invalid amount");
+      return;
+    }
 
     startTransition(async () => {
       const result = await settleUdhar(customerToSettle.id, shopId, amount);
@@ -127,8 +141,8 @@ export function CustomerList({ shopId, initialCustomers }: CustomerListProps) {
           prev.map((c) =>
             c.id === customerToSettle.id
               ? { ...c, udhar_balance: Math.max(0, c.udhar_balance - amount) }
-              : c
-          )
+              : c,
+          ),
         );
         toast.success("Udhar settled successfully.");
         setCustomerToSettle(null);
@@ -137,7 +151,7 @@ export function CustomerList({ shopId, initialCustomers }: CustomerListProps) {
   };
 
   const handleDelete = (customerId: string) => {
-    const customer = customers.find(c => c.id === customerId);
+    const customer = customers.find((c) => c.id === customerId);
     if (customer) {
       setCustomerToDelete(customer);
     }
@@ -145,14 +159,16 @@ export function CustomerList({ shopId, initialCustomers }: CustomerListProps) {
 
   const confirmDelete = () => {
     if (!customerToDelete) return;
-    
+
     startTransition(async () => {
       const result = await deleteShopCustomer(customerToDelete.id, shopId);
       if (result.error) {
         toast.error(result.error);
       } else {
         toast.success("Customer deleted successfully.");
-        setCustomers((prev) => prev.filter((c) => c.id !== customerToDelete.id));
+        setCustomers((prev) =>
+          prev.filter((c) => c.id !== customerToDelete.id),
+        );
         setCustomerToDelete(null);
       }
     });
@@ -163,7 +179,9 @@ export function CustomerList({ shopId, initialCustomers }: CustomerListProps) {
       {/* Header & Quick Stats */}
       <div className="flex flex-col md:flex-row justify-between gap-6">
         <div>
-          <h1 className="text-2xl font-black text-[#27324A]">Customers & Udhar</h1>
+          <h1 className="text-2xl font-black text-[#27324A]">
+            Customers & Udhar
+          </h1>
           <p className="text-sm font-medium text-[#746E73] mt-1">
             Manage store credit and customer relationships.
           </p>
@@ -177,7 +195,9 @@ export function CustomerList({ shopId, initialCustomers }: CustomerListProps) {
                 <p className="text-[10px] font-bold uppercase tracking-widest text-[#D8C99A]">
                   Total Udhar in Market
                 </p>
-                <p className="text-xl font-black">Rs. {totalUdhar.toLocaleString()}</p>
+                <p className="text-xl font-black">
+                  Rs. {totalUdhar.toLocaleString()}
+                </p>
               </div>
             </div>
           )}
@@ -225,7 +245,9 @@ export function CustomerList({ shopId, initialCustomers }: CustomerListProps) {
           <div className="h-16 w-16 rounded-2xl bg-[#F7F0E6] flex items-center justify-center">
             <Users className="h-8 w-8 text-[#A7653A]" />
           </div>
-          <h3 className="text-lg font-black text-[#27324A]">No customers yet</h3>
+          <h3 className="text-lg font-black text-[#27324A]">
+            No customers yet
+          </h3>
           <p className="text-sm text-[#746E73] font-medium max-w-xs">
             Add customers to track Udhar balances and purchase history.
           </p>
@@ -253,21 +275,29 @@ export function CustomerList({ shopId, initialCustomers }: CustomerListProps) {
             </thead>
             <tbody className="divide-y divide-[#2E3344]/5">
               {filtered.map((customer) => (
-                <tr key={customer.id} className="hover:bg-[#f8f8f7]/50 transition">
+                <tr
+                  key={customer.id}
+                  className="hover:bg-[#f8f8f7]/50 transition"
+                >
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
                       <div className="h-10 w-10 rounded-full bg-[#E8E3D1]/50 flex items-center justify-center font-black text-[#A7653A]">
                         {customer.name[0].toUpperCase()}
                       </div>
                       <div>
-                        <p className="font-black text-[#27324A]">{customer.name}</p>
+                        <p className="font-black text-[#27324A]">
+                          {customer.name}
+                        </p>
                         <p className="text-[10px] font-bold text-[#746E73]">
-                          {customer.order_count} order{customer.order_count !== 1 ? "s" : ""}
+                          {customer.order_count} order
+                          {customer.order_count !== 1 ? "s" : ""}
                         </p>
                       </div>
                     </div>
                   </td>
-                  <td className="px-6 py-4 font-bold text-[#746E73]">{customer.phone ?? "—"}</td>
+                  <td className="px-6 py-4 font-bold text-[#746E73]">
+                    {customer.phone ?? "—"}
+                  </td>
                   <td className="px-6 py-4 font-bold text-[#27324A]">
                     Rs. {(customer.total_spent ?? 0).toLocaleString()}
                   </td>
@@ -296,21 +326,34 @@ export function CustomerList({ shopId, initialCustomers }: CustomerListProps) {
                       )}
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-8 w-8 text-[#746E73] hover:text-[#27324A] rounded-full">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-[#746E73] hover:text-[#27324A] rounded-full"
+                          >
                             <MoreVertical className="h-4 w-4" />
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => {
-                              navigator.clipboard.writeText(customer.phone ?? "");
+                          <DropdownMenuItem
+                            onClick={() => {
+                              navigator.clipboard.writeText(
+                                customer.phone ?? "",
+                              );
                               toast.success("Phone copied to clipboard");
-                            }}>
-                            <MessageCircle className="mr-2 h-4 w-4" /> Message/Contact
+                            }}
+                          >
+                            <MessageCircle className="mr-2 h-4 w-4" />{" "}
+                            Message/Contact
                           </DropdownMenuItem>
                           {customer.udhar_balance === 0 && (
                             <>
-                              <DropdownMenuItem variant="destructive" onClick={() => handleDelete(customer.id)}>
-                                <Trash2 className="mr-2 h-4 w-4" /> Delete Customer
+                              <DropdownMenuItem
+                                variant="destructive"
+                                onClick={() => handleDelete(customer.id)}
+                              >
+                                <Trash2 className="mr-2 h-4 w-4" /> Delete
+                                Customer
                               </DropdownMenuItem>
                             </>
                           )}
@@ -329,7 +372,10 @@ export function CustomerList({ shopId, initialCustomers }: CustomerListProps) {
       {filtered.length > 0 && (
         <div className="grid grid-cols-1 gap-3 md:hidden">
           {filtered.map((customer) => (
-            <div key={customer.id} className="bg-white p-4 rounded-[1.5rem] border border-[#2E3344]/8 shadow-sm">
+            <div
+              key={customer.id}
+              className="bg-white p-4 rounded-[1.5rem] border border-[#2E3344]/8 shadow-sm"
+            >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="h-10 w-10 rounded-full bg-[#E8E3D1]/50 flex items-center justify-center font-black text-[#A7653A]">
@@ -337,13 +383,17 @@ export function CustomerList({ shopId, initialCustomers }: CustomerListProps) {
                   </div>
                   <div>
                     <p className="font-black text-[#27324A]">{customer.name}</p>
-                    <p className="text-xs text-[#746E73]">{customer.phone ?? "No phone"}</p>
+                    <p className="text-xs text-[#746E73]">
+                      {customer.phone ?? "No phone"}
+                    </p>
                   </div>
                 </div>
                 {customer.udhar_balance > 0 && (
                   <div className="text-right">
                     <p className="text-xs text-orange-600 font-bold">Udhar</p>
-                    <p className="font-black text-orange-600">Rs. {customer.udhar_balance}</p>
+                    <p className="font-black text-orange-600">
+                      Rs. {customer.udhar_balance}
+                    </p>
                   </div>
                 )}
               </div>
@@ -384,7 +434,9 @@ export function CustomerList({ shopId, initialCustomers }: CustomerListProps) {
         <div className="fixed inset-0 z-50 bg-black/40 flex items-end sm:items-center justify-center p-4">
           <div className="bg-white rounded-[2rem] w-full max-w-md shadow-2xl p-6 space-y-5 animate-in slide-in-from-bottom-4 duration-300">
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-black text-[#27324A]">Add Customer</h2>
+              <h2 className="text-lg font-black text-[#27324A]">
+                Add Customer
+              </h2>
               <button
                 onClick={() => setShowAddModal(false)}
                 className="text-[#746E73] hover:text-[#27324A] p-1"
@@ -412,7 +464,9 @@ export function CustomerList({ shopId, initialCustomers }: CustomerListProps) {
                 />
               </div>
               <div>
-                <Label className="font-bold text-[#27324A]">Email (optional)</Label>
+                <Label className="font-bold text-[#27324A]">
+                  Email (optional)
+                </Label>
                 <EmailInput
                   value={addEmail}
                   onChange={(e) => setAddEmail(e.target.value)}
@@ -441,12 +495,19 @@ export function CustomerList({ shopId, initialCustomers }: CustomerListProps) {
         </div>
       )}
       {/* Delete Confirmation Modal */}
-      <AlertDialog open={!!customerToDelete} onOpenChange={(o) => !o && setCustomerToDelete(null)}>
+      <AlertDialog
+        open={!!customerToDelete}
+        onOpenChange={(o) => !o && setCustomerToDelete(null)}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Customer</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete <span className="font-bold text-[#27324A] dark:text-white">{customerToDelete?.name}</span>? This action cannot be undone.
+              Are you sure you want to delete{" "}
+              <span className="font-bold text-[#27324A] dark:text-white">
+                {customerToDelete?.name}
+              </span>
+              ? This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -459,17 +520,25 @@ export function CustomerList({ shopId, initialCustomers }: CustomerListProps) {
       </AlertDialog>
 
       {/* Settle Udhar Modal */}
-      <Dialog open={!!customerToSettle} onOpenChange={(o) => !o && setCustomerToSettle(null)}>
+      <Dialog
+        open={!!customerToSettle}
+        onOpenChange={(o) => !o && setCustomerToSettle(null)}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Settle Udhar</DialogTitle>
             <DialogDescription>
-              Enter the amount to settle for <span className="font-bold text-[#27324A] dark:text-white">{customerToSettle?.name}</span>.
-              (Current balance: Rs. {customerToSettle?.udhar_balance})
+              Enter the amount to settle for{" "}
+              <span className="font-bold text-[#27324A] dark:text-white">
+                {customerToSettle?.name}
+              </span>
+              . (Current balance: Rs. {customerToSettle?.udhar_balance})
             </DialogDescription>
           </DialogHeader>
           <div className="py-2">
-            <Label className="font-bold text-[#27324A] dark:text-white">Amount (Rs.)</Label>
+            <Label className="font-bold text-[#27324A] dark:text-white">
+              Amount (Rs.)
+            </Label>
             <Input
               type="number"
               min="0.01"
@@ -490,7 +559,9 @@ export function CustomerList({ shopId, initialCustomers }: CustomerListProps) {
             </Button>
             <Button
               onClick={confirmSettle}
-              disabled={isPending || !settleAmount || parseFloat(settleAmount) <= 0}
+              disabled={
+                isPending || !settleAmount || parseFloat(settleAmount) <= 0
+              }
               className="h-12 rounded-xl bg-green-600 hover:bg-green-700 text-white font-bold"
             >
               {isPending ? "Settling..." : "Settle Amount"}

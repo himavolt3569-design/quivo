@@ -24,6 +24,9 @@ export type NotificationKind =
   | "refund.completed"
   | "low_stock.detected"
   | "kyc.stage_due"
+  | "cart_abandoned"
+  | "back_in_stock"
+  | "price_drop"
   | "system";
 
 type Channel = "email" | "in_app" | "push" | "sms";
@@ -55,22 +58,36 @@ async function loadPrefs(userId: string): Promise<PrefDoc> {
     .eq("user_id", userId)
     .maybeSingle();
   if (error) {
-    log.warn("notify.loadPrefs failed", { userId, code: error.code, message: error.message });
+    log.warn("notify.loadPrefs failed", {
+      userId,
+      code: error.code,
+      message: error.message,
+    });
     return {};
   }
   return (data?.prefs as PrefDoc | undefined) ?? {};
 }
 
-function isOptedIn(prefs: PrefDoc, kind: NotificationKind, channel: Channel): boolean {
+function isOptedIn(
+  prefs: PrefDoc,
+  kind: NotificationKind,
+  channel: Channel,
+): boolean {
   const k = prefs[kind];
   if (!k) return true;
   if (k[channel] === false) return false;
   return true;
 }
 
-export async function notifyUser(input: NotifyInput): Promise<{ inAppId?: string; emailOk?: boolean; emailSkipped?: boolean; }> {
+export async function notifyUser(
+  input: NotifyInput,
+): Promise<{ inAppId?: string; emailOk?: boolean; emailSkipped?: boolean }> {
   const prefs = await loadPrefs(input.userId);
-  const result: { inAppId?: string; emailOk?: boolean; emailSkipped?: boolean } = {};
+  const result: {
+    inAppId?: string;
+    emailOk?: boolean;
+    emailSkipped?: boolean;
+  } = {};
 
   // ─── In-app row ───────────────────────────────────────────────────────────
   if (input.inApp && isOptedIn(prefs, input.kind, "in_app")) {
@@ -89,7 +106,12 @@ export async function notifyUser(input: NotifyInput): Promise<{ inAppId?: string
       .select("id")
       .single();
     if (error) {
-      log.error("notify: in_app insert failed", { userId: input.userId, kind: input.kind, code: error.code, message: error.message });
+      log.error("notify: in_app insert failed", {
+        userId: input.userId,
+        kind: input.kind,
+        code: error.code,
+        message: error.message,
+      });
     } else {
       result.inAppId = data.id as string;
     }
@@ -116,7 +138,12 @@ export async function notifyUser(input: NotifyInput): Promise<{ inAppId?: string
   const pushPayload: PushPayload | null =
     input.push ??
     (input.inApp
-      ? { title: input.inApp.title, body: input.inApp.body, url: input.inApp.linkUrl, data: input.inApp.data }
+      ? {
+          title: input.inApp.title,
+          body: input.inApp.body,
+          url: input.inApp.linkUrl,
+          data: input.inApp.data,
+        }
       : null);
   if (pushPayload && isOptedIn(prefs, input.kind, "push")) {
     try {

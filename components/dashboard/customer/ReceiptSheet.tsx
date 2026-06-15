@@ -93,7 +93,9 @@ export function ReceiptSheet({ order, onClose }: ReceiptSheetProps) {
 
               {/* Total */}
               <div className="flex items-center justify-between rounded-2xl bg-[#27324A] px-5 py-4 text-white">
-                <p className="text-sm font-semibold text-white/80">Total paid</p>
+                <p className="text-sm font-semibold text-white/80">
+                  Total paid
+                </p>
                 <p className="text-xl font-bold">
                   Rs. {order.total_amount.toLocaleString()}
                 </p>

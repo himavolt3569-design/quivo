@@ -7,23 +7,47 @@ import { z } from "zod";
 
 const ShopIdSchema = z.string().uuid();
 const SessionIdSchema = z.string().trim().min(8).max(160);
-const SessionSecretSchema = z.string().trim().regex(/^[a-f0-9]{64,128}$/i, "Invalid chat session.");
+const SessionSecretSchema = z
+  .string()
+  .trim()
+  .regex(/^[a-f0-9]{64,128}$/i, "Invalid chat session.");
 const NameSchema = z.string().trim().max(80);
 const MessageSchema = z.string().trim().min(1).max(1000);
-const StorefrontSettingsSchema = z.object({
-  template: z.enum(["modern", "boutique", "minimal", "dark"]).optional(),
-  font_family: z.enum(["inter", "poppins", "playfair", "space", "dmsans"]).optional(),
-  hero_headline: z.string().trim().max(120).nullable().optional(),
-  hero_subtext: z.string().trim().max(240).nullable().optional(),
-  cover_image_url: z.string().trim().url().max(1000).nullable().optional(),
-  announcement_text: z.string().trim().max(160).nullable().optional(),
-  announcement_active: z.boolean().optional(),
-  sections_order: z.array(z.enum(["hero", "announcement", "featured", "categories", "products", "about", "contact"])).max(7).optional(),
-  whatsapp_number: z.string().trim().max(40).nullable().optional(),
-  featured_product_ids: z.array(z.string().uuid()).max(24).optional(),
-  theme_color: z.string().trim().regex(/^#[0-9a-f]{6}$/i).optional(),
-  theme_layout: z.enum(["modern", "list"]).optional(),
-}).strict();
+const StorefrontSettingsSchema = z
+  .object({
+    template: z.enum(["modern", "boutique", "minimal", "dark"]).optional(),
+    font_family: z
+      .enum(["inter", "poppins", "playfair", "space", "dmsans"])
+      .optional(),
+    hero_headline: z.string().trim().max(120).nullable().optional(),
+    hero_subtext: z.string().trim().max(240).nullable().optional(),
+    cover_image_url: z.string().trim().url().max(1000).nullable().optional(),
+    announcement_text: z.string().trim().max(160).nullable().optional(),
+    announcement_active: z.boolean().optional(),
+    sections_order: z
+      .array(
+        z.enum([
+          "hero",
+          "announcement",
+          "featured",
+          "categories",
+          "products",
+          "about",
+          "contact",
+        ]),
+      )
+      .max(7)
+      .optional(),
+    whatsapp_number: z.string().trim().max(40).nullable().optional(),
+    featured_product_ids: z.array(z.string().uuid()).max(24).optional(),
+    theme_color: z
+      .string()
+      .trim()
+      .regex(/^#[0-9a-f]{6}$/i)
+      .optional(),
+    theme_layout: z.enum(["modern", "list"]).optional(),
+  })
+  .strict();
 
 export interface CustomerChatMessage {
   id: string;
@@ -38,9 +62,12 @@ export async function sendCustomerChatMessage(
   sessionId: string,
   sessionSecret: string,
   customerName: string,
-  message: string
+  message: string,
 ): Promise<{ error?: string }> {
-  const rateLimit = await checkRateLimit("sendCustomerChatMessage", { maxAttempts: 40, windowMs: 10 * 60 * 1000 });
+  const rateLimit = await checkRateLimit("sendCustomerChatMessage", {
+    maxAttempts: 40,
+    windowMs: 10 * 60 * 1000,
+  });
   if (!rateLimit.success) return { error: rateLimit.error };
 
   const shopParse = ShopIdSchema.safeParse(shopId);
@@ -48,15 +75,18 @@ export async function sendCustomerChatMessage(
   const secretParse = SessionSecretSchema.safeParse(sessionSecret);
   const nameParse = NameSchema.safeParse(customerName);
   const messageParse = MessageSchema.safeParse(message);
-  if (!shopParse.success || !sessionParse.success || !secretParse.success) return { error: "Invalid chat session." };
-  if (!messageParse.success) return { error: messageParse.error.issues[0].message };
+  if (!shopParse.success || !sessionParse.success || !secretParse.success)
+    return { error: "Invalid chat session." };
+  if (!messageParse.success)
+    return { error: messageParse.error.issues[0].message };
 
   const supabase = await createClient();
   const { error } = await supabase.from("chat_messages").insert({
     shop_id: shopParse.data,
     session_id: sessionParse.data,
     session_secret: secretParse.data,
-    customer_name: nameParse.success && nameParse.data ? nameParse.data : "Customer",
+    customer_name:
+      nameParse.success && nameParse.data ? nameParse.data : "Customer",
     sender: "customer",
     message: messageParse.data,
   });
@@ -68,9 +98,12 @@ export async function sendCustomerChatMessage(
 export async function getCustomerChatMessages(
   shopId: string,
   sessionId: string,
-  sessionSecret: string
+  sessionSecret: string,
 ): Promise<{ error?: string; messages?: CustomerChatMessage[] }> {
-  const rateLimit = await checkRateLimit("getCustomerChatMessages", { maxAttempts: 120, windowMs: 10 * 60 * 1000 });
+  const rateLimit = await checkRateLimit("getCustomerChatMessages", {
+    maxAttempts: 120,
+    windowMs: 10 * 60 * 1000,
+  });
   if (!rateLimit.success) return { error: rateLimit.error };
 
   const shopParse = ShopIdSchema.safeParse(shopId);
@@ -93,18 +126,22 @@ export async function getCustomerChatMessages(
 export async function sendOwnerChatReply(
   shopId: string,
   sessionId: string,
-  message: string
+  message: string,
 ): Promise<{ error?: string }> {
   const shopParse = ShopIdSchema.safeParse(shopId);
   const sessionParse = SessionIdSchema.safeParse(sessionId);
   const messageParse = MessageSchema.safeParse(message);
-  if (!shopParse.success || !sessionParse.success) return { error: "Invalid chat session." };
-  if (!messageParse.success) return { error: messageParse.error.issues[0].message };
+  if (!shopParse.success || !sessionParse.success)
+    return { error: "Invalid chat session." };
+  if (!messageParse.success)
+    return { error: messageParse.error.issues[0].message };
 
   const supabase = await createClient();
 
   // Verify the user is a shop member
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) return { error: "Not authenticated." };
 
   const { error } = await supabase.from("chat_messages").insert({
@@ -121,14 +158,17 @@ export async function sendOwnerChatReply(
 
 export async function markChatSessionRead(
   shopId: string,
-  sessionId: string
+  sessionId: string,
 ): Promise<{ error?: string }> {
   const shopParse = ShopIdSchema.safeParse(shopId);
   const sessionParse = SessionIdSchema.safeParse(sessionId);
-  if (!shopParse.success || !sessionParse.success) return { error: "Invalid chat session." };
+  if (!shopParse.success || !sessionParse.success)
+    return { error: "Invalid chat session." };
 
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) return { error: "Not authenticated." };
   const { error } = await supabase
     .from("chat_messages")
@@ -156,15 +196,18 @@ export async function updateStorefrontSettings(
     featured_product_ids?: string[];
     theme_color?: string;
     theme_layout?: "modern" | "list";
-  }
+  },
 ): Promise<{ error?: string }> {
   const shopParse = ShopIdSchema.safeParse(shopId);
   if (!shopParse.success) return { error: "Invalid shop." };
   const settingsParse = StorefrontSettingsSchema.safeParse(settings);
-  if (!settingsParse.success) return { error: settingsParse.error.issues[0].message };
+  if (!settingsParse.success)
+    return { error: settingsParse.error.issues[0].message };
 
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) return { error: "Not authenticated." };
   const { error } = await supabase
     .from("shops")

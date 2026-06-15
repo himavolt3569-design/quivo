@@ -28,13 +28,18 @@ const STATUS_LABEL: Record<string, string> = {
 };
 
 function isSameLocalDay(a: Date, b: Date): boolean {
-  return a.getFullYear() === b.getFullYear()
-    && a.getMonth() === b.getMonth()
-    && a.getDate() === b.getDate();
+  return (
+    a.getFullYear() === b.getFullYear() &&
+    a.getMonth() === b.getMonth() &&
+    a.getDate() === b.getDate()
+  );
 }
 
 function fmtTime(iso: string): string {
-  return new Date(iso).toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" });
+  return new Date(iso).toLocaleTimeString(undefined, {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 }
 
 export function ShiftCalendarTab({ shifts, onCancel, isPending }: Props) {
@@ -51,7 +56,8 @@ export function ShiftCalendarTab({ shifts, onCancel, isPending }: Props) {
     return set;
   }, [shifts]);
 
-  const dayKey = (d: Date) => `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+  const dayKey = (d: Date) =>
+    `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
 
   const selectedShifts = useMemo(() => {
     return shifts
@@ -70,7 +76,8 @@ export function ShiftCalendarTab({ shifts, onCancel, isPending }: Props) {
           captionLayout="dropdown"
           modifiers={{ hasShift: (date) => shiftDays.has(dayKey(date)) }}
           modifiersClassNames={{
-            hasShift: "relative after:absolute after:bottom-0.5 after:left-1/2 after:-translate-x-1/2 after:h-1 after:w-1 after:rounded-full after:bg-[#A7653A]",
+            hasShift:
+              "relative after:absolute after:bottom-0.5 after:left-1/2 after:-translate-x-1/2 after:h-1 after:w-1 after:rounded-full after:bg-[#A7653A]",
           }}
           className="rounded-2xl border border-[#2E3344]/8 bg-[#fcfbfa] p-3"
         />
@@ -78,7 +85,11 @@ export function ShiftCalendarTab({ shifts, onCancel, isPending }: Props) {
 
       <div>
         <h3 className="text-[11px] font-black uppercase tracking-widest text-[#8D5132] mb-3">
-          {selected.toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" })}
+          {selected.toLocaleDateString(undefined, {
+            weekday: "long",
+            month: "long",
+            day: "numeric",
+          })}
         </h3>
         {selectedShifts.length === 0 ? (
           <p className="text-xs text-[#746E73] py-8 text-center font-medium border border-dashed border-[#2E3344]/10 rounded-2xl">
@@ -87,18 +98,32 @@ export function ShiftCalendarTab({ shifts, onCancel, isPending }: Props) {
         ) : (
           <ul className="space-y-2">
             {selectedShifts.map((s) => (
-              <li key={s.id} className="flex items-center gap-3 p-3 rounded-xl border border-[#2E3344]/5 bg-[#f8f8f7]">
-                <div className={`h-10 w-10 rounded-xl flex items-center justify-center ${STATUS_STYLES[s.status] ?? "bg-[#f8f8f7]"}`}>
+              <li
+                key={s.id}
+                className="flex items-center gap-3 p-3 rounded-xl border border-[#2E3344]/5 bg-[#f8f8f7]"
+              >
+                <div
+                  className={`h-10 w-10 rounded-xl flex items-center justify-center ${STATUS_STYLES[s.status] ?? "bg-[#f8f8f7]"}`}
+                >
                   <UserCheck className="h-4 w-4" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-bold text-[#27324A] truncate">{s.staff_name ?? "Unknown"}</p>
-                  <p className="text-[11px] text-[#746E73] font-medium flex items-center gap-1">
-                    <Clock className="h-3 w-3" /> {fmtTime(s.scheduled_start)} – {fmtTime(s.scheduled_end)}
+                  <p className="text-sm font-bold text-[#27324A] truncate">
+                    {s.staff_name ?? "Unknown"}
                   </p>
-                  {s.notes && <p className="text-[11px] text-[#746E73] italic truncate mt-0.5">&ldquo;{s.notes}&rdquo;</p>}
+                  <p className="text-[11px] text-[#746E73] font-medium flex items-center gap-1">
+                    <Clock className="h-3 w-3" /> {fmtTime(s.scheduled_start)} –{" "}
+                    {fmtTime(s.scheduled_end)}
+                  </p>
+                  {s.notes && (
+                    <p className="text-[11px] text-[#746E73] italic truncate mt-0.5">
+                      &ldquo;{s.notes}&rdquo;
+                    </p>
+                  )}
                 </div>
-                <span className={`text-[10px] font-black px-2 py-1 rounded-md ${STATUS_STYLES[s.status]}`}>
+                <span
+                  className={`text-[10px] font-black px-2 py-1 rounded-md ${STATUS_STYLES[s.status]}`}
+                >
                   {STATUS_LABEL[s.status] ?? s.status}
                 </span>
                 {s.status === "scheduled" && (

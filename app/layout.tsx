@@ -15,7 +15,8 @@ const poppins = Poppins({
 
 export const metadata: Metadata = {
   title: "Quivo - Quick Inventory OS",
-  description: "Barcode-first local shopping. Quick Inventory OS for Nepali businesses.",
+  description:
+    "Barcode-first local shopping. Quick Inventory OS for Nepali businesses.",
   applicationName: "Quivo",
   appleWebApp: {
     capable: true,
@@ -28,7 +29,7 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   themeColor: [
     { media: "(prefers-color-scheme: light)", color: "#F7F0E6" },
-    { media: "(prefers-color-scheme: dark)",  color: "#27324A" },
+    { media: "(prefers-color-scheme: dark)", color: "#27324A" },
   ],
   width: "device-width",
   initialScale: 1,

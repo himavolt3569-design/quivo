@@ -18,11 +18,7 @@ export default async function OwnerOnboardingPage() {
   }
 
   const [profileResult, shopCountResult] = await Promise.all([
-    supabase
-      .from("profiles")
-      .select("role")
-      .eq("id", user!.id)
-      .maybeSingle(),
+    supabase.from("profiles").select("role").eq("id", user!.id).maybeSingle(),
     supabase
       .from("shop_members")
       .select("shop_id", { count: "exact", head: true })

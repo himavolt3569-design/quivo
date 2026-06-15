@@ -16,5 +16,13 @@ export default async function ShopsPage() {
   // Use the SECURITY DEFINER RPC which safely exposes only public-safe columns.
   const { data: shops } = await supabase.rpc("get_verified_shops");
 
-  return <ShopsTab shops={(shops ?? []) as DiscoverShop[]} />;
+  const { data: userShops } = await supabase
+    .from("shop_staff")
+    .select("shop_id")
+    .eq("linked_user_id", user.id)
+    .limit(1);
+
+  const retailerShopId = userShops?.[0]?.shop_id ?? null;
+
+  return <ShopsTab shops={(shops ?? []) as DiscoverShop[]} retailerShopId={retailerShopId} />;
 }

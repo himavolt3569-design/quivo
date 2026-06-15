@@ -1,4 +1,8 @@
-import { renderEmailLayout, escapeHtml, renderTextFromBlocks } from "@/lib/email/layout";
+import {
+  renderEmailLayout,
+  escapeHtml,
+  renderTextFromBlocks,
+} from "@/lib/email/layout";
 import type { BrandedShop } from "@/lib/email/layout";
 import type { RenderedEmail } from "@/emails/OrderConfirmationEmail";
 
@@ -16,7 +20,9 @@ export interface LowStockDigestEmailInput {
   productsUrl: string;
 }
 
-export function renderLowStockDigestEmail(input: LowStockDigestEmailInput): RenderedEmail {
+export function renderLowStockDigestEmail(
+  input: LowStockDigestEmailInput,
+): RenderedEmail {
   const count = input.items.length;
   const subject = `${count} ${count === 1 ? "item is" : "items are"} low on stock — ${input.shop.name}`;
 
@@ -31,7 +37,7 @@ export function renderLowStockDigestEmail(input: LowStockDigestEmailInput): Rend
         <td style="padding:6px 10px;font-size:12px;color:#746E73;text-align:right;border-bottom:1px solid rgba(46,51,68,0.05);">
           ≤ ${i.threshold.toString()}
         </td>
-      </tr>`
+      </tr>`,
     )
     .join("");
 
@@ -71,7 +77,12 @@ export function renderLowStockDigestEmail(input: LowStockDigestEmailInput): Rend
     "Stock running low",
     `Hi ${input.ownerName},`,
     `These items in ${input.shop.name} need restocking:`,
-    input.items.map((i) => `- ${i.name}: ${i.current}${i.unit ? ` ${i.unit}` : ""} (≤ ${i.threshold})`).join("\n"),
+    input.items
+      .map(
+        (i) =>
+          `- ${i.name}: ${i.current}${i.unit ? ` ${i.unit}` : ""} (≤ ${i.threshold})`,
+      )
+      .join("\n"),
     `Open Inventory: ${input.productsUrl}`,
   ]);
 

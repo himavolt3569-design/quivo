@@ -83,7 +83,9 @@ export default async function OwnerLayout({
     if (shopRow && profile?.email) {
       const { data: emailState, error: emailStateError } = await supabase
         .from("shops")
-        .select("kyc_grace_email_sent_at, kyc_warning_email_sent_at, kyc_deadline_email_sent_at")
+        .select(
+          "kyc_grace_email_sent_at, kyc_warning_email_sent_at, kyc_deadline_email_sent_at",
+        )
         .eq("id", activeShopId)
         .maybeSingle();
 
@@ -117,7 +119,10 @@ export default async function OwnerLayout({
           }
         }
       } else if (emailStateError && emailStateError.code !== "42703") {
-        log.error("KYC email state lookup failed", { code: emailStateError.code, message: emailStateError.message });
+        log.error("KYC email state lookup failed", {
+          code: emailStateError.code,
+          message: emailStateError.message,
+        });
       }
     }
   }
@@ -126,13 +131,25 @@ export default async function OwnerLayout({
     <div className="flex flex-col min-h-screen animate-in fade-in duration-300">
       <VerificationBanner status={verificationStatus} policy={kycPolicy} />
       <div className="flex flex-1">
-        <OwnerSidebar shops={shops} activeShopId={activeShopId} role={activeShopRole} />
+        <OwnerSidebar
+          shops={shops}
+          activeShopId={activeShopId}
+          role={activeShopRole}
+        />
         <main className="flex-1 w-full p-4 sm:p-6 lg:p-8 pb-24 lg:pb-8">
-          <VerificationGate key={activeShopId ?? "none"} status={verificationStatus} policy={kycPolicy}>
+          <VerificationGate
+            key={activeShopId ?? "none"}
+            status={verificationStatus}
+            policy={kycPolicy}
+          >
             {children}
           </VerificationGate>
         </main>
-        <OwnerMobileNav shops={shops} activeShopId={activeShopId} role={activeShopRole} />
+        <OwnerMobileNav
+          shops={shops}
+          activeShopId={activeShopId}
+          role={activeShopRole}
+        />
       </div>
     </div>
   );

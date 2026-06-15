@@ -20,7 +20,14 @@ interface CartDrawerProps {
   themeColor: string;
 }
 
-export function CartDrawer({ isOpen, onClose, cart, onUpdateQty, onCheckout, themeColor }: CartDrawerProps) {
+export function CartDrawer({
+  isOpen,
+  onClose,
+  cart,
+  onUpdateQty,
+  onCheckout,
+  themeColor,
+}: CartDrawerProps) {
   const total = cart.reduce((acc, i) => acc + i.price * i.qty, 0);
   const itemCount = cart.reduce((acc, i) => acc + i.qty, 0);
 
@@ -47,7 +54,10 @@ export function CartDrawer({ isOpen, onClose, cart, onUpdateQty, onCheckout, the
             <h2 className="font-bold text-gray-900">
               Your Cart{" "}
               {itemCount > 0 && (
-                <span className="ml-1 text-sm font-black px-2 py-0.5 rounded-full text-white" style={{ backgroundColor: themeColor }}>
+                <span
+                  className="ml-1 text-sm font-black px-2 py-0.5 rounded-full text-white"
+                  style={{ backgroundColor: themeColor }}
+                >
                   {itemCount}
                 </span>
               )}
@@ -67,32 +77,52 @@ export function CartDrawer({ isOpen, onClose, cart, onUpdateQty, onCheckout, the
             <div className="h-full flex flex-col items-center justify-center text-gray-400 gap-3">
               <ShoppingBag className="h-16 w-16 opacity-20" />
               <p className="font-medium">Your cart is empty</p>
-              <p className="text-sm text-center px-6">Browse products and add items to get started</p>
-              <button onClick={onClose} className="mt-4 px-6 py-2.5 rounded-full bg-gray-100 text-gray-900 font-bold text-sm hover:bg-gray-200 transition">
+              <p className="text-sm text-center px-6">
+                Browse products and add items to get started
+              </p>
+              <button
+                onClick={onClose}
+                className="mt-4 px-6 py-2.5 rounded-full bg-gray-100 text-gray-900 font-bold text-sm hover:bg-gray-200 transition"
+              >
                 Continue Shopping
               </button>
             </div>
           ) : (
             cart.map((item) => (
-              <div key={item.id} className="flex items-center gap-3 p-3 bg-gray-50 rounded-2xl">
+              <div
+                key={item.id}
+                className="flex items-center gap-3 p-3 bg-gray-50 rounded-2xl"
+              >
                 {/* Image */}
                 <div className="h-14 w-14 rounded-xl bg-white flex items-center justify-center font-bold text-lg text-gray-400 border border-gray-100 shrink-0 overflow-hidden">
                   {item.image_url ? (
-                    <img src={item.image_url} alt={item.name} className="h-full w-full object-cover" />
+                    <img
+                      src={item.image_url}
+                      alt={item.name}
+                      className="h-full w-full object-cover"
+                    />
                   ) : (
-                    <span className="text-gray-300 opacity-50"><ShoppingBag className="h-6 w-6" /></span>
+                    <span className="text-gray-300 opacity-50">
+                      <ShoppingBag className="h-6 w-6" />
+                    </span>
                   )}
                 </div>
 
                 {/* Details */}
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-bold text-gray-800 line-clamp-1">{item.name}</p>
-                  <p className="text-xs text-gray-500 mt-0.5">Rs. {item.price} / unit</p>
+                  <p className="text-sm font-bold text-gray-800 line-clamp-1">
+                    {item.name}
+                  </p>
+                  <p className="text-xs text-gray-500 mt-0.5">
+                    Rs. {item.price} / unit
+                  </p>
                 </div>
 
                 {/* Controls */}
                 <div className="flex flex-col items-end gap-1">
-                  <p className="text-sm font-black text-gray-900">Rs. {(item.price * item.qty).toLocaleString()}</p>
+                  <p className="text-sm font-black text-gray-900">
+                    Rs. {(item.price * item.qty).toLocaleString()}
+                  </p>
                   <div className="flex items-center gap-2 bg-white border border-gray-200 rounded-lg p-0.5">
                     <button
                       onClick={() => onUpdateQty(item.id, -1)}
@@ -104,7 +134,9 @@ export function CartDrawer({ isOpen, onClose, cart, onUpdateQty, onCheckout, the
                         <Minus className="h-3.5 w-3.5 text-gray-500" />
                       )}
                     </button>
-                    <span className="text-xs font-black w-5 text-center text-gray-800">{item.qty}</span>
+                    <span className="text-xs font-black w-5 text-center text-gray-800">
+                      {item.qty}
+                    </span>
                     <button
                       onClick={() => onUpdateQty(item.id, 1)}
                       disabled={item.qty >= item.maxStock}

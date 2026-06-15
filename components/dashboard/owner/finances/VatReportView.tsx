@@ -2,7 +2,12 @@
 
 import { useEffect, useMemo, useState, useTransition } from "react";
 import Link from "next/link";
-import { ChevronLeft, Download, FileSpreadsheet, AlertCircle } from "lucide-react";
+import {
+  ChevronLeft,
+  Download,
+  FileSpreadsheet,
+  AlertCircle,
+} from "lucide-react";
 import { toast } from "sonner";
 import { getVatReport, type VatReportSummary } from "@/app/actions/vat";
 
@@ -11,8 +16,18 @@ interface Props {
 }
 
 const MONTHS = [
-  "January", "February", "March", "April", "May", "June",
-  "July", "August", "September", "October", "November", "December",
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
 ];
 
 function csvEscape(value: unknown): string {
@@ -80,7 +95,15 @@ export function VatReportView({ shopId }: Props) {
       [`VAT rate`, `${report.shop.vat_rate.toFixed(2)}%`],
       [`Generated at`, new Date().toISOString()],
       [],
-      ["Invoice No", "Date", "Customer PAN", "Source", "Taxable Amount (NPR)", "Tax (NPR)", "Total (NPR)"],
+      [
+        "Invoice No",
+        "Date",
+        "Customer PAN",
+        "Source",
+        "Taxable Amount (NPR)",
+        "Tax (NPR)",
+        "Total (NPR)",
+      ],
     ];
 
     const body: string[][] = report.rows.map((r) => [
@@ -95,13 +118,21 @@ export function VatReportView({ shopId }: Props) {
 
     const footer: string[][] = [
       [],
-      ["TOTAL", "", "", "", report.totals.taxable.toFixed(2), report.totals.tax.toFixed(2), report.totals.total.toFixed(2)],
+      [
+        "TOTAL",
+        "",
+        "",
+        "",
+        report.totals.taxable.toFixed(2),
+        report.totals.tax.toFixed(2),
+        report.totals.total.toFixed(2),
+      ],
     ];
 
     const safe = report.shop.name.replace(/[^a-z0-9]+/gi, "_").toLowerCase();
     downloadCsv(
       `${safe}-vat3-${report.period.year}-${String(report.period.month).padStart(2, "0")}.csv`,
-      [...headerLines, ...body, ...footer]
+      [...headerLines, ...body, ...footer],
     );
   };
 
@@ -121,7 +152,8 @@ export function VatReportView({ shopId }: Props) {
             VAT-3 Sales Register
           </h1>
           <p className="text-sm font-medium text-[#746E73] mt-1">
-            Monthly itemised report in Nepal IRD VAT-3 format. CSV opens in LibreOffice / Excel.
+            Monthly itemised report in Nepal IRD VAT-3 format. CSV opens in
+            LibreOffice / Excel.
           </p>
         </div>
         <button
@@ -136,26 +168,34 @@ export function VatReportView({ shopId }: Props) {
       {/* Period picker */}
       <div className="bg-white p-4 rounded-2xl border border-[#2E3344]/8 shadow-sm flex gap-3 items-end flex-wrap">
         <div>
-          <label className="text-[10px] font-black uppercase tracking-wider text-[#746E73] mb-1 block">Year</label>
+          <label className="text-[10px] font-black uppercase tracking-wider text-[#746E73] mb-1 block">
+            Year
+          </label>
           <select
             value={year}
             onChange={(e) => setYear(Number(e.target.value))}
             className="h-11 px-3 rounded-xl border border-[#2E3344]/15 bg-white text-sm font-bold focus:outline-none focus:border-[#27324A]"
           >
             {yearOptions.map((y) => (
-              <option key={y} value={y}>{y}</option>
+              <option key={y} value={y}>
+                {y}
+              </option>
             ))}
           </select>
         </div>
         <div>
-          <label className="text-[10px] font-black uppercase tracking-wider text-[#746E73] mb-1 block">Month</label>
+          <label className="text-[10px] font-black uppercase tracking-wider text-[#746E73] mb-1 block">
+            Month
+          </label>
           <select
             value={month}
             onChange={(e) => setMonth(Number(e.target.value))}
             className="h-11 px-3 rounded-xl border border-[#2E3344]/15 bg-white text-sm font-bold focus:outline-none focus:border-[#27324A]"
           >
             {MONTHS.map((m, i) => (
-              <option key={m} value={i + 1}>{m}</option>
+              <option key={m} value={i + 1}>
+                {m}
+              </option>
             ))}
           </select>
         </div>
@@ -176,9 +216,21 @@ export function VatReportView({ shopId }: Props) {
       {/* Summary cards */}
       {report && (
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <KpiCard label="Taxable amount" value={`Rs. ${report.totals.taxable.toLocaleString()}`} accent="#27324A" />
-          <KpiCard label={`VAT collected (${report.shop.vat_rate.toFixed(2)}%)`} value={`Rs. ${report.totals.tax.toLocaleString()}`} accent="#A7653A" />
-          <KpiCard label="Gross total" value={`Rs. ${report.totals.total.toLocaleString()}`} accent="#27324A" />
+          <KpiCard
+            label="Taxable amount"
+            value={`Rs. ${report.totals.taxable.toLocaleString()}`}
+            accent="#27324A"
+          />
+          <KpiCard
+            label={`VAT collected (${report.shop.vat_rate.toFixed(2)}%)`}
+            value={`Rs. ${report.totals.tax.toLocaleString()}`}
+            accent="#A7653A"
+          />
+          <KpiCard
+            label="Gross total"
+            value={`Rs. ${report.totals.total.toLocaleString()}`}
+            accent="#27324A"
+          />
         </div>
       )}
 
@@ -190,7 +242,8 @@ export function VatReportView({ shopId }: Props) {
           </div>
         ) : report.rows.length === 0 ? (
           <div className="py-12 text-center text-sm font-bold text-[#746E73]">
-            No sales recorded for {MONTHS[report.period.month - 1]} {report.period.year}.
+            No sales recorded for {MONTHS[report.period.month - 1]}{" "}
+            {report.period.year}.
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -207,23 +260,37 @@ export function VatReportView({ shopId }: Props) {
               </thead>
               <tbody className="divide-y divide-[#2E3344]/5">
                 {report.rows.map((r) => (
-                  <tr key={`${r.source}-${r.invoice_no}-${r.date_iso}`} className="hover:bg-[#f8f8f7]/50">
-                    <Td><span className="font-mono text-xs">{r.invoice_no}</span></Td>
+                  <tr
+                    key={`${r.source}-${r.invoice_no}-${r.date_iso}`}
+                    className="hover:bg-[#f8f8f7]/50"
+                  >
+                    <Td>
+                      <span className="font-mono text-xs">{r.invoice_no}</span>
+                    </Td>
                     <Td>
                       <span className="text-xs text-[#746E73]">
-                        {new Date(r.date_iso).toLocaleString("en-IN", { dateStyle: "short", timeStyle: "short" })}
+                        {new Date(r.date_iso).toLocaleString("en-IN", {
+                          dateStyle: "short",
+                          timeStyle: "short",
+                        })}
                       </span>
                     </Td>
                     <Td>
-                      <span className={`text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full ${
-                        r.source === "pos" ? "bg-[#27324A]/10 text-[#27324A]" : "bg-[#A7653A]/10 text-[#A7653A]"
-                      }`}>
+                      <span
+                        className={`text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full ${
+                          r.source === "pos"
+                            ? "bg-[#27324A]/10 text-[#27324A]"
+                            : "bg-[#A7653A]/10 text-[#A7653A]"
+                        }`}
+                      >
                         {r.source}
                       </span>
                     </Td>
                     <Td align="right">Rs. {r.taxable_amount.toFixed(2)}</Td>
                     <Td align="right">Rs. {r.tax_amount.toFixed(2)}</Td>
-                    <Td align="right" bold>Rs. {r.total.toFixed(2)}</Td>
+                    <Td align="right" bold>
+                      Rs. {r.total.toFixed(2)}
+                    </Td>
                   </tr>
                 ))}
                 <tr className="bg-[#27324A] text-white font-black text-sm">
@@ -241,8 +308,18 @@ export function VatReportView({ shopId }: Props) {
   );
 }
 
-function Th({ children, align }: { children: React.ReactNode; align?: "left" | "right" }) {
-  return <th className={`px-4 py-3 whitespace-nowrap text-${align ?? "left"}`}>{children}</th>;
+function Th({
+  children,
+  align,
+}: {
+  children: React.ReactNode;
+  align?: "left" | "right";
+}) {
+  return (
+    <th className={`px-4 py-3 whitespace-nowrap text-${align ?? "left"}`}>
+      {children}
+    </th>
+  );
 }
 
 function Td({
@@ -257,17 +334,32 @@ function Td({
   colSpan?: number;
 }) {
   return (
-    <td className={`px-4 py-3 align-top text-${align ?? "left"} ${bold ? "font-bold" : ""}`} colSpan={colSpan}>
+    <td
+      className={`px-4 py-3 align-top text-${align ?? "left"} ${bold ? "font-bold" : ""}`}
+      colSpan={colSpan}
+    >
       {children}
     </td>
   );
 }
 
-function KpiCard({ label, value, accent }: { label: string; value: string; accent: string }) {
+function KpiCard({
+  label,
+  value,
+  accent,
+}: {
+  label: string;
+  value: string;
+  accent: string;
+}) {
   return (
     <div className="bg-white p-4 rounded-2xl border border-[#2E3344]/8 shadow-sm">
-      <p className="text-[10px] font-black uppercase tracking-widest text-[#746E73]">{label}</p>
-      <p className="text-xl font-black mt-1" style={{ color: accent }}>{value}</p>
+      <p className="text-[10px] font-black uppercase tracking-widest text-[#746E73]">
+        {label}
+      </p>
+      <p className="text-xl font-black mt-1" style={{ color: accent }}>
+        {value}
+      </p>
     </div>
   );
 }

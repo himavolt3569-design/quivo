@@ -19,27 +19,45 @@ interface Payload {
   item_count?: number;
 }
 
-export async function handleTransactionCompleted(payload: Payload): Promise<void> {
+export async function handleTransactionCompleted(
+  payload: Payload,
+): Promise<void> {
   if (!payload.shop_id || !payload.transaction_id) {
     log.warn("transaction.completed handler: missing ids", { payload });
     return;
   }
   const admin = createAdminClient();
 
-  const [{ data: shop, error: shopErr }, { data: members, error: memErr }] = await Promise.all([
-    admin.from("shops").select("name").eq("id", payload.shop_id).maybeSingle(),
-    admin
-      .from("shop_members")
-      .select("user_id")
-      .eq("shop_id", payload.shop_id)
-      .eq("status", "active"),
-  ]);
+  const [{ data: shop, error: shopErr }, { data: members, error: memErr }] =
+    await Promise.all([
+      admin
+        .from("shops")
+        .select("name")
+        .eq("id", payload.shop_id)
+        .maybeSingle(),
+      admin
+        .from("shop_members")
+        .select("user_id")
+        .eq("shop_id", payload.shop_id)
+        .eq("status", "active"),
+    ]);
 
-  if (shopErr) log.error("transaction.completed: shop lookup failed", { code: shopErr.code });
-  if (memErr) { log.error("transaction.completed: members lookup failed", { code: memErr.code }); return; }
+  if (shopErr)
+    log.error("transaction.completed: shop lookup failed", {
+      code: shopErr.code,
+    });
+  if (memErr) {
+    log.error("transaction.completed: members lookup failed", {
+      code: memErr.code,
+    });
+    return;
+  }
 
   const shopName = (shop?.name as string | undefined) ?? "your shop";
-  const totalStr = typeof payload.total === "number" ? `Rs. ${payload.total.toFixed(2)}` : "a sale";
+  const totalStr =
+    typeof payload.total === "number"
+      ? `Rs. ${payload.total.toFixed(2)}`
+      : "a sale";
   const method = payload.payment_method ?? "cash";
 
   await Promise.all(
@@ -52,9 +70,17 @@ export async function handleTransactionCompleted(payload: Payload): Promise<void
           title: `${totalStr} sale closed`,
           body: `${shopName} — paid via ${method}.`,
           linkUrl: `/dashboard/owner/finances`,
-          data: { transaction_id: payload.transaction_id, total: payload.total, payment_method: method },
+          data: {
+            transaction_id: payload.transaction_id,
+            total: payload.total,
+            payment_method: method,
+          },
         },
-      }).catch((err) => log.error("notifyUser failed", { err: err instanceof Error ? err.message : String(err) }))
-    )
+      }).catch((err) =>
+        log.error("notifyUser failed", {
+          err: err instanceof Error ? err.message : String(err),
+        }),
+      ),
+    ),
   );
 }

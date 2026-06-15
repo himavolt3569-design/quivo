@@ -78,8 +78,7 @@ export function decideCallbackOutcome(input: CallbackInput): CallbackOutcome {
   }
 
   // (3) Resolve effective role.
-  const role: Role =
-    input.existingProfileRole ?? input.intent ?? "customer";
+  const role: Role = input.existingProfileRole ?? input.intent ?? "customer";
 
   // (4) Honor an explicit safe ?next= unless it's the generic /dashboard
   // (which would just bounce back through the role router).

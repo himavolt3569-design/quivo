@@ -16,7 +16,9 @@ interface RouteParams {
   params: Promise<{ job: string }>;
 }
 
-async function authorize(): Promise<{ ok: true } | { ok: false; status: number; reason: string }> {
+async function authorize(): Promise<
+  { ok: true } | { ok: false; status: number; reason: string }
+> {
   const expected = process.env.CRON_SECRET;
   if (!expected) {
     // Locked down by default. A missing CRON_SECRET means the operator has not
@@ -54,7 +56,7 @@ export async function GET(request: Request, { params }: RouteParams) {
     log.warn("cron: rejecting", { requestId, jobName, reason: auth.reason });
     return NextResponse.json(
       { ok: false, error: auth.reason },
-      { status: auth.status, headers: { [REQUEST_ID_HEADER]: requestId } }
+      { status: auth.status, headers: { [REQUEST_ID_HEADER]: requestId } },
     );
   }
 
@@ -69,7 +71,7 @@ export async function GET(request: Request, { params }: RouteParams) {
           timeoutMs: j.timeoutMs ?? DEFAULT_TIMEOUT_MS,
         })),
       },
-      { headers: { [REQUEST_ID_HEADER]: requestId } }
+      { headers: { [REQUEST_ID_HEADER]: requestId } },
     );
   }
 
@@ -78,7 +80,7 @@ export async function GET(request: Request, { params }: RouteParams) {
     log.warn("cron: unknown job", { requestId, jobName });
     return NextResponse.json(
       { ok: false, error: `Unknown job: ${jobName}` },
-      { status: 404, headers: { [REQUEST_ID_HEADER]: requestId } }
+      { status: 404, headers: { [REQUEST_ID_HEADER]: requestId } },
     );
   }
 
@@ -93,7 +95,9 @@ export async function GET(request: Request, { params }: RouteParams) {
       job.handler({ requestId, timeoutMs, signal: controller.signal }),
       new Promise<never>((_, reject) => {
         controller.signal.addEventListener("abort", () => {
-          reject(new Error(`cron job ${jobName} exceeded ${timeoutMs}ms timeout`));
+          reject(
+            new Error(`cron job ${jobName} exceeded ${timeoutMs}ms timeout`),
+          );
         });
       }),
     ]);
@@ -107,12 +111,17 @@ export async function GET(request: Request, { params }: RouteParams) {
         durationMs,
         result: result ?? null,
       },
-      { headers: { [REQUEST_ID_HEADER]: requestId } }
+      { headers: { [REQUEST_ID_HEADER]: requestId } },
     );
   } catch (err) {
     const durationMs = Date.now() - startedAt;
     const message = err instanceof Error ? err.message : String(err);
-    log.error("cron: failed", { requestId, jobName, durationMs, error: message });
+    log.error("cron: failed", {
+      requestId,
+      jobName,
+      durationMs,
+      error: message,
+    });
     return NextResponse.json(
       {
         ok: false,
@@ -121,7 +130,7 @@ export async function GET(request: Request, { params }: RouteParams) {
         durationMs,
         error: message,
       },
-      { status: 500, headers: { [REQUEST_ID_HEADER]: requestId } }
+      { status: 500, headers: { [REQUEST_ID_HEADER]: requestId } },
     );
   } finally {
     clearTimeout(timer);

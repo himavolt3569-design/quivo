@@ -10,7 +10,8 @@ import type { CronJobDefinition } from "@/lib/cron/registry";
  */
 export const notificationsDispatchJob: CronJobDefinition = {
   name: "notifications-dispatch",
-  description: "Drain the domain_events queue (transactions, orders, refunds, low stock, KYC).",
+  description:
+    "Drain the domain_events queue (transactions, orders, refunds, low stock, KYC).",
   timeoutMs: 60_000,
   handler: async () => {
     const result = await dispatchPendingEvents({ batchSize: 25 });

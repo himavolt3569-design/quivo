@@ -32,7 +32,7 @@ const AddressPinPicker = dynamic(
     loading: () => (
       <div className="h-[200px] animate-pulse rounded-xl bg-[#F7F0E6]" />
     ),
-  }
+  },
 );
 
 const AddressOverviewMap = dynamic(
@@ -42,7 +42,7 @@ const AddressOverviewMap = dynamic(
     loading: () => (
       <div className="h-[200px] animate-pulse rounded-t-2xl bg-[#F7F0E6]" />
     ),
-  }
+  },
 );
 
 const LABELS = ["Home", "Work", "Other"] as const;
@@ -103,8 +103,7 @@ export function AddressBook({ addresses, onChange }: AddressBookProps) {
       landmark: addr.landmark ?? "",
       phone: addr.phone ?? "",
       is_default: addr.is_default,
-      pin:
-        addr.lat && addr.lng ? { lat: addr.lat, lng: addr.lng } : null,
+      pin: addr.lat && addr.lng ? { lat: addr.lat, lng: addr.lng } : null,
       showMap: !!(addr.lat && addr.lng),
       geocoding: false,
     });
@@ -162,9 +161,9 @@ export function AddressBook({ addresses, onChange }: AddressBookProps) {
                   lng: form.pin?.lng ?? null,
                 }
               : form.is_default
-              ? { ...a, is_default: false }
-              : a
-          )
+                ? { ...a, is_default: false }
+                : a,
+          ),
         );
       } else {
         const fresh: Address = {
@@ -181,7 +180,7 @@ export function AddressBook({ addresses, onChange }: AddressBookProps) {
         };
         onChange([
           ...addresses.map((a) =>
-            form.is_default ? { ...a, is_default: false } : a
+            form.is_default ? { ...a, is_default: false } : a,
           ),
           fresh,
         ]);
@@ -221,8 +220,12 @@ export function AddressBook({ addresses, onChange }: AddressBookProps) {
   };
 
   const LabelIcon = LABEL_ICON[form.label] ?? MapPin;
-  const pinnedAddresses = addresses.filter((a) => a.lat != null && a.lng != null);
-  const overviewKey = pinnedAddresses.map((a) => `${a.id}:${a.lat}:${a.lng}`).join(",");
+  const pinnedAddresses = addresses.filter(
+    (a) => a.lat != null && a.lng != null,
+  );
+  const overviewKey = pinnedAddresses
+    .map((a) => `${a.id}:${a.lat}:${a.lng}`)
+    .join(",");
 
   return (
     <div className="space-y-4">
@@ -239,7 +242,9 @@ export function AddressBook({ addresses, onChange }: AddressBookProps) {
               >
                 <span
                   className="inline-block h-2 w-2 rounded-full"
-                  style={{ background: LABEL_COLOR[a.label] ?? LABEL_COLOR.Other }}
+                  style={{
+                    background: LABEL_COLOR[a.label] ?? LABEL_COLOR.Other,
+                  }}
                 />
                 {a.label}
               </span>
@@ -538,7 +543,9 @@ export function AddressBook({ addresses, onChange }: AddressBookProps) {
                       // Always update address from geocode — user moved the pin intentionally
                       address_line: address || f.address_line,
                       // Only fill landmark if user hasn't typed one
-                      landmark: f.landmark.trim() ? f.landmark : (landmark ?? f.landmark),
+                      landmark: f.landmark.trim()
+                        ? f.landmark
+                        : (landmark ?? f.landmark),
                     }))
                   }
                 />
@@ -565,11 +572,7 @@ export function AddressBook({ addresses, onChange }: AddressBookProps) {
               disabled={submitting}
               className="flex-1 rounded-full bg-[#A7653A] py-2.5 text-sm font-semibold text-white transition hover:bg-[#8E5432] disabled:opacity-50 active:scale-95"
             >
-              {submitting
-                ? "Saving…"
-                : editingId
-                ? "Update"
-                : "Save address"}
+              {submitting ? "Saving…" : editingId ? "Update" : "Save address"}
             </button>
           </div>
         </form>
