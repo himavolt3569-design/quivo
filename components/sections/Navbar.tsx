@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, Suspense } from "react";
+import { useCallback, useEffect, useState, Suspense } from "react";
 import { Menu, ArrowRight, LogOut, User as UserIcon } from "lucide-react";
 import {
   Sheet,
@@ -23,6 +23,29 @@ interface NavbarProps {
   scrollToSection?: (id: string) => void;
 }
 
+/**
+ * Watches the `?login=true` query param and opens the auth modal.
+ *
+ * Isolated into its own (render-nothing) component wrapped in <Suspense> so
+ * its `useSearchParams()` CSR bailout doesn't gate the whole navbar. Without
+ * this, the navbar only renders after client hydration — invisible on slow
+ * mobile devices where hydration lags.
+ */
+function LoginParamWatcher({ onLogin }: { onLogin: () => void }) {
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+
+  useEffect(() => {
+    if (searchParams.get("login") === "true") {
+      setTimeout(onLogin, 0);
+      // Clean up the URL.
+      window.history.replaceState({}, "", pathname);
+    }
+  }, [searchParams, pathname, onLogin]);
+
+  return null;
+}
+
 function NavbarContent({ scrollToSection }: NavbarProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [authModalOpen, setAuthModalOpen] = useState(false);
@@ -32,17 +55,8 @@ function NavbarContent({ scrollToSection }: NavbarProps) {
   const supabase = createClient();
   const router = useRouter();
   const pathname = usePathname();
-  const searchParams = useSearchParams();
 
-  useEffect(() => {
-    if (searchParams.get("login") === "true") {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setTimeout(() => setAuthModalOpen(true), 0);
-      // Clean up the URL
-      const newUrl = pathname;
-      window.history.replaceState({}, "", newUrl);
-    }
-  }, [searchParams, pathname]);
+  const openAuthModal = useCallback(() => setAuthModalOpen(true), []);
 
   useEffect(() => {
     const getUser = async () => {
@@ -106,6 +120,9 @@ function NavbarContent({ scrollToSection }: NavbarProps) {
 
   return (
     <>
+      <Suspense fallback={null}>
+        <LoginParamWatcher onLogin={openAuthModal} />
+      </Suspense>
       <ManusDialog
         open={authModalOpen}
         onOpenChange={setAuthModalOpen}
@@ -301,9 +318,8 @@ function NavbarContent({ scrollToSection }: NavbarProps) {
 }
 
 export function Navbar(props: NavbarProps) {
-  return (
-    <Suspense fallback={<div className="h-16 sm:h-20" />}>
-      <NavbarContent {...props} />
-    </Suspense>
-  );
+  // NavbarContent no longer suspends (its useSearchParams usage moved into
+  // the isolated LoginParamWatcher), so the navbar prerenders as static HTML
+  // and is visible immediately — no longer waiting on client hydration.
+  return <NavbarContent {...props} />;
 }
