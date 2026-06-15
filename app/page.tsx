@@ -1,14 +1,12 @@
 "use client";
 
-import { useLayoutEffect, useRef, useState, Suspense } from "react";
+import { useEffect, useRef, useState, Suspense } from "react";
 import { Navbar } from "@/components/sections/Navbar";
 import { HeroSection } from "@/components/sections/HeroSection";
 import { Footer } from "@/components/sections/Footer";
-import { PageLoadingSkeleton } from "@/components/PageLoadingSkeleton";
+import { AuthErrorToast } from "@/components/AuthErrorToast";
 import { toast } from "sonner";
 import { popularProducts } from "@/lib/data";
-import { useSearchParams } from "next/navigation";
-import { AUTH_ERROR_MESSAGES, isAuthErrorCode } from "@/lib/auth-errors";
 
 import { TrendingSection } from "@/components/sections/TrendingSection";
 import { FeaturesSection } from "@/components/sections/FeaturesSection";
@@ -30,14 +28,6 @@ function scrollToSection(id: string) {
 function HomeContent() {
   const rootRef = useRef<HTMLDivElement | null>(null);
   const [basketItems, setBasketItems] = useState<string[]>(["rice", "milk"]);
-  const searchParams = useSearchParams();
-
-  useLayoutEffect(() => {
-    const code = searchParams.get("auth_error");
-    if (!isAuthErrorCode(code)) return;
-    const { title, description } = AUTH_ERROR_MESSAGES[code](searchParams);
-    toast.error(title, { description, duration: 10000 });
-  }, [searchParams]);
 
   function addProductToBasket(productId: string) {
     const product = popularProducts.find((item) => item.id === productId);
@@ -55,7 +45,7 @@ function HomeContent() {
     setBasketItems((current) => current.filter((item) => item !== productId));
   }
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     const reduceMotion = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
     ).matches;
@@ -190,8 +180,12 @@ function HomeContent() {
 
 export default function Home() {
   return (
-    <Suspense fallback={<PageLoadingSkeleton variant="marketing" />}>
+    <>
+      {/* Isolated so the useSearchParams CSR bailout doesn't gate the page. */}
+      <Suspense fallback={null}>
+        <AuthErrorToast />
+      </Suspense>
       <HomeContent />
-    </Suspense>
+    </>
   );
 }
