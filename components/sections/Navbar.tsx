@@ -52,13 +52,17 @@ function NavbarContent({ scrollToSection }: NavbarProps) {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Partial<Profile> | null>(null);
 
-  const supabase = createClient();
   const router = useRouter();
   const pathname = usePathname();
 
   const openAuthModal = useCallback(() => setAuthModalOpen(true), []);
 
   useEffect(() => {
+    // Create the Supabase browser client here (not during render) so the page
+    // can be statically prerendered on the server without the browser-only
+    // client throwing on missing env vars at build time.
+    const supabase = createClient();
+
     const getUser = async () => {
       const {
         data: { user },
@@ -94,7 +98,7 @@ function NavbarContent({ scrollToSection }: NavbarProps) {
     return () => {
       authListener.subscription.unsubscribe();
     };
-  }, [supabase.auth]);
+  }, []);
 
   function navigateFromMobileMenu(id: string) {
     setMobileMenuOpen(false);
