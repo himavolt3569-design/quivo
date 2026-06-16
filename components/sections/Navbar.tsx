@@ -37,9 +37,14 @@ function LoginParamWatcher({ onLogin }: { onLogin: () => void }) {
 
   useEffect(() => {
     if (searchParams.get("login") === "true") {
-      setTimeout(onLogin, 0);
-      // Clean up the URL.
-      window.history.replaceState({}, "", pathname);
+      const timeoutId = window.setTimeout(onLogin, 0);
+      // Strip only `login`, preserving any other query params and the hash.
+      const params = new URLSearchParams(searchParams.toString());
+      params.delete("login");
+      const query = params.toString();
+      const nextUrl = `${pathname}${query ? `?${query}` : ""}${window.location.hash}`;
+      window.history.replaceState({}, "", nextUrl);
+      return () => window.clearTimeout(timeoutId);
     }
   }, [searchParams, pathname, onLogin]);
 
