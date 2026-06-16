@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, Suspense } from "react";
+import { useCallback, useEffect, useState, Suspense } from "react";
 import { Menu, ArrowRight, LogOut, User as UserIcon } from "lucide-react";
 import {
   Sheet,
@@ -23,28 +23,51 @@ interface NavbarProps {
   scrollToSection?: (id: string) => void;
 }
 
+/**
+ * Watches the `?login=true` query param and opens the auth modal.
+ *
+ * Isolated into its own (render-nothing) component wrapped in <Suspense> so
+ * its `useSearchParams()` CSR bailout doesn't gate the whole navbar. Without
+ * this, the navbar only renders after client hydration — invisible on slow
+ * mobile devices where hydration lags.
+ */
+function LoginParamWatcher({ onLogin }: { onLogin: () => void }) {
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+
+  useEffect(() => {
+    if (searchParams.get("login") === "true") {
+      const timeoutId = window.setTimeout(onLogin, 0);
+      // Strip only `login`, preserving any other query params and the hash.
+      const params = new URLSearchParams(searchParams.toString());
+      params.delete("login");
+      const query = params.toString();
+      const nextUrl = `${pathname}${query ? `?${query}` : ""}${window.location.hash}`;
+      window.history.replaceState({}, "", nextUrl);
+      return () => window.clearTimeout(timeoutId);
+    }
+  }, [searchParams, pathname, onLogin]);
+
+  return null;
+}
+
 function NavbarContent({ scrollToSection }: NavbarProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Partial<Profile> | null>(null);
 
-  const supabase = createClient();
   const router = useRouter();
   const pathname = usePathname();
-  const searchParams = useSearchParams();
+
+  const openAuthModal = useCallback(() => setAuthModalOpen(true), []);
 
   useEffect(() => {
-    if (searchParams.get("login") === "true") {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setTimeout(() => setAuthModalOpen(true), 0);
-      // Clean up the URL
-      const newUrl = pathname;
-      window.history.replaceState({}, "", newUrl);
-    }
-  }, [searchParams, pathname]);
+    // Create the Supabase browser client here (not during render) so the page
+    // can be statically prerendered on the server without the browser-only
+    // client throwing on missing env vars at build time.
+    const supabase = createClient();
 
-  useEffect(() => {
     const getUser = async () => {
       const {
         data: { user },
@@ -80,7 +103,7 @@ function NavbarContent({ scrollToSection }: NavbarProps) {
     return () => {
       authListener.subscription.unsubscribe();
     };
-  }, [supabase.auth]);
+  }, []);
 
   function navigateFromMobileMenu(id: string) {
     setMobileMenuOpen(false);
@@ -106,6 +129,9 @@ function NavbarContent({ scrollToSection }: NavbarProps) {
 
   return (
     <>
+      <Suspense fallback={null}>
+        <LoginParamWatcher onLogin={openAuthModal} />
+      </Suspense>
       <ManusDialog
         open={authModalOpen}
         onOpenChange={setAuthModalOpen}
@@ -301,9 +327,8 @@ function NavbarContent({ scrollToSection }: NavbarProps) {
 }
 
 export function Navbar(props: NavbarProps) {
-  return (
-    <Suspense fallback={<div className="h-16 sm:h-20" />}>
-      <NavbarContent {...props} />
-    </Suspense>
-  );
+  // NavbarContent no longer suspends (its useSearchParams usage moved into
+  // the isolated LoginParamWatcher), so the navbar prerenders as static HTML
+  // and is visible immediately — no longer waiting on client hydration.
+  return <NavbarContent {...props} />;
 }
