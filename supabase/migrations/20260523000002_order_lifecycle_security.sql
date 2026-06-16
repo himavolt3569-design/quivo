@@ -58,7 +58,19 @@ CREATE POLICY "order_history: participants read"
     )
   );
 
-ALTER PUBLICATION supabase_realtime ADD TABLE public.order_status_history;
+-- Idempotent publication membership (ALTER PUBLICATION ... ADD TABLE has no
+-- IF NOT EXISTS form, so a re-run would otherwise error 42710).
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_publication_tables
+    WHERE pubname = 'supabase_realtime'
+      AND schemaname = 'public'
+      AND tablename = 'order_status_history'
+  ) THEN
+    ALTER PUBLICATION supabase_realtime ADD TABLE public.order_status_history;
+  END IF;
+END $$;
 
 -- ─── 2. transition_order_status() ────────────────────────────────────────────
 
