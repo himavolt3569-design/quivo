@@ -7,6 +7,7 @@ import { nanoid } from "nanoid";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { isSafeHttpUrl } from "@/lib/security";
 import { OptionalPhoneSchema, OptionalShortText } from "@/lib/validation";
+import { orderTransitionError } from "@/lib/orders";
 
 const COVER_GRADIENTS = [
   "from-[#A7653A] via-[#D8C99A] to-[#B76E42]",
@@ -520,61 +521,42 @@ export async function updateProfile(formData: FormData) {
   return { success: true };
 }
 
+// ─── Orders ───────────────────────────────────────────────────────────────────
+
+/**
+ * Customer-initiated cancellation. The transition_order_status RPC enforces
+ * that a customer may only cancel while the order is still 'placed' (before the
+ * shop confirms it) and, on success, atomically restocks the items and refunds
+ * any wallet credit / captured payment. The fulfilment status itself can only
+ * be changed through this state machine — a direct UPDATE is rejected by the
+ * enforce_order_status_transition trigger.
+ */
+export async function cancelOrder(
+  orderId: string,
+  reason?: string,
+): Promise<{ success?: true; error?: string }> {
+  const idParse = IdSchema.safeParse(orderId);
+  if (!idParse.success) return { error: "Invalid order ID" };
+  const rateLimit = await checkRateLimit("cancelOrder");
+  if (!rateLimit.success) return { error: rateLimit.error };
+
+  const { supabase } = await getAuthUser();
+  const { error } = await supabase
+    .rpc("transition_order_status", {
+      p_order_id: idParse.data,
+      p_new_status: "cancelled",
+      p_expected_status: null,
+      p_reason: reason ? reason.slice(0, 500) : null,
+    })
+    .maybeSingle();
+
+  if (error) return { error: orderTransitionError(error.message) };
+  revalidatePath("/dashboard/orders");
+  revalidatePath("/dashboard");
+  return { success: true };
+}
+
 // ─── Barcode lookup ───────────────────────────────────────────────────────────
-
-export interface ScannedProduct {
-  id: string;
-  name: string;
-  price: number;
-  stock: number;
-  shopName: string;
-  shopSlug: string;
-  image: string | null;
-  barcode: string;
-  isAvailable: boolean;
-}
-
-export async function lookupProductByBarcode(
-  barcode: string,
-): Promise<{ product?: ScannedProduct; error?: string }> {
-  const trimmed = barcode.trim();
-  if (!trimmed) return {};
-
-  const supabase = await createClient();
-  // get_product_by_barcode is a public RPC (granted to anon + authenticated)
-  const { data, error } = await supabase
-    .rpc("get_product_by_barcode", { p_barcode: trimmed })
-    .limit(1)
-    .maybeSingle<{
-      product_id: string;
-      shop_name: string;
-      shop_slug: string;
-      name: string;
-      price: number;
-      stock: number;
-      image_url: string | null;
-      images: string[] | null;
-      barcode: string;
-      is_available: boolean;
-    }>();
-
-  if (error) return { error: error.message };
-  if (!data) return {};
-
-  return {
-    product: {
-      id: data.product_id,
-      name: data.name,
-      price: data.price,
-      stock: data.stock,
-      shopName: data.shop_name,
-      shopSlug: data.shop_slug,
-      image: data.images?.[0] ?? data.image_url ?? null,
-      barcode: data.barcode,
-      isAvailable: data.is_available,
-    },
-  };
-}
 
 export interface BarcodeShopMatch {
   productId: string;

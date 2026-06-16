@@ -252,8 +252,17 @@ export default async function OrderPage({
           <ul className="divide-y divide-gray-100">
             {order.items.map((it, i) => (
               <li key={i} className="px-5 py-3 flex items-center gap-3">
-                <div className="h-10 w-10 rounded-xl bg-gray-100 flex items-center justify-center shrink-0">
-                  <Package className="h-4 w-4 text-gray-500" />
+                <div className="h-12 w-12 rounded-xl bg-gray-100 overflow-hidden flex items-center justify-center shrink-0">
+                  {it.image ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={it.image}
+                      alt={it.name}
+                      className="h-12 w-12 object-cover"
+                    />
+                  ) : (
+                    <Package className="h-4 w-4 text-gray-500" />
+                  )}
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="font-bold text-gray-900 text-sm truncate">
