@@ -42,12 +42,9 @@ export async function startNewShopOnboarding(): Promise<{ error: string } | void
   try {
     token = issueOnboardingToken(user!.id);
   } catch (err) {
-    return {
-      error:
-        err instanceof Error
-          ? err.message
-          : "Failed to issue onboarding token.",
-    };
+    // Log technical detail server-side; never leak it to the client toast.
+    console.error("Failed to issue onboarding token:", err);
+    return { error: "Failed to issue onboarding token." };
   }
 
   const jar = await cookies();
