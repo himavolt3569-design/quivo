@@ -189,7 +189,7 @@ export function OwnerShopSwitcher({
                   }).catch((e) => {
                     // Next.js redirect throws an error, so we only want to
                     // report actual errors that aren't redirects.
-                    if (e && typeof e === 'object' && 'digest' in e && (e as any).digest?.startsWith('NEXT_REDIRECT')) {
+                    if (e && typeof e === 'object' && 'digest' in e && (e as { digest?: string }).digest?.startsWith('NEXT_REDIRECT')) {
                       throw e;
                     }
                     console.error("Failed to start onboarding:", e);
