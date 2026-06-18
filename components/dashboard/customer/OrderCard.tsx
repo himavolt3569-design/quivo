@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import {
   Package,
@@ -15,6 +15,7 @@ import { motion } from "framer-motion";
 import { toast } from "sonner";
 import type { Order, OrderStatus, OrderItem } from "@/lib/types";
 import { reorderOrder } from "@/app/actions/reorder";
+import { cancelOrder } from "@/app/actions/customer";
 
 const REORDER_KEY = "quivo-reorder";
 
@@ -74,6 +75,24 @@ export function OrderCard({
   const totalItems = items.reduce((s, i) => s + i.quantity, 0);
   const router = useRouter();
   const [isReordering, startReorder] = useTransition();
+  const [isCancelling, startCancel] = useTransition();
+  const [confirmingCancel, setConfirmingCancel] = useState(false);
+  // Customers can only cancel before the shop confirms the order — the same
+  // rule the transition_order_status RPC enforces server-side.
+  const canCancel = isActive && order.status === "placed";
+
+  const handleCancel = () => {
+    startCancel(async () => {
+      const res = await cancelOrder(order.id);
+      if (res.error) {
+        toast.error(res.error);
+        return;
+      }
+      toast.success("Order cancelled. Any payment is being refunded.");
+      setConfirmingCancel(false);
+      router.refresh();
+    });
+  };
 
   const handleReorder = () => {
     startReorder(async () => {
@@ -262,7 +281,41 @@ export function OrderCard({
               Reorder
             </button>
           )}
+          {canCancel && !confirmingCancel && (
+            <button
+              onClick={() => setConfirmingCancel(true)}
+              disabled={isCancelling}
+              className="flex-1 rounded-full border border-red-200 py-2.5 text-xs font-semibold text-red-500 transition hover:bg-red-50 active:scale-95 disabled:opacity-50"
+            >
+              Cancel order
+            </button>
+          )}
         </div>
+
+        {/* Two-step cancel confirm — only while the order is still 'placed' */}
+        {canCancel && confirmingCancel && (
+          <div className="mt-2.5 rounded-2xl border border-red-100 bg-red-50/60 p-3">
+            <p className="text-xs font-medium text-red-900">
+              Cancel this order? Items are released and any payment is refunded.
+            </p>
+            <div className="mt-2.5 flex gap-2">
+              <button
+                onClick={() => setConfirmingCancel(false)}
+                disabled={isCancelling}
+                className="flex-1 rounded-full border border-[#2E3344]/10 py-2 text-xs font-semibold text-[#27324A] transition hover:bg-white active:scale-95 disabled:opacity-50"
+              >
+                Keep order
+              </button>
+              <button
+                onClick={handleCancel}
+                disabled={isCancelling}
+                className="flex-1 rounded-full bg-red-600 py-2 text-xs font-bold text-white transition hover:bg-red-700 active:scale-95 disabled:opacity-50"
+              >
+                {isCancelling ? "Cancelling…" : "Yes, cancel"}
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Live tracking map — shown when out for delivery */}

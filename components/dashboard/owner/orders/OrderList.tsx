@@ -99,6 +99,8 @@ export function OrderList({ shopId, initialOrders }: OrderListProps) {
   const [orders, setOrders] = useState(initialOrders);
   const [isPending, startTransition] = useTransition();
   const [refundFor, setRefundFor] = useState<RefundOrderContext | null>(null);
+  const [cancelFor, setCancelFor] = useState<Order | null>(null);
+  const [cancelReason, setCancelReason] = useState("");
 
   const buildRefundContext = (order: Order): RefundOrderContext | null => {
     const refundable: RefundableLine[] = (order.items ?? [])
@@ -134,9 +136,22 @@ export function OrderList({ shopId, initialOrders }: OrderListProps) {
     return matchesStatus && matchesSearch;
   });
 
-  const handleStatus = (orderId: string, newStatus: OrderStatus) => {
+  const handleStatus = (
+    orderId: string,
+    newStatus: OrderStatus,
+    expectedStatus: OrderStatus,
+    reason?: string,
+  ) => {
     startTransition(async () => {
-      const result = await updateOrderStatus(orderId, shopId, newStatus);
+      // expectedStatus = the status this row currently shows, so the RPC can
+      // reject the write if the order moved underneath us (optimistic lock).
+      const result = await updateOrderStatus(
+        orderId,
+        shopId,
+        newStatus,
+        expectedStatus,
+        reason,
+      );
       if (result.error) {
         toast.error(result.error);
       } else {
@@ -144,10 +159,19 @@ export function OrderList({ shopId, initialOrders }: OrderListProps) {
           prev.map((o) => (o.id === orderId ? { ...o, status: newStatus } : o)),
         );
         toast.success(
-          `Order ${newStatus === "cancelled" ? "rejected" : "accepted"}.`,
+          newStatus === "cancelled" ? "Order cancelled." : "Order updated.",
         );
       }
     });
+  };
+
+  const submitCancel = () => {
+    if (!cancelFor) return;
+    const target = cancelFor;
+    const reason = cancelReason.trim();
+    setCancelFor(null);
+    setCancelReason("");
+    handleStatus(target.id, "cancelled", target.status, reason || undefined);
   };
 
   return (
@@ -209,7 +233,11 @@ export function OrderList({ shopId, initialOrders }: OrderListProps) {
               ?.map((i: OrderItem) => `${i.name} x${i.quantity ?? i.qty ?? 0}`)
               .join(", ") ?? "";
           const canAccept = order.status === "placed";
-          const canCancel = !["delivered", "cancelled"].includes(order.status);
+          // Owners can cancel only before dispatch; once it's out for delivery
+          // or finalised, the state machine rejects it.
+          const canCancel = ["placed", "confirmed", "packing"].includes(
+            order.status,
+          );
 
           return (
             <div
@@ -259,7 +287,9 @@ export function OrderList({ shopId, initialOrders }: OrderListProps) {
                 {canAccept && (
                   <Button
                     disabled={isPending}
-                    onClick={() => handleStatus(order.id, "confirmed")}
+                    onClick={() =>
+                      handleStatus(order.id, "confirmed", order.status)
+                    }
                     className="flex-1 md:w-40 h-10 rounded-xl bg-[#27324A] hover:bg-[#1b2333] text-white text-xs font-bold"
                   >
                     Accept Order
@@ -268,7 +298,9 @@ export function OrderList({ shopId, initialOrders }: OrderListProps) {
                 {order.status === "confirmed" && (
                   <Button
                     disabled={isPending}
-                    onClick={() => handleStatus(order.id, "packing")}
+                    onClick={() =>
+                      handleStatus(order.id, "packing", order.status)
+                    }
                     className="flex-1 md:w-40 h-10 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold"
                   >
                     Start Packing
@@ -277,7 +309,9 @@ export function OrderList({ shopId, initialOrders }: OrderListProps) {
                 {order.status === "packing" && (
                   <Button
                     disabled={isPending}
-                    onClick={() => handleStatus(order.id, "out_for_delivery")}
+                    onClick={() =>
+                      handleStatus(order.id, "out_for_delivery", order.status)
+                    }
                     className="flex-1 md:w-40 h-10 rounded-xl bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold"
                   >
                     Out for Delivery
@@ -286,7 +320,9 @@ export function OrderList({ shopId, initialOrders }: OrderListProps) {
                 {order.status === "out_for_delivery" && (
                   <Button
                     disabled={isPending}
-                    onClick={() => handleStatus(order.id, "delivered")}
+                    onClick={() =>
+                      handleStatus(order.id, "delivered", order.status)
+                    }
                     className="flex-1 md:w-40 h-10 rounded-xl bg-green-600 hover:bg-green-700 text-white text-xs font-bold"
                   >
                     Mark Delivered
@@ -295,7 +331,10 @@ export function OrderList({ shopId, initialOrders }: OrderListProps) {
                 {canCancel && (
                   <Button
                     disabled={isPending}
-                    onClick={() => handleStatus(order.id, "cancelled")}
+                    onClick={() => {
+                      setCancelReason("");
+                      setCancelFor(order);
+                    }}
                     variant="outline"
                     className="flex-1 md:w-40 h-10 rounded-xl border-[#2E3344]/10 text-red-500 hover:bg-red-50 hover:border-red-200 text-xs font-bold"
                   >
@@ -345,6 +384,51 @@ export function OrderList({ shopId, initialOrders }: OrderListProps) {
             // visually if we want — for now, just close the modal.
           }}
         />
+      )}
+
+      {cancelFor && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+          onClick={() => !isPending && setCancelFor(null)}
+        >
+          <div
+            className="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="text-lg font-black text-[#27324A]">Cancel order</h3>
+            <p className="mt-1 text-sm text-[#746E73]">
+              {cancelFor.order_number} · Rs. {cancelFor.total_amount}. This
+              restocks the items and refunds any paid amount automatically. Tell
+              the customer why.
+            </p>
+            <textarea
+              autoFocus
+              value={cancelReason}
+              onChange={(e) => setCancelReason(e.target.value)}
+              maxLength={500}
+              rows={3}
+              placeholder="Reason for cancellation (e.g. out of stock, shop closed)…"
+              className="mt-4 w-full resize-none rounded-xl border border-[#2E3344]/12 bg-[#f8f8f7] p-3 text-sm outline-none focus:border-[#A7653A]"
+            />
+            <div className="mt-4 flex justify-end gap-2">
+              <Button
+                variant="outline"
+                disabled={isPending}
+                onClick={() => setCancelFor(null)}
+                className="h-10 rounded-xl text-xs font-bold"
+              >
+                Keep order
+              </Button>
+              <Button
+                disabled={isPending || !cancelReason.trim()}
+                onClick={submitCancel}
+                className="h-10 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold"
+              >
+                Cancel order
+              </Button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

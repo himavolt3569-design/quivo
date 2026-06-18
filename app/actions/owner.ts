@@ -7,6 +7,7 @@ import { getSiteUrl, isSafeHttpUrl } from "@/lib/security";
 import { KYC_GRACE_DAYS, sendKycComplianceEmail } from "@/lib/kyc-compliance";
 import { log } from "@/lib/log";
 import { emitBackground } from "@/lib/events/emit";
+import { orderTransitionError } from "@/lib/orders";
 import {
   OptionalPhoneSchema,
   OptionalEmailSchema,
@@ -909,22 +910,37 @@ export async function updateOrderStatus(
   orderId: string,
   shopId: string,
   status: (typeof OrderStatusValues)[number],
+  expectedStatus?: (typeof OrderStatusValues)[number] | null,
+  reason?: string | null,
 ) {
   const oidParse = ShopIdSchema.safeParse(orderId);
   const sidParse = ShopIdSchema.safeParse(shopId);
   if (!oidParse.success || !sidParse.success) return { error: "Invalid ID" };
   if (!OrderStatusValues.includes(status)) return { error: "Invalid status" };
+  if (expectedStatus && !OrderStatusValues.includes(expectedStatus))
+    return { error: "Invalid status" };
 
+  // All fulfilment/cancel transitions flow through the payment-aware state
+  // machine, which validates the actor, the transition, payment settlement,
+  // and — on cancellation — atomically restocks + refunds. Direct UPDATEs to
+  // orders.status are rejected by the enforce_order_status_transition trigger.
   const { supabase } = await getAuthUser();
-  const { error } = await supabase
-    .from("orders")
-    .update({ status })
-    .eq("id", oidParse.data)
-    .eq("shop_id", sidParse.data);
+  const { data, error } = await supabase
+    .rpc("transition_order_status", {
+      p_order_id: oidParse.data,
+      p_new_status: status,
+      p_expected_status: expectedStatus ?? null,
+      p_reason: reason ? reason.slice(0, 500) : null,
+    })
+    .maybeSingle<{ status: string; payment_status: string }>();
 
-  if (error) return { error: `Could not update order: ${error.message}` };
+  if (error) return { error: orderTransitionError(error.message) };
   revalidatePath("/dashboard/owner/orders");
-  return { success: true };
+  return {
+    success: true,
+    status: data?.status,
+    paymentStatus: data?.payment_status,
+  };
 }
 
 // ─── Finances ─────────────────────────────────────────────────────────────────
