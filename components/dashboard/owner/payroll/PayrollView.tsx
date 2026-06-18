@@ -160,8 +160,8 @@ export function PayrollView({ shopId, shopName, staff, ratesByStaff }: Props) {
 
   // Intentional data-load-on-dep-change: setLoading/setSummary inside an effect
   // is the canonical pattern for date-range-driven fetches.
-  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     loadSummary();
   }, [loadSummary]);
 
@@ -645,9 +645,7 @@ export function PayrollView({ shopId, shopName, staff, ratesByStaff }: Props) {
               }
               className="mt-1 h-11 rounded-xl"
               // eslint-disable-next-line react-hooks/purity
-              max={toDateInput(
-                new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
-              )}
+              max={toDateInput(new Date(Date.now() + 365 * 24 * 60 * 60 * 1000))}
             />
           </div>
           <div className="sm:col-span-4">
