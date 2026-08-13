@@ -7,6 +7,7 @@ import { getSiteUrl, isSafeHttpUrl } from "@/lib/security";
 import { KYC_GRACE_DAYS, sendKycComplianceEmail } from "@/lib/kyc-compliance";
 import { log } from "@/lib/log";
 import { emitBackground } from "@/lib/events/emit";
+import { orderTransitionError } from "@/lib/orders";
 import {
   OptionalPhoneSchema,
   OptionalEmailSchema,
@@ -155,8 +156,8 @@ export async function createShop(formData: FormData) {
       p_logo_url: data.logo_url ?? null,
       p_pan_document_url: data.pan_document_url ?? null,
       p_subdomain: data.subdomain ?? null,
-      p_opening_time: data.opening_time ?? null,
-      p_closing_time: data.closing_time ?? null,
+      p_opening_time: data.opening_time ? `${data.opening_time}:00` : null,
+      p_closing_time: data.closing_time ? `${data.closing_time}:00` : null,
       p_site_origin: getSiteUrl(),
       p_verification_status: "unverified",
       p_kyc_confidence: null,
@@ -907,24 +908,31 @@ const OrderStatusValues = [
 
 export async function updateOrderStatus(
   orderId: string,
-  shopId: string,
   status: (typeof OrderStatusValues)[number],
+  expectedStatus?: (typeof OrderStatusValues)[number],
+  reason?: string,
 ) {
   const oidParse = ShopIdSchema.safeParse(orderId);
-  const sidParse = ShopIdSchema.safeParse(shopId);
-  if (!oidParse.success || !sidParse.success) return { error: "Invalid ID" };
+  if (!oidParse.success) return { error: "Invalid ID" };
   if (!OrderStatusValues.includes(status)) return { error: "Invalid status" };
 
   const { supabase } = await getAuthUser();
-  const { error } = await supabase
-    .from("orders")
-    .update({ status })
-    .eq("id", oidParse.data)
-    .eq("shop_id", sidParse.data);
+  const { data, error } = await supabase
+    .rpc("transition_order_status", {
+      p_order_id: oidParse.data,
+      p_new_status: status,
+      p_expected_status: expectedStatus ?? null,
+      p_reason: reason ?? null,
+    })
+    .maybeSingle<{ status: string; payment_status: string }>();
 
-  if (error) return { error: `Could not update order: ${error.message}` };
+  if (error) return { error: orderTransitionError(error.message) };
   revalidatePath("/dashboard/owner/orders");
-  return { success: true };
+  return {
+    success: true as const,
+    status: data?.status,
+    paymentStatus: data?.payment_status,
+  };
 }
 
 // ─── Finances ─────────────────────────────────────────────────────────────────
@@ -1028,8 +1036,8 @@ export async function updateShopSettings(shopId: string, formData: FormData) {
     name: parse.data.name,
     description: parse.data.description ?? null,
     phone: parse.data.phone ?? null,
-    opening_time: parse.data.opening_time ?? null,
-    closing_time: parse.data.closing_time ?? null,
+    opening_time: parse.data.opening_time ? `${parse.data.opening_time}:00` : null,
+    closing_time: parse.data.closing_time ? `${parse.data.closing_time}:00` : null,
   };
   if (parse.data.vat_registered !== undefined)
     update.vat_registered = parse.data.vat_registered;

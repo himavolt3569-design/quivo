@@ -302,7 +302,7 @@ export function DayEndView({
             className="w-full h-12 rounded-xl bg-[#27324A] hover:bg-[#1b2333] text-white font-bold flex items-center justify-center gap-2 disabled:opacity-40"
           >
             {isPending ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
+              <Loader2 className="h-4 w-4 hidden" />
             ) : (
               <StopCircle className="h-4 w-4" />
             )}
@@ -352,7 +352,7 @@ export function DayEndView({
             className="w-full h-12 rounded-xl bg-[#27324A] hover:bg-[#1b2333] text-white font-bold flex items-center justify-center gap-2 disabled:opacity-40"
           >
             {isPending ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
+              <Loader2 className="h-4 w-4 hidden" />
             ) : (
               <PlayCircle className="h-4 w-4" />
             )}

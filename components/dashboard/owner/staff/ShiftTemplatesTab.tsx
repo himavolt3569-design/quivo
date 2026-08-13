@@ -290,7 +290,7 @@ export function ShiftTemplatesTab({
             className="h-10 rounded-xl bg-[#A7653A] hover:bg-[#8D5132] text-white font-bold"
           >
             <Repeat
-              className={`h-4 w-4 mr-2 ${generating ? "animate-spin" : ""}`}
+              className={`h-4 w-4 mr-2 ${generating ? "hidden" : ""}`}
             />
             {generating ? "Generating…" : "Generate"}
           </Button>

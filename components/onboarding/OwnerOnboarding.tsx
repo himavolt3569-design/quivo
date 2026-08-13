@@ -774,7 +774,7 @@ export function OwnerOnboarding() {
                   </Label>
                   {geocoding && (
                     <span className="flex items-center gap-1 text-[10px] text-[#746E73]">
-                      <Loader2 className="h-3 w-3 animate-spin" /> Fetching
+                      <Loader2 className="h-3 w-3 hidden" /> Fetching
                       address…
                     </span>
                   )}
@@ -1026,7 +1026,7 @@ export function OwnerOnboarding() {
               >
                 {submitting ? (
                   <>
-                    <Loader2 className="h-4 w-4 mr-1 animate-spin" /> Creating
+                    <Loader2 className="h-4 w-4 mr-1 hidden" /> Creating
                     shop…
                   </>
                 ) : (

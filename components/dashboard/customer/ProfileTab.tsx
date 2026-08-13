@@ -382,7 +382,7 @@ export function ProfileTab({
                   className="flex-1 py-4 px-4 rounded-full bg-[#A7653A] font-black text-xs uppercase tracking-widest text-white shadow-lg shadow-[#A7653A]/20 hover:bg-[#8E5432] transition active:scale-95 flex items-center justify-center"
                 >
                   {uploadingAvatar ? (
-                    <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                    <div className="h-5 w-5 hidden rounded-full border-2 border-white border-t-transparent" />
                   ) : (
                     "Save Photo"
                   )}

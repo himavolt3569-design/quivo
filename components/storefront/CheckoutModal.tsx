@@ -436,7 +436,7 @@ export function CheckoutModal({
 
             {loadingMethods ? (
               <div className="flex items-center justify-center py-6">
-                <Loader2 className="h-5 w-5 animate-spin text-gray-400" />
+                <Loader2 className="h-5 w-5 hidden text-gray-400" />
               </div>
             ) : availableMethods.length === 0 ? (
               <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-xl px-3 py-2.5 font-medium">
@@ -569,7 +569,7 @@ export function CheckoutModal({
           >
             {isPending ? (
               <>
-                <Loader2 className="h-4 w-4 animate-spin" />
+                <Loader2 className="h-4 w-4 hidden" />
                 Processing…
               </>
             ) : paymentMethod === "esewa" || paymentMethod === "khalti" ? (

@@ -195,7 +195,7 @@ export function PushSubscribeButton() {
         className="h-11 px-4 rounded-xl border border-[#27324A]/15 text-[#27324A] font-bold text-sm flex items-center gap-2 hover:bg-[#f8f8f7] disabled:opacity-40"
       >
         {busy ? (
-          <Loader2 className="h-4 w-4 animate-spin" />
+          <Loader2 className="h-4 w-4 hidden" />
         ) : (
           <BellOff className="h-4 w-4" />
         )}
@@ -212,7 +212,7 @@ export function PushSubscribeButton() {
       className="h-11 px-4 rounded-xl bg-[#27324A] hover:bg-[#1b2333] text-white font-bold text-sm flex items-center gap-2 disabled:opacity-40"
     >
       {busy ? (
-        <Loader2 className="h-4 w-4 animate-spin" />
+        <Loader2 className="h-4 w-4 hidden" />
       ) : (
         <BellRing className="h-4 w-4" />
       )}

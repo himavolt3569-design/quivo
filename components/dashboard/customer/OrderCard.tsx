@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import {
   Package,
@@ -10,11 +10,13 @@ import {
   Truck,
   PartyPopper,
   RotateCcw,
+  X,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 import type { Order, OrderStatus, OrderItem } from "@/lib/types";
 import { reorderOrder } from "@/app/actions/reorder";
+import { cancelOrder } from "@/app/actions/customer";
 
 const REORDER_KEY = "quivo-reorder";
 
@@ -23,7 +25,7 @@ const TrackingMap = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="h-[160px] animate-pulse rounded-xl bg-[#F7F0E6]" />
+      <div className="h-[160px] hidden rounded-xl bg-[#F7F0E6]" />
     ),
   },
 );
@@ -74,6 +76,25 @@ export function OrderCard({
   const totalItems = items.reduce((s, i) => s + i.quantity, 0);
   const router = useRouter();
   const [isReordering, startReorder] = useTransition();
+  const [isCancelling, startCancel] = useTransition();
+  const [confirmingCancel, setConfirmingCancel] = useState(false);
+  const [cancelReason, setCancelReason] = useState("");
+  // Customers can only cancel before the shop confirms the order.
+  const canCancel = order.status === "placed";
+
+  const handleCancel = () => {
+    startCancel(async () => {
+      const res = await cancelOrder(order.id, cancelReason.trim() || undefined);
+      if (res.error) {
+        toast.error(res.error);
+        return;
+      }
+      toast.success("Order cancelled. Any payment will be refunded.");
+      setConfirmingCancel(false);
+      setCancelReason("");
+      router.refresh();
+    });
+  };
 
   const handleReorder = () => {
     startReorder(async () => {
@@ -252,6 +273,14 @@ export function OrderCard({
           >
             View receipt
           </button>
+          {canCancel && (
+            <button
+              onClick={() => setConfirmingCancel(true)}
+              className="flex-1 rounded-full border border-red-200 py-2.5 text-xs font-bold text-red-500 transition hover:bg-red-50 active:scale-95"
+            >
+              Cancel
+            </button>
+          )}
           {(isDelivered || isCancelled) && (
             <button
               onClick={handleReorder}
@@ -279,6 +308,53 @@ export function OrderCard({
             deliveryLat={deliveryLat ?? null}
             deliveryLng={deliveryLng ?? null}
           />
+        </div>
+      )}
+
+      {/* Cancel confirmation */}
+      {confirmingCancel && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+          <div className="w-full max-w-sm rounded-3xl bg-white p-6 shadow-2xl">
+            <div className="mb-2 flex items-center justify-between">
+              <h3 className="text-base font-black text-[#27324A]">
+                Cancel this order?
+              </h3>
+              <button
+                onClick={() => setConfirmingCancel(false)}
+                className="rounded-full p-1 text-[#746E73] hover:bg-[#F7F0E6]"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+            <p className="text-sm text-[#746E73]">
+              You can only cancel before {order.shop_name} confirms the order.
+              Any payment you made is refunded automatically.
+            </p>
+            <textarea
+              value={cancelReason}
+              onChange={(e) => setCancelReason(e.target.value)}
+              rows={2}
+              maxLength={500}
+              placeholder="Reason (optional)"
+              className="mt-3 w-full resize-none rounded-xl border border-[#2E3344]/12 bg-[#f8f8f7] p-3 text-sm outline-none focus:border-[#A7653A]"
+            />
+            <div className="mt-4 flex gap-3">
+              <button
+                disabled={isCancelling}
+                onClick={() => setConfirmingCancel(false)}
+                className="flex-1 rounded-full border border-[#2E3344]/10 py-2.5 text-xs font-bold text-[#27324A] transition hover:bg-[#F7F0E6]"
+              >
+                Keep order
+              </button>
+              <button
+                disabled={isCancelling}
+                onClick={handleCancel}
+                className="flex-1 rounded-full bg-red-500 py-2.5 text-xs font-bold text-white transition hover:bg-red-600 disabled:opacity-50"
+              >
+                {isCancelling ? "Cancelling…" : "Cancel order"}
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </motion.div>

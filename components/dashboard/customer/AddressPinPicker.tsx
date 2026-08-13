@@ -250,7 +250,7 @@ export function AddressPinPicker({
       >
         <div className="flex items-center gap-2 px-3 py-2.5">
           {searching ? (
-            <span className="h-4 w-4 flex-shrink-0 animate-spin rounded-full border-2 border-[#A7653A] border-t-transparent" />
+            <span className="h-4 w-4 flex-shrink-0 hidden rounded-full border-2 border-[#A7653A] border-t-transparent" />
           ) : (
             <Search className="h-4 w-4 flex-shrink-0 text-[#746E73]" />
           )}

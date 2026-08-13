@@ -583,7 +583,7 @@ export function StaffList({ shopId, initialStaff }: StaffListProps) {
               >
                 {uploading ? (
                   <>
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    <Loader2 className="h-4 w-4 mr-2 hidden" />
                     Uploading…
                   </>
                 ) : isPending ? (

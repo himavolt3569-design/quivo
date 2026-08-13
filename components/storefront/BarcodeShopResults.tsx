@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import {
   MapPin,
@@ -13,6 +13,7 @@ import {
   LocateFixed,
   ChevronRight,
   ScanBarcode,
+  RotateCcw,
 } from "lucide-react";
 import {
   findShopsByBarcode,
@@ -64,6 +65,7 @@ export function BarcodeShopResults({
     initialMatches ?? [],
   );
   const [loading, setLoading] = useState(!initialMatches);
+  const [error, setError] = useState(false);
   const [locState, setLocState] = useState<LocState>("idle");
   const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(
     null,
@@ -71,12 +73,22 @@ export function BarcodeShopResults({
   const [radiusIndex, setRadiusIndex] = useState(DEFAULT_RADIUS_INDEX);
   const [category, setCategory] = useState<string | null>(null);
 
+  // Monotonic request token: only the newest in-flight fetch is allowed to
+  // commit, so overlapping mount/geolocation/radius requests can't clobber
+  // each other (last-arrival-wins would otherwise desync the spinner + list).
+  const reqId = useRef(0);
+  // Latest selected radius, readable from the async geolocation callback
+  // without capturing a stale value.
+  const radiusKmRef = useRef<number | null>(RADIUS_OPTIONS[radiusIndex].km);
+
   const fetchMatches = useCallback(
     async (
       c: { lat: number; lng: number } | null,
       radiusKm: number | null,
     ) => {
+      const myReq = ++reqId.current;
       setLoading(true);
+      setError(false);
       // Radius only meaningful when we know where the customer is.
       const res = await findShopsByBarcode(
         barcode,
@@ -84,8 +96,13 @@ export function BarcodeShopResults({
         c?.lng ?? null,
         c ? radiusKm : null,
       );
+      if (myReq !== reqId.current) return; // a newer request superseded us
       setLoading(false);
-      if (res.matches) setMatches(res.matches);
+      if (res.error) {
+        setError(true);
+        return;
+      }
+      setMatches(res.matches ?? []);
     },
     [barcode],
   );
@@ -101,7 +118,7 @@ export function BarcodeShopResults({
         const c = { lat: pos.coords.latitude, lng: pos.coords.longitude };
         setCoords(c);
         setLocState("granted");
-        fetchMatches(c, RADIUS_OPTIONS[radiusIndex].km);
+        fetchMatches(c, radiusKmRef.current);
       },
       (err) => {
         setLocState(
@@ -110,7 +127,7 @@ export function BarcodeShopResults({
       },
       { enableHighAccuracy: true, timeout: 8000, maximumAge: 60000 },
     );
-  }, [fetchMatches, radiusIndex]);
+  }, [fetchMatches]);
 
   // Initial load: paint server data (or fetch unscoped), then ask for location.
   // Deferred to a microtask so we don't call setState synchronously in render.
@@ -125,6 +142,7 @@ export function BarcodeShopResults({
 
   const handleRadiusChange = (index: number) => {
     setRadiusIndex(index);
+    radiusKmRef.current = RADIUS_OPTIONS[index].km;
     fetchMatches(coords, RADIUS_OPTIONS[index].km);
   };
 
@@ -134,8 +152,14 @@ export function BarcodeShopResults({
       matches.map((m) => m.shopCategory).filter((c): c is string => !!c),
     ),
   );
-  const visible = category
-    ? matches.filter((m) => m.shopCategory === category)
+
+  // Ignore a selected category that no longer exists after a re-query (e.g.
+  // shrinking the radius dropped the only Pharmacy nearby) — derived rather
+  // than stored so we never strand the user on an empty filter.
+  const activeCategory =
+    category && categories.includes(category) ? category : null;
+  const visible = activeCategory
+    ? matches.filter((m) => m.shopCategory === activeCategory)
     : matches;
 
   const radiusLabel = RADIUS_OPTIONS[radiusIndex].label;
@@ -171,7 +195,7 @@ export function BarcodeShopResults({
         >
           <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-[#A7653A]/10 text-[#A7653A]">
             {locState === "loading" ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
+              <Loader2 className="h-4 w-4 hidden" />
             ) : (
               <LocateFixed className="h-4 w-4" />
             )}
@@ -223,7 +247,7 @@ export function BarcodeShopResults({
           <button
             onClick={() => setCategory(null)}
             className={`rounded-full px-3.5 py-1.5 text-xs font-bold capitalize transition ${
-              category === null
+              activeCategory === null
                 ? "bg-[#27324A] text-white"
                 : "bg-white text-[#27324A] border border-[#2E3344]/10"
             }`}
@@ -235,7 +259,7 @@ export function BarcodeShopResults({
               key={c}
               onClick={() => setCategory(c)}
               className={`rounded-full px-3.5 py-1.5 text-xs font-bold capitalize transition ${
-                category === c
+                activeCategory === c
                   ? "bg-[#27324A] text-white"
                   : "bg-white text-[#27324A] border border-[#2E3344]/10"
               }`}
@@ -249,8 +273,23 @@ export function BarcodeShopResults({
       {/* Results */}
       {loading ? (
         <div className="flex items-center justify-center gap-2 py-16 text-[#746E73]">
-          <Loader2 className="h-5 w-5 animate-spin" />
+          <Loader2 className="h-5 w-5 hidden" />
           <span className="text-sm font-medium">Checking shop stock…</span>
+        </div>
+      ) : error ? (
+        <div className="rounded-3xl border border-red-200 bg-red-50 py-12 text-center">
+          <p className="font-bold text-red-900">Couldn&apos;t load shops</p>
+          <p className="mx-auto mt-1 max-w-xs text-sm text-red-700/80">
+            Something went wrong while checking shop stock. Please try again.
+          </p>
+          <button
+            onClick={() =>
+              fetchMatches(coords, RADIUS_OPTIONS[radiusIndex].km)
+            }
+            className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-[#27324A] px-4 py-2 text-xs font-bold text-white transition active:scale-95"
+          >
+            <RotateCcw className="h-3.5 w-3.5" /> Try again
+          </button>
         </div>
       ) : visible.length === 0 ? (
         <div className="rounded-3xl border border-[#2E3344]/8 bg-white py-14 text-center">

@@ -166,7 +166,7 @@ export function OfflineSync() {
               className="flex-1 h-10 rounded-xl bg-[#27324A] hover:bg-[#1b2333] text-white font-bold text-xs flex items-center justify-center gap-1 disabled:opacity-40"
             >
               {syncing ? (
-                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                <Loader2 className="h-3.5 w-3.5 hidden" />
               ) : (
                 <RefreshCcw className="h-3.5 w-3.5" />
               )}

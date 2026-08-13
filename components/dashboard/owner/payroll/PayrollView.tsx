@@ -392,7 +392,7 @@ export function PayrollView({ shopId, shopName, staff, ratesByStaff }: Props) {
               aria-label="Refresh"
             >
               <RefreshCw
-                className={`h-4 w-4 ${loading ? "animate-spin" : ""}`}
+                className={`h-4 w-4 ${loading ? "hidden" : ""}`}
               />
             </button>
           </div>

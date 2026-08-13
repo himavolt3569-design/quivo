@@ -255,7 +255,7 @@ export function KYCForm({
           <div className="flex items-center gap-3">
             <div className="h-9 w-9 rounded-xl bg-[#A7653A]/10 flex items-center justify-center shrink-0">
               <RefreshCw
-                className="h-4 w-4 text-[#A7653A] animate-spin"
+                className="h-4 w-4 text-[#A7653A] hidden"
                 style={{ animationDuration: "3s" }}
               />
             </div>
@@ -389,7 +389,7 @@ export function KYCForm({
           >
             {uploading || isPending ? (
               <>
-                <RefreshCw className="h-5 w-5 animate-spin" /> Submitting...
+                <RefreshCw className="h-5 w-5 hidden" /> Submitting...
               </>
             ) : (
               <>

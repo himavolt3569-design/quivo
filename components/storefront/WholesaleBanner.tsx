@@ -44,7 +44,7 @@ export function WholesaleBanner({ wholesalerShopId, retailerShopId, status }: Pr
     return (
       <div className="fixed bottom-0 left-0 right-0 z-40 bg-[#f8f8f7] border-t border-[#2E3344]/10 p-3 shadow-[0_-4px_10px_rgba(0,0,0,0.05)]">
         <div className="max-w-screen-md mx-auto flex items-center justify-center gap-3 text-[#746E73]">
-          <Loader2 className="h-4 w-4 animate-spin" />
+          <Loader2 className="h-4 w-4 hidden" />
           <p className="text-sm font-medium">Your wholesale application is pending approval.</p>
         </div>
       </div>
@@ -72,7 +72,7 @@ export function WholesaleBanner({ wholesalerShopId, retailerShopId, status }: Pr
           disabled={loading}
           className="w-full sm:w-auto shrink-0 bg-[#27324A] hover:bg-[#1f293b] text-white px-6 py-2.5 rounded-xl font-bold text-sm shadow-md transition-all active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2"
         >
-          {loading && <Loader2 className="h-4 w-4 animate-spin" />}
+          {loading && <Loader2 className="h-4 w-4 hidden" />}
           Apply for Wholesale
         </button>
       </div>

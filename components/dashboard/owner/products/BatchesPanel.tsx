@@ -180,7 +180,7 @@ export function BatchesPanel({
             className="sm:col-span-4 h-11 rounded-xl bg-[#A7653A] hover:bg-[#8D5132] text-white font-bold text-sm flex items-center justify-center gap-2 disabled:opacity-40"
           >
             {isPending ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
+              <Loader2 className="h-4 w-4 hidden" />
             ) : (
               <PackagePlus className="h-4 w-4" />
             )}

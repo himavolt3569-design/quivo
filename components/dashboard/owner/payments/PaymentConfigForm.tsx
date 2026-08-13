@@ -335,7 +335,7 @@ export function PaymentConfigForm({ shopId, initial }: Props) {
               className="h-32 w-32 rounded-2xl border-2 border-dashed border-[#2E3344]/10 flex flex-col items-center justify-center gap-1.5 hover:bg-[#f8f8f7]"
             >
               {qrUploading ? (
-                <Loader2 className="h-4 w-4 animate-spin text-gray-400" />
+                <Loader2 className="h-4 w-4 hidden text-gray-400" />
               ) : (
                 <UploadCloud className="h-4 w-4 text-gray-400" />
               )}
@@ -375,7 +375,7 @@ export function PaymentConfigForm({ shopId, initial }: Props) {
         >
           {isPending ? (
             <>
-              <Loader2 className="h-4 w-4 animate-spin" />
+              <Loader2 className="h-4 w-4 hidden" />
               Saving…
             </>
           ) : (

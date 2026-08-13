@@ -166,7 +166,7 @@ export function PendingPaymentsList({ payments }: { payments: PaymentRow[] }) {
                         className="flex-1 h-9 rounded-xl bg-red-600 text-white text-xs font-bold disabled:opacity-50 flex items-center justify-center gap-1.5"
                       >
                         {isPending ? (
-                          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                          <Loader2 className="h-3.5 w-3.5 hidden" />
                         ) : (
                           <XCircle className="h-3.5 w-3.5" />
                         )}
@@ -193,7 +193,7 @@ export function PendingPaymentsList({ payments }: { payments: PaymentRow[] }) {
                       className="h-9 px-3.5 rounded-xl bg-green-600 hover:bg-green-700 text-white text-xs font-bold disabled:opacity-50 inline-flex items-center gap-1.5"
                     >
                       {isPending ? (
-                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                        <Loader2 className="h-3.5 w-3.5 hidden" />
                       ) : (
                         <CheckCircle2 className="h-3.5 w-3.5" />
                       )}

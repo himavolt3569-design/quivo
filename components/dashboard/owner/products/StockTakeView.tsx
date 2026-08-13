@@ -192,7 +192,7 @@ export function StockTakeView({
             className="h-11 px-4 rounded-xl bg-[#27324A] hover:bg-[#1b2333] text-white font-bold text-sm flex items-center gap-2 disabled:opacity-40"
           >
             {isPending ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
+              <Loader2 className="h-4 w-4 hidden" />
             ) : (
               <PlayCircle className="h-4 w-4" />
             )}
@@ -303,7 +303,7 @@ export function StockTakeView({
                               className="h-9 w-24 text-right px-2 border border-[#2E3344]/10 rounded-lg text-sm"
                             />
                             {savingId === p.id && (
-                              <Loader2 className="h-3 w-3 animate-spin text-[#746E73]" />
+                              <Loader2 className="h-3 w-3 hidden text-[#746E73]" />
                             )}
                           </div>
                         </td>

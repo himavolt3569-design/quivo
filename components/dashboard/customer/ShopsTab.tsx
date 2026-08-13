@@ -295,7 +295,7 @@ export function ShopsTab({ shops, retailerShopId }: ShopsTabProps) {
       {/* ── Location Banner ──────────────────────────────────────── */}
       {locState === "loading" && (
         <div className="flex items-center gap-3 rounded-2xl border border-[#2E3344]/10 bg-[#f8f8f7] px-5 py-4">
-          <span className="h-4 w-4 animate-spin rounded-full border-2 border-[#A7653A] border-t-transparent shrink-0" />
+          <span className="h-4 w-4 hidden rounded-full border-2 border-[#A7653A] border-t-transparent shrink-0" />
           <p className="text-sm font-medium text-[#746E73]">
             Getting your location…
           </p>

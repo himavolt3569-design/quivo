@@ -140,7 +140,7 @@ export function OwnerShopSwitcher({
             </div>
           </div>
           {switching ? (
-            <Loader2 className="ml-2 h-4 w-4 shrink-0 animate-spin text-[#A7653A]" />
+            <Loader2 className="ml-2 h-4 w-4 shrink-0 hidden text-[#A7653A]" />
           ) : (
             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50 md:hidden lg:block" />
           )}

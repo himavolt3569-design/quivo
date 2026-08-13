@@ -6,6 +6,7 @@ import { z } from "zod";
 import { nanoid } from "nanoid";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { isSafeHttpUrl } from "@/lib/security";
+import { orderTransitionError } from "@/lib/orders";
 import { OptionalPhoneSchema, OptionalShortText } from "@/lib/validation";
 
 const COVER_GRADIENTS = [
@@ -522,60 +523,6 @@ export async function updateProfile(formData: FormData) {
 
 // ─── Barcode lookup ───────────────────────────────────────────────────────────
 
-export interface ScannedProduct {
-  id: string;
-  name: string;
-  price: number;
-  stock: number;
-  shopName: string;
-  shopSlug: string;
-  image: string | null;
-  barcode: string;
-  isAvailable: boolean;
-}
-
-export async function lookupProductByBarcode(
-  barcode: string,
-): Promise<{ product?: ScannedProduct; error?: string }> {
-  const trimmed = barcode.trim();
-  if (!trimmed) return {};
-
-  const supabase = await createClient();
-  // get_product_by_barcode is a public RPC (granted to anon + authenticated)
-  const { data, error } = await supabase
-    .rpc("get_product_by_barcode", { p_barcode: trimmed })
-    .limit(1)
-    .maybeSingle<{
-      product_id: string;
-      shop_name: string;
-      shop_slug: string;
-      name: string;
-      price: number;
-      stock: number;
-      image_url: string | null;
-      images: string[] | null;
-      barcode: string;
-      is_available: boolean;
-    }>();
-
-  if (error) return { error: error.message };
-  if (!data) return {};
-
-  return {
-    product: {
-      id: data.product_id,
-      name: data.name,
-      price: data.price,
-      stock: data.stock,
-      shopName: data.shop_name,
-      shopSlug: data.shop_slug,
-      image: data.images?.[0] ?? data.image_url ?? null,
-      barcode: data.barcode,
-      isAvailable: data.is_available,
-    },
-  };
-}
-
 export interface BarcodeShopMatch {
   productId: string;
   shopId: string;
@@ -679,6 +626,40 @@ export async function findShopsByBarcode(
       distanceKm: r.distance_km != null ? Number(r.distance_km) : null,
     })),
   };
+}
+
+// ─── Orders ───────────────────────────────────────────────────────────────────
+
+/**
+ * Customer-initiated cancellation. The transition RPC enforces that a customer
+ * may only cancel while the order is still 'placed' (before the shop confirms),
+ * and atomically restocks + refunds. Returns a friendly error otherwise.
+ */
+export async function cancelOrder(
+  orderId: string,
+  reason?: string,
+): Promise<{ success?: true; error?: string }> {
+  const parse = z.string().uuid().safeParse(orderId);
+  if (!parse.success) return { error: "Invalid order." };
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { error: "Sign in required." };
+
+  const { error } = await supabase
+    .rpc("transition_order_status", {
+      p_order_id: parse.data,
+      p_new_status: "cancelled",
+      p_expected_status: "placed",
+      p_reason: reason?.trim() ? reason.trim().slice(0, 500) : null,
+    })
+    .maybeSingle();
+
+  if (error) return { error: orderTransitionError(error.message) };
+  revalidatePath("/dashboard/orders");
+  return { success: true };
 }
 
 export interface ChatShop {

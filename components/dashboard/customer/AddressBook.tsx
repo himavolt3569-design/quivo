@@ -30,7 +30,7 @@ const AddressPinPicker = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="h-[200px] animate-pulse rounded-xl bg-[#F7F0E6]" />
+      <div className="h-[200px] hidden rounded-xl bg-[#F7F0E6]" />
     ),
   },
 );
@@ -40,7 +40,7 @@ const AddressOverviewMap = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="h-[200px] animate-pulse rounded-t-2xl bg-[#F7F0E6]" />
+      <div className="h-[200px] hidden rounded-t-2xl bg-[#F7F0E6]" />
     ),
   },
 );
@@ -418,7 +418,7 @@ export function AddressBook({ addresses, onChange }: AddressBookProps) {
               Address *
               {form.geocoding && (
                 <span className="flex items-center gap-1 font-normal text-[#A7653A]">
-                  <span className="inline-block h-3 w-3 animate-spin rounded-full border-2 border-[#A7653A] border-t-transparent" />
+                  <span className="inline-block h-3 w-3 hidden rounded-full border-2 border-[#A7653A] border-t-transparent" />
                   Fetching address…
                 </span>
               )}

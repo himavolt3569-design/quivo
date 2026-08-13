@@ -320,7 +320,7 @@ export function StockTransferView({
             className="h-11 px-4 rounded-xl bg-[#27324A] hover:bg-[#1b2333] text-white font-bold text-sm flex items-center gap-2 disabled:opacity-40"
           >
             {isPending ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
+              <Loader2 className="h-4 w-4 hidden" />
             ) : (
               <Plus className="h-4 w-4" />
             )}
