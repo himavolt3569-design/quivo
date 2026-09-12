@@ -8,6 +8,7 @@ import { KYC_GRACE_DAYS, sendKycComplianceEmail } from "@/lib/kyc-compliance";
 import { log } from "@/lib/log";
 import { emitBackground } from "@/lib/events/emit";
 import { prisma } from "@/lib/prisma";
+import { randomBytes } from "crypto";
 import {
   OptionalPhoneSchema,
   OptionalEmailSchema,
@@ -140,7 +141,7 @@ export async function createShop(formData: FormData) {
   let qrTargetUrl: string;
 
   try {
-    const result = await prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async (tx: any) => {
       const newShop = await tx.shops.create({
         data: {
           name: data.name,
@@ -171,7 +172,7 @@ export async function createShop(formData: FormData) {
         },
       });
 
-      const generatedQrToken = Math.random().toString(16).slice(2, 14); // basic hex
+      const generatedQrToken = randomBytes(16).toString("hex");
       const generatedQrTargetUrl = `${getSiteUrl()}/s/${slug}`;
 
       const qrCode = await tx.shop_qr_codes.create({
@@ -197,7 +198,7 @@ export async function createShop(formData: FormData) {
         role: "owner",
         active_shop_id: shopId,
       },
-    }).catch(e => {
+    }).catch((e: any) => {
       log.error("createShop: could not update profile", { error: e.message });
     });
 
@@ -225,7 +226,7 @@ export async function createShop(formData: FormData) {
         await prisma.shops.update({
           where: { id: shopId },
           data: { kyc_grace_email_sent_at: new Date() },
-        }).catch(e => log.error("createShop: could not mark KYC email sent", { error: e.message }));
+        }).catch((e: any) => log.error("createShop: could not mark KYC email sent", { error: e.message }));
       }
     } catch (err) {
       log.error("createShop: KYC welcome email threw", {
@@ -273,7 +274,7 @@ export async function setActiveShop(shopId: string) {
       status: "active",
     },
     select: { shop_id: true }
-  }).catch(e => {
+  }).catch((e: any) => {
     log.error("setActiveShop: membership check failed", { error: e.message });
     return null; // Will trigger the !member check below
   });
@@ -622,7 +623,7 @@ export async function settleUdhar(
 
     const newBalance = Math.max(0, Number(customer.udhar_balance ?? 0) - amount);
 
-    await prisma.$transaction(async (tx) => {
+    await prisma.$transaction(async (tx: any) => {
       await tx.shop_customers.update({
         where: { id: cidParse.data },
         data: { udhar_balance: newBalance },
@@ -752,7 +753,7 @@ export async function paySupplierDue(
 
     const newBalance = Math.max(0, Number(supplier.balance_due ?? 0) - amount);
 
-    await prisma.$transaction(async (tx) => {
+    await prisma.$transaction(async (tx: any) => {
       await tx.shop_suppliers.update({
         where: { id: sidParse.data },
         data: { balance_due: newBalance },
@@ -822,7 +823,7 @@ export async function recordSupplierLedgerEntry(
             ? `Credit adjustment for ${supplier.name}`
             : `Debit adjustment for ${supplier.name}`;
 
-    await prisma.$transaction(async (tx) => {
+    await prisma.$transaction(async (tx: any) => {
       await tx.shop_suppliers.update({
         where: { id: sidParse.data },
         data: { balance_due: nextBalance },
@@ -1216,7 +1217,7 @@ export async function deleteShop(shopId: string) {
 
     if (!member) return { error: "You must be the shop owner to delete it." };
 
-    await prisma.$transaction(async (tx) => {
+    await prisma.$transaction(async (tx: any) => {
       await tx.profiles.updateMany({
         where: {
           id: user.id,

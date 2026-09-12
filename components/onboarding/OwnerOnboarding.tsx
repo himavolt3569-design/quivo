@@ -32,6 +32,7 @@ import { LogoPicker } from "@/components/onboarding/LogoPicker";
 import { KYCScanner, type KYCStatus } from "@/components/onboarding/KYCScanner";
 import { createClient } from "@/lib/supabase/client";
 import type { PinCoords } from "@/components/dashboard/customer/AddressPinPicker";
+import { DescriptionTemplatesDialog } from "@/components/onboarding/DescriptionTemplatesDialog";
 
 async function reverseGeocodeDetailed(
   lat: number,
@@ -682,9 +683,18 @@ export function OwnerOnboarding() {
               </div>
 
               <div>
-                <Label className="text-[#0F172A] font-bold text-sm">
-                  Description <span className="text-red-500">*</span>
-                </Label>
+                <div className="flex items-center justify-between mb-1.5">
+                  <Label className="text-[#0F172A] font-bold text-sm">
+                    Description <span className="text-red-500">*</span>
+                  </Label>
+                  <DescriptionTemplatesDialog
+                    category={category}
+                    onSelect={(desc) => {
+                      setDescription(desc);
+                      setTouched((p) => ({ ...p, description: true }));
+                    }}
+                  />
+                </div>
                 <Textarea
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}

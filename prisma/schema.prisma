@@ -764,7 +764,7 @@ model orders {
   cancelled_at                     DateTime?              @db.Timestamptz(6)
   delivery_locations               delivery_locations[]
   order_status_history             order_status_history[]
-  profiles                         profiles?              @relation(fields: [customer_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_orders_profiles")
+  users_orders_customer_idTousers  profiles?              @relation("orders_customer_idTousers", fields: [customer_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_orders_profiles")
   users_orders_cancelled_byTousers users?                 @relation("orders_cancelled_byTousers", fields: [cancelled_by], references: [id], onUpdate: NoAction)
   users_orders_customer_idTousers  users?                 @relation("orders_customer_idTousers", fields: [customer_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
   promo_codes                      promo_codes?           @relation(fields: [promo_code_id], references: [id], onUpdate: NoAction)
@@ -939,22 +939,22 @@ model products {
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model profiles {
-  id              String         @id @db.Uuid
-  email           String         @unique
-  full_name       String?
-  created_at      DateTime       @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamptz(6)
-  avatar_url      String?
-  cover_color     String?
-  wallet_balance  Decimal        @default(0) @db.Decimal(10, 2)
-  quivo_coins     Int            @default(0)
-  font_size       String?        @default("standard")
-  role            String         @default("customer")
-  active_shop_id  String?        @db.Uuid
-  owner_font_size String?        @default("standard")
-  orders          orders[]
-  shops           shops?         @relation(fields: [active_shop_id], references: [id], onUpdate: NoAction)
-  users           users          @relation(fields: [id], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  shop_members    shop_members[]
+  id                                       String         @id @db.Uuid
+  email                                    String         @unique
+  full_name                                String?
+  created_at                               DateTime       @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamptz(6)
+  avatar_url                               String?
+  cover_color                              String?
+  wallet_balance                           Decimal        @default(0) @db.Decimal(10, 2)
+  quivo_coins                              Int            @default(0)
+  font_size                                String?        @default("standard")
+  role                                     String         @default("customer")
+  active_shop_id                           String?        @db.Uuid
+  owner_font_size                          String?        @default("standard")
+  orders_orders_customer_idTousers         orders[]       @relation("orders_customer_idTousers")
+  shops                                    shops?         @relation(fields: [active_shop_id], references: [id], onUpdate: NoAction)
+  users                                    users          @relation(fields: [id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  shop_members_shop_members_user_idTousers shop_members[] @relation("shop_members_user_idTousers")
 
   @@schema("public")
 }
@@ -1244,7 +1244,7 @@ model shop_members {
   invited_by                           String?  @db.Uuid
   status                               String   @default("active")
   joined_at                            DateTime @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamptz(6)
-  profiles                             profiles @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_shop_members_profiles")
+  users_shop_members_user_idTousers    profiles @relation("shop_members_user_idTousers", fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_shop_members_profiles")
   users_shop_members_invited_byTousers users?   @relation("shop_members_invited_byTousers", fields: [invited_by], references: [id], onUpdate: NoAction)
   shops                                shops    @relation(fields: [shop_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
   users_shop_members_user_idTousers    users    @relation("shop_members_user_idTousers", fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
