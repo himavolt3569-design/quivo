@@ -48,8 +48,8 @@ interface ProfileTabProps {
 }
 
 const COVER_GRADIENTS = [
-  "from-[#A7653A] via-[#D8C99A] to-[#B76E42]", // Default
-  "from-[#27324A] via-[#4A5E82] to-[#1B2030]", // Blue/Navy
+  "from-[#3B82F6] via-[#D8C99A] to-[#B76E42]", // Default
+  "from-[#0F172A] via-[#4A5E82] to-[#1B2030]", // Blue/Navy
   "from-[#626A54] via-[#8F987D] to-[#464D3B]", // Green/Sage
   "from-[#8D5132] via-[#B8714B] to-[#5C331F]", // Rust/Brown
   "from-[#E8E3D1] via-[#FFFFFF] to-[#D5CDBD]", // Light
@@ -322,14 +322,14 @@ export function ProfileTab({
       {/* ── Avatar Cropping Modal Overlay ──────────────────────────── */}
       {cropImage && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-          <div className="bg-[#f8f8f7] rounded-[2.5rem] w-full max-w-md overflow-hidden shadow-2xl flex flex-col border border-[#2E3344]/10">
-            <div className="p-6 border-b border-[#2E3344]/8 flex items-center justify-between bg-white">
-              <h3 className="font-bold text-[#27324A] text-lg">
+          <div className="bg-[#f8f8f7] rounded-[2.5rem] w-full max-w-md overflow-hidden shadow-2xl flex flex-col border border-[#1E293B]/10">
+            <div className="p-6 border-b border-[#1E293B]/8 flex items-center justify-between bg-white">
+              <h3 className="font-bold text-[#0F172A] text-lg">
                 Adjust Profile Photo
               </h3>
               <button
                 onClick={() => setCropImage(null)}
-                className="p-2 rounded-full hover:bg-[#F7F0E6] text-[#746E73] transition"
+                className="p-2 rounded-full hover:bg-[#F8FAFC] text-[#746E73] transition"
                 disabled={uploadingAvatar}
               >
                 <X className="h-5 w-5" />
@@ -363,7 +363,7 @@ export function ProfileTab({
                   step={0.1}
                   aria-labelledby="Zoom"
                   onChange={(e) => setZoom(Number(e.target.value))}
-                  className="w-full h-1.5 bg-[#F7F0E6] rounded-lg appearance-none cursor-pointer accent-[#A7653A]"
+                  className="w-full h-1.5 bg-[#F8FAFC] rounded-lg appearance-none cursor-pointer accent-[#3B82F6]"
                   disabled={uploadingAvatar}
                 />
               </div>
@@ -372,14 +372,14 @@ export function ProfileTab({
                 <button
                   onClick={() => setCropImage(null)}
                   disabled={uploadingAvatar}
-                  className="flex-1 py-4 px-4 rounded-full border border-[#2E3344]/12 font-bold text-xs uppercase tracking-widest text-[#746E73] hover:bg-[#F7F0E6] transition active:scale-95"
+                  className="flex-1 py-4 px-4 rounded-full border border-[#1E293B]/12 font-bold text-xs uppercase tracking-widest text-[#746E73] hover:bg-[#F8FAFC] transition active:scale-95"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleUploadAvatar}
                   disabled={uploadingAvatar}
-                  className="flex-1 py-4 px-4 rounded-full bg-[#A7653A] font-black text-xs uppercase tracking-widest text-white shadow-lg shadow-[#A7653A]/20 hover:bg-[#8E5432] transition active:scale-95 flex items-center justify-center"
+                  className="flex-1 py-4 px-4 rounded-full bg-[#3B82F6] font-black text-xs uppercase tracking-widest text-white shadow-lg shadow-[#3B82F6]/20 hover:bg-[#8E5432] transition active:scale-95 flex items-center justify-center"
                 >
                   {uploadingAvatar ? (
                     <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
@@ -394,7 +394,7 @@ export function ProfileTab({
       )}
 
       {/* ── Super Minimal Profile Header ───────────────────────────── */}
-      <div className="relative rounded-[2.5rem] overflow-hidden bg-white border border-[#2E3344]/8 shadow-sm">
+      <div className="relative rounded-[2.5rem] overflow-hidden bg-white border border-[#1E293B]/8 shadow-sm">
         {/* Slim Cover Banner */}
         <div
           className={`h-24 sm:h-32 w-full bg-gradient-to-r ${coverGradient} relative transition-all duration-700`}
@@ -424,7 +424,7 @@ export function ProfileTab({
 
           {/* Color Picker Dropdown */}
           {showColorPicker && (
-            <div className="absolute top-14 right-4 z-30 bg-white rounded-2xl shadow-xl p-2 border border-[#2E3344]/10 animate-in fade-in zoom-in duration-200">
+            <div className="absolute top-14 right-4 z-30 bg-white rounded-2xl shadow-xl p-2 border border-[#1E293B]/10 animate-in fade-in zoom-in duration-200">
               <div className="flex flex-col gap-1.5">
                 {COVER_GRADIENTS.map((gradient, idx) => (
                   <button
@@ -432,7 +432,7 @@ export function ProfileTab({
                     onClick={() => handleSaveCoverColor(gradient)}
                     className={`h-8 w-24 rounded-lg bg-gradient-to-r ${gradient} relative shadow-inner overflow-hidden border-2 transition ${
                       coverGradient === gradient
-                        ? "border-[#27324A]"
+                        ? "border-[#0F172A]"
                         : "border-transparent hover:scale-105"
                     }`}
                   >
@@ -452,11 +452,11 @@ export function ProfileTab({
         <div className="px-6 py-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-4">
             {/* Minimal Avatar */}
-            <div className="relative h-14 w-14 sm:h-16 sm:w-16 rounded-2xl bg-white p-1 shadow-md border border-[#2E3344]/5 flex-shrink-0">
+            <div className="relative h-14 w-14 sm:h-16 sm:w-16 rounded-2xl bg-white p-1 shadow-md border border-[#1E293B]/5 flex-shrink-0">
               <button
                 onClick={() => fileInputRef.current?.click()}
                 disabled={uploadingAvatar}
-                className="group relative h-full w-full block rounded-xl overflow-hidden bg-[#27324A]"
+                className="group relative h-full w-full block rounded-xl overflow-hidden bg-[#0F172A]"
               >
                 {avatarUrl ? (
                   <img
@@ -494,11 +494,11 @@ export function ProfileTab({
                       if (e.key === "Enter") handleSaveName();
                       if (e.key === "Escape") setEditingName(false);
                     }}
-                    className="w-40 sm:w-56 rounded-xl border border-[#A7653A]/30 bg-[#F7F0E6]/30 px-3 py-1.5 text-sm font-bold text-[#27324A] outline-none focus:ring-2 focus:ring-[#A7653A]/20 shadow-sm"
+                    className="w-40 sm:w-56 rounded-xl border border-[#3B82F6]/30 bg-[#F8FAFC]/30 px-3 py-1.5 text-sm font-bold text-[#0F172A] outline-none focus:ring-2 focus:ring-[#3B82F6]/20 shadow-sm"
                   />
                   <button
                     onClick={handleSaveName}
-                    className="text-[10px] font-black uppercase text-[#A7653A] hover:underline"
+                    className="text-[10px] font-black uppercase text-[#3B82F6] hover:underline"
                   >
                     Save
                   </button>
@@ -506,12 +506,12 @@ export function ProfileTab({
               ) : (
                 <div className="flex flex-col">
                   <div className="flex items-center gap-2">
-                    <h2 className="text-lg sm:text-xl font-black tracking-tight text-[#27324A] truncate">
+                    <h2 className="text-lg sm:text-xl font-black tracking-tight text-[#0F172A] truncate">
                       {profile?.full_name ?? "User"}
                     </h2>
                     <button
                       onClick={() => setEditingName(true)}
-                      className="text-[#746E73] hover:text-[#A7653A] transition"
+                      className="text-[#746E73] hover:text-[#3B82F6] transition"
                     >
                       <Edit2 className="h-3 w-3" />
                     </button>
@@ -525,13 +525,13 @@ export function ProfileTab({
           </div>
 
           <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-            <div className="flex items-center gap-2 bg-[#F7F0E6] px-3 py-1.5 rounded-full border border-[#2E3344]/5">
-              <Clock className="h-3 w-3 text-[#A7653A]" />
-              <p className="text-[10px] font-black text-[#A7653A] uppercase tracking-widest">
+            <div className="flex items-center gap-2 bg-[#F8FAFC] px-3 py-1.5 rounded-full border border-[#1E293B]/5">
+              <Clock className="h-3 w-3 text-[#3B82F6]" />
+              <p className="text-[10px] font-black text-[#3B82F6] uppercase tracking-widest">
                 Joined: {memberSince}
               </p>
             </div>
-            <p className="text-[10px] font-black text-[#746E73] bg-white border border-[#2E3344]/8 px-3 py-1.5 rounded-full uppercase tracking-widest shadow-sm">
+            <p className="text-[10px] font-black text-[#746E73] bg-white border border-[#1E293B]/8 px-3 py-1.5 rounded-full uppercase tracking-widest shadow-sm">
               ID: {user.id.slice(0, 8)}
             </p>
           </div>
@@ -545,30 +545,30 @@ export function ProfileTab({
           {/* Your Community Bento */}
           <div
             onClick={() => router.push("/dashboard/saved")}
-            className="rounded-[2.5rem] border border-[#2E3344]/8 bg-white p-7 shadow-sm group cursor-pointer hover:border-[#A7653A]/20 transition-all active:scale-[0.98]"
+            className="rounded-[2.5rem] border border-[#1E293B]/8 bg-white p-7 shadow-sm group cursor-pointer hover:border-[#3B82F6]/20 transition-all active:scale-[0.98]"
           >
             <div className="relative z-10">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="grid h-10 w-10 place-items-center rounded-xl bg-[#F7F0E6] text-[#A7653A]">
+                  <div className="grid h-10 w-10 place-items-center rounded-xl bg-[#F8FAFC] text-[#3B82F6]">
                     <Store className="h-5 w-5" />
                   </div>
                   <h3 className="text-xs font-black uppercase tracking-widest text-[#8D5132]">
                     Local Network
                   </h3>
                 </div>
-                <ChevronDown className="h-4 w-4 -rotate-90 text-[#746E73] group-hover:text-[#A7653A] transition-colors" />
+                <ChevronDown className="h-4 w-4 -rotate-90 text-[#746E73] group-hover:text-[#3B82F6] transition-colors" />
               </div>
               <div className="mt-5 flex items-end justify-between">
                 <div>
-                  <p className="text-3xl font-black text-[#27324A]">
+                  <p className="text-3xl font-black text-[#0F172A]">
                     {savedShopCount}
                   </p>
                   <p className="text-sm font-bold text-[#746E73] mt-0.5">
                     Favorite Shops
                   </p>
                 </div>
-                <span className="text-[10px] font-black uppercase tracking-widest text-[#A7653A] bg-[#F7F0E6] px-3 py-1.5 rounded-full">
+                <span className="text-[10px] font-black uppercase tracking-widest text-[#3B82F6] bg-[#F8FAFC] px-3 py-1.5 rounded-full">
                   View Saved
                 </span>
               </div>
@@ -576,9 +576,9 @@ export function ProfileTab({
           </div>
 
           {/* Display Settings Bento */}
-          <div className="rounded-[2.5rem] border border-[#2E3344]/8 bg-white p-7 shadow-sm space-y-6">
+          <div className="rounded-[2.5rem] border border-[#1E293B]/8 bg-white p-7 shadow-sm space-y-6">
             <div className="flex items-center gap-3 px-1">
-              <div className="grid h-10 w-10 place-items-center rounded-xl bg-[#F7F0E6] text-[#A7653A]">
+              <div className="grid h-10 w-10 place-items-center rounded-xl bg-[#F8FAFC] text-[#3B82F6]">
                 <Type className="h-5 w-5" />
               </div>
               <h3 className="text-xs font-black uppercase tracking-widest text-[#8D5132]">
@@ -595,8 +595,8 @@ export function ProfileTab({
                     onClick={() => handleUpdateFontSize(sz.id)}
                     className={`flex-1 py-3 text-[10px] font-black uppercase tracking-wider rounded-xl transition ${
                       customerFontSize === sz.id
-                        ? "bg-white text-[#27324A] shadow-sm"
-                        : "text-[#746E73] hover:text-[#27324A]"
+                        ? "bg-white text-[#0F172A] shadow-sm"
+                        : "text-[#746E73] hover:text-[#0F172A]"
                     }`}
                   >
                     {sz.label}
@@ -612,7 +612,7 @@ export function ProfileTab({
 
           {/* Collapsible Address Section */}
           <div
-            className={`rounded-[2.5rem] border transition-all duration-300 ${showAddresses ? "border-[#A7653A]/20 bg-white shadow-md" : "border-[#2E3344]/8 bg-[#F7F0E6]/30 hover:bg-[#F7F0E6]/50"}`}
+            className={`rounded-[2.5rem] border transition-all duration-300 ${showAddresses ? "border-[#3B82F6]/20 bg-white shadow-md" : "border-[#1E293B]/8 bg-[#F8FAFC]/30 hover:bg-[#F8FAFC]/50"}`}
           >
             <button
               onClick={() => setShowAddresses(!showAddresses)}
@@ -620,12 +620,12 @@ export function ProfileTab({
             >
               <div className="flex items-center gap-4">
                 <div
-                  className={`h-12 w-12 rounded-2xl flex items-center justify-center transition-colors ${showAddresses ? "bg-[#A7653A] text-white" : "bg-white text-[#A7653A] shadow-sm"}`}
+                  className={`h-12 w-12 rounded-2xl flex items-center justify-center transition-colors ${showAddresses ? "bg-[#3B82F6] text-white" : "bg-white text-[#3B82F6] shadow-sm"}`}
                 >
                   <MapPin className="h-6 w-6" />
                 </div>
                 <div className="text-left">
-                  <h3 className="text-base font-black text-[#27324A] uppercase tracking-wider">
+                  <h3 className="text-base font-black text-[#0F172A] uppercase tracking-wider">
                     Saved Addresses
                   </h3>
                   <p className="text-xs font-bold text-[#746E73]">
@@ -634,7 +634,7 @@ export function ProfileTab({
                 </div>
               </div>
               <div
-                className={`h-10 w-10 rounded-full border border-[#2E3344]/8 flex items-center justify-center transition-transform duration-500 ${showAddresses ? "rotate-180 bg-[#27324A] text-white border-transparent" : "bg-white text-[#746E73]"}`}
+                className={`h-10 w-10 rounded-full border border-[#1E293B]/8 flex items-center justify-center transition-transform duration-500 ${showAddresses ? "rotate-180 bg-[#0F172A] text-white border-transparent" : "bg-white text-[#746E73]"}`}
               >
                 <ChevronDown className="h-5 w-5" />
               </div>
@@ -642,7 +642,7 @@ export function ProfileTab({
 
             {showAddresses && (
               <div className="px-7 pb-8 animate-in fade-in slide-in-from-top-2 duration-300">
-                <div className="h-px bg-[#2E3344]/8 mb-6" />
+                <div className="h-px bg-[#1E293B]/8 mb-6" />
                 <AddressBook addresses={addresses} onChange={setAddresses} />
               </div>
             )}
@@ -652,7 +652,7 @@ export function ProfileTab({
         {/* Right Column: Dynamic Content */}
         <div className="space-y-6">
           {/* Notifications Card - Professional Placeholder */}
-          <div className="rounded-[2.5rem] bg-[#27324A] p-7 text-white shadow-xl shadow-[#27324A]/10 relative overflow-hidden group">
+          <div className="rounded-[2.5rem] bg-[#0F172A] p-7 text-white shadow-xl shadow-[#0F172A]/10 relative overflow-hidden group">
             <div className="absolute top-0 right-0 p-6 opacity-[0.05] group-hover:rotate-12 transition-transform">
               <Bell className="h-20 w-20" />
             </div>
@@ -674,7 +674,7 @@ export function ProfileTab({
                       {item.label}
                     </span>
                     <div
-                      className={`h-5 w-9 rounded-full transition-colors relative ${item.active ? "bg-[#A7653A]" : "bg-white/10"}`}
+                      className={`h-5 w-9 rounded-full transition-colors relative ${item.active ? "bg-[#3B82F6]" : "bg-white/10"}`}
                     >
                       <div
                         className={`absolute top-1 h-3 w-3 rounded-full bg-white transition-all ${item.active ? "left-5" : "left-1"}`}
@@ -687,9 +687,9 @@ export function ProfileTab({
           </div>
 
           {/* Security Bento */}
-          <div className="rounded-[2.5rem] border border-[#2E3344]/8 bg-white p-7 shadow-sm space-y-6">
+          <div className="rounded-[2.5rem] border border-[#1E293B]/8 bg-white p-7 shadow-sm space-y-6">
             <div className="flex items-center gap-3 px-1">
-              <div className="grid h-10 w-10 place-items-center rounded-xl bg-[#F7F0E6] text-[#A7653A]">
+              <div className="grid h-10 w-10 place-items-center rounded-xl bg-[#F8FAFC] text-[#3B82F6]">
                 <KeyRound className="h-5 w-5" />
               </div>
               <h3 className="text-xs font-black uppercase tracking-widest text-[#8D5132]">
@@ -699,8 +699,8 @@ export function ProfileTab({
 
             <div className="px-1">
               {isGoogleUser && (
-                <div className="bg-[#F7F0E6]/40 p-4 rounded-2xl border border-[#2E3344]/5 mb-6">
-                  <p className="text-xs font-bold text-[#27324A]">
+                <div className="bg-[#F8FAFC]/40 p-4 rounded-2xl border border-[#1E293B]/5 mb-6">
+                  <p className="text-xs font-bold text-[#0F172A]">
                     Google Connected
                   </p>
                   <p className="text-[10px] text-[#746E73] mt-1 font-medium leading-relaxed">
@@ -722,7 +722,7 @@ export function ProfileTab({
                           type={showPw.current ? "text" : "password"}
                           placeholder="Enter your current password"
                           required
-                          className="w-full px-5 py-3 rounded-2xl bg-[#F7F0E6]/30 border border-[#2E3344]/8 text-sm font-bold text-[#27324A] outline-none focus:ring-2 focus:ring-[#A7653A]/20"
+                          className="w-full px-5 py-3 rounded-2xl bg-[#F8FAFC]/30 border border-[#1E293B]/8 text-sm font-bold text-[#0F172A] outline-none focus:ring-2 focus:ring-[#3B82F6]/20"
                           value={pwForm.current}
                           onChange={(e) =>
                             setPwForm({ ...pwForm, current: e.target.value })
@@ -754,7 +754,7 @@ export function ProfileTab({
                         placeholder="At least 8 characters"
                         required
                         minLength={8}
-                        className="w-full px-5 py-3 rounded-2xl bg-[#F7F0E6]/30 border border-[#2E3344]/8 text-sm font-bold text-[#27324A] outline-none focus:ring-2 focus:ring-[#A7653A]/20"
+                        className="w-full px-5 py-3 rounded-2xl bg-[#F8FAFC]/30 border border-[#1E293B]/8 text-sm font-bold text-[#0F172A] outline-none focus:ring-2 focus:ring-[#3B82F6]/20"
                         value={pwForm.next}
                         onChange={(e) =>
                           setPwForm({ ...pwForm, next: e.target.value })
@@ -784,7 +784,7 @@ export function ProfileTab({
                         type={showPw.confirm ? "text" : "password"}
                         placeholder="Re-enter new password"
                         required
-                        className="w-full px-5 py-3 rounded-2xl bg-[#F7F0E6]/30 border border-[#2E3344]/8 text-sm font-bold text-[#27324A] outline-none focus:ring-2 focus:ring-[#A7653A]/20"
+                        className="w-full px-5 py-3 rounded-2xl bg-[#F8FAFC]/30 border border-[#1E293B]/8 text-sm font-bold text-[#0F172A] outline-none focus:ring-2 focus:ring-[#3B82F6]/20"
                         value={pwForm.confirm}
                         onChange={(e) =>
                           setPwForm({ ...pwForm, confirm: e.target.value })
@@ -796,7 +796,7 @@ export function ProfileTab({
                 <button
                   type="submit"
                   disabled={changingPw}
-                  className="w-full h-12 rounded-full bg-[#27324A] text-white text-xs font-black uppercase tracking-widest hover:bg-[#1a2233] transition disabled:opacity-50"
+                  className="w-full h-12 rounded-full bg-[#0F172A] text-white text-xs font-black uppercase tracking-widest hover:bg-[#1a2233] transition disabled:opacity-50"
                 >
                   {changingPw
                     ? "Updating..."

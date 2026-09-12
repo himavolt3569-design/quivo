@@ -29,7 +29,7 @@ export function DashboardNav({
   return (
     <>
       {/* Desktop tab bar — sticky below the header */}
-      <div className="hidden sm:block sticky top-16 z-30 border-b border-[#2E3344]/8 bg-[#f8f8f7]/90 backdrop-blur-xl">
+      <div className="hidden sm:block sticky top-16 z-30 border-b border-[#1E293B]/8 bg-[#f8f8f7]/90 backdrop-blur-xl">
         <div className="container flex gap-1 px-4 sm:px-6 py-2">
           {TABS.map(({ href, label, Icon }) => {
             const isActive = pathname === href;
@@ -39,14 +39,14 @@ export function DashboardNav({
                 href={href}
                 className={`flex items-center gap-2 px-5 py-2.5 rounded-[12px] text-sm font-semibold transition ${
                   isActive
-                    ? "bg-white text-[#27324A] shadow-sm"
-                    : "text-[#746E73] hover:text-[#27324A] hover:bg-white/60"
+                    ? "bg-white text-[#0F172A] shadow-sm"
+                    : "text-[#746E73] hover:text-[#0F172A] hover:bg-white/60"
                 }`}
               >
                 <Icon className="h-4 w-4" />
                 {label}
                 {href === "/dashboard/orders" && activeOrderCount > 0 && (
-                  <span className="grid h-5 w-5 place-items-center rounded-full bg-[#A7653A] text-[10px] font-bold text-white">
+                  <span className="grid h-5 w-5 place-items-center rounded-full bg-[#3B82F6] text-[10px] font-bold text-white">
                     {activeOrderCount > 9 ? "9+" : activeOrderCount}
                   </span>
                 )}
@@ -57,7 +57,7 @@ export function DashboardNav({
       </div>
 
       {/* Mobile bottom nav */}
-      <nav className="fixed bottom-0 left-0 right-0 z-[100] sm:hidden bg-white border-t border-[#2E3344]/10 pb-safe">
+      <nav className="fixed bottom-0 left-0 right-0 z-[100] sm:hidden bg-white border-t border-[#1E293B]/10 pb-safe">
         <div className="flex items-center h-16 relative">
           {MOBILE_TABS.slice(0, 2).map(({ href, label, Icon }) => {
             const isActive = pathname === href;
@@ -66,17 +66,17 @@ export function DashboardNav({
                 key={href}
                 href={href}
                 className={`flex flex-1 flex-col items-center justify-center gap-1 h-full transition-all duration-300 ${
-                  isActive ? "text-[#A7653A]" : "text-[#746E73]"
+                  isActive ? "text-[#3B82F6]" : "text-[#746E73]"
                 }`}
               >
                 <div
-                  className={`relative flex items-center justify-center w-8 h-8 rounded-full transition-colors ${isActive ? "bg-[#F7F0E6]" : ""}`}
+                  className={`relative flex items-center justify-center w-8 h-8 rounded-full transition-colors ${isActive ? "bg-[#F8FAFC]" : ""}`}
                 >
                   <Icon
                     className={`h-5 w-5 ${isActive ? "stroke-[2.5]" : "stroke-2"}`}
                   />
                   {href === "/dashboard/orders" && activeOrderCount > 0 && (
-                    <span className="absolute -top-1 -right-1 grid h-4 w-4 place-items-center rounded-full bg-[#A7653A] text-[9px] font-bold text-white shadow-sm border border-white">
+                    <span className="absolute -top-1 -right-1 grid h-4 w-4 place-items-center rounded-full bg-[#3B82F6] text-[9px] font-bold text-white shadow-sm border border-white">
                       {activeOrderCount > 9 ? "9+" : activeOrderCount}
                     </span>
                   )}
@@ -90,13 +90,13 @@ export function DashboardNav({
           <div className="flex-1 flex justify-center h-full relative">
             <button
               onClick={() => setScannerOpen(true)}
-              className="absolute -top-6 flex h-14 w-14 items-center justify-center rounded-full bg-[#A7653A] text-white shadow-[0_8px_25px_rgba(167,101,58,0.4)] transition-all duration-300 active:scale-90 hover:scale-105"
+              className="absolute -top-6 flex h-14 w-14 items-center justify-center rounded-full bg-[#3B82F6] text-white shadow-[0_8px_25px_rgba(167,101,58,0.4)] transition-all duration-300 active:scale-90 hover:scale-105"
               aria-label="Scan & Order"
             >
               <Barcode className="h-6 w-6" />
             </button>
             <div className="mt-8">
-              <span className="text-[10px] font-black uppercase tracking-tighter text-[#A7653A]">
+              <span className="text-[10px] font-black uppercase tracking-tighter text-[#3B82F6]">
                 Scan
               </span>
             </div>
@@ -109,11 +109,11 @@ export function DashboardNav({
                 key={href}
                 href={href}
                 className={`flex flex-1 flex-col items-center justify-center gap-1 h-full transition-all duration-300 ${
-                  isActive ? "text-[#A7653A]" : "text-[#746E73]"
+                  isActive ? "text-[#3B82F6]" : "text-[#746E73]"
                 }`}
               >
                 <div
-                  className={`relative flex items-center justify-center w-8 h-8 rounded-full transition-colors ${isActive ? "bg-[#F7F0E6]" : ""}`}
+                  className={`relative flex items-center justify-center w-8 h-8 rounded-full transition-colors ${isActive ? "bg-[#F8FAFC]" : ""}`}
                 >
                   <Icon
                     className={`h-5 w-5 ${isActive ? "stroke-[2.5]" : "stroke-2"}`}

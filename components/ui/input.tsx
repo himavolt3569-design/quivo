@@ -57,8 +57,8 @@ function Input({
       type={type}
       data-slot="input"
       className={cn(
-        "border-[#2E3344]/8 dark:border-white/10 placeholder:text-[#746E73] dark:placeholder:text-white/50 selection:bg-[#A7653A] selection:text-white dark:bg-[#1B2030] dark:focus:bg-[#1B2030]/80 flex h-12 w-full min-w-0 rounded-xl border bg-white px-4 py-2.5 text-sm font-medium text-[#27324A] dark:text-white shadow-sm transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-[#27324A] dark:file:text-white disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50",
-        "focus-visible:border-[#A7653A] focus-visible:ring-[#A7653A]/20 focus-visible:ring-[3px]",
+        "border-[#1E293B]/8 dark:border-white/10 placeholder:text-[#746E73] dark:placeholder:text-white/50 selection:bg-[#3B82F6] selection:text-white dark:bg-[#1B2030] dark:focus:bg-[#1B2030]/80 flex h-12 w-full min-w-0 rounded-xl border bg-white px-4 py-2.5 text-sm font-medium text-[#0F172A] dark:text-white shadow-sm transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-[#0F172A] dark:file:text-white disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50",
+        "focus-visible:border-[#3B82F6] focus-visible:ring-[#3B82F6]/20 focus-visible:ring-[3px]",
         "aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
         className,
       )}

@@ -112,20 +112,20 @@ export function PromoCodesView({ shopId, initialRows }: Props) {
       <div>
         <Link
           href="/dashboard/owner/payments"
-          className="inline-flex items-center gap-1 text-xs font-bold text-[#746E73] hover:text-[#27324A] mb-2"
+          className="inline-flex items-center gap-1 text-xs font-bold text-[#746E73] hover:text-[#0F172A] mb-2"
         >
           <ChevronLeft className="h-3 w-3" /> Back to Payments
         </Link>
-        <h1 className="text-2xl font-black text-[#27324A] flex items-center gap-2">
-          <Ticket className="h-6 w-6 text-[#A7653A]" /> Promo codes
+        <h1 className="text-2xl font-black text-[#0F172A] flex items-center gap-2">
+          <Ticket className="h-6 w-6 text-[#3B82F6]" /> Promo codes
         </h1>
         <p className="text-sm font-medium text-[#746E73] mt-1">
           Create discount codes customers can enter at checkout.
         </p>
       </div>
 
-      <section className="rounded-2xl bg-white border border-[#2E3344]/10 p-4 space-y-3">
-        <h2 className="text-sm font-black text-[#27324A]">Create a code</h2>
+      <section className="rounded-2xl bg-white border border-[#1E293B]/10 p-4 space-y-3">
+        <h2 className="text-sm font-black text-[#0F172A]">Create a code</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <Field label="Code" hint="e.g. WELCOME10">
             <input
@@ -150,7 +150,7 @@ export function PromoCodesView({ shopId, initialRows }: Props) {
                   key={k}
                   type="button"
                   onClick={() => setForm({ ...form, kind: k })}
-                  className={`flex-1 text-xs font-bold capitalize ${form.kind === k ? "bg-[#27324A] text-white" : "bg-white text-[#27324A]"}`}
+                  className={`flex-1 text-xs font-bold capitalize ${form.kind === k ? "bg-[#0F172A] text-white" : "bg-white text-[#0F172A]"}`}
                 >
                   {k === "percent" ? "% off" : "Flat Rs."}
                 </button>
@@ -231,16 +231,16 @@ export function PromoCodesView({ shopId, initialRows }: Props) {
             type="button"
             onClick={submit}
             disabled={isPending || !form.code || !form.value}
-            className="h-10 px-4 rounded-xl bg-[#27324A] text-white text-xs font-bold inline-flex items-center gap-2 disabled:opacity-40"
+            className="h-10 px-4 rounded-xl bg-[#0F172A] text-white text-xs font-bold inline-flex items-center gap-2 disabled:opacity-40"
           >
             <Plus className="h-3.5 w-3.5" /> Create code
           </button>
         </div>
       </section>
 
-      <section className="rounded-2xl bg-white border border-[#2E3344]/10 overflow-hidden">
+      <section className="rounded-2xl bg-white border border-[#1E293B]/10 overflow-hidden">
         <div className="px-4 py-3 border-b border-black/5">
-          <h2 className="text-sm font-black text-[#27324A]">All codes</h2>
+          <h2 className="text-sm font-black text-[#0F172A]">All codes</h2>
         </div>
         {rows.length === 0 ? (
           <div className="p-8 text-center text-sm font-bold text-[#746E73] inline-flex items-center gap-2 justify-center w-full">
@@ -248,7 +248,7 @@ export function PromoCodesView({ shopId, initialRows }: Props) {
           </div>
         ) : (
           <table className="w-full text-sm">
-            <thead className="bg-[#F7F0E6] text-[10px] uppercase tracking-wider text-[#746E73]">
+            <thead className="bg-[#F8FAFC] text-[10px] uppercase tracking-wider text-[#746E73]">
               <tr>
                 <th className="text-left px-4 py-2">Code</th>
                 <th className="text-left px-4 py-2">Discount</th>
@@ -261,10 +261,10 @@ export function PromoCodesView({ shopId, initialRows }: Props) {
             <tbody>
               {rows.map((r) => (
                 <tr key={r.id} className="border-t border-black/5">
-                  <td className="px-4 py-3 font-mono font-black text-[#27324A]">
+                  <td className="px-4 py-3 font-mono font-black text-[#0F172A]">
                     {r.code}
                   </td>
-                  <td className="px-4 py-3 text-xs font-bold text-[#27324A]">
+                  <td className="px-4 py-3 text-xs font-bold text-[#0F172A]">
                     {r.kind === "percent"
                       ? `${r.value}% off${r.max_discount ? ` (max Rs. ${r.max_discount})` : ""}`
                       : `Rs. ${r.value} off`}

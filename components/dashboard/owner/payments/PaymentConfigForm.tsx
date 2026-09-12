@@ -121,8 +121,8 @@ export function PaymentConfigForm({ shopId, initial }: Props) {
                 onClick={() => toggleMethod(m)}
                 className={`p-3 rounded-2xl border-2 flex flex-col items-center gap-1.5 transition ${
                   on
-                    ? "border-[#27324A] bg-[#27324A] text-white"
-                    : "border-[#2E3344]/10 bg-white text-[#27324A] hover:border-[#27324A]/30"
+                    ? "border-[#0F172A] bg-[#0F172A] text-white"
+                    : "border-[#1E293B]/10 bg-white text-[#0F172A] hover:border-[#0F172A]/30"
                 }`}
               >
                 <Icon className="h-4 w-4" />
@@ -147,7 +147,7 @@ export function PaymentConfigForm({ shopId, initial }: Props) {
           placeholder="EPAYTEST"
         />
         <div>
-          <label className="block text-xs font-black text-[#27324A] mb-1.5">
+          <label className="block text-xs font-black text-[#0F172A] mb-1.5">
             Secret Key
           </label>
           <div className="relative">
@@ -160,7 +160,7 @@ export function PaymentConfigForm({ shopId, initial }: Props) {
                   ? "•••••••• (leave blank to keep current)"
                   : "Paste HMAC secret"
               }
-              className="w-full h-11 px-3 pr-10 rounded-xl border border-[#2E3344]/10 bg-white text-sm outline-none focus:border-[#27324A]"
+              className="w-full h-11 px-3 pr-10 rounded-xl border border-[#1E293B]/10 bg-white text-sm outline-none focus:border-[#0F172A]"
             />
             <button
               type="button"
@@ -182,13 +182,13 @@ export function PaymentConfigForm({ shopId, initial }: Props) {
           )}
         </div>
         <div>
-          <label className="block text-xs font-black text-[#27324A] mb-1.5">
+          <label className="block text-xs font-black text-[#0F172A] mb-1.5">
             Environment
           </label>
           <select
             name="esewa_environment"
             defaultValue={initial.esewa_environment}
-            className="h-11 w-full px-3 rounded-xl border border-[#2E3344]/10 bg-white text-sm"
+            className="h-11 w-full px-3 rounded-xl border border-[#1E293B]/10 bg-white text-sm"
           >
             <option value="sandbox">Sandbox (testing)</option>
             <option value="production">Production</option>
@@ -208,7 +208,7 @@ export function PaymentConfigForm({ shopId, initial }: Props) {
           placeholder="test_public_key_xxxxxxxx"
         />
         <div>
-          <label className="block text-xs font-black text-[#27324A] mb-1.5">
+          <label className="block text-xs font-black text-[#0F172A] mb-1.5">
             Secret Key
           </label>
           <div className="relative">
@@ -221,7 +221,7 @@ export function PaymentConfigForm({ shopId, initial }: Props) {
                   ? "•••••••• (leave blank to keep current)"
                   : "Paste secret key"
               }
-              className="w-full h-11 px-3 pr-10 rounded-xl border border-[#2E3344]/10 bg-white text-sm outline-none focus:border-[#27324A]"
+              className="w-full h-11 px-3 pr-10 rounded-xl border border-[#1E293B]/10 bg-white text-sm outline-none focus:border-[#0F172A]"
             />
             <button
               type="button"
@@ -243,7 +243,7 @@ export function PaymentConfigForm({ shopId, initial }: Props) {
           )}
         </div>
         <div>
-          <label className="block text-xs font-black text-[#27324A] mb-1.5">
+          <label className="block text-xs font-black text-[#0F172A] mb-1.5">
             Environment
           </label>
           <Select
@@ -317,7 +317,7 @@ export function PaymentConfigForm({ shopId, initial }: Props) {
               <img
                 src={qrUrl}
                 alt="QR"
-                className="h-32 w-32 rounded-2xl border border-[#2E3344]/10 object-contain bg-white"
+                className="h-32 w-32 rounded-2xl border border-[#1E293B]/10 object-contain bg-white"
               />
               <button
                 type="button"
@@ -332,7 +332,7 @@ export function PaymentConfigForm({ shopId, initial }: Props) {
               type="button"
               onClick={() => qrFileRef.current?.click()}
               disabled={qrUploading}
-              className="h-32 w-32 rounded-2xl border-2 border-dashed border-[#2E3344]/10 flex flex-col items-center justify-center gap-1.5 hover:bg-[#f8f8f7]"
+              className="h-32 w-32 rounded-2xl border-2 border-dashed border-[#1E293B]/10 flex flex-col items-center justify-center gap-1.5 hover:bg-[#f8f8f7]"
             >
               {qrUploading ? (
                 <Loader2 className="h-4 w-4 animate-spin text-gray-400" />
@@ -363,7 +363,7 @@ export function PaymentConfigForm({ shopId, initial }: Props) {
           defaultValue={initial.payment_instructions ?? ""}
           rows={3}
           placeholder="e.g. Please include your order number in the transfer remarks."
-          className="w-full px-3 py-2.5 rounded-xl border border-[#2E3344]/10 bg-white text-sm outline-none focus:border-[#27324A] resize-none"
+          className="w-full px-3 py-2.5 rounded-xl border border-[#1E293B]/10 bg-white text-sm outline-none focus:border-[#0F172A] resize-none"
         />
       </Section>
 
@@ -371,7 +371,7 @@ export function PaymentConfigForm({ shopId, initial }: Props) {
         <button
           type="submit"
           disabled={isPending}
-          className="inline-flex items-center gap-2 h-11 px-5 rounded-xl bg-[#27324A] hover:bg-[#1b2333] text-white font-bold text-sm disabled:opacity-60"
+          className="inline-flex items-center gap-2 h-11 px-5 rounded-xl bg-[#0F172A] hover:bg-[#1b2333] text-white font-bold text-sm disabled:opacity-60"
         >
           {isPending ? (
             <>
@@ -400,9 +400,9 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <div className="bg-white rounded-3xl border border-[#2E3344]/8 shadow-sm p-5 space-y-3">
+    <div className="bg-white rounded-3xl border border-[#1E293B]/8 shadow-sm p-5 space-y-3">
       <div>
-        <h2 className="font-black text-[#27324A]">{title}</h2>
+        <h2 className="font-black text-[#0F172A]">{title}</h2>
         {subtitle && (
           <p className="text-xs text-[#746E73] mt-0.5">{subtitle}</p>
         )}
@@ -425,14 +425,14 @@ function Field({
 }) {
   return (
     <div>
-      <label className="block text-xs font-black text-[#27324A] mb-1.5">
+      <label className="block text-xs font-black text-[#0F172A] mb-1.5">
         {label}
       </label>
       <input
         name={name}
         defaultValue={defaultValue}
         placeholder={placeholder}
-        className="w-full h-11 px-3 rounded-xl border border-[#2E3344]/10 bg-white text-sm outline-none focus:border-[#27324A]"
+        className="w-full h-11 px-3 rounded-xl border border-[#1E293B]/10 bg-white text-sm outline-none focus:border-[#0F172A]"
       />
     </div>
   );

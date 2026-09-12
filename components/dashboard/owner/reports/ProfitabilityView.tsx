@@ -123,18 +123,18 @@ export function ProfitabilityView({ shopId, shopName }: Props) {
       <div>
         <Link
           href="/dashboard/owner/products"
-          className="inline-flex items-center gap-1 text-xs font-bold text-[#746E73] hover:text-[#27324A] mb-2"
+          className="inline-flex items-center gap-1 text-xs font-bold text-[#746E73] hover:text-[#0F172A] mb-2"
         >
           <ChevronLeft className="h-3 w-3" /> Back to Products
         </Link>
         <div className="flex items-center justify-between gap-3 flex-wrap">
-          <h1 className="text-2xl font-black text-[#27324A] flex items-center gap-2">
-            <TrendingUp className="h-6 w-6 text-[#A7653A]" /> Product
+          <h1 className="text-2xl font-black text-[#0F172A] flex items-center gap-2">
+            <TrendingUp className="h-6 w-6 text-[#3B82F6]" /> Product
             profitability
           </h1>
           <Link
             href="/dashboard/owner/products/top"
-            className="text-xs font-bold text-[#A7653A] hover:underline"
+            className="text-xs font-bold text-[#3B82F6] hover:underline"
           >
             Top products →
           </Link>
@@ -156,7 +156,7 @@ export function ProfitabilityView({ shopId, shopName }: Props) {
           <button
             onClick={exportCsv}
             disabled={isPending || rows.length === 0}
-            className="h-11 px-4 rounded-xl bg-[#27324A] hover:bg-[#1b2333] text-white font-bold text-sm flex items-center gap-2 disabled:opacity-40"
+            className="h-11 px-4 rounded-xl bg-[#0F172A] hover:bg-[#1b2333] text-white font-bold text-sm flex items-center gap-2 disabled:opacity-40"
           >
             <Download className="h-4 w-4" /> CSV
           </button>
@@ -164,8 +164,8 @@ export function ProfitabilityView({ shopId, shopName }: Props) {
       />
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <Kpi label="Revenue" value={money(totals.revenue)} accent="#27324A" />
-        <Kpi label="COGS" value={money(totals.cogs)} accent="#A7653A" />
+        <Kpi label="Revenue" value={money(totals.revenue)} accent="#0F172A" />
+        <Kpi label="COGS" value={money(totals.cogs)} accent="#3B82F6" />
         <Kpi
           label="Gross margin"
           value={money(totals.margin)}
@@ -179,7 +179,7 @@ export function ProfitabilityView({ shopId, shopName }: Props) {
         </div>
       )}
 
-      <div className="bg-white rounded-2xl border border-[#2E3344]/8 shadow-sm overflow-hidden">
+      <div className="bg-white rounded-2xl border border-[#1E293B]/8 shadow-sm overflow-hidden">
         {isPending ? (
           <div className="py-12 text-center text-sm font-bold text-[#746E73]">
             Loading…
@@ -221,10 +221,10 @@ export function ProfitabilityView({ shopId, shopName }: Props) {
                   />
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#2E3344]/5">
+              <tbody className="divide-y divide-[#1E293B]/5">
                 {sorted.map((r) => (
                   <tr key={r.product_id} className="hover:bg-[#f8f8f7]/50">
-                    <td className="px-4 py-3 font-bold text-[#27324A]">
+                    <td className="px-4 py-3 font-bold text-[#0F172A]">
                       {r.name}
                     </td>
                     <td className="px-4 py-3 text-right">{r.units}</td>
@@ -265,7 +265,7 @@ function Kpi({
   accent: string;
 }) {
   return (
-    <div className="bg-white p-4 rounded-2xl border border-[#2E3344]/8 shadow-sm">
+    <div className="bg-white p-4 rounded-2xl border border-[#1E293B]/8 shadow-sm">
       <p className="text-[10px] font-black uppercase tracking-widest text-[#746E73]">
         {label}
       </p>
@@ -292,7 +292,7 @@ function SortTh({
     <th className="px-4 py-3 text-right">
       <button
         onClick={() => setSortKey(k)}
-        className={`inline-flex items-center gap-1 ${active ? "text-[#27324A]" : ""}`}
+        className={`inline-flex items-center gap-1 ${active ? "text-[#0F172A]" : ""}`}
       >
         {label}{" "}
         <ArrowUpDown

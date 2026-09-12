@@ -153,14 +153,14 @@ export function OrderList({ shopId, initialOrders }: OrderListProps) {
   return (
     <div className="space-y-6 max-w-7xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500 pb-10">
       <div>
-        <h1 className="text-2xl font-black text-[#27324A]">Online Orders</h1>
+        <h1 className="text-2xl font-black text-[#0F172A]">Online Orders</h1>
         <p className="text-sm font-medium text-[#746E73] mt-1">
           Manage orders from your public storefront.
         </p>
       </div>
 
       {/* Toolbar */}
-      <div className="bg-white p-4 rounded-[1.5rem] border border-[#2E3344]/8 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
+      <div className="bg-white p-4 rounded-[1.5rem] border border-[#1E293B]/8 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
         <div className="flex gap-2 overflow-x-auto hide-scrollbar w-full md:w-auto">
           {STATUS_FILTERS.map((f) => (
             <button
@@ -168,8 +168,8 @@ export function OrderList({ shopId, initialOrders }: OrderListProps) {
               onClick={() => setFilter(f)}
               className={`px-4 py-2 rounded-xl text-xs font-bold transition whitespace-nowrap ${
                 filter === f
-                  ? "bg-[#27324A] text-white"
-                  : "bg-[#f8f8f7] text-[#746E73] hover:bg-[#F7F0E6]"
+                  ? "bg-[#0F172A] text-white"
+                  : "bg-[#f8f8f7] text-[#746E73] hover:bg-[#F8FAFC]"
               }`}
             >
               {f}
@@ -189,11 +189,11 @@ export function OrderList({ shopId, initialOrders }: OrderListProps) {
 
       {/* Empty state */}
       {orders.length === 0 && (
-        <div className="flex flex-col items-center justify-center py-24 gap-4 text-center bg-white rounded-[2rem] border border-[#2E3344]/8">
-          <div className="h-16 w-16 rounded-2xl bg-[#F7F0E6] flex items-center justify-center">
-            <Package className="h-8 w-8 text-[#A7653A]" />
+        <div className="flex flex-col items-center justify-center py-24 gap-4 text-center bg-white rounded-[2rem] border border-[#1E293B]/8">
+          <div className="h-16 w-16 rounded-2xl bg-[#F8FAFC] flex items-center justify-center">
+            <Package className="h-8 w-8 text-[#3B82F6]" />
           </div>
-          <h3 className="text-lg font-black text-[#27324A]">No orders yet</h3>
+          <h3 className="text-lg font-black text-[#0F172A]">No orders yet</h3>
           <p className="text-sm text-[#746E73] font-medium max-w-xs">
             When customers place orders from your storefront, they will appear
             here.
@@ -214,10 +214,10 @@ export function OrderList({ shopId, initialOrders }: OrderListProps) {
           return (
             <div
               key={order.id}
-              className="bg-white p-5 rounded-[2rem] border border-[#2E3344]/8 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6 hover:shadow-md transition group"
+              className="bg-white p-5 rounded-[2rem] border border-[#1E293B]/8 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6 hover:shadow-md transition group"
             >
               <div className="flex items-start gap-4">
-                <div className="h-14 w-14 rounded-2xl bg-[#F7F0E6] text-[#A7653A] flex items-center justify-center shrink-0">
+                <div className="h-14 w-14 rounded-2xl bg-[#F8FAFC] text-[#3B82F6] flex items-center justify-center shrink-0">
                   <ShoppingBag className="h-6 w-6" />
                 </div>
                 <div>
@@ -248,19 +248,19 @@ export function OrderList({ shopId, initialOrders }: OrderListProps) {
                     <span className="flex items-center gap-1">
                       <Clock className="h-3 w-3" /> {timeAgo(order.created_at)}
                     </span>
-                    <span className="text-[#A7653A] font-black text-sm">
+                    <span className="text-[#3B82F6] font-black text-sm">
                       Rs. {order.total_amount}
                     </span>
                   </div>
                 </div>
               </div>
 
-              <div className="flex flex-row md:flex-col gap-2 shrink-0 w-full md:w-auto border-t md:border-t-0 pt-4 md:pt-0 border-[#2E3344]/5">
+              <div className="flex flex-row md:flex-col gap-2 shrink-0 w-full md:w-auto border-t md:border-t-0 pt-4 md:pt-0 border-[#1E293B]/5">
                 {canAccept && (
                   <Button
                     disabled={isPending}
                     onClick={() => handleStatus(order.id, "confirmed")}
-                    className="flex-1 md:w-40 h-10 rounded-xl bg-[#27324A] hover:bg-[#1b2333] text-white text-xs font-bold"
+                    className="flex-1 md:w-40 h-10 rounded-xl bg-[#0F172A] hover:bg-[#1b2333] text-white text-xs font-bold"
                   >
                     Accept Order
                   </Button>
@@ -297,7 +297,7 @@ export function OrderList({ shopId, initialOrders }: OrderListProps) {
                     disabled={isPending}
                     onClick={() => handleStatus(order.id, "cancelled")}
                     variant="outline"
-                    className="flex-1 md:w-40 h-10 rounded-xl border-[#2E3344]/10 text-red-500 hover:bg-red-50 hover:border-red-200 text-xs font-bold"
+                    className="flex-1 md:w-40 h-10 rounded-xl border-[#1E293B]/10 text-red-500 hover:bg-red-50 hover:border-red-200 text-xs font-bold"
                   >
                     Cancel
                   </Button>
@@ -316,7 +316,7 @@ export function OrderList({ shopId, initialOrders }: OrderListProps) {
                       setRefundFor(ctx);
                     }}
                     variant="outline"
-                    className="flex-1 md:w-40 h-10 rounded-xl border-[#2E3344]/10 text-[#27324A] hover:bg-[#F7F0E6] text-xs font-bold flex items-center justify-center gap-1"
+                    className="flex-1 md:w-40 h-10 rounded-xl border-[#1E293B]/10 text-[#0F172A] hover:bg-[#F8FAFC] text-xs font-bold flex items-center justify-center gap-1"
                   >
                     <RotateCcw className="h-3.5 w-3.5" />
                     Refund

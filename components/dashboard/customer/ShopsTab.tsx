@@ -78,11 +78,11 @@ function ShopCard({ shop }: { shop: ShopWithDistance }) {
   return (
     <Link
       href={`/s/${shop.slug}`}
-      className="group flex flex-col rounded-[1.75rem] border border-[#2E3344]/8 bg-white p-5 shadow-sm hover:shadow-md hover:border-[#A7653A]/20 transition-all duration-200"
+      className="group flex flex-col rounded-[1.75rem] border border-[#1E293B]/8 bg-white p-5 shadow-sm hover:shadow-md hover:border-[#3B82F6]/20 transition-all duration-200"
     >
       <div className="flex items-start gap-3 mb-3">
         {/* Logo */}
-        <div className="h-14 w-14 rounded-2xl bg-[#F7F0E6] overflow-hidden shrink-0 flex items-center justify-center border border-[#2E3344]/5">
+        <div className="h-14 w-14 rounded-2xl bg-[#F8FAFC] overflow-hidden shrink-0 flex items-center justify-center border border-[#1E293B]/5">
           {shop.image_url ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
@@ -91,7 +91,7 @@ function ShopCard({ shop }: { shop: ShopWithDistance }) {
               className="h-14 w-14 object-cover"
             />
           ) : (
-            <span className="text-xl font-black text-[#A7653A]">
+            <span className="text-xl font-black text-[#3B82F6]">
               {shop.name[0]}
             </span>
           )}
@@ -99,7 +99,7 @@ function ShopCard({ shop }: { shop: ShopWithDistance }) {
 
         {/* Name + category */}
         <div className="min-w-0 flex-1">
-          <h3 className="font-black text-[#27324A] text-sm leading-tight truncate group-hover:text-[#A7653A] transition-colors">
+          <h3 className="font-black text-[#0F172A] text-sm leading-tight truncate group-hover:text-[#3B82F6] transition-colors">
             {shop.name}
           </h3>
           <p className="text-[10px] font-bold uppercase tracking-wider text-[#746E73] mt-0.5">
@@ -123,7 +123,7 @@ function ShopCard({ shop }: { shop: ShopWithDistance }) {
 
         {/* Distance badge */}
         {shop.distanceKm !== null && (
-          <div className="shrink-0 flex items-center gap-1 rounded-full bg-[#F7F0E6] px-2.5 py-1 text-[10px] font-bold text-[#A7653A]">
+          <div className="shrink-0 flex items-center gap-1 rounded-full bg-[#F8FAFC] px-2.5 py-1 text-[10px] font-bold text-[#3B82F6]">
             <Navigation className="h-2.5 w-2.5" />
             {fmtDist(shop.distanceKm)}
           </div>
@@ -138,7 +138,7 @@ function ShopCard({ shop }: { shop: ShopWithDistance }) {
       )}
 
       {/* Address + CTA */}
-      <div className="flex items-center justify-between mt-auto pt-2 border-t border-[#2E3344]/5">
+      <div className="flex items-center justify-between mt-auto pt-2 border-t border-[#1E293B]/5">
         {shop.address ? (
           <p className="flex items-center gap-1 text-[10px] text-[#746E73] font-medium truncate max-w-[70%]">
             <MapPin className="h-2.5 w-2.5 shrink-0" />
@@ -147,7 +147,7 @@ function ShopCard({ shop }: { shop: ShopWithDistance }) {
         ) : (
           <span />
         )}
-        <span className="flex items-center gap-0.5 text-[10px] font-bold text-[#A7653A] shrink-0">
+        <span className="flex items-center gap-0.5 text-[10px] font-bold text-[#3B82F6] shrink-0">
           Browse <ChevronRight className="h-3 w-3" />
         </span>
       </div>
@@ -168,13 +168,13 @@ function SectionHeader({
 }) {
   return (
     <div className={`flex items-center gap-2 mb-4 px-1 ${className}`}>
-      <div className="h-7 w-7 rounded-lg bg-[#F7F0E6] flex items-center justify-center shrink-0">
+      <div className="h-7 w-7 rounded-lg bg-[#F8FAFC] flex items-center justify-center shrink-0">
         {icon}
       </div>
-      <h2 className="text-sm font-black uppercase tracking-[0.1em] text-[#27324A]">
+      <h2 className="text-sm font-black uppercase tracking-[0.1em] text-[#0F172A]">
         {title}
       </h2>
-      <span className="ml-auto rounded-full bg-[#27324A]/8 px-2.5 py-0.5 text-xs font-bold text-[#27324A]">
+      <span className="ml-auto rounded-full bg-[#0F172A]/8 px-2.5 py-0.5 text-xs font-bold text-[#0F172A]">
         {count}
       </span>
     </div>
@@ -267,11 +267,11 @@ export function ShopsTab({ shops, retailerShopId }: ShopsTabProps) {
   return (
     <div className="space-y-8">
       {/* ── Header ──────────────────────────────────────────────── */}
-      <div className="rounded-[2.5rem] bg-white border border-[#2E3344]/8 p-8 relative overflow-hidden shadow-sm">
+      <div className="rounded-[2.5rem] bg-white border border-[#1E293B]/8 p-8 relative overflow-hidden shadow-sm">
         <div className="absolute top-0 right-0 p-8 opacity-[0.03]">
           <Store className="h-32 w-32 -rotate-12" />
         </div>
-        <h1 className="text-3xl font-bold tracking-[-0.03em] text-[#27324A]">
+        <h1 className="text-3xl font-bold tracking-[-0.03em] text-[#0F172A]">
           Discover Shops
         </h1>
         <p className="mt-2 text-sm font-medium text-[#746E73] max-w-sm">
@@ -287,15 +287,15 @@ export function ShopsTab({ shops, retailerShopId }: ShopsTabProps) {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search by name, category…"
-            className="w-full h-12 pl-11 pr-4 rounded-2xl bg-[#f8f8f7] border border-[#2E3344]/8 text-sm font-medium text-[#27324A] placeholder:text-[#746E73]/60 focus:outline-none focus:ring-2 focus:ring-[#A7653A]/30 transition"
+            className="w-full h-12 pl-11 pr-4 rounded-2xl bg-[#f8f8f7] border border-[#1E293B]/8 text-sm font-medium text-[#0F172A] placeholder:text-[#746E73]/60 focus:outline-none focus:ring-2 focus:ring-[#3B82F6]/30 transition"
           />
         </div>
       </div>
 
       {/* ── Location Banner ──────────────────────────────────────── */}
       {locState === "loading" && (
-        <div className="flex items-center gap-3 rounded-2xl border border-[#2E3344]/10 bg-[#f8f8f7] px-5 py-4">
-          <span className="h-4 w-4 animate-spin rounded-full border-2 border-[#A7653A] border-t-transparent shrink-0" />
+        <div className="flex items-center gap-3 rounded-2xl border border-[#1E293B]/10 bg-[#f8f8f7] px-5 py-4">
+          <span className="h-4 w-4 animate-spin rounded-full border-2 border-[#3B82F6] border-t-transparent shrink-0" />
           <p className="text-sm font-medium text-[#746E73]">
             Getting your location…
           </p>
@@ -318,7 +318,7 @@ export function ShopsTab({ shops, retailerShopId }: ShopsTabProps) {
       )}
 
       {locState === "unavailable" && (
-        <div className="flex items-start gap-3 rounded-2xl border border-[#2E3344]/10 bg-[#f8f8f7] px-5 py-4">
+        <div className="flex items-start gap-3 rounded-2xl border border-[#1E293B]/10 bg-[#f8f8f7] px-5 py-4">
           <AlertCircle className="h-5 w-5 text-[#746E73] shrink-0 mt-0.5" />
           <p className="text-sm font-medium text-[#746E73]">
             Location not available on this device. All shops are shown below.
@@ -340,16 +340,16 @@ export function ShopsTab({ shops, retailerShopId }: ShopsTabProps) {
       {locKnown && (
         <section>
           <SectionHeader
-            icon={<Navigation className="h-3.5 w-3.5 text-[#A7653A]" />}
+            icon={<Navigation className="h-3.5 w-3.5 text-[#3B82F6]" />}
             title="Shops Near You"
             count={nearbyShops.length}
           />
           {nearbyShops.length === 0 ? (
-            <div className="rounded-[1.75rem] border border-dashed border-[#2E3344]/15 bg-white/50 p-12 text-center">
-              <div className="mx-auto mb-4 h-14 w-14 rounded-2xl bg-[#F7F0E6] flex items-center justify-center">
-                <Store className="h-7 w-7 text-[#A7653A]" />
+            <div className="rounded-[1.75rem] border border-dashed border-[#1E293B]/15 bg-white/50 p-12 text-center">
+              <div className="mx-auto mb-4 h-14 w-14 rounded-2xl bg-[#F8FAFC] flex items-center justify-center">
+                <Store className="h-7 w-7 text-[#3B82F6]" />
               </div>
-              <p className="text-sm font-bold text-[#27324A]">
+              <p className="text-sm font-bold text-[#0F172A]">
                 No shops within {NEARBY_KM} km
               </p>
               <p className="mt-1 text-xs text-[#746E73]">
@@ -374,7 +374,7 @@ export function ShopsTab({ shops, retailerShopId }: ShopsTabProps) {
             title="Far from Your Location"
             count={farShops.length}
           />
-          <div className="rounded-2xl border border-[#2E3344]/8 bg-[#f8f8f7]/60 p-4 mb-4">
+          <div className="rounded-2xl border border-[#1E293B]/8 bg-[#f8f8f7]/60 p-4 mb-4">
             <p className="text-xs font-medium text-[#746E73]">
               These shops are more than {NEARBY_KM} km away. Delivery may take
               longer or may not be available.
@@ -400,7 +400,7 @@ export function ShopsTab({ shops, retailerShopId }: ShopsTabProps) {
           )}
           {!locKnown && (
             <SectionHeader
-              icon={<Store className="h-3.5 w-3.5 text-[#A7653A]" />}
+              icon={<Store className="h-3.5 w-3.5 text-[#3B82F6]" />}
               title="All Verified Shops"
               count={unknownShops.length}
             />
@@ -415,11 +415,11 @@ export function ShopsTab({ shops, retailerShopId }: ShopsTabProps) {
 
       {/* ── Empty state (no shops at all) ───────────────────────── */}
       {shops.length === 0 && (
-        <div className="rounded-[2rem] border border-dashed border-[#2E3344]/15 bg-white/50 p-16 text-center">
-          <div className="mx-auto mb-4 h-16 w-16 rounded-2xl bg-[#F7F0E6] flex items-center justify-center">
-            <Store className="h-8 w-8 text-[#A7653A]" />
+        <div className="rounded-[2rem] border border-dashed border-[#1E293B]/15 bg-white/50 p-16 text-center">
+          <div className="mx-auto mb-4 h-16 w-16 rounded-2xl bg-[#F8FAFC] flex items-center justify-center">
+            <Store className="h-8 w-8 text-[#3B82F6]" />
           </div>
-          <p className="text-base font-bold text-[#27324A]">
+          <p className="text-base font-bold text-[#0F172A]">
             No verified shops yet
           </p>
           <p className="mt-1 text-sm text-[#746E73]">
@@ -430,8 +430,8 @@ export function ShopsTab({ shops, retailerShopId }: ShopsTabProps) {
 
       {/* ── No search results ────────────────────────────────────── */}
       {shops.length > 0 && filtered.length === 0 && search.length > 0 && (
-        <div className="rounded-[2rem] border border-dashed border-[#2E3344]/15 bg-white/50 p-12 text-center">
-          <p className="text-sm font-bold text-[#27324A]">
+        <div className="rounded-[2rem] border border-dashed border-[#1E293B]/15 bg-white/50 p-12 text-center">
+          <p className="text-sm font-bold text-[#0F172A]">
             No shops match &quot;{search}&quot;
           </p>
           <p className="mt-1 text-xs text-[#746E73]">

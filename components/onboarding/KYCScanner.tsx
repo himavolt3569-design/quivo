@@ -92,7 +92,7 @@ export function KYCScanner({ onResult }: KYCScannerProps) {
   return (
     <div className="space-y-4">
       <div
-        className="border-2 border-dashed border-[#2E3344]/10 rounded-2xl p-6 flex flex-col items-center gap-2 hover:bg-[#F7F0E6]/30 transition cursor-pointer text-center"
+        className="border-2 border-dashed border-[#1E293B]/10 rounded-2xl p-6 flex flex-col items-center gap-2 hover:bg-[#F8FAFC]/30 transition cursor-pointer text-center"
         onClick={() => status !== "scanning" && fileRef.current?.click()}
       >
         {previewUrl ? (
@@ -102,11 +102,11 @@ export function KYCScanner({ onResult }: KYCScannerProps) {
             className="h-28 w-full object-contain rounded-lg mb-1"
           />
         ) : (
-          <div className="h-12 w-12 rounded-full bg-[#A7653A]/10 flex items-center justify-center">
-            <UploadCloud className="h-6 w-6 text-[#A7653A]" />
+          <div className="h-12 w-12 rounded-full bg-[#3B82F6]/10 flex items-center justify-center">
+            <UploadCloud className="h-6 w-6 text-[#3B82F6]" />
           </div>
         )}
-        <span className="text-sm font-bold text-[#27324A]">
+        <span className="text-sm font-bold text-[#0F172A]">
           {previewUrl
             ? "Click to replace document"
             : "Upload PAN / VAT / Registration document"}
@@ -157,7 +157,7 @@ export function KYCScanner({ onResult }: KYCScannerProps) {
       )}
 
       {status === "scanning" && (
-        <div className="w-full h-1.5 bg-[#2E3344]/10 rounded-full overflow-hidden">
+        <div className="w-full h-1.5 bg-[#1E293B]/10 rounded-full overflow-hidden">
           <div
             className="h-full bg-blue-500 rounded-full animate-pulse"
             style={{ width: "60%" }}

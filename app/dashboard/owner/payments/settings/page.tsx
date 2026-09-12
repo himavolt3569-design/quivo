@@ -25,13 +25,13 @@ export default async function PaymentSettingsPage() {
     <div className="max-w-3xl mx-auto pb-12 space-y-5">
       <Link
         href="/dashboard/owner/payments"
-        className="inline-flex items-center gap-1.5 text-sm font-bold text-[#27324A] hover:text-[#A7653A]"
+        className="inline-flex items-center gap-1.5 text-sm font-bold text-[#0F172A] hover:text-[#3B82F6]"
       >
         <ArrowLeft className="h-4 w-4" /> Back to Payments
       </Link>
 
       <div>
-        <h1 className="text-2xl font-black text-[#27324A]">Payment Methods</h1>
+        <h1 className="text-2xl font-black text-[#0F172A]">Payment Methods</h1>
         <p className="text-xs text-[#746E73] mt-0.5">
           Configure which payment methods{" "}
           <span className="font-bold">{shop.name}</span> offers. Each shop has

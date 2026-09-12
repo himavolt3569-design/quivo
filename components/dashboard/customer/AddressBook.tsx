@@ -30,7 +30,7 @@ const AddressPinPicker = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="h-[200px] animate-pulse rounded-xl bg-[#F7F0E6]" />
+      <div className="h-[200px] animate-pulse rounded-xl bg-[#F8FAFC]" />
     ),
   },
 );
@@ -40,7 +40,7 @@ const AddressOverviewMap = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="h-[200px] animate-pulse rounded-t-2xl bg-[#F7F0E6]" />
+      <div className="h-[200px] animate-pulse rounded-t-2xl bg-[#F8FAFC]" />
     ),
   },
 );
@@ -231,9 +231,9 @@ export function AddressBook({ addresses, onChange }: AddressBookProps) {
     <div className="space-y-4">
       {/* Overview map — shown when 1+ addresses are pinned and no form is open */}
       {pinnedAddresses.length > 0 && !showForm && (
-        <div className="overflow-hidden rounded-2xl border border-[#2E3344]/8 bg-white shadow-sm">
+        <div className="overflow-hidden rounded-2xl border border-[#1E293B]/8 bg-white shadow-sm">
           <AddressOverviewMap key={overviewKey} addresses={addresses} />
-          <div className="flex flex-wrap items-center gap-4 border-t border-[#2E3344]/6 px-4 py-2.5">
+          <div className="flex flex-wrap items-center gap-4 border-t border-[#1E293B]/6 px-4 py-2.5">
             {pinnedAddresses.map((a) => (
               <span
                 key={a.id}
@@ -258,9 +258,9 @@ export function AddressBook({ addresses, onChange }: AddressBookProps) {
 
       {/* Address list */}
       {addresses.length === 0 && !showForm ? (
-        <div className="rounded-2xl border border-dashed border-[#2E3344]/15 bg-white p-10 text-center">
-          <MapPin className="mx-auto mb-3 h-10 w-10 text-[#2E3344]/20" />
-          <p className="text-sm font-semibold text-[#27324A]">
+        <div className="rounded-2xl border border-dashed border-[#1E293B]/15 bg-white p-10 text-center">
+          <MapPin className="mx-auto mb-3 h-10 w-10 text-[#1E293B]/20" />
+          <p className="text-sm font-semibold text-[#0F172A]">
             No saved addresses
           </p>
           <p className="mt-1 mb-4 text-xs text-[#746E73]">
@@ -268,7 +268,7 @@ export function AddressBook({ addresses, onChange }: AddressBookProps) {
           </p>
           <button
             onClick={openAdd}
-            className="inline-flex items-center gap-2 rounded-full bg-[#A7653A] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#8E5432]"
+            className="inline-flex items-center gap-2 rounded-full bg-[#3B82F6] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#8E5432]"
           >
             <Plus className="h-4 w-4" />
             Add address
@@ -284,8 +284,8 @@ export function AddressBook({ addresses, onChange }: AddressBookProps) {
                 key={addr.id}
                 className={`rounded-2xl border bg-white p-4 transition ${
                   addr.is_default
-                    ? "border-[#A7653A]/30 shadow-sm shadow-[#A7653A]/10"
-                    : "border-[#2E3344]/8"
+                    ? "border-[#3B82F6]/30 shadow-sm shadow-[#3B82F6]/10"
+                    : "border-[#1E293B]/8"
                 }`}
               >
                 <div className="flex items-start gap-3">
@@ -294,11 +294,11 @@ export function AddressBook({ addresses, onChange }: AddressBookProps) {
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className="text-sm font-bold text-[#27324A]">
+                      <span className="text-sm font-bold text-[#0F172A]">
                         {addr.label}
                       </span>
                       {addr.is_default && (
-                        <span className="rounded-full bg-[#A7653A]/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[#A7653A]">
+                        <span className="rounded-full bg-[#3B82F6]/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[#3B82F6]">
                           Default
                         </span>
                       )}
@@ -321,11 +321,11 @@ export function AddressBook({ addresses, onChange }: AddressBookProps) {
                   </div>
                 </div>
 
-                <div className="mt-3 flex items-center gap-2 border-t border-[#2E3344]/6 pt-3">
+                <div className="mt-3 flex items-center gap-2 border-t border-[#1E293B]/6 pt-3">
                   {!addr.is_default && (
                     <button
                       onClick={() => handleSetDefault(addr.id)}
-                      className="flex items-center gap-1.5 rounded-full border border-[#2E3344]/10 px-3 py-1.5 text-xs font-semibold text-[#746E73] transition hover:bg-[#F7F0E6]"
+                      className="flex items-center gap-1.5 rounded-full border border-[#1E293B]/10 px-3 py-1.5 text-xs font-semibold text-[#746E73] transition hover:bg-[#F8FAFC]"
                     >
                       <Star className="h-3.5 w-3.5" />
                       Set default
@@ -333,7 +333,7 @@ export function AddressBook({ addresses, onChange }: AddressBookProps) {
                   )}
                   <button
                     onClick={() => openEdit(addr)}
-                    className="flex items-center gap-1.5 rounded-full border border-[#2E3344]/10 px-3 py-1.5 text-xs font-semibold text-[#746E73] transition hover:bg-[#F7F0E6]"
+                    className="flex items-center gap-1.5 rounded-full border border-[#1E293B]/10 px-3 py-1.5 text-xs font-semibold text-[#746E73] transition hover:bg-[#F8FAFC]"
                   >
                     <Edit2 className="h-3.5 w-3.5" />
                     Edit
@@ -354,7 +354,7 @@ export function AddressBook({ addresses, onChange }: AddressBookProps) {
           {!showForm && (
             <button
               onClick={openAdd}
-              className="flex w-full items-center justify-center gap-2 rounded-2xl border border-dashed border-[#2E3344]/15 bg-white py-4 text-sm font-semibold text-[#A7653A] transition hover:border-[#A7653A]/30 hover:bg-[#F7F0E6]"
+              className="flex w-full items-center justify-center gap-2 rounded-2xl border border-dashed border-[#1E293B]/15 bg-white py-4 text-sm font-semibold text-[#3B82F6] transition hover:border-[#3B82F6]/30 hover:bg-[#F8FAFC]"
             >
               <Plus className="h-4 w-4" />
               Add another address
@@ -367,16 +367,16 @@ export function AddressBook({ addresses, onChange }: AddressBookProps) {
       {showForm && (
         <form
           onSubmit={handleSubmit}
-          className="space-y-4 rounded-2xl border border-[#A7653A]/25 bg-white p-5 shadow-sm"
+          className="space-y-4 rounded-2xl border border-[#3B82F6]/25 bg-white p-5 shadow-sm"
         >
           <div className="mb-1 flex items-center justify-between">
-            <h3 className="text-sm font-bold text-[#27324A]">
+            <h3 className="text-sm font-bold text-[#0F172A]">
               {editingId ? "Edit address" : "New address"}
             </h3>
             <button
               type="button"
               onClick={() => setShowForm(false)}
-              className="rounded-full p-1.5 text-[#746E73] transition hover:bg-[#F7F0E6]"
+              className="rounded-full p-1.5 text-[#746E73] transition hover:bg-[#F8FAFC]"
             >
               <X className="h-4 w-4" />
             </button>
@@ -384,7 +384,7 @@ export function AddressBook({ addresses, onChange }: AddressBookProps) {
 
           {/* Label */}
           <div>
-            <label className="mb-2 block text-xs font-semibold text-[#27324A]">
+            <label className="mb-2 block text-xs font-semibold text-[#0F172A]">
               Label
             </label>
             <div className="flex gap-2">
@@ -397,8 +397,8 @@ export function AddressBook({ addresses, onChange }: AddressBookProps) {
                     onClick={() => setForm((f) => ({ ...f, label: l }))}
                     className={`flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold transition ${
                       form.label === l
-                        ? "border-[#A7653A] bg-[#A7653A] text-white"
-                        : "border-[#2E3344]/12 text-[#746E73] hover:border-[#A7653A]/40"
+                        ? "border-[#3B82F6] bg-[#3B82F6] text-white"
+                        : "border-[#1E293B]/12 text-[#746E73] hover:border-[#3B82F6]/40"
                     }`}
                   >
                     <LIcon className="h-3.5 w-3.5" />
@@ -413,12 +413,12 @@ export function AddressBook({ addresses, onChange }: AddressBookProps) {
           <div>
             <label
               htmlFor="address_line"
-              className="mb-1.5 flex items-center gap-2 text-xs font-semibold text-[#27324A]"
+              className="mb-1.5 flex items-center gap-2 text-xs font-semibold text-[#0F172A]"
             >
               Address *
               {form.geocoding && (
-                <span className="flex items-center gap-1 font-normal text-[#A7653A]">
-                  <span className="inline-block h-3 w-3 animate-spin rounded-full border-2 border-[#A7653A] border-t-transparent" />
+                <span className="flex items-center gap-1 font-normal text-[#3B82F6]">
+                  <span className="inline-block h-3 w-3 animate-spin rounded-full border-2 border-[#3B82F6] border-t-transparent" />
                   Fetching address…
                 </span>
               )}
@@ -432,7 +432,7 @@ export function AddressBook({ addresses, onChange }: AddressBookProps) {
                 setForm((f) => ({ ...f, address_line: e.target.value }))
               }
               placeholder="Street, locality, district"
-              className="w-full rounded-xl border border-[#2E3344]/12 bg-[#F7F0E6]/40 px-4 py-2.5 text-sm text-[#27324A] outline-none transition placeholder-[#746E73]/60 focus:border-[#A7653A] focus:ring-2 focus:ring-[#A7653A]/15"
+              className="w-full rounded-xl border border-[#1E293B]/12 bg-[#F8FAFC]/40 px-4 py-2.5 text-sm text-[#0F172A] outline-none transition placeholder-[#746E73]/60 focus:border-[#3B82F6] focus:ring-2 focus:ring-[#3B82F6]/15"
             />
           </div>
 
@@ -440,7 +440,7 @@ export function AddressBook({ addresses, onChange }: AddressBookProps) {
           <div>
             <label
               htmlFor="landmark"
-              className="mb-1.5 block text-xs font-semibold text-[#27324A]"
+              className="mb-1.5 block text-xs font-semibold text-[#0F172A]"
             >
               Landmark{" "}
               <span className="font-normal text-[#746E73]">(optional)</span>
@@ -453,7 +453,7 @@ export function AddressBook({ addresses, onChange }: AddressBookProps) {
                 setForm((f) => ({ ...f, landmark: e.target.value }))
               }
               placeholder="Near main gate, beside school…"
-              className="w-full rounded-xl border border-[#2E3344]/12 bg-[#F7F0E6]/40 px-4 py-2.5 text-sm text-[#27324A] outline-none transition placeholder-[#746E73]/60 focus:border-[#A7653A] focus:ring-2 focus:ring-[#A7653A]/15"
+              className="w-full rounded-xl border border-[#1E293B]/12 bg-[#F8FAFC]/40 px-4 py-2.5 text-sm text-[#0F172A] outline-none transition placeholder-[#746E73]/60 focus:border-[#3B82F6] focus:ring-2 focus:ring-[#3B82F6]/15"
             />
           </div>
 
@@ -461,7 +461,7 @@ export function AddressBook({ addresses, onChange }: AddressBookProps) {
           <div>
             <label
               htmlFor="phone"
-              className="mb-1.5 block text-xs font-semibold text-[#27324A]"
+              className="mb-1.5 block text-xs font-semibold text-[#0F172A]"
             >
               Contact number *
             </label>
@@ -474,7 +474,7 @@ export function AddressBook({ addresses, onChange }: AddressBookProps) {
                 setForm((f) => ({ ...f, phone: e.target.value }))
               }
               placeholder="98XXXXXXXX"
-              className="rounded-xl border border-[#2E3344]/12 bg-[#F7F0E6]/40 px-4 py-2.5 text-sm text-[#27324A] placeholder-[#746E73]/60"
+              className="rounded-xl border border-[#1E293B]/12 bg-[#F8FAFC]/40 px-4 py-2.5 text-sm text-[#0F172A] placeholder-[#746E73]/60"
             />
           </div>
 
@@ -491,7 +491,7 @@ export function AddressBook({ addresses, onChange }: AddressBookProps) {
               />
               <div
                 className={`h-5 w-9 rounded-full transition-colors duration-200 ${
-                  form.is_default ? "bg-[#A7653A]" : "bg-[#2E3344]/20"
+                  form.is_default ? "bg-[#3B82F6]" : "bg-[#1E293B]/20"
                 }`}
               />
               <div
@@ -500,20 +500,20 @@ export function AddressBook({ addresses, onChange }: AddressBookProps) {
                 }`}
               />
             </div>
-            <span className="text-sm font-medium text-[#27324A]">
+            <span className="text-sm font-medium text-[#0F172A]">
               Set as default delivery address
             </span>
           </label>
 
           {/* Map pin toggle */}
-          <div className="rounded-xl border border-[#2E3344]/8 bg-[#F7F0E6]/30 p-3">
+          <div className="rounded-xl border border-[#1E293B]/8 bg-[#F8FAFC]/30 p-3">
             <button
               type="button"
               onClick={() => setForm((f) => ({ ...f, showMap: !f.showMap }))}
-              className="flex w-full items-center justify-between text-sm font-semibold text-[#27324A]"
+              className="flex w-full items-center justify-between text-sm font-semibold text-[#0F172A]"
             >
               <span className="flex items-center gap-2">
-                <Navigation className="h-4 w-4 text-[#A7653A]" />
+                <Navigation className="h-4 w-4 text-[#3B82F6]" />
                 Pin exact location on map
                 {form.pin && (
                   <span className="rounded-full bg-green-100 px-1.5 py-0.5 text-[10px] font-bold text-green-600">
@@ -563,14 +563,14 @@ export function AddressBook({ addresses, onChange }: AddressBookProps) {
             <button
               type="button"
               onClick={() => setShowForm(false)}
-              className="flex-1 rounded-full border border-[#2E3344]/12 py-2.5 text-sm font-semibold text-[#746E73] transition hover:bg-[#F7F0E6]"
+              className="flex-1 rounded-full border border-[#1E293B]/12 py-2.5 text-sm font-semibold text-[#746E73] transition hover:bg-[#F8FAFC]"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={submitting}
-              className="flex-1 rounded-full bg-[#A7653A] py-2.5 text-sm font-semibold text-white transition hover:bg-[#8E5432] disabled:opacity-50 active:scale-95"
+              className="flex-1 rounded-full bg-[#3B82F6] py-2.5 text-sm font-semibold text-white transition hover:bg-[#8E5432] disabled:opacity-50 active:scale-95"
             >
               {submitting ? "Saving…" : editingId ? "Update" : "Save address"}
             </button>

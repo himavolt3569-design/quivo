@@ -134,21 +134,21 @@ export function NotificationBell({ initial }: NotificationBellProps) {
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="relative h-9 w-9 rounded-xl flex items-center justify-center text-[#27324A] hover:bg-[#27324A]/5 transition"
+        className="relative h-9 w-9 rounded-xl flex items-center justify-center text-[#0F172A] hover:bg-[#0F172A]/5 transition"
         aria-label={`Notifications${unread.length ? ` (${unread.length} unread)` : ""}`}
       >
         <Bell className="h-4 w-4" />
         {unread.length > 0 && (
-          <span className="absolute -top-1 -right-1 h-4 min-w-[1rem] px-1 rounded-full bg-[#A7653A] text-white text-[10px] font-black flex items-center justify-center">
+          <span className="absolute -top-1 -right-1 h-4 min-w-[1rem] px-1 rounded-full bg-[#3B82F6] text-white text-[10px] font-black flex items-center justify-center">
             {unread.length > 9 ? "9+" : unread.length}
           </span>
         )}
       </button>
 
       {open && (
-        <div className="absolute right-0 top-12 z-50 w-[360px] max-w-[calc(100vw-1.5rem)] bg-white rounded-2xl border border-[#2E3344]/10 shadow-2xl overflow-hidden">
-          <div className="flex items-center justify-between gap-2 px-4 py-3 border-b border-[#2E3344]/8 bg-[#f8f8f7]/50">
-            <p className="text-xs font-black uppercase tracking-widest text-[#27324A]">
+        <div className="absolute right-0 top-12 z-50 w-[360px] max-w-[calc(100vw-1.5rem)] bg-white rounded-2xl border border-[#1E293B]/10 shadow-2xl overflow-hidden">
+          <div className="flex items-center justify-between gap-2 px-4 py-3 border-b border-[#1E293B]/8 bg-[#f8f8f7]/50">
+            <p className="text-xs font-black uppercase tracking-widest text-[#0F172A]">
               Notifications
             </p>
             <div className="flex items-center gap-2">
@@ -156,14 +156,14 @@ export function NotificationBell({ initial }: NotificationBellProps) {
                 <button
                   onClick={markAllRead}
                   disabled={isPending}
-                  className="text-[10px] font-bold text-[#A7653A] hover:underline disabled:opacity-50 flex items-center gap-1"
+                  className="text-[10px] font-bold text-[#3B82F6] hover:underline disabled:opacity-50 flex items-center gap-1"
                 >
                   <CheckCheck className="h-3 w-3" /> Mark all read
                 </button>
               )}
               <button
                 onClick={() => setOpen(false)}
-                className="h-6 w-6 rounded-lg hover:bg-[#27324A]/5 flex items-center justify-center"
+                className="h-6 w-6 rounded-lg hover:bg-[#0F172A]/5 flex items-center justify-center"
                 aria-label="Close"
               >
                 <X className="h-3.5 w-3.5 text-[#746E73]" />
@@ -180,7 +180,7 @@ export function NotificationBell({ initial }: NotificationBellProps) {
                 </p>
               </div>
             ) : (
-              <ul className="divide-y divide-[#2E3344]/5">
+              <ul className="divide-y divide-[#1E293B]/5">
                 {items.map((n) => (
                   <li key={n.id}>
                     <NotificationRow
@@ -213,13 +213,13 @@ function NotificationRow({
 }) {
   const inner = (
     <div
-      className={`flex items-start gap-3 px-4 py-3 transition ${!n.read_at ? "bg-[#F7F0E6]/40" : "hover:bg-[#f8f8f7]/50"}`}
+      className={`flex items-start gap-3 px-4 py-3 transition ${!n.read_at ? "bg-[#F8FAFC]/40" : "hover:bg-[#f8f8f7]/50"}`}
     >
       <span
-        className={`mt-1 h-2 w-2 rounded-full shrink-0 ${!n.read_at ? "bg-[#A7653A]" : "bg-[#27324A]/20"}`}
+        className={`mt-1 h-2 w-2 rounded-full shrink-0 ${!n.read_at ? "bg-[#3B82F6]" : "bg-[#0F172A]/20"}`}
       />
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-bold text-[#27324A]">{n.title}</p>
+        <p className="text-sm font-bold text-[#0F172A]">{n.title}</p>
         {n.body && (
           <p className="text-xs text-[#746E73] mt-0.5 line-clamp-2">{n.body}</p>
         )}
@@ -235,7 +235,7 @@ function NotificationRow({
             e.preventDefault();
             onMarkRead();
           }}
-          className="text-[10px] font-bold text-[#A7653A] hover:underline shrink-0"
+          className="text-[10px] font-bold text-[#3B82F6] hover:underline shrink-0"
         >
           Read
         </button>

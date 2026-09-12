@@ -6,7 +6,7 @@ export function Footer() {
       <div className="container flex flex-col gap-8 md:flex-row md:items-center md:justify-between">
         <div>
           <div className="flex min-w-0 items-center gap-3">
-            <span className="grid h-10 w-10 place-items-center rounded-2xl bg-[#A7653A] font-bold">
+            <span className="grid h-10 w-10 place-items-center rounded-2xl bg-[#3B82F6] font-bold">
               Q
             </span>
             <span className="text-xl font-bold">Quivo</span>
@@ -22,7 +22,7 @@ export function Footer() {
               <a
                 key={link}
                 href="#top"
-                className="transition hover:text-[#D8C99A]"
+                className="transition hover:text-[#60A5FA]"
               >
                 {link}
               </a>

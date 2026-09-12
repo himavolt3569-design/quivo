@@ -63,9 +63,9 @@ interface Props {
 type TabId = "list" | "calendar" | "templates";
 
 const STATUS_STYLES: Record<string, string> = {
-  scheduled: "bg-[#F7F0E6] text-[#A7653A]",
+  scheduled: "bg-[#F8FAFC] text-[#3B82F6]",
   in_progress: "bg-[#41A560]/10 text-[#41A560]",
-  completed: "bg-[#27324A]/10 text-[#27324A]",
+  completed: "bg-[#0F172A]/10 text-[#0F172A]",
   no_show: "bg-red-100 text-red-600",
   cancelled: "bg-gray-100 text-gray-500",
 };
@@ -288,11 +288,11 @@ export function ShiftsPanel({
   ];
 
   return (
-    <section className="bg-white rounded-[2rem] border border-[#2E3344]/8 shadow-sm overflow-hidden">
-      <div className="p-5 sm:p-6 border-b border-[#2E3344]/8 flex items-center justify-between gap-3 flex-wrap">
+    <section className="bg-white rounded-[2rem] border border-[#1E293B]/8 shadow-sm overflow-hidden">
+      <div className="p-5 sm:p-6 border-b border-[#1E293B]/8 flex items-center justify-between gap-3 flex-wrap">
         <div>
-          <h2 className="font-black text-[#27324A] text-base sm:text-lg flex items-center gap-2">
-            <Calendar className="h-4 w-4 text-[#A7653A]" /> Shifts
+          <h2 className="font-black text-[#0F172A] text-base sm:text-lg flex items-center gap-2">
+            <Calendar className="h-4 w-4 text-[#3B82F6]" /> Shifts
           </h2>
           <p className="text-xs text-[#746E73] mt-0.5">
             Schedule shifts, track who&apos;s on the clock, and build recurring
@@ -303,7 +303,7 @@ export function ShiftsPanel({
           <Button
             onClick={() => setShowForm((s) => !s)}
             disabled={activeStaff.length === 0}
-            className="h-10 rounded-xl bg-[#A7653A] hover:bg-[#8D5132] text-white text-xs font-bold"
+            className="h-10 rounded-xl bg-[#3B82F6] hover:bg-[#8D5132] text-white text-xs font-bold"
           >
             {showForm ? (
               <X className="h-4 w-4" />
@@ -316,7 +316,7 @@ export function ShiftsPanel({
       </div>
 
       {/* Tabs */}
-      <div className="px-5 sm:px-6 pt-4 border-b border-[#2E3344]/5 flex gap-1">
+      <div className="px-5 sm:px-6 pt-4 border-b border-[#1E293B]/5 flex gap-1">
         {TABS.map((t) => {
           const isActive = tab === t.id;
           return (
@@ -325,7 +325,7 @@ export function ShiftsPanel({
               onClick={() => setTab(t.id)}
               className={`flex items-center gap-1.5 px-3.5 h-9 rounded-t-lg text-xs font-black transition ${
                 isActive
-                  ? "bg-[#27324A] text-white"
+                  ? "bg-[#0F172A] text-white"
                   : "text-[#746E73] hover:bg-[#f8f8f7]"
               }`}
             >
@@ -336,7 +336,7 @@ export function ShiftsPanel({
       </div>
 
       {activeStaff.length === 0 && (
-        <div className="px-6 py-5 text-xs text-[#746E73] bg-[#F7F0E6]/40 border-b border-[#2E3344]/8">
+        <div className="px-6 py-5 text-xs text-[#746E73] bg-[#F8FAFC]/40 border-b border-[#1E293B]/8">
           Add an active staff member above before scheduling shifts.
         </div>
       )}
@@ -347,7 +347,7 @@ export function ShiftsPanel({
           {showForm && activeStaff.length > 0 && (
             <form
               onSubmit={handleSchedule}
-              className="p-5 sm:p-6 grid gap-3 sm:grid-cols-2 border-b border-[#2E3344]/8 bg-[#F7F0E6]/30"
+              className="p-5 sm:p-6 grid gap-3 sm:grid-cols-2 border-b border-[#1E293B]/8 bg-[#F8FAFC]/30"
             >
               <div className="sm:col-span-2">
                 <Label className="text-[11px] font-bold text-[#746E73] uppercase tracking-wider">
@@ -414,7 +414,7 @@ export function ShiftsPanel({
                 <Button
                   type="submit"
                   disabled={isPending}
-                  className="h-11 px-6 rounded-xl bg-[#27324A] hover:bg-[#1b2333] text-white font-bold"
+                  className="h-11 px-6 rounded-xl bg-[#0F172A] hover:bg-[#1b2333] text-white font-bold"
                 >
                   {isPending ? "Scheduling…" : "Schedule shift"}
                 </Button>
@@ -436,7 +436,7 @@ export function ShiftsPanel({
                   {upcoming.map((s) => (
                     <li
                       key={s.id}
-                      className="flex items-center gap-3 p-3 rounded-xl border border-[#2E3344]/5 bg-[#f8f8f7]"
+                      className="flex items-center gap-3 p-3 rounded-xl border border-[#1E293B]/5 bg-[#f8f8f7]"
                     >
                       <div
                         className={`h-10 w-10 rounded-xl flex items-center justify-center ${STATUS_STYLES[s.status] ?? "bg-[#f8f8f7]"}`}
@@ -444,7 +444,7 @@ export function ShiftsPanel({
                         <UserCheck className="h-4 w-4" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-bold text-[#27324A] truncate">
+                        <p className="text-sm font-bold text-[#0F172A] truncate">
                           {s.staff_name ?? "Unknown"}
                         </p>
                         <p className="text-[11px] text-[#746E73] font-medium flex items-center gap-1 truncate">
@@ -488,13 +488,13 @@ export function ShiftsPanel({
                         className="flex items-center gap-3 p-3 rounded-xl bg-[#f8f8f7]/60"
                       >
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-bold text-[#27324A] truncate">
+                          <p className="text-sm font-bold text-[#0F172A] truncate">
                             {s.staff_name ?? "Unknown"}
                           </p>
                           <p className="text-[11px] text-[#746E73] font-medium truncate">
                             {fmtShiftWindow(s.scheduled_start, s.scheduled_end)}
                             {hours && (
-                              <span className="ml-2 text-[#A7653A]">
+                              <span className="ml-2 text-[#3B82F6]">
                                 · {hours} worked
                               </span>
                             )}

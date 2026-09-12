@@ -238,25 +238,25 @@ export function StaffList({ shopId, initialStaff }: StaffListProps) {
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-black text-[#27324A]">Staff & Roles</h1>
+          <h1 className="text-2xl font-black text-[#0F172A]">Staff & Roles</h1>
           <p className="text-sm font-medium text-[#746E73] mt-1">
             Manage employee access and shop permissions.
           </p>
         </div>
         <Button
           onClick={() => setShowAddModal(true)}
-          className="rounded-xl h-12 bg-[#27324A] hover:bg-[#1b2333] text-white font-bold px-6 shadow-sm w-full sm:w-auto"
+          className="rounded-xl h-12 bg-[#0F172A] hover:bg-[#1b2333] text-white font-bold px-6 shadow-sm w-full sm:w-auto"
         >
           <Plus className="h-4 w-4 mr-2" /> Add Staff Member
         </Button>
       </div>
 
       {staff.length === 0 && (
-        <div className="flex flex-col items-center justify-center py-24 gap-4 text-center bg-white rounded-[2rem] border border-[#2E3344]/8">
-          <div className="h-16 w-16 rounded-2xl bg-[#F7F0E6] flex items-center justify-center">
-            <Users className="h-8 w-8 text-[#A7653A]" />
+        <div className="flex flex-col items-center justify-center py-24 gap-4 text-center bg-white rounded-[2rem] border border-[#1E293B]/8">
+          <div className="h-16 w-16 rounded-2xl bg-[#F8FAFC] flex items-center justify-center">
+            <Users className="h-8 w-8 text-[#3B82F6]" />
           </div>
-          <h3 className="text-lg font-black text-[#27324A]">
+          <h3 className="text-lg font-black text-[#0F172A]">
             No staff added yet
           </h3>
           <p className="text-sm text-[#746E73] font-medium max-w-xs">
@@ -265,7 +265,7 @@ export function StaffList({ shopId, initialStaff }: StaffListProps) {
           </p>
           <Button
             onClick={() => setShowAddModal(true)}
-            className="rounded-xl h-11 bg-[#27324A] hover:bg-[#1b2333] text-white font-bold"
+            className="rounded-xl h-11 bg-[#0F172A] hover:bg-[#1b2333] text-white font-bold"
           >
             <Plus className="h-4 w-4 mr-2" /> Add First Staff Member
           </Button>
@@ -279,10 +279,10 @@ export function StaffList({ shopId, initialStaff }: StaffListProps) {
             {activeStaff.map((member) => (
               <div
                 key={member.id}
-                className="bg-white p-4 rounded-[1.5rem] border border-[#2E3344]/8 shadow-sm flex items-center justify-between"
+                className="bg-white p-4 rounded-[1.5rem] border border-[#1E293B]/8 shadow-sm flex items-center justify-between"
               >
                 <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-full bg-[#E8E3D1]/50 flex items-center justify-center font-black text-[#A7653A] overflow-hidden shrink-0">
+                  <div className="h-10 w-10 rounded-full bg-[#E8E3D1]/50 flex items-center justify-center font-black text-[#3B82F6] overflow-hidden shrink-0">
                     {member.image_url ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img
@@ -295,11 +295,11 @@ export function StaffList({ shopId, initialStaff }: StaffListProps) {
                     )}
                   </div>
                   <div>
-                    <p className="font-bold text-[#27324A] text-sm">
+                    <p className="font-bold text-[#0F172A] text-sm">
                       {member.name}
                     </p>
                     <div className="flex items-center gap-2 mt-0.5">
-                      <span className="text-[10px] font-bold text-[#A7653A] bg-[#F7F0E6] px-2 py-0.5 rounded-md uppercase tracking-widest">
+                      <span className="text-[10px] font-bold text-[#3B82F6] bg-[#F8FAFC] px-2 py-0.5 rounded-md uppercase tracking-widest">
                         {ROLES.find((r) => r.id === member.role)?.label ??
                           member.role}
                       </span>
@@ -326,7 +326,7 @@ export function StaffList({ shopId, initialStaff }: StaffListProps) {
                       disabled={isPending}
                       onClick={() => handleLinkAccount(member.id, member.email)}
                       title="Link to a Quivo account so they can use the staff dashboard"
-                      className="h-8 w-8 rounded-lg flex items-center justify-center text-[#746E73] hover:bg-[#F7F0E6] hover:text-[#A7653A] transition disabled:opacity-40"
+                      className="h-8 w-8 rounded-lg flex items-center justify-center text-[#746E73] hover:bg-[#F8FAFC] hover:text-[#3B82F6] transition disabled:opacity-40"
                     >
                       <LinkIcon className="h-3.5 w-3.5" />
                     </button>
@@ -349,7 +349,7 @@ export function StaffList({ shopId, initialStaff }: StaffListProps) {
                 {inactiveStaff.map((member) => (
                   <div
                     key={member.id}
-                    className="bg-white p-4 rounded-[1.5rem] border border-[#2E3344]/5 shadow-sm flex items-center justify-between opacity-60"
+                    className="bg-white p-4 rounded-[1.5rem] border border-[#1E293B]/5 shadow-sm flex items-center justify-between opacity-60"
                   >
                     <div className="flex items-center gap-3">
                       <div className="h-10 w-10 rounded-full bg-[#E8E3D1]/30 flex items-center justify-center font-black text-[#746E73] overflow-hidden shrink-0">
@@ -389,16 +389,16 @@ export function StaffList({ shopId, initialStaff }: StaffListProps) {
           </div>
 
           {/* Permissions Matrix */}
-          <div className="lg:col-span-8 bg-white rounded-[2rem] border border-[#2E3344]/8 shadow-sm overflow-hidden">
-            <div className="p-6 border-b border-[#2E3344]/8 bg-[#f8f8f7] flex items-center gap-3">
-              <Shield className="h-5 w-5 text-[#27324A]" />
-              <h2 className="text-lg font-black text-[#27324A]">
+          <div className="lg:col-span-8 bg-white rounded-[2rem] border border-[#1E293B]/8 shadow-sm overflow-hidden">
+            <div className="p-6 border-b border-[#1E293B]/8 bg-[#f8f8f7] flex items-center gap-3">
+              <Shield className="h-5 w-5 text-[#0F172A]" />
+              <h2 className="text-lg font-black text-[#0F172A]">
                 Role Permissions
               </h2>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-left text-sm whitespace-nowrap">
-                <thead className="bg-white border-b border-[#2E3344]/8 text-[#746E73] font-bold uppercase tracking-widest text-[10px]">
+                <thead className="bg-white border-b border-[#1E293B]/8 text-[#746E73] font-bold uppercase tracking-widest text-[10px]">
                   <tr>
                     <th className="px-6 py-4">Module</th>
                     <th className="px-6 py-4 text-center">Owner</th>
@@ -407,10 +407,10 @@ export function StaffList({ shopId, initialStaff }: StaffListProps) {
                     <th className="px-6 py-4 text-center">Inventory</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#2E3344]/5">
+                <tbody className="divide-y divide-[#1E293B]/5">
                   {PERMISSIONS.map((perm, i) => (
                     <tr key={i} className="hover:bg-[#f8f8f7]/50 transition">
-                      <td className="px-6 py-4 font-bold text-[#27324A]">
+                      <td className="px-6 py-4 font-bold text-[#0F172A]">
                         {perm.module}
                       </td>
                       {[true, perm.manager, perm.cashier, perm.inventory].map(
@@ -431,7 +431,7 @@ export function StaffList({ shopId, initialStaff }: StaffListProps) {
                 </tbody>
               </table>
             </div>
-            <div className="p-4 bg-[#f8f8f7] text-center border-t border-[#2E3344]/5">
+            <div className="p-4 bg-[#f8f8f7] text-center border-t border-[#1E293B]/5">
               <p className="text-[10px] text-[#746E73] font-bold">
                 Owner always has full access. Staff without a Quivo account are
                 tracked for record-keeping only.
@@ -446,7 +446,7 @@ export function StaffList({ shopId, initialStaff }: StaffListProps) {
         <div className="fixed inset-0 z-50 bg-black/40 flex items-end sm:items-center justify-center p-4">
           <div className="bg-white rounded-[2rem] w-full max-w-md shadow-2xl p-6 space-y-5 animate-in slide-in-from-bottom-4 duration-300">
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-black text-[#27324A]">
+              <h2 className="text-lg font-black text-[#0F172A]">
                 Add Staff Member
               </h2>
               <button
@@ -455,7 +455,7 @@ export function StaffList({ shopId, initialStaff }: StaffListProps) {
                   setPhotoPreview(null);
                   setPhotoFile(null);
                 }}
-                className="text-[#746E73] hover:text-[#27324A] p-1"
+                className="text-[#746E73] hover:text-[#0F172A] p-1"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -463,7 +463,7 @@ export function StaffList({ shopId, initialStaff }: StaffListProps) {
             <div className="space-y-4">
               {/* Photo upload */}
               <div className="flex items-center gap-4">
-                <div className="h-16 w-16 rounded-2xl bg-[#F7F0E6] border-2 border-dashed border-[#A7653A]/30 flex items-center justify-center overflow-hidden shrink-0">
+                <div className="h-16 w-16 rounded-2xl bg-[#F8FAFC] border-2 border-dashed border-[#3B82F6]/30 flex items-center justify-center overflow-hidden shrink-0">
                   {photoPreview ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
@@ -472,18 +472,18 @@ export function StaffList({ shopId, initialStaff }: StaffListProps) {
                       className="h-16 w-16 object-cover"
                     />
                   ) : (
-                    <Camera className="h-6 w-6 text-[#A7653A]/40" />
+                    <Camera className="h-6 w-6 text-[#3B82F6]/40" />
                   )}
                 </div>
                 <div>
-                  <p className="text-sm font-bold text-[#27324A]">
+                  <p className="text-sm font-bold text-[#0F172A]">
                     Staff Photo
                   </p>
                   <p className="text-xs text-[#746E73] mb-2">Optional</p>
                   <button
                     type="button"
                     onClick={() => photoInputRef.current?.click()}
-                    className="text-xs font-bold text-[#A7653A] hover:underline"
+                    className="text-xs font-bold text-[#3B82F6] hover:underline"
                   >
                     {photoPreview ? "Change photo" : "Upload photo"}
                   </button>
@@ -498,7 +498,7 @@ export function StaffList({ shopId, initialStaff }: StaffListProps) {
               </div>
 
               <div>
-                <Label className="font-bold text-[#27324A]">Full Name *</Label>
+                <Label className="font-bold text-[#0F172A]">Full Name *</Label>
                 <Input
                   value={form.name}
                   onChange={(e) =>
@@ -509,7 +509,7 @@ export function StaffList({ shopId, initialStaff }: StaffListProps) {
                 />
               </div>
               <div>
-                <Label className="font-bold text-[#27324A]">Role *</Label>
+                <Label className="font-bold text-[#0F172A]">Role *</Label>
                 <Select
                   value={form.role}
                   onValueChange={(v) => setForm((f) => ({ ...f, role: v }))}
@@ -528,7 +528,7 @@ export function StaffList({ shopId, initialStaff }: StaffListProps) {
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <Label className="font-bold text-[#27324A]">Phone</Label>
+                  <Label className="font-bold text-[#0F172A]">Phone</Label>
                   <PhoneInput
                     value={form.phone}
                     onChange={(e) =>
@@ -539,7 +539,7 @@ export function StaffList({ shopId, initialStaff }: StaffListProps) {
                   />
                 </div>
                 <div>
-                  <Label className="font-bold text-[#27324A]">Email</Label>
+                  <Label className="font-bold text-[#0F172A]">Email</Label>
                   <EmailInput
                     value={form.email}
                     onChange={(e) =>
@@ -551,7 +551,7 @@ export function StaffList({ shopId, initialStaff }: StaffListProps) {
                 </div>
               </div>
               <div>
-                <Label className="font-bold text-[#27324A]">
+                <Label className="font-bold text-[#0F172A]">
                   Notes (optional)
                 </Label>
                 <Input
@@ -572,14 +572,14 @@ export function StaffList({ shopId, initialStaff }: StaffListProps) {
                   setPhotoPreview(null);
                   setPhotoFile(null);
                 }}
-                className="flex-1 h-12 rounded-xl border-[#2E3344]/10 font-bold"
+                className="flex-1 h-12 rounded-xl border-[#1E293B]/10 font-bold"
               >
                 Cancel
               </Button>
               <Button
                 disabled={isPending || uploading || !form.name.trim()}
                 onClick={handleAdd}
-                className="flex-1 h-12 rounded-xl bg-[#27324A] hover:bg-[#1b2333] text-white font-bold"
+                className="flex-1 h-12 rounded-xl bg-[#0F172A] hover:bg-[#1b2333] text-white font-bold"
               >
                 {uploading ? (
                   <>

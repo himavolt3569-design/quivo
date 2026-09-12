@@ -55,12 +55,12 @@ export function ReviewModerationList({ shopName, rows, initialError }: Props) {
       <div>
         <Link
           href="/dashboard/owner/customers"
-          className="inline-flex items-center gap-1 text-xs font-bold text-[#746E73] hover:text-[#27324A] mb-2"
+          className="inline-flex items-center gap-1 text-xs font-bold text-[#746E73] hover:text-[#0F172A] mb-2"
         >
           <ChevronLeft className="h-3 w-3" /> Back to Customers
         </Link>
-        <h1 className="text-2xl font-black text-[#27324A] flex items-center gap-2">
-          <MessageSquare className="h-6 w-6 text-[#A7653A]" /> Reviews
+        <h1 className="text-2xl font-black text-[#0F172A] flex items-center gap-2">
+          <MessageSquare className="h-6 w-6 text-[#3B82F6]" /> Reviews
         </h1>
         <p className="text-sm font-medium text-[#746E73] mt-1">
           Moderate reviews for {shopName}. New reviews publish immediately; you
@@ -68,12 +68,12 @@ export function ReviewModerationList({ shopName, rows, initialError }: Props) {
         </p>
       </div>
 
-      <div className="flex rounded-xl border border-[#2E3344]/15 overflow-hidden h-10 w-fit">
+      <div className="flex rounded-xl border border-[#1E293B]/15 overflow-hidden h-10 w-fit">
         {(["all", "published", "hidden"] as const).map((f) => (
           <button
             key={f}
             onClick={() => setFilter(f)}
-            className={`px-3 text-xs font-bold capitalize ${filter === f ? "bg-[#27324A] text-white" : "bg-white text-[#27324A]"}`}
+            className={`px-3 text-xs font-bold capitalize ${filter === f ? "bg-[#0F172A] text-white" : "bg-white text-[#0F172A]"}`}
           >
             {f}
           </button>
@@ -87,7 +87,7 @@ export function ReviewModerationList({ shopName, rows, initialError }: Props) {
       )}
 
       {visible.length === 0 ? (
-        <div className="rounded-2xl bg-white border border-[#2E3344]/10 p-8 text-center text-sm font-bold text-[#746E73]">
+        <div className="rounded-2xl bg-white border border-[#1E293B]/10 p-8 text-center text-sm font-bold text-[#746E73]">
           No reviews yet.
         </div>
       ) : (
@@ -95,11 +95,11 @@ export function ReviewModerationList({ shopName, rows, initialError }: Props) {
           {visible.map((r) => (
             <li
               key={r.id}
-              className="rounded-2xl bg-white border border-[#2E3344]/10 p-4 space-y-3"
+              className="rounded-2xl bg-white border border-[#1E293B]/10 p-4 space-y-3"
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
-                  <p className="text-xs font-bold text-[#27324A] truncate">
+                  <p className="text-xs font-bold text-[#0F172A] truncate">
                     {r.product_name ?? "Product"}
                   </p>
                   <div className="flex items-center gap-2 mt-1">
@@ -125,7 +125,7 @@ export function ReviewModerationList({ shopName, rows, initialError }: Props) {
                     <button
                       onClick={() => apply(r.id, "publish")}
                       disabled={isPending}
-                      className="h-8 px-3 rounded-xl bg-[#27324A] text-white text-xs font-bold inline-flex items-center gap-1 disabled:opacity-40"
+                      className="h-8 px-3 rounded-xl bg-[#0F172A] text-white text-xs font-bold inline-flex items-center gap-1 disabled:opacity-40"
                     >
                       <Eye className="h-3 w-3" /> Publish
                     </button>
@@ -142,7 +142,7 @@ export function ReviewModerationList({ shopName, rows, initialError }: Props) {
                 </div>
               </div>
               {r.body && (
-                <p className="text-sm text-[#27324A] leading-relaxed rounded-xl bg-[#F7F0E6] px-3 py-2">
+                <p className="text-sm text-[#0F172A] leading-relaxed rounded-xl bg-[#F8FAFC] px-3 py-2">
                   {r.body}
                 </p>
               )}

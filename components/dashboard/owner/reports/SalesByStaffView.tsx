@@ -71,12 +71,12 @@ export function SalesByStaffView({ shopId, shopName }: Props) {
       <div>
         <Link
           href="/dashboard/owner/staff"
-          className="inline-flex items-center gap-1 text-xs font-bold text-[#746E73] hover:text-[#27324A] mb-2"
+          className="inline-flex items-center gap-1 text-xs font-bold text-[#746E73] hover:text-[#0F172A] mb-2"
         >
           <ChevronLeft className="h-3 w-3" /> Back to Staff
         </Link>
-        <h1 className="text-2xl font-black text-[#27324A] flex items-center gap-2">
-          <Users className="h-6 w-6 text-[#A7653A]" /> Sales by staff
+        <h1 className="text-2xl font-black text-[#0F172A] flex items-center gap-2">
+          <Users className="h-6 w-6 text-[#3B82F6]" /> Sales by staff
         </h1>
         <p className="text-sm font-medium text-[#746E73] mt-1">
           POS sales attributed to each staff member (via their linked account),
@@ -95,7 +95,7 @@ export function SalesByStaffView({ shopId, shopName }: Props) {
           <button
             onClick={exportCsv}
             disabled={isPending || rows.length === 0}
-            className="h-11 px-4 rounded-xl bg-[#27324A] hover:bg-[#1b2333] text-white font-bold text-sm flex items-center gap-2 disabled:opacity-40"
+            className="h-11 px-4 rounded-xl bg-[#0F172A] hover:bg-[#1b2333] text-white font-bold text-sm flex items-center gap-2 disabled:opacity-40"
           >
             <Download className="h-4 w-4" /> CSV
           </button>
@@ -108,7 +108,7 @@ export function SalesByStaffView({ shopId, shopName }: Props) {
         </div>
       )}
 
-      <div className="bg-white rounded-2xl border border-[#2E3344]/8 shadow-sm overflow-hidden">
+      <div className="bg-white rounded-2xl border border-[#1E293B]/8 shadow-sm overflow-hidden">
         {isPending ? (
           <div className="py-12 text-center text-sm font-bold text-[#746E73]">
             Loading…
@@ -129,13 +129,13 @@ export function SalesByStaffView({ shopId, shopName }: Props) {
                   <th className="px-4 py-3 text-right">Rs. / hour</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#2E3344]/5">
+              <tbody className="divide-y divide-[#1E293B]/5">
                 {rows.map((r) => (
                   <tr key={r.staff_id} className="hover:bg-[#f8f8f7]/50">
                     <td className="px-4 py-3">
-                      <p className="font-bold text-[#27324A]">{r.staff_name}</p>
+                      <p className="font-bold text-[#0F172A]">{r.staff_name}</p>
                       {!r.user_id && (
-                        <p className="text-[10px] text-[#A7653A]">
+                        <p className="text-[10px] text-[#3B82F6]">
                           no linked account — sales can&apos;t be attributed
                         </p>
                       )}
@@ -147,7 +147,7 @@ export function SalesByStaffView({ shopId, shopName }: Props) {
                     <td className="px-4 py-3 text-right text-[#746E73] inline-flex items-center gap-1 justify-end w-full">
                       <Clock className="h-3 w-3" /> {r.hours_worked}
                     </td>
-                    <td className="px-4 py-3 text-right font-bold text-[#27324A]">
+                    <td className="px-4 py-3 text-right font-bold text-[#0F172A]">
                       {r.sales_per_hour > 0 ? money(r.sales_per_hour) : "—"}
                     </td>
                   </tr>

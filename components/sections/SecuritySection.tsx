@@ -4,7 +4,7 @@ import { CalendarDays, CreditCard, ShieldCheck } from "lucide-react";
 
 export function SecuritySection() {
   return (
-    <section id="security" className="reveal-section bg-[#F7F0E6] py-24">
+    <section id="security" className="reveal-section bg-[#F8FAFC] py-24">
       <div className="container grid gap-5 lg:grid-cols-3">
         {[
           {
@@ -27,7 +27,7 @@ export function SecuritySection() {
           return (
             <article
               key={item.title}
-              className="magnetic-card reveal-item rounded-[1.75rem] bg-[#27324A] p-7 text-white shadow-xl shadow-[#27324A]/14"
+              className="magnetic-card reveal-item rounded-[1.75rem] bg-[#0F172A] p-7 text-white shadow-xl shadow-[#0F172A]/14"
             >
               <Icon className="h-8 w-8 text-[#D8C99A]" />
               <h3 className="mt-5 text-xl font-semibold">{item.title}</h3>

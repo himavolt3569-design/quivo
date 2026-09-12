@@ -92,7 +92,7 @@ export function CheckoutDiscounts({
     <div className="space-y-2 px-5 py-3 bg-white border-b border-gray-100">
       {/* Promo code */}
       <div className="flex items-center gap-2">
-        <Ticket className="h-4 w-4 text-[#A7653A] shrink-0" />
+        <Ticket className="h-4 w-4 text-[#3B82F6] shrink-0" />
         {applied ? (
           <div className="flex-1 flex items-center justify-between gap-2 rounded-xl bg-green-50 border border-green-200 px-3 py-2">
             <span className="text-xs font-bold text-green-800">
@@ -122,7 +122,7 @@ export function CheckoutDiscounts({
               type="button"
               onClick={apply}
               disabled={isPending || !code.trim()}
-              className="h-9 px-3 rounded-xl bg-[#27324A] text-white text-xs font-bold disabled:opacity-40"
+              className="h-9 px-3 rounded-xl bg-[#0F172A] text-white text-xs font-bold disabled:opacity-40"
             >
               Apply
             </button>
@@ -135,10 +135,10 @@ export function CheckoutDiscounts({
 
       {/* Wallet redemption — only when there's something to spend */}
       {walletMax > 0 && (
-        <div className="rounded-xl bg-[#F7F0E6] px-3 py-2 space-y-1.5">
+        <div className="rounded-xl bg-[#F8FAFC] px-3 py-2 space-y-1.5">
           <div className="flex items-center justify-between text-xs">
-            <span className="font-bold text-[#27324A] inline-flex items-center gap-1.5">
-              <Wallet className="h-3.5 w-3.5 text-[#A7653A]" /> Pay with wallet
+            <span className="font-bold text-[#0F172A] inline-flex items-center gap-1.5">
+              <Wallet className="h-3.5 w-3.5 text-[#3B82F6]" /> Pay with wallet
             </span>
             <span className="text-[#746E73]">
               Balance: Rs. {balance.toLocaleString()}
@@ -155,13 +155,13 @@ export function CheckoutDiscounts({
                 Math.min(walletMax, Math.max(0, Number(e.target.value))),
               )
             }
-            className="w-full accent-[#A7653A]"
+            className="w-full accent-[#3B82F6]"
           />
           <div className="flex items-center justify-between text-[11px] font-bold">
             <span className="text-[#746E73]">
               Use Rs. {walletUsed.toLocaleString()}
             </span>
-            <span className="text-[#A7653A]">
+            <span className="text-[#3B82F6]">
               Max Rs. {walletMax.toLocaleString()}
             </span>
           </div>

@@ -59,7 +59,7 @@ export function PendingPaymentsList({ payments }: { payments: PaymentRow[] }) {
     return (
       <div className="px-5 py-10 text-center">
         <CheckCircle2 className="h-10 w-10 text-green-300 mx-auto mb-2" />
-        <p className="text-sm font-bold text-[#27324A]">
+        <p className="text-sm font-bold text-[#0F172A]">
           No payments awaiting verification.
         </p>
         <p className="text-xs text-[#746E73] mt-1">
@@ -107,24 +107,24 @@ export function PendingPaymentsList({ payments }: { payments: PaymentRow[] }) {
   }
 
   return (
-    <ul className="divide-y divide-[#2E3344]/8">
+    <ul className="divide-y divide-[#1E293B]/8">
       {payments.map((p) => {
         const Icon = METHOD_ICONS[p.payment_method];
         const isRejecting = rejectingId === p.id;
         return (
           <li key={p.id} className="px-5 py-4">
             <div className="flex items-start gap-3">
-              <div className="h-10 w-10 rounded-xl bg-[#F7F0E6] flex items-center justify-center shrink-0">
-                <Icon className="h-5 w-5 text-[#A7653A]" />
+              <div className="h-10 w-10 rounded-xl bg-[#F8FAFC] flex items-center justify-center shrink-0">
+                <Icon className="h-5 w-5 text-[#3B82F6]" />
               </div>
 
               <div className="flex-1 min-w-0">
                 <div className="flex items-baseline justify-between gap-2">
-                  <p className="font-black text-[#27324A] text-sm truncate">
+                  <p className="font-black text-[#0F172A] text-sm truncate">
                     {p.orders?.order_number ?? "—"} ·{" "}
                     {PAYMENT_METHOD_LABELS[p.payment_method]}
                   </p>
-                  <p className="font-black text-[#27324A] shrink-0">
+                  <p className="font-black text-[#0F172A] shrink-0">
                     Rs. {Number(p.amount).toLocaleString()}
                   </p>
                 </div>
@@ -142,7 +142,7 @@ export function PendingPaymentsList({ payments }: { payments: PaymentRow[] }) {
                   <button
                     type="button"
                     onClick={() => openReceipt(p.receipt_url!)}
-                    className="mt-2 inline-flex items-center gap-1.5 text-xs font-bold text-[#A7653A] hover:underline"
+                    className="mt-2 inline-flex items-center gap-1.5 text-xs font-bold text-[#3B82F6] hover:underline"
                   >
                     <FileText className="h-3.5 w-3.5" /> View receipt{" "}
                     <ExternalLink className="h-3 w-3" />

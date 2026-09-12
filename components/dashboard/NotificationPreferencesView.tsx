@@ -127,11 +127,11 @@ export function NotificationPreferencesView({ backHref, initialPrefs }: Props) {
         <div>
           <Link
             href={backHref}
-            className="inline-flex items-center gap-1 text-xs font-bold text-[#746E73] hover:text-[#27324A] mb-2"
+            className="inline-flex items-center gap-1 text-xs font-bold text-[#746E73] hover:text-[#0F172A] mb-2"
           >
             <ChevronLeft className="h-3 w-3" /> Back
           </Link>
-          <h1 className="text-2xl font-black text-[#27324A]">Notifications</h1>
+          <h1 className="text-2xl font-black text-[#0F172A]">Notifications</h1>
           <p className="text-sm font-medium text-[#746E73] mt-1">
             Pick which kinds of updates land where. SMS &amp; Push come later
             phases.
@@ -141,13 +141,13 @@ export function NotificationPreferencesView({ backHref, initialPrefs }: Props) {
           type="button"
           onClick={save}
           disabled={!isDirty || isPending}
-          className="h-11 px-4 rounded-xl bg-[#27324A] hover:bg-[#1b2333] text-white font-bold text-sm flex items-center gap-2 shadow-sm disabled:opacity-40"
+          className="h-11 px-4 rounded-xl bg-[#0F172A] hover:bg-[#1b2333] text-white font-bold text-sm flex items-center gap-2 shadow-sm disabled:opacity-40"
         >
           <Save className="h-4 w-4" /> {isPending ? "Saving…" : "Save changes"}
         </button>
       </div>
 
-      <div className="bg-white rounded-2xl border border-[#2E3344]/8 shadow-sm p-5">
+      <div className="bg-white rounded-2xl border border-[#1E293B]/8 shadow-sm p-5">
         <p className="text-xs font-black uppercase tracking-widest text-[#746E73] mb-2">
           Push on this device
         </p>
@@ -158,7 +158,7 @@ export function NotificationPreferencesView({ backHref, initialPrefs }: Props) {
         <PushSubscribeButton />
       </div>
 
-      <div className="bg-white rounded-2xl border border-[#2E3344]/8 shadow-sm overflow-hidden">
+      <div className="bg-white rounded-2xl border border-[#1E293B]/8 shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="bg-[#f8f8f7]">
@@ -179,11 +179,11 @@ export function NotificationPreferencesView({ backHref, initialPrefs }: Props) {
                 ))}
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#2E3344]/5">
+            <tbody className="divide-y divide-[#1E293B]/5">
               {KINDS.map((k) => (
                 <tr key={k.id}>
                   <td className="px-4 py-3">
-                    <p className="font-bold text-[#27324A]">{k.label}</p>
+                    <p className="font-bold text-[#0F172A]">{k.label}</p>
                     <p className="text-xs text-[#746E73] mt-0.5">
                       {k.description}
                     </p>
@@ -209,7 +209,7 @@ export function NotificationPreferencesView({ backHref, initialPrefs }: Props) {
                           <span
                             className={`relative w-10 h-5 rounded-full transition ${
                               checked && !disabled
-                                ? "bg-[#27324A]"
+                                ? "bg-[#0F172A]"
                                 : "bg-[#E8E3D1]"
                             }`}
                           >

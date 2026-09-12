@@ -295,12 +295,12 @@ export function ProductImportView({ shopId }: Props) {
       <div>
         <Link
           href="/dashboard/owner/products"
-          className="inline-flex items-center gap-1 text-xs font-bold text-[#746E73] hover:text-[#27324A] mb-2"
+          className="inline-flex items-center gap-1 text-xs font-bold text-[#746E73] hover:text-[#0F172A] mb-2"
         >
           <ChevronLeft className="h-3 w-3" /> Back to Products
         </Link>
-        <h1 className="text-2xl font-black text-[#27324A] flex items-center gap-2">
-          <Upload className="h-6 w-6 text-[#A7653A]" /> Bulk import
+        <h1 className="text-2xl font-black text-[#0F172A] flex items-center gap-2">
+          <Upload className="h-6 w-6 text-[#3B82F6]" /> Bulk import
         </h1>
         <p className="text-sm font-medium text-[#746E73] mt-1">
           Paste or upload a CSV. We auto-detect columns; you can review the
@@ -310,7 +310,7 @@ export function ProductImportView({ shopId }: Props) {
       </div>
 
       {/* Step 1 — input */}
-      <div className="bg-white rounded-2xl border border-[#2E3344]/8 shadow-sm p-6 space-y-4">
+      <div className="bg-white rounded-2xl border border-[#1E293B]/8 shadow-sm p-6 space-y-4">
         <div className="flex items-center justify-between flex-wrap gap-3">
           <h2 className="text-sm font-black uppercase tracking-widest text-[#746E73]">
             1. Source
@@ -319,14 +319,14 @@ export function ProductImportView({ shopId }: Props) {
             <button
               type="button"
               onClick={downloadTemplate}
-              className="h-9 px-3 rounded-xl border border-[#27324A]/15 text-[#27324A] text-xs font-bold flex items-center gap-1 hover:bg-[#f8f8f7]"
+              className="h-9 px-3 rounded-xl border border-[#0F172A]/15 text-[#0F172A] text-xs font-bold flex items-center gap-1 hover:bg-[#f8f8f7]"
             >
               <Download className="h-3.5 w-3.5" /> Template
             </button>
             <button
               type="button"
               onClick={() => fileRef.current?.click()}
-              className="h-9 px-3 rounded-xl bg-[#27324A] hover:bg-[#1b2333] text-white text-xs font-bold flex items-center gap-1"
+              className="h-9 px-3 rounded-xl bg-[#0F172A] hover:bg-[#1b2333] text-white text-xs font-bold flex items-center gap-1"
             >
               <FileText className="h-3.5 w-3.5" /> Upload CSV
             </button>
@@ -348,14 +348,14 @@ export function ProductImportView({ shopId }: Props) {
           onChange={(e) => ingestCsv(e.target.value)}
           placeholder="Or paste CSV here (first row should be headers)…"
           rows={6}
-          className="w-full px-3 py-2 text-sm font-mono border border-[#2E3344]/10 rounded-xl resize-y outline-none focus:border-[#27324A]"
+          className="w-full px-3 py-2 text-sm font-mono border border-[#1E293B]/10 rounded-xl resize-y outline-none focus:border-[#0F172A]"
         />
-        <label className="flex items-center gap-2 text-xs font-bold text-[#27324A]">
+        <label className="flex items-center gap-2 text-xs font-bold text-[#0F172A]">
           <input
             type="checkbox"
             checked={upsertByBarcode}
             onChange={(e) => setUpsertByBarcode(e.target.checked)}
-            className="h-4 w-4 accent-[#27324A]"
+            className="h-4 w-4 accent-[#0F172A]"
           />
           Update existing products when barcode matches (otherwise duplicates
           are created)
@@ -364,7 +364,7 @@ export function ProductImportView({ shopId }: Props) {
 
       {/* Step 2 — column mapping */}
       {headers.length > 0 && (
-        <div className="bg-white rounded-2xl border border-[#2E3344]/8 shadow-sm p-6 space-y-4">
+        <div className="bg-white rounded-2xl border border-[#1E293B]/8 shadow-sm p-6 space-y-4">
           <h2 className="text-sm font-black uppercase tracking-widest text-[#746E73]">
             2. Column mapping
           </h2>
@@ -382,7 +382,7 @@ export function ProductImportView({ shopId }: Props) {
                       [i]: e.target.value as keyof typeof FIELD_LABELS | "",
                     }))
                   }
-                  className="h-10 px-2 rounded-lg border border-[#2E3344]/15 bg-white text-sm font-bold w-full mt-1"
+                  className="h-10 px-2 rounded-lg border border-[#1E293B]/15 bg-white text-sm font-bold w-full mt-1"
                 >
                   <option value="">— ignore —</option>
                   {FIELD_IDS.map((id) => (
@@ -407,8 +407,8 @@ export function ProductImportView({ shopId }: Props) {
 
       {/* Step 3 — preview */}
       {parsedRows.length > 0 && (
-        <div className="bg-white rounded-2xl border border-[#2E3344]/8 shadow-sm overflow-hidden">
-          <div className="p-4 border-b border-[#2E3344]/8 flex items-center gap-3 flex-wrap">
+        <div className="bg-white rounded-2xl border border-[#1E293B]/8 shadow-sm overflow-hidden">
+          <div className="p-4 border-b border-[#1E293B]/8 flex items-center gap-3 flex-wrap">
             <h2 className="text-sm font-black uppercase tracking-widest text-[#746E73]">
               3. Preview
             </h2>
@@ -434,7 +434,7 @@ export function ProductImportView({ shopId }: Props) {
                   <th className="px-3 py-2 text-left">Brand</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#2E3344]/5">
+              <tbody className="divide-y divide-[#1E293B]/5">
                 {parsedRows.slice(0, 500).map((r, idx) => (
                   <tr
                     key={idx}
@@ -454,7 +454,7 @@ export function ProductImportView({ shopId }: Props) {
                         </span>
                       )}
                     </td>
-                    <td className="px-3 py-2 font-bold text-[#27324A]">
+                    <td className="px-3 py-2 font-bold text-[#0F172A]">
                       {r.mapped.name ?? "—"}
                     </td>
                     <td className="px-3 py-2 text-right">
@@ -483,9 +483,9 @@ export function ProductImportView({ shopId }: Props) {
 
       {/* Step 4 — submit */}
       {parsedRows.length > 0 && (
-        <div className="bg-white rounded-2xl border border-[#2E3344]/8 shadow-sm p-4 flex flex-wrap items-center justify-between gap-3">
+        <div className="bg-white rounded-2xl border border-[#1E293B]/8 shadow-sm p-4 flex flex-wrap items-center justify-between gap-3">
           <p className="text-xs text-[#746E73] font-bold">
-            Ready to import <span className="text-[#27324A]">{goodCount}</span>{" "}
+            Ready to import <span className="text-[#0F172A]">{goodCount}</span>{" "}
             row{goodCount === 1 ? "" : "s"}
             {errorCount > 0 && ` (skipping ${errorCount} with errors)`}.
           </p>
@@ -493,7 +493,7 @@ export function ProductImportView({ shopId }: Props) {
             type="button"
             onClick={submit}
             disabled={!canSubmit}
-            className="h-11 px-4 rounded-xl bg-[#27324A] hover:bg-[#1b2333] text-white font-bold text-sm flex items-center gap-2 disabled:opacity-40"
+            className="h-11 px-4 rounded-xl bg-[#0F172A] hover:bg-[#1b2333] text-white font-bold text-sm flex items-center gap-2 disabled:opacity-40"
           >
             {isPending ? (
               <Loader2 className="h-4 w-4 animate-spin" />
@@ -521,7 +521,7 @@ export function ProductImportView({ shopId }: Props) {
               </p>
             </div>
             <div>
-              <p className="text-3xl font-black text-[#27324A]">
+              <p className="text-3xl font-black text-[#0F172A]">
                 {report.updated}
               </p>
               <p className="text-[10px] uppercase tracking-widest font-bold text-[#746E73] mt-1">
@@ -554,7 +554,7 @@ export function ProductImportView({ shopId }: Props) {
           )}
           <Link
             href="/dashboard/owner/products"
-            className="inline-block mt-3 h-10 px-3 rounded-xl bg-[#27324A] hover:bg-[#1b2333] text-white font-bold text-xs"
+            className="inline-block mt-3 h-10 px-3 rounded-xl bg-[#0F172A] hover:bg-[#1b2333] text-white font-bold text-xs"
           >
             ← Back to Products
           </Link>

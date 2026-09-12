@@ -32,7 +32,7 @@ export function StarRating({
 
   return (
     <span
-      className="inline-flex items-center gap-1 text-[#A7653A]"
+      className="inline-flex items-center gap-1 text-[#3B82F6]"
       aria-label={`${rounded} out of 5 stars`}
     >
       {stars.map((s) => (
@@ -84,7 +84,7 @@ export function InteractiveStarRating({
           type="button"
           aria-label={`${i} star${i === 1 ? "" : "s"}`}
           aria-pressed={value === i}
-          className={`p-1 rounded-md text-[#A7653A] transition-transform ${disabled ? "" : "hover:scale-110 active:scale-95"}`}
+          className={`p-1 rounded-md text-[#3B82F6] transition-transform ${disabled ? "" : "hover:scale-110 active:scale-95"}`}
           onMouseEnter={() => !disabled && setHover(i)}
           onMouseLeave={() => !disabled && setHover(null)}
           onFocus={() => !disabled && setHover(i)}

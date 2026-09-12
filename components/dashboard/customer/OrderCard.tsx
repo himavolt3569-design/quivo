@@ -23,7 +23,7 @@ const TrackingMap = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="h-[160px] animate-pulse rounded-xl bg-[#F7F0E6]" />
+      <div className="h-[160px] animate-pulse rounded-xl bg-[#F8FAFC]" />
     ),
   },
 );
@@ -102,8 +102,8 @@ export function OrderCard({
           : isDelivered
             ? "border-green-100"
             : isOutForDelivery
-              ? "border-[#A7653A]/20"
-              : "border-[#2E3344]/8"
+              ? "border-[#3B82F6]/20"
+              : "border-[#1E293B]/8"
       }`}
     >
       <div className="p-5">
@@ -117,7 +117,7 @@ export function OrderCard({
                   : isDelivered
                     ? "bg-green-50 text-green-600"
                     : isOutForDelivery
-                      ? "bg-[#F7F0E6] text-[#A7653A]"
+                      ? "bg-[#F8FAFC] text-[#3B82F6]"
                       : "bg-[#E8E3D1] text-[#626A54]"
               }`}
             >
@@ -128,7 +128,7 @@ export function OrderCard({
               )}
             </div>
             <div className="min-w-0">
-              <h3 className="truncate text-sm font-bold leading-tight text-[#27324A]">
+              <h3 className="truncate text-sm font-bold leading-tight text-[#0F172A]">
                 {order.shop_name}
               </h3>
               <p className="mt-0.5 text-xs text-[#746E73]">
@@ -138,11 +138,11 @@ export function OrderCard({
             </div>
           </div>
           <div className="flex-shrink-0 text-right">
-            <p className="text-sm font-bold text-[#27324A]">
+            <p className="text-sm font-bold text-[#0F172A]">
               Rs. {order.total_amount.toLocaleString()}
             </p>
             {isActive && !isCancelled && order.eta_minutes ? (
-              <p className="mt-0.5 text-xs font-medium text-[#A7653A]">
+              <p className="mt-0.5 text-xs font-medium text-[#3B82F6]">
                 ~{order.eta_minutes} min
               </p>
             ) : null}
@@ -171,7 +171,7 @@ export function OrderCard({
                   <div className="flex flex-shrink-0 flex-col items-center gap-1.5">
                     <motion.div
                       className={`h-2.5 w-2.5 rounded-full transition-colors duration-500 ${
-                        i <= stepIndex ? "bg-[#A7653A]" : "bg-[#2E3344]/15"
+                        i <= stepIndex ? "bg-[#3B82F6]" : "bg-[#1E293B]/15"
                       }`}
                       animate={
                         i === stepIndex
@@ -193,7 +193,7 @@ export function OrderCard({
                       className="mx-1.5 h-[2px] flex-1 rounded-full"
                       animate={{
                         backgroundColor:
-                          i < stepIndex ? "#A7653A" : "rgba(46,51,68,0.12)",
+                          i < stepIndex ? "#3B82F6" : "rgba(46,51,68,0.12)",
                       }}
                       transition={{ duration: 0.5 }}
                     />
@@ -206,7 +206,7 @@ export function OrderCard({
                 <p
                   key={step.key}
                   className={`flex-1 text-center text-[9px] font-semibold last:flex-none ${
-                    i === stepIndex ? "text-[#A7653A]" : "text-[#746E73]/50"
+                    i === stepIndex ? "text-[#3B82F6]" : "text-[#746E73]/50"
                   }`}
                 >
                   {step.label}
@@ -242,13 +242,13 @@ export function OrderCard({
         {/* Actions */}
         <div className="flex gap-2.5">
           {isActive && !isCancelled && (
-            <div className="flex-1 rounded-full bg-[#F7F0E6] px-3 py-2.5 text-center text-xs font-bold text-[#A7653A]">
+            <div className="flex-1 rounded-full bg-[#F8FAFC] px-3 py-2.5 text-center text-xs font-bold text-[#3B82F6]">
               {STATUS_STEPS[stepIndex]?.label ?? "Processing"}
             </div>
           )}
           <button
             onClick={() => onViewReceipt(order)}
-            className="flex-1 rounded-full border border-[#2E3344]/10 py-2.5 text-xs font-semibold text-[#27324A] transition hover:bg-[#F7F0E6] active:scale-95"
+            className="flex-1 rounded-full border border-[#1E293B]/10 py-2.5 text-xs font-semibold text-[#0F172A] transition hover:bg-[#F8FAFC] active:scale-95"
           >
             View receipt
           </button>
@@ -256,7 +256,7 @@ export function OrderCard({
             <button
               onClick={handleReorder}
               disabled={isReordering}
-              className="flex-1 rounded-full border border-[#A7653A]/30 bg-[#F7F0E6] py-2.5 text-xs font-bold text-[#A7653A] transition hover:bg-[#A7653A]/15 active:scale-95 disabled:opacity-50 inline-flex items-center justify-center gap-1.5"
+              className="flex-1 rounded-full border border-[#3B82F6]/30 bg-[#F8FAFC] py-2.5 text-xs font-bold text-[#3B82F6] transition hover:bg-[#3B82F6]/15 active:scale-95 disabled:opacity-50 inline-flex items-center justify-center gap-1.5"
             >
               <RotateCcw className="h-3 w-3" />
               Reorder
@@ -267,9 +267,9 @@ export function OrderCard({
 
       {/* Live tracking map — shown when out for delivery */}
       {isOutForDelivery && (
-        <div className="border-t border-[#A7653A]/15 px-5 pb-5 pt-4">
-          <p className="mb-2 flex items-center gap-1.5 text-xs font-bold text-[#A7653A]">
-            <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-[#A7653A]" />
+        <div className="border-t border-[#3B82F6]/15 px-5 pb-5 pt-4">
+          <p className="mb-2 flex items-center gap-1.5 text-xs font-bold text-[#3B82F6]">
+            <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-[#3B82F6]" />
             Live tracking
           </p>
           <TrackingMap

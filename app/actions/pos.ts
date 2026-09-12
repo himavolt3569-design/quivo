@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 
 import { createClient } from "@/lib/supabase/server";
 import { log } from "@/lib/log";
+import { prisma } from "@/lib/prisma";
 
 // ─── Schemas ─────────────────────────────────────────────────────────────────
 
@@ -77,7 +78,7 @@ export async function parkSale(input: HeldCartPayload) {
   } = parse.data;
 
   try {
-    const { supabase, user } = await authedClient();
+    const { user } = await authedClient();
 
     const payload = {
       version: 1 as const,
@@ -88,30 +89,25 @@ export async function parkSale(input: HeldCartPayload) {
       buyerName: buyerName ?? null,
     };
 
-    const { data, error } = await supabase
-      .from("held_sales")
-      .insert({
+    const data = await prisma.held_sales.create({
+      data: {
         shop_id: shopId,
         created_by: user.id,
-        cart: payload,
+        cart: payload as any,
         note: note ?? null,
         customer_name: customerName ?? null,
-      })
-      .select("id")
-      .single();
+      },
+      select: { id: true },
+    });
 
-    if (error) {
-      log.error("parkSale: insert failed", {
-        code: error.code,
-        message: error.message,
-        shopId,
-      });
-      return { error: error.message };
-    }
     revalidatePath("/dashboard/owner/pos");
-    return { success: true, id: data.id as string };
-  } catch (err) {
-    return { error: err instanceof Error ? err.message : String(err) };
+    return { success: true, id: data.id };
+  } catch (err: any) {
+    log.error("parkSale: insert failed", {
+      message: err.message,
+      shopId,
+    });
+    return { error: err.message };
   }
 }
 
@@ -134,23 +130,20 @@ export async function listHeldSales(
   if (!parse.success) return { error: "Invalid shop ID" };
 
   try {
-    const { supabase } = await authedClient();
-    const { data, error } = await supabase
-      .from("held_sales")
-      .select("id, created_at, note, customer_name, cart")
-      .eq("shop_id", parse.data)
-      .order("created_at", { ascending: false })
-      .limit(50);
+    const data = await prisma.held_sales.findMany({
+      where: { shop_id: parse.data },
+      select: {
+        id: true,
+        created_at: true,
+        note: true,
+        customer_name: true,
+        cart: true,
+      },
+      orderBy: { created_at: "desc" },
+      take: 50,
+    });
 
-    if (error) {
-      log.error("listHeldSales: select failed", {
-        code: error.code,
-        message: error.message,
-      });
-      return { error: error.message };
-    }
-
-    const rows: HeldSaleSummary[] = (data ?? []).map((r) => {
+    const rows: HeldSaleSummary[] = data.map((r) => {
       const cart = (r.cart ?? {}) as { cart?: HeldCartLine[] };
       const lines = Array.isArray(cart.cart) ? cart.cart : [];
       const total = lines.reduce(
@@ -159,7 +152,7 @@ export async function listHeldSales(
       );
       return {
         id: r.id as string,
-        created_at: r.created_at as string,
+        created_at: (r.created_at as Date).toISOString(),
         note: (r.note as string | null) ?? null,
         customer_name: (r.customer_name as string | null) ?? null,
         item_count: lines.length,
@@ -167,8 +160,11 @@ export async function listHeldSales(
       };
     });
     return { rows };
-  } catch (err) {
-    return { error: err instanceof Error ? err.message : String(err) };
+  } catch (err: any) {
+    log.error("listHeldSales: select failed", {
+      message: err.message,
+    });
+    return { error: err.message };
   }
 }
 
@@ -180,24 +176,25 @@ export async function getHeldSale(id: string) {
   if (!parse.success) return { error: "Invalid held sale ID" };
 
   try {
-    const { supabase } = await authedClient();
-    const { data, error } = await supabase
-      .from("held_sales")
-      .select("id, shop_id, cart, note, customer_name, created_at")
-      .eq("id", parse.data)
-      .maybeSingle();
+    const data = await prisma.held_sales.findUnique({
+      where: { id: parse.data },
+      select: {
+        id: true,
+        shop_id: true,
+        cart: true,
+        note: true,
+        customer_name: true,
+        created_at: true,
+      },
+    });
 
-    if (error) {
-      log.error("getHeldSale: select failed", {
-        code: error.code,
-        message: error.message,
-      });
-      return { error: error.message };
-    }
     if (!data) return { error: "Held sale not found" };
-    return { row: data };
-  } catch (err) {
-    return { error: err instanceof Error ? err.message : String(err) };
+    return { row: { ...data, created_at: (data.created_at as Date).toISOString() } };
+  } catch (err: any) {
+    log.error("getHeldSale: select failed", {
+      message: err.message,
+    });
+    return { error: err.message };
   }
 }
 
@@ -209,21 +206,15 @@ export async function deleteHeldSale(id: string) {
   if (!parse.success) return { error: "Invalid held sale ID" };
 
   try {
-    const { supabase } = await authedClient();
-    const { error } = await supabase
-      .from("held_sales")
-      .delete()
-      .eq("id", parse.data);
-    if (error) {
-      log.error("deleteHeldSale: failed", {
-        code: error.code,
-        message: error.message,
-      });
-      return { error: error.message };
-    }
+    await prisma.held_sales.delete({
+      where: { id: parse.data },
+    });
     revalidatePath("/dashboard/owner/pos");
     return { success: true };
-  } catch (err) {
-    return { error: err instanceof Error ? err.message : String(err) };
+  } catch (err: any) {
+    log.error("deleteHeldSale: failed", {
+      message: err.message,
+    });
+    return { error: err.message };
   }
 }

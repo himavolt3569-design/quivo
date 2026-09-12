@@ -168,7 +168,7 @@ export function BarcodeScanner({ open, onClose }: BarcodeScannerProps) {
         style={{ paddingTop: "max(env(safe-area-inset-top), 1.5rem)" }}
       >
         <div className="flex items-center gap-2">
-          <Barcode className="h-5 w-5 text-[#A7653A]" />
+          <Barcode className="h-5 w-5 text-[#3B82F6]" />
           <span className="text-white font-semibold text-sm tracking-wide">
             Barcode Scanner
           </span>
@@ -209,13 +209,13 @@ export function BarcodeScanner({ open, onClose }: BarcodeScannerProps) {
               className="relative h-60 w-60"
               style={{ boxShadow: "0 0 0 9999px rgba(0,0,0,0.62)" }}
             >
-              <span className="absolute top-0 left-0 h-9 w-9 border-t-[3.5px] border-l-[3.5px] border-[#A7653A] rounded-tl-xl" />
-              <span className="absolute top-0 right-0 h-9 w-9 border-t-[3.5px] border-r-[3.5px] border-[#A7653A] rounded-tr-xl" />
-              <span className="absolute bottom-0 left-0 h-9 w-9 border-b-[3.5px] border-l-[3.5px] border-[#A7653A] rounded-bl-xl" />
-              <span className="absolute bottom-0 right-0 h-9 w-9 border-b-[3.5px] border-r-[3.5px] border-[#A7653A] rounded-br-xl" />
+              <span className="absolute top-0 left-0 h-9 w-9 border-t-[3.5px] border-l-[3.5px] border-[#3B82F6] rounded-tl-xl" />
+              <span className="absolute top-0 right-0 h-9 w-9 border-t-[3.5px] border-r-[3.5px] border-[#3B82F6] rounded-tr-xl" />
+              <span className="absolute bottom-0 left-0 h-9 w-9 border-b-[3.5px] border-l-[3.5px] border-[#3B82F6] rounded-bl-xl" />
+              <span className="absolute bottom-0 right-0 h-9 w-9 border-b-[3.5px] border-r-[3.5px] border-[#3B82F6] rounded-br-xl" />
               {state === "scanning" && (
                 <motion.div
-                  className="absolute left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[#A7653A] to-transparent"
+                  className="absolute left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[#3B82F6] to-transparent"
                   animate={{ top: ["10%", "88%"] }}
                   transition={{
                     duration: 1.8,
@@ -260,12 +260,12 @@ export function BarcodeScanner({ open, onClose }: BarcodeScannerProps) {
                   onChange={(e) => setManualInput(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && handleManualLookup()}
                   placeholder="e.g. 8941001204812"
-                  className="w-full rounded-xl bg-white/10 px-4 py-3 text-white placeholder-white/35 outline-none focus:ring-2 focus:ring-[#A7653A] text-center text-sm tracking-widest"
+                  className="w-full rounded-xl bg-white/10 px-4 py-3 text-white placeholder-white/35 outline-none focus:ring-2 focus:ring-[#3B82F6] text-center text-sm tracking-widest"
                 />
                 <button
                   onClick={handleManualLookup}
                   disabled={!manualInput.trim() || looking}
-                  className="w-full rounded-full bg-[#A7653A] py-3 text-sm font-semibold text-white disabled:opacity-40 transition hover:bg-[#8E5432] active:scale-95"
+                  className="w-full rounded-full bg-[#3B82F6] py-3 text-sm font-semibold text-white disabled:opacity-40 transition hover:bg-[#8E5432] active:scale-95"
                 >
                   {looking ? "Looking up…" : "Look up barcode"}
                 </button>
@@ -282,7 +282,7 @@ export function BarcodeScanner({ open, onClose }: BarcodeScannerProps) {
               exit={{ opacity: 0 }}
               className="absolute inset-0 flex flex-col items-center justify-center gap-3"
             >
-              <Loader2 className="h-8 w-8 text-[#A7653A] animate-spin" />
+              <Loader2 className="h-8 w-8 text-[#3B82F6] animate-spin" />
               <p className="text-sm font-semibold text-white/85">
                 Opening product…
               </p>
@@ -307,7 +307,7 @@ export function BarcodeScanner({ open, onClose }: BarcodeScannerProps) {
                   <p className="text-xs font-medium text-[#746E73] mb-1">
                     Barcode: {scannedBarcode}
                   </p>
-                  <h3 className="font-bold text-[#27324A]">
+                  <h3 className="font-bold text-[#0F172A]">
                     Product not found
                   </h3>
                   <p className="text-sm text-[#746E73] mt-1">
@@ -317,7 +317,7 @@ export function BarcodeScanner({ open, onClose }: BarcodeScannerProps) {
                 <div className="flex gap-3">
                   <button
                     onClick={handleRescan}
-                    className="flex items-center justify-center gap-2 flex-1 rounded-full border border-[#2E3344]/12 py-3 text-sm font-semibold text-[#27324A] hover:bg-[#F7F0E6] transition active:scale-95"
+                    className="flex items-center justify-center gap-2 flex-1 rounded-full border border-[#1E293B]/12 py-3 text-sm font-semibold text-[#0F172A] hover:bg-[#F8FAFC] transition active:scale-95"
                   >
                     <RotateCcw className="h-4 w-4" /> Scan again
                   </button>

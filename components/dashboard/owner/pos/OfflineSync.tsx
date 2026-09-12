@@ -94,7 +94,7 @@ export function OfflineSync() {
             ? "bg-amber-500 hover:bg-amber-600 text-white"
             : failed > 0
               ? "bg-red-600 hover:bg-red-700 text-white"
-              : "bg-[#27324A] hover:bg-[#1b2333] text-white"
+              : "bg-[#0F172A] hover:bg-[#1b2333] text-white"
         }`}
       >
         {!online ? (
@@ -111,9 +111,9 @@ export function OfflineSync() {
       </button>
 
       {open && (
-        <div className="absolute bottom-14 left-0 w-80 bg-white rounded-2xl border border-[#2E3344]/10 shadow-2xl overflow-hidden">
-          <div className="p-4 border-b border-[#2E3344]/8 flex items-center gap-2">
-            <p className="text-xs font-black uppercase tracking-widest text-[#27324A]">
+        <div className="absolute bottom-14 left-0 w-80 bg-white rounded-2xl border border-[#1E293B]/10 shadow-2xl overflow-hidden">
+          <div className="p-4 border-b border-[#1E293B]/8 flex items-center gap-2">
+            <p className="text-xs font-black uppercase tracking-widest text-[#0F172A]">
               Offline sync
             </p>
             <span className="ml-auto text-[11px] text-[#746E73] font-bold">
@@ -132,7 +132,7 @@ export function OfflineSync() {
                   className={`p-3 rounded-xl text-xs ${q.lastError ? "bg-red-50 border border-red-200" : "bg-[#f8f8f7]"}`}
                 >
                   <div className="flex items-center justify-between">
-                    <span className="font-bold text-[#27324A]">
+                    <span className="font-bold text-[#0F172A]">
                       Rs. {q.input.total.toFixed(2)} · {q.input.items.length}{" "}
                       item{q.input.items.length === 1 ? "" : "s"}
                     </span>
@@ -153,17 +153,17 @@ export function OfflineSync() {
               ))
             )}
           </div>
-          <div className="p-4 border-t border-[#2E3344]/8 flex gap-2">
+          <div className="p-4 border-t border-[#1E293B]/8 flex gap-2">
             <button
               onClick={() => setOpen(false)}
-              className="flex-1 h-10 rounded-xl border border-[#2E3344]/10 text-[#27324A] font-bold text-xs"
+              className="flex-1 h-10 rounded-xl border border-[#1E293B]/10 text-[#0F172A] font-bold text-xs"
             >
               Close
             </button>
             <button
               onClick={flush}
               disabled={syncing || !online || queue.length === 0}
-              className="flex-1 h-10 rounded-xl bg-[#27324A] hover:bg-[#1b2333] text-white font-bold text-xs flex items-center justify-center gap-1 disabled:opacity-40"
+              className="flex-1 h-10 rounded-xl bg-[#0F172A] hover:bg-[#1b2333] text-white font-bold text-xs flex items-center justify-center gap-1 disabled:opacity-40"
             >
               {syncing ? (
                 <Loader2 className="h-3.5 w-3.5 animate-spin" />

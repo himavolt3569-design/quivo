@@ -228,12 +228,12 @@ export function DayEndView({
         <div>
           <Link
             href="/dashboard/owner/finances"
-            className="inline-flex items-center gap-1 text-xs font-bold text-[#746E73] hover:text-[#27324A] mb-2"
+            className="inline-flex items-center gap-1 text-xs font-bold text-[#746E73] hover:text-[#0F172A] mb-2"
           >
             <ChevronLeft className="h-3 w-3" /> Back to Finances
           </Link>
-          <h1 className="text-2xl font-black text-[#27324A] flex items-center gap-2">
-            <Banknote className="h-6 w-6 text-[#A7653A]" /> Day End — {shopName}
+          <h1 className="text-2xl font-black text-[#0F172A] flex items-center gap-2">
+            <Banknote className="h-6 w-6 text-[#3B82F6]" /> Day End — {shopName}
           </h1>
           <p className="text-sm font-medium text-[#746E73] mt-1">
             Open a day with a cash float, then close it with the counted drawer
@@ -244,10 +244,10 @@ export function DayEndView({
 
       {/* Current day card */}
       {current ? (
-        <div className="bg-white rounded-2xl border border-[#2E3344]/8 shadow-sm p-6 space-y-4">
+        <div className="bg-white rounded-2xl border border-[#1E293B]/8 shadow-sm p-6 space-y-4">
           <div className="flex items-center gap-2">
             <span className="h-2.5 w-2.5 rounded-full bg-emerald-500 animate-pulse" />
-            <h2 className="font-black text-[#27324A]">Day open</h2>
+            <h2 className="font-black text-[#0F172A]">Day open</h2>
             <span className="ml-auto text-xs font-bold text-[#746E73]">
               since {fmt(current.opened_at)}
             </span>
@@ -257,7 +257,7 @@ export function DayEndView({
               <p className="text-[10px] font-black uppercase tracking-widest text-[#746E73]">
                 Opening float
               </p>
-              <p className="text-2xl font-black text-[#27324A] mt-1">
+              <p className="text-2xl font-black text-[#0F172A] mt-1">
                 {money(current.opening_cash)}
               </p>
             </div>
@@ -299,7 +299,7 @@ export function DayEndView({
             type="button"
             onClick={handleClose}
             disabled={isPending}
-            className="w-full h-12 rounded-xl bg-[#27324A] hover:bg-[#1b2333] text-white font-bold flex items-center justify-center gap-2 disabled:opacity-40"
+            className="w-full h-12 rounded-xl bg-[#0F172A] hover:bg-[#1b2333] text-white font-bold flex items-center justify-center gap-2 disabled:opacity-40"
           >
             {isPending ? (
               <Loader2 className="h-4 w-4 animate-spin" />
@@ -310,10 +310,10 @@ export function DayEndView({
           </button>
         </div>
       ) : (
-        <div className="bg-white rounded-2xl border border-[#2E3344]/8 shadow-sm p-6 space-y-4">
+        <div className="bg-white rounded-2xl border border-[#1E293B]/8 shadow-sm p-6 space-y-4">
           <div className="flex items-center gap-2">
             <span className="h-2.5 w-2.5 rounded-full bg-[#746E73]/40" />
-            <h2 className="font-black text-[#27324A]">No open day</h2>
+            <h2 className="font-black text-[#0F172A]">No open day</h2>
           </div>
           <p className="text-sm text-[#746E73]">
             Start a fresh day by recording the cash drawer float.
@@ -349,7 +349,7 @@ export function DayEndView({
             type="button"
             onClick={handleOpen}
             disabled={isPending}
-            className="w-full h-12 rounded-xl bg-[#27324A] hover:bg-[#1b2333] text-white font-bold flex items-center justify-center gap-2 disabled:opacity-40"
+            className="w-full h-12 rounded-xl bg-[#0F172A] hover:bg-[#1b2333] text-white font-bold flex items-center justify-center gap-2 disabled:opacity-40"
           >
             {isPending ? (
               <Loader2 className="h-4 w-4 animate-spin" />
@@ -362,10 +362,10 @@ export function DayEndView({
       )}
 
       {/* History */}
-      <div className="bg-white rounded-2xl border border-[#2E3344]/8 shadow-sm overflow-hidden">
-        <div className="p-4 border-b border-[#2E3344]/8 flex items-center gap-2">
-          <History className="h-4 w-4 text-[#A7653A]" />
-          <h3 className="font-black text-[#27324A]">Closed days</h3>
+      <div className="bg-white rounded-2xl border border-[#1E293B]/8 shadow-sm overflow-hidden">
+        <div className="p-4 border-b border-[#1E293B]/8 flex items-center gap-2">
+          <History className="h-4 w-4 text-[#3B82F6]" />
+          <h3 className="font-black text-[#0F172A]">Closed days</h3>
           <span className="ml-auto text-xs font-bold text-[#746E73]">
             {history.length}
           </span>
@@ -388,7 +388,7 @@ export function DayEndView({
                   <th className="px-4 py-3 text-right">Action</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#2E3344]/5">
+              <tbody className="divide-y divide-[#1E293B]/5">
                 {history.map((d) => {
                   const v = Number(d.variance ?? 0);
                   return (
@@ -405,14 +405,14 @@ export function DayEndView({
                         {money(d.counted_cash)}
                       </td>
                       <td
-                        className={`px-4 py-3 text-right font-bold ${v === 0 ? "text-[#27324A]" : v > 0 ? "text-emerald-600" : "text-red-600"}`}
+                        className={`px-4 py-3 text-right font-bold ${v === 0 ? "text-[#0F172A]" : v > 0 ? "text-emerald-600" : "text-red-600"}`}
                       >
                         {v >= 0 ? money(v) : `−${money(-v)}`}
                       </td>
                       <td className="px-4 py-3 text-right">
                         <button
                           onClick={() => handleViewZ(d.id)}
-                          className="text-xs font-bold text-[#A7653A] hover:underline inline-flex items-center gap-1"
+                          className="text-xs font-bold text-[#3B82F6] hover:underline inline-flex items-center gap-1"
                         >
                           <Printer className="h-3 w-3" /> Z-report
                         </button>
@@ -436,16 +436,16 @@ export function DayEndView({
             className="bg-white rounded-[2rem] max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="p-6 border-b border-[#2E3344]/8 flex items-center justify-between">
+            <div className="p-6 border-b border-[#1E293B]/8 flex items-center justify-between">
               <div>
-                <h3 className="font-black text-xl text-[#27324A]">Z-Report</h3>
+                <h3 className="font-black text-xl text-[#0F172A]">Z-Report</h3>
                 <p className="text-xs text-[#746E73]">
                   {fmt(zReport.day.opened_at)} → {fmt(zReport.day.closed_at)}
                 </p>
               </div>
               <button
                 onClick={() => setZReport(null)}
-                className="text-[#746E73] hover:text-[#27324A] text-2xl leading-none"
+                className="text-[#746E73] hover:text-[#0F172A] text-2xl leading-none"
               >
                 &times;
               </button>
@@ -475,7 +475,7 @@ export function DayEndView({
                 )}
                 bold
               />
-              <div className="border-t border-[#2E3344]/10 pt-3">
+              <div className="border-t border-[#1E293B]/10 pt-3">
                 <p className="text-[10px] font-black uppercase tracking-widest text-[#746E73] mb-2">
                   By payment method
                 </p>
@@ -486,7 +486,7 @@ export function DayEndView({
                 <ZRow label="Wallet" value={money(zReport.totals.wallet)} />
                 <ZRow label="Udhar" value={money(zReport.totals.udhar)} />
               </div>
-              <div className="border-t border-[#2E3344]/10 pt-3">
+              <div className="border-t border-[#1E293B]/10 pt-3">
                 <p className="text-[10px] font-black uppercase tracking-widest text-[#746E73] mb-2">
                   Cash drawer
                 </p>
@@ -503,7 +503,7 @@ export function DayEndView({
                 />
               </div>
               {zReport.by_staff.length > 0 && (
-                <div className="border-t border-[#2E3344]/10 pt-3">
+                <div className="border-t border-[#1E293B]/10 pt-3">
                   <p className="text-[10px] font-black uppercase tracking-widest text-[#746E73] mb-2">
                     By staff
                   </p>
@@ -517,16 +517,16 @@ export function DayEndView({
                 </div>
               )}
             </div>
-            <div className="p-6 border-t border-[#2E3344]/8 flex gap-3">
+            <div className="p-6 border-t border-[#1E293B]/8 flex gap-3">
               <button
                 onClick={() => setZReport(null)}
-                className="flex-1 h-11 rounded-xl border border-[#2E3344]/10 font-bold text-[#27324A]"
+                className="flex-1 h-11 rounded-xl border border-[#1E293B]/10 font-bold text-[#0F172A]"
               >
                 Close
               </button>
               <button
                 onClick={() => printZReport(zReport)}
-                className="flex-1 h-11 rounded-xl bg-[#27324A] hover:bg-[#1b2333] text-white font-bold flex items-center justify-center gap-2"
+                className="flex-1 h-11 rounded-xl bg-[#0F172A] hover:bg-[#1b2333] text-white font-bold flex items-center justify-center gap-2"
               >
                 <Printer className="h-4 w-4" /> Print
               </button>
@@ -537,8 +537,8 @@ export function DayEndView({
 
       {/* Inline hint when there's no shop yet (defensive) */}
       {!current && history.length === 0 && (
-        <div className="flex items-center gap-2 text-xs text-[#746E73] bg-[#F7F0E6]/40 p-3 rounded-xl">
-          <AlertCircle className="h-3.5 w-3.5 text-[#A7653A]" />
+        <div className="flex items-center gap-2 text-xs text-[#746E73] bg-[#F8FAFC]/40 p-3 rounded-xl">
+          <AlertCircle className="h-3.5 w-3.5 text-[#3B82F6]" />
           The first day you open will set the baseline for future variance
           reports.
         </div>
@@ -558,7 +558,7 @@ function ZRow({
 }) {
   return (
     <div
-      className={`flex justify-between ${bold ? "font-black text-[#27324A] text-base" : "text-[#746E73]"}`}
+      className={`flex justify-between ${bold ? "font-black text-[#0F172A] text-base" : "text-[#746E73]"}`}
     >
       <span>{label}</span>
       <span>{value}</span>

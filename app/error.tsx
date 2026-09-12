@@ -18,12 +18,12 @@ export default function Error({
   }, [error]);
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-[#F7F0E6] p-6">
-      <div className="w-full max-w-md rounded-2xl border border-[#2E3344]/10 bg-white p-8 text-center shadow-sm">
+    <main className="flex min-h-screen items-center justify-center bg-[#F8FAFC] p-6">
+      <div className="w-full max-w-md rounded-2xl border border-[#1E293B]/10 bg-white p-8 text-center shadow-sm">
         <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-red-50">
           <AlertTriangle className="h-7 w-7 text-red-600" />
         </div>
-        <h1 className="text-xl font-black text-[#27324A]">
+        <h1 className="text-xl font-black text-[#0F172A]">
           Something went wrong
         </h1>
         <p className="mt-2 text-sm font-medium text-[#746E73]">
@@ -38,14 +38,14 @@ export default function Error({
         <div className="mt-6 flex flex-col gap-2 sm:flex-row">
           <Button
             onClick={() => unstable_retry()}
-            className="h-11 flex-1 rounded-xl bg-[#27324A] font-bold text-white hover:bg-[#1b2333]"
+            className="h-11 flex-1 rounded-xl bg-[#0F172A] font-bold text-white hover:bg-[#1b2333]"
           >
             <RotateCcw className="mr-2 h-4 w-4" /> Retry
           </Button>
           <Button
             asChild
             variant="outline"
-            className="h-11 flex-1 rounded-xl border-[#2E3344]/10 font-bold text-[#27324A]"
+            className="h-11 flex-1 rounded-xl border-[#1E293B]/10 font-bold text-[#0F172A]"
           >
             <Link href="/dashboard/owner">Dashboard</Link>
           </Button>

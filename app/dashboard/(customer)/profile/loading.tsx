@@ -6,7 +6,7 @@ export default function ProfileLoading() {
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
       {/* ── Profile Header Skeleton ────────────────────────────────── */}
-      <div className="relative rounded-[2.5rem] overflow-hidden bg-white border border-[#2E3344]/8 shadow-sm">
+      <div className="relative rounded-[2.5rem] overflow-hidden bg-white border border-[#1E293B]/8 shadow-sm">
         {/* Cover Banner Skeleton */}
         <Skeleton className="h-24 sm:h-32 w-full rounded-none" />
 
@@ -31,7 +31,7 @@ export default function ProfileLoading() {
         {/* Left Column Skeleton */}
         <div className="space-y-6">
           {/* Community Bento */}
-          <div className="h-48 rounded-[2.5rem] bg-white border border-[#2E3344]/8 p-8 flex flex-col justify-between shadow-sm">
+          <div className="h-48 rounded-[2.5rem] bg-white border border-[#1E293B]/8 p-8 flex flex-col justify-between shadow-sm">
             <div className="flex justify-between">
               <Skeleton className="h-3 w-20 rounded-md" />
               <Skeleton className="h-8 w-8 rounded-xl" />
@@ -43,7 +43,7 @@ export default function ProfileLoading() {
           </div>
 
           {/* Settings Bento */}
-          <div className="h-56 rounded-[2.5rem] bg-white border border-[#2E3344]/8 p-8 space-y-6 shadow-sm">
+          <div className="h-56 rounded-[2.5rem] bg-white border border-[#1E293B]/8 p-8 space-y-6 shadow-sm">
             <Skeleton className="h-4 w-24 rounded-md" />
             <Skeleton className="h-12 w-full rounded-2xl" />
             <Skeleton className="h-3 w-3/4 rounded-md" />
@@ -53,7 +53,7 @@ export default function ProfileLoading() {
         {/* Right Column Skeleton */}
         <div className="space-y-6">
           {/* Notifications card */}
-          <div className="h-64 rounded-[2.5rem] bg-[#27324A] p-8 flex flex-col justify-between shadow-xl">
+          <div className="h-64 rounded-[2.5rem] bg-[#0F172A] p-8 flex flex-col justify-between shadow-xl">
             <div className="space-y-3">
               <Skeleton className="h-3 w-24 rounded-md border-none" />
               <Skeleton className="h-6 w-40 rounded-md border-none" />
@@ -65,7 +65,7 @@ export default function ProfileLoading() {
           </div>
 
           {/* Security card */}
-          <div className="h-48 rounded-[2.5rem] bg-white border border-[#2E3344]/8 p-8 space-y-4 shadow-sm">
+          <div className="h-48 rounded-[2.5rem] bg-white border border-[#1E293B]/8 p-8 space-y-4 shadow-sm">
             <Skeleton className="h-4 w-20 rounded-md" />
             <Skeleton className="h-12 w-full rounded-xl" />
           </div>

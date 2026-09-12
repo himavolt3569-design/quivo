@@ -323,8 +323,8 @@ export function PayrollView({ shopId, shopName, staff, ratesByStaff }: Props) {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-black text-[#27324A] flex items-center gap-2">
-            <Banknote className="h-6 w-6 text-[#A7653A]" /> Payroll
+          <h1 className="text-2xl font-black text-[#0F172A] flex items-center gap-2">
+            <Banknote className="h-6 w-6 text-[#3B82F6]" /> Payroll
           </h1>
           <p className="text-sm font-medium text-[#746E73] mt-1">
             Hours worked × hourly rate. Past pay stays locked to the rate that
@@ -334,7 +334,7 @@ export function PayrollView({ shopId, shopName, staff, ratesByStaff }: Props) {
         <Button
           onClick={handleExport}
           disabled={exporting || loading}
-          className="rounded-xl h-11 bg-[#27324A] hover:bg-[#1b2333] text-white font-bold"
+          className="rounded-xl h-11 bg-[#0F172A] hover:bg-[#1b2333] text-white font-bold"
         >
           <Download className="h-4 w-4 mr-2" />{" "}
           {exporting ? "Preparing…" : "Export CSV"}
@@ -342,7 +342,7 @@ export function PayrollView({ shopId, shopName, staff, ratesByStaff }: Props) {
       </div>
 
       {/* Range controls */}
-      <section className="bg-white rounded-[2rem] border border-[#2E3344]/8 shadow-sm p-5 sm:p-6">
+      <section className="bg-white rounded-[2rem] border border-[#1E293B]/8 shadow-sm p-5 sm:p-6">
         <div className="flex flex-wrap items-end gap-3">
           <div>
             <Label className="text-[10px] font-black uppercase tracking-wider text-[#746E73]">
@@ -380,7 +380,7 @@ export function PayrollView({ shopId, shopName, staff, ratesByStaff }: Props) {
               <button
                 key={key}
                 onClick={() => setPreset(key)}
-                className="px-3 h-10 rounded-xl text-xs font-bold bg-[#F7F0E6] text-[#A7653A] hover:bg-[#E8D9C5] transition"
+                className="px-3 h-10 rounded-xl text-xs font-bold bg-[#F8FAFC] text-[#3B82F6] hover:bg-[#E8D9C5] transition"
               >
                 {label}
               </button>
@@ -388,7 +388,7 @@ export function PayrollView({ shopId, shopName, staff, ratesByStaff }: Props) {
             <button
               onClick={loadSummary}
               disabled={loading}
-              className="h-10 w-10 rounded-xl bg-[#27324A] text-white flex items-center justify-center disabled:opacity-60"
+              className="h-10 w-10 rounded-xl bg-[#0F172A] text-white flex items-center justify-center disabled:opacity-60"
               aria-label="Refresh"
             >
               <RefreshCw
@@ -401,37 +401,37 @@ export function PayrollView({ shopId, shopName, staff, ratesByStaff }: Props) {
 
       {/* Totals */}
       <section className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="bg-white rounded-[1.5rem] border border-[#2E3344]/8 p-5">
+        <div className="bg-white rounded-[1.5rem] border border-[#1E293B]/8 p-5">
           <p className="text-[10px] font-black uppercase tracking-widest text-[#746E73]">
             Shifts
           </p>
-          <p className="text-2xl font-black text-[#27324A] mt-1">
+          <p className="text-2xl font-black text-[#0F172A] mt-1">
             {totals.totalShifts}
           </p>
         </div>
-        <div className="bg-white rounded-[1.5rem] border border-[#2E3344]/8 p-5">
+        <div className="bg-white rounded-[1.5rem] border border-[#1E293B]/8 p-5">
           <p className="text-[10px] font-black uppercase tracking-widest text-[#746E73]">
             Hours worked
           </p>
-          <p className="text-2xl font-black text-[#27324A] mt-1">
+          <p className="text-2xl font-black text-[#0F172A] mt-1">
             {totals.totalHours.toFixed(2)}
           </p>
         </div>
-        <div className="bg-white rounded-[1.5rem] border border-[#A7653A]/30 p-5 bg-[#F7F0E6]/40">
-          <p className="text-[10px] font-black uppercase tracking-widest text-[#A7653A]">
+        <div className="bg-white rounded-[1.5rem] border border-[#3B82F6]/30 p-5 bg-[#F8FAFC]/40">
+          <p className="text-[10px] font-black uppercase tracking-widest text-[#3B82F6]">
             Total payable
           </p>
-          <p className="text-2xl font-black text-[#A7653A] mt-1">
+          <p className="text-2xl font-black text-[#3B82F6] mt-1">
             {fmtMoney(totals.totalPay, totals.currency)}
           </p>
         </div>
       </section>
 
       {/* Summary table */}
-      <section className="bg-white rounded-[2rem] border border-[#2E3344]/8 shadow-sm overflow-hidden">
-        <div className="p-5 border-b border-[#2E3344]/8 flex items-center justify-between">
-          <h2 className="font-black text-[#27324A] text-sm flex items-center gap-2">
-            <Calendar className="h-4 w-4 text-[#A7653A]" /> Per-staff summary
+      <section className="bg-white rounded-[2rem] border border-[#1E293B]/8 shadow-sm overflow-hidden">
+        <div className="p-5 border-b border-[#1E293B]/8 flex items-center justify-between">
+          <h2 className="font-black text-[#0F172A] text-sm flex items-center gap-2">
+            <Calendar className="h-4 w-4 text-[#3B82F6]" /> Per-staff summary
           </h2>
           {loading && (
             <span className="text-xs text-[#746E73] font-medium animate-pulse">
@@ -469,8 +469,8 @@ export function PayrollView({ shopId, shopName, staff, ratesByStaff }: Props) {
                   const history = rates[row.staff_id] ?? [];
                   return (
                     <Fragment key={row.staff_id}>
-                      <tr className="border-t border-[#2E3344]/5">
-                        <td className="px-5 py-3 font-bold text-[#27324A]">
+                      <tr className="border-t border-[#1E293B]/5">
+                        <td className="px-5 py-3 font-bold text-[#0F172A]">
                           {row.staff_name}
                         </td>
                         <td className="px-5 py-3 text-right tabular-nums">
@@ -492,7 +492,7 @@ export function PayrollView({ shopId, shopName, staff, ratesByStaff }: Props) {
                             </span>
                           )}
                         </td>
-                        <td className="px-5 py-3 text-right tabular-nums font-black text-[#A7653A]">
+                        <td className="px-5 py-3 text-right tabular-nums font-black text-[#3B82F6]">
                           {fmtMoney(Number(row.total_pay), row.currency)}
                         </td>
                         <td className="px-2">
@@ -510,7 +510,7 @@ export function PayrollView({ shopId, shopName, staff, ratesByStaff }: Props) {
                         </td>
                       </tr>
                       {open && (
-                        <tr className="bg-[#F7F0E6]/30">
+                        <tr className="bg-[#F8FAFC]/30">
                           <td colSpan={7} className="px-5 py-4">
                             <p className="text-[10px] font-black uppercase tracking-widest text-[#8D5132] mb-2 flex items-center gap-1.5">
                               <History className="h-3 w-3" /> Rate history
@@ -524,10 +524,10 @@ export function PayrollView({ shopId, shopName, staff, ratesByStaff }: Props) {
                                 {history.map((r) => (
                                   <li
                                     key={r.id}
-                                    className="flex items-center justify-between text-xs bg-white border border-[#2E3344]/5 rounded-lg px-3 py-2"
+                                    className="flex items-center justify-between text-xs bg-white border border-[#1E293B]/5 rounded-lg px-3 py-2"
                                   >
                                     <div>
-                                      <span className="font-black text-[#27324A]">
+                                      <span className="font-black text-[#0F172A]">
                                         {fmtMoney(
                                           Number(r.hourly_rate),
                                           r.currency,
@@ -568,9 +568,9 @@ export function PayrollView({ shopId, shopName, staff, ratesByStaff }: Props) {
       </section>
 
       {/* Set rate form */}
-      <section className="bg-white rounded-[2rem] border border-[#2E3344]/8 shadow-sm p-5 sm:p-6">
-        <h2 className="font-black text-[#27324A] text-sm flex items-center gap-2 mb-1">
-          <Plus className="h-4 w-4 text-[#A7653A]" /> Set hourly rate
+      <section className="bg-white rounded-[2rem] border border-[#1E293B]/8 shadow-sm p-5 sm:p-6">
+        <h2 className="font-black text-[#0F172A] text-sm flex items-center gap-2 mb-1">
+          <Plus className="h-4 w-4 text-[#3B82F6]" /> Set hourly rate
         </h2>
         <p className="text-xs text-[#746E73] mb-4">
           New rates apply from the chosen date forward. Past shifts keep the
@@ -667,7 +667,7 @@ export function PayrollView({ shopId, shopName, staff, ratesByStaff }: Props) {
             <Button
               type="submit"
               disabled={isPending}
-              className="h-11 w-full rounded-xl bg-[#27324A] hover:bg-[#1b2333] text-white font-bold"
+              className="h-11 w-full rounded-xl bg-[#0F172A] hover:bg-[#1b2333] text-white font-bold"
             >
               {isPending ? "Saving…" : "Save rate"}
             </Button>

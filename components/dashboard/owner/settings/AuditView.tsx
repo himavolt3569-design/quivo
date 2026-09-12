@@ -168,11 +168,11 @@ export function AuditView({
         <div>
           <Link
             href="/dashboard/owner/settings"
-            className="inline-flex items-center gap-1 text-xs font-bold text-[#746E73] hover:text-[#27324A] mb-2"
+            className="inline-flex items-center gap-1 text-xs font-bold text-[#746E73] hover:text-[#0F172A] mb-2"
           >
             <ChevronLeft className="h-3 w-3" /> Back to Settings
           </Link>
-          <h1 className="text-2xl font-black text-[#27324A]">Audit log</h1>
+          <h1 className="text-2xl font-black text-[#0F172A]">Audit log</h1>
           <p className="text-sm font-medium text-[#746E73] mt-1">
             Payment lifecycle events for this shop and security events tied to
             your account.
@@ -180,20 +180,20 @@ export function AuditView({
         </div>
         <button
           onClick={tab === "payments" ? exportPayments : exportSecurity}
-          className="h-11 px-4 rounded-xl bg-[#27324A] hover:bg-[#1b2333] text-white font-bold text-sm flex items-center gap-2 shadow-sm"
+          className="h-11 px-4 rounded-xl bg-[#0F172A] hover:bg-[#1b2333] text-white font-bold text-sm flex items-center gap-2 shadow-sm"
         >
           <Download className="h-4 w-4" /> Export CSV
         </button>
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-2 bg-white p-1 rounded-2xl border border-[#2E3344]/8 w-full sm:w-fit">
+      <div className="flex gap-2 bg-white p-1 rounded-2xl border border-[#1E293B]/8 w-full sm:w-fit">
         <button
           onClick={() => setTab("payments")}
           className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider flex items-center gap-2 transition ${
             tab === "payments"
-              ? "bg-[#27324A] text-white"
-              : "text-[#746E73] hover:text-[#27324A]"
+              ? "bg-[#0F172A] text-white"
+              : "text-[#746E73] hover:text-[#0F172A]"
           }`}
         >
           <CreditCard className="h-3.5 w-3.5" />
@@ -206,8 +206,8 @@ export function AuditView({
           onClick={() => setTab("security")}
           className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider flex items-center gap-2 transition ${
             tab === "security"
-              ? "bg-[#27324A] text-white"
-              : "text-[#746E73] hover:text-[#27324A]"
+              ? "bg-[#0F172A] text-white"
+              : "text-[#746E73] hover:text-[#0F172A]"
           }`}
         >
           <Shield className="h-3.5 w-3.5" />
@@ -219,7 +219,7 @@ export function AuditView({
       </div>
 
       {/* Filter bar */}
-      <div className="bg-white p-4 rounded-2xl border border-[#2E3344]/8 shadow-sm grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
+      <div className="bg-white p-4 rounded-2xl border border-[#1E293B]/8 shadow-sm grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
         <div>
           <label className="text-[10px] font-black uppercase tracking-wider text-[#746E73] mb-1 block">
             From
@@ -260,7 +260,7 @@ export function AuditView({
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-2xl border border-[#2E3344]/8 shadow-sm overflow-hidden">
+      <div className="bg-white rounded-2xl border border-[#1E293B]/8 shadow-sm overflow-hidden">
         {tab === "payments" ? (
           filteredPayments.length === 0 ? (
             <EmptyState label="No payment events in range." />
@@ -276,7 +276,7 @@ export function AuditView({
                     <Th>Payment</Th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#2E3344]/5">
+                <tbody className="divide-y divide-[#1E293B]/5">
                   {filteredPayments.map((r) => (
                     <tr key={r.id} className="hover:bg-[#f8f8f7]/50">
                       <Td>
@@ -288,20 +288,20 @@ export function AuditView({
                         </span>
                       </Td>
                       <Td>
-                        <span className="font-bold text-[#27324A]">
+                        <span className="font-bold text-[#0F172A]">
                           {r.action}
                         </span>
                       </Td>
                       <Td>
-                        <span className="text-xs text-[#27324A]">
+                        <span className="text-xs text-[#0F172A]">
                           {r.from_status ?? "—"}{" "}
-                          <span className="text-[#A7653A] font-black">→</span>{" "}
+                          <span className="text-[#3B82F6] font-black">→</span>{" "}
                           {r.to_status ?? "—"}
                         </span>
                       </Td>
                       <Td>
                         <div className="text-xs">
-                          <div className="font-bold text-[#27324A]">
+                          <div className="font-bold text-[#0F172A]">
                             {r.actor_full_name ?? r.actor_type}
                           </div>
                           {r.actor_email && (
@@ -335,7 +335,7 @@ export function AuditView({
                   <Th>Metadata</Th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#2E3344]/5">
+              <tbody className="divide-y divide-[#1E293B]/5">
                 {filteredSecurity.map((r) => (
                   <tr key={r.id} className="hover:bg-[#f8f8f7]/50">
                     <Td>
@@ -347,7 +347,7 @@ export function AuditView({
                       </span>
                     </Td>
                     <Td>
-                      <span className="font-bold text-[#27324A]">
+                      <span className="font-bold text-[#0F172A]">
                         {r.event_type}
                       </span>
                     </Td>

@@ -15,7 +15,7 @@ export function HardwareSupportSection() {
         <div className="grid gap-10 lg:grid-cols-[0.78fr_1.22fr] lg:items-end">
           <div className="reveal-item">
             <Eyebrow icon={CreditCard}>Hardware support</Eyebrow>
-            <h2 className="mt-5 text-[clamp(2.25rem,4vw,4rem)] font-bold leading-[1.08] tracking-[-0.03em] text-[#27324A]">
+            <h2 className="mt-5 text-[clamp(2.25rem,4vw,4rem)] font-bold leading-[1.08] tracking-[-0.03em] text-[#0F172A]">
               Works with the counter tools your shop already uses.
             </h2>
           </div>
@@ -52,12 +52,12 @@ export function HardwareSupportSection() {
             return (
               <article
                 key={item.title}
-                className="feature-card magnetic-card reveal-item min-w-0 rounded-[1.35rem] border border-[#2E3344]/8 bg-[#F7F0E6] p-5 shadow-sm transition-shadow hover:shadow-xl hover:shadow-[#27324A]/10 sm:rounded-[1.75rem] sm:p-6"
+                className="feature-card magnetic-card reveal-item min-w-0 rounded-[1.35rem] border border-[#1E293B]/8 bg-[#F8FAFC] p-5 shadow-sm transition-shadow hover:shadow-xl hover:shadow-[#0F172A]/10 sm:rounded-[1.75rem] sm:p-6"
               >
                 <div className="feature-icon grid h-13 w-13 place-items-center rounded-2xl bg-[#E8E3D1] text-[#626A54]">
                   <Icon className="h-6 w-6" aria-hidden="true" />
                 </div>
-                <h3 className="mt-5 text-lg font-semibold tracking-[-0.015em] text-[#27324A] sm:mt-6 sm:text-xl">
+                <h3 className="mt-5 text-lg font-semibold tracking-[-0.015em] text-[#0F172A] sm:mt-6 sm:text-xl">
                   {item.title}
                 </h3>
                 <p className="mt-3 text-[0.98rem] leading-7 text-[#746E73]">

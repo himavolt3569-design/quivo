@@ -77,7 +77,7 @@ export function ProductView({
   reviews = [],
   initialSaved = false,
 }: ProductViewProps) {
-  const color = shop.theme_color ?? "#A7653A";
+  const color = shop.theme_color ?? "#3B82F6";
   const allImages = product.images?.length
     ? product.images
     : product.image_url
@@ -428,7 +428,7 @@ export function ProductView({
                   className="rounded-2xl border border-black/5 p-3 bg-[#f8f8f7]"
                 >
                   <div className="flex items-center gap-2">
-                    <span className="h-7 w-7 rounded-full bg-[#27324A] text-white text-[11px] font-black flex items-center justify-center">
+                    <span className="h-7 w-7 rounded-full bg-[#0F172A] text-white text-[11px] font-black flex items-center justify-center">
                       {r.reviewer_initial}
                     </span>
                     <StarRating value={r.rating} size="sm" />

@@ -27,7 +27,7 @@ function InnerPageSkeleton() {
   return (
     <div className="space-y-6 max-w-7xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500 fill-mode-both pb-10">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-[2rem] border border-[#2E3344]/8 shadow-sm">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-[2rem] border border-[#1E293B]/8 shadow-sm">
         <div className="space-y-3 w-full max-w-sm">
           <Block className="h-8 w-40 rounded-xl" />
           <Block className="h-4 w-64 rounded-lg" />
@@ -46,9 +46,9 @@ function InnerPageSkeleton() {
       </div>
 
       {/* List / Table Area */}
-      <div className="bg-white border border-[#2E3344]/8 rounded-[2rem] shadow-sm overflow-hidden p-6 space-y-4">
+      <div className="bg-white border border-[#1E293B]/8 rounded-[2rem] shadow-sm overflow-hidden p-6 space-y-4">
         {/* Table Header mock */}
-        <div className="flex justify-between items-center pb-4 border-b border-[#2E3344]/5">
+        <div className="flex justify-between items-center pb-4 border-b border-[#1E293B]/5">
           <Block className="h-4 w-24 rounded-md" />
           <Block className="h-4 w-32 rounded-md hidden sm:block" />
           <Block className="h-4 w-20 rounded-md hidden sm:block" />
@@ -79,7 +79,7 @@ function BrandSpinner() {
     <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 animate-in fade-in duration-300">
       <span
         aria-hidden="true"
-        className="grid h-14 w-14 place-items-center rounded-2xl bg-[#27324A] text-2xl font-bold text-white shadow-lg shadow-[#27324A]/15 animate-[brand-pulse_1.6s_ease-in-out_infinite] motion-reduce:animate-none"
+        className="grid h-14 w-14 place-items-center rounded-2xl bg-[#0F172A] text-2xl font-bold text-white shadow-lg shadow-[#0F172A]/15 animate-[brand-pulse_1.6s_ease-in-out_infinite] motion-reduce:animate-none"
       >
         Q
       </span>
@@ -106,9 +106,9 @@ function OwnerSkeleton() {
 
 function StorefrontSkeleton() {
   return (
-    <div className="min-h-screen bg-[#F7F0E6] px-4 py-8 sm:px-6">
+    <div className="min-h-screen bg-[#F8FAFC] px-4 py-8 sm:px-6">
       <div className="mx-auto max-w-6xl space-y-8 animate-in fade-in duration-700">
-        <div className="rounded-[2.5rem] border border-[#2E3344]/8 bg-white p-8 md:p-12 shadow-sm text-center flex flex-col items-center">
+        <div className="rounded-[2.5rem] border border-[#1E293B]/8 bg-white p-8 md:p-12 shadow-sm text-center flex flex-col items-center">
           <Block className="h-20 w-20 rounded-2xl mb-6" />
           <Block className="h-12 w-80 max-w-full rounded-xl" />
           <Block className="mt-4 h-5 w-96 max-w-full rounded-lg" />
@@ -122,7 +122,7 @@ function StorefrontSkeleton() {
           {Array.from({ length: 8 }).map((_, index) => (
             <div
               key={index}
-              className="rounded-[2rem] border border-[#2E3344]/8 bg-white p-4 shadow-sm flex flex-col"
+              className="rounded-[2rem] border border-[#1E293B]/8 bg-white p-4 shadow-sm flex flex-col"
             >
               <Block className="aspect-[4/5] w-full rounded-[1.5rem]" />
               <div className="pt-4 space-y-3 flex-1 flex flex-col">
@@ -143,7 +143,7 @@ function StorefrontSkeleton() {
 
 function MarketingSkeleton() {
   return (
-    <div className="min-h-screen bg-[#F7F0E6] animate-in fade-in duration-700">
+    <div className="min-h-screen bg-[#F8FAFC] animate-in fade-in duration-700">
       <div className="container py-8 sm:py-10">
         <div className="mb-16 flex items-center justify-between">
           <Block className="h-10 w-32 rounded-lg" />
@@ -198,7 +198,7 @@ function ProductSkeleton() {
         </div>
 
         {/* Product Details Block */}
-        <div className="bg-white rounded-3xl p-6 border border-[#2E3344]/8 shadow-sm space-y-4">
+        <div className="bg-white rounded-3xl p-6 border border-[#1E293B]/8 shadow-sm space-y-4">
           <div className="space-y-2">
             <Block className="h-4 w-20 rounded-md" />
             <Block className="h-8 w-3/4 rounded-xl" />
@@ -211,7 +211,7 @@ function ProductSkeleton() {
         </div>
 
         {/* Description Block */}
-        <div className="bg-white rounded-3xl p-6 border border-[#2E3344]/8 shadow-sm space-y-3">
+        <div className="bg-white rounded-3xl p-6 border border-[#1E293B]/8 shadow-sm space-y-3">
           <Block className="h-5 w-28 rounded-md" />
           <div className="space-y-2 pt-2">
             <Block className="h-4 w-full rounded-md" />
@@ -227,12 +227,12 @@ function ProductSkeleton() {
             {[1, 2, 3, 4].map((i) => (
               <div
                 key={i}
-                className="bg-white rounded-2xl p-3 border border-[#2E3344]/8 flex flex-col gap-2 shadow-sm"
+                className="bg-white rounded-2xl p-3 border border-[#1E293B]/8 flex flex-col gap-2 shadow-sm"
               >
                 <Block className="aspect-[4/5] w-full rounded-xl" />
                 <Block className="h-4 w-5/6 rounded-md mt-1" />
                 <Block className="h-3 w-1/2 rounded-md" />
-                <div className="flex justify-between items-center mt-2 pt-1 border-t border-[#2E3344]/5">
+                <div className="flex justify-between items-center mt-2 pt-1 border-t border-[#1E293B]/5">
                   <Block className="h-4 w-12 rounded-md" />
                   <Block className="h-6 w-6 rounded-full shrink-0" />
                 </div>
@@ -252,7 +252,7 @@ function OrderSkeleton() {
         <Block className="h-4 w-40 rounded-md mb-2" />
 
         {/* Hero status card */}
-        <div className="rounded-3xl p-6 bg-white border border-[#2E3344]/8 shadow-sm flex items-start gap-4">
+        <div className="rounded-3xl p-6 bg-white border border-[#1E293B]/8 shadow-sm flex items-start gap-4">
           <Block className="h-12 w-12 rounded-2xl shrink-0" />
           <div className="flex-1 space-y-2">
             <Block className="h-3 w-20 rounded-md" />
@@ -309,9 +309,9 @@ function POSSkeleton() {
   return (
     <div className="h-[calc(100vh-6rem)] flex flex-col lg:flex-row gap-6 animate-in fade-in duration-500 pb-16 lg:pb-0">
       {/* Left: Product Search & Catalog */}
-      <div className="flex-1 flex flex-col bg-white lg:rounded-[2rem] border border-[#2E3344]/8 shadow-sm overflow-hidden">
+      <div className="flex-1 flex flex-col bg-white lg:rounded-[2rem] border border-[#1E293B]/8 shadow-sm overflow-hidden">
         {/* Search Bar & Actions */}
-        <div className="p-4 lg:p-6 border-b border-[#2E3344]/8 bg-[#f8f8f7] space-y-4">
+        <div className="p-4 lg:p-6 border-b border-[#1E293B]/8 bg-[#f8f8f7] space-y-4">
           <div className="flex items-center gap-3">
             <Block className="h-12 lg:h-14 rounded-xl lg:rounded-2xl flex-1" />
             <Block className="h-12 w-12 lg:h-14 lg:w-14 rounded-xl lg:rounded-2xl shrink-0" />
@@ -331,7 +331,7 @@ function POSSkeleton() {
             {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
               <div
                 key={i}
-                className="bg-white p-4 rounded-[1.5rem] border border-[#2E3344]/8 flex flex-col h-32 lg:h-36 relative overflow-hidden space-y-2 shadow-sm"
+                className="bg-white p-4 rounded-[1.5rem] border border-[#1E293B]/8 flex flex-col h-32 lg:h-36 relative overflow-hidden space-y-2 shadow-sm"
               >
                 <Block className="h-4 w-12 rounded-md" />
                 <Block className="h-5 w-3/4 rounded-md" />
@@ -348,7 +348,7 @@ function POSSkeleton() {
 
       {/* Right: Cart (Desktop) */}
       <div className="hidden lg:flex w-[400px] xl:w-[450px]">
-        <div className="flex-1 flex flex-col bg-white lg:rounded-[2rem] border border-[#2E3344]/8 shadow-sm overflow-hidden h-full p-6 space-y-6">
+        <div className="flex-1 flex flex-col bg-white lg:rounded-[2rem] border border-[#1E293B]/8 shadow-sm overflow-hidden h-full p-6 space-y-6">
           {/* Cart Header */}
           <div className="flex justify-between items-center">
             <Block className="h-6 w-24 rounded-md" />
@@ -373,14 +373,14 @@ function POSSkeleton() {
           </div>
 
           {/* Checkout billing block */}
-          <div className="space-y-3 pt-4 border-t border-[#2E3344]/5">
+          <div className="space-y-3 pt-4 border-t border-[#1E293B]/5">
             {[1, 2].map((i) => (
               <div key={i} className="flex justify-between items-center">
                 <Block className="h-3 w-16 rounded-sm" />
                 <Block className="h-3 w-12 rounded-sm" />
               </div>
             ))}
-            <div className="flex justify-between items-center pt-2 border-t border-[#2E3344]/5">
+            <div className="flex justify-between items-center pt-2 border-t border-[#1E293B]/5">
               <Block className="h-5 w-20 rounded-md" />
               <Block className="h-6 w-24 rounded-md" />
             </div>
@@ -402,10 +402,10 @@ function POSSkeleton() {
 
 function OnboardingSkeleton() {
   return (
-    <div className="min-h-screen bg-[#F7F0E6] flex flex-col sm:items-center sm:justify-center sm:p-4 sm:py-12 animate-in fade-in duration-500">
-      <div className="w-full flex-1 sm:flex-none sm:max-w-3xl bg-white sm:rounded-[2.5rem] sm:shadow-xl sm:border border-[#2E3344]/8 overflow-hidden flex flex-col h-[550px]">
+    <div className="min-h-screen bg-[#F8FAFC] flex flex-col sm:items-center sm:justify-center sm:p-4 sm:py-12 animate-in fade-in duration-500">
+      <div className="w-full flex-1 sm:flex-none sm:max-w-3xl bg-white sm:rounded-[2.5rem] sm:shadow-xl sm:border border-[#1E293B]/8 overflow-hidden flex flex-col h-[550px]">
         {/* Header card banner */}
-        <div className="bg-[#27324A] p-5 sm:p-8 text-white shrink-0 space-y-6">
+        <div className="bg-[#0F172A] p-5 sm:p-8 text-white shrink-0 space-y-6">
           <div className="flex items-center gap-3">
             <Block className="h-9 w-9 sm:h-10 sm:w-10 rounded-xl bg-white/10 shrink-0" />
             <div className="space-y-1.5 flex-1">
@@ -435,7 +435,7 @@ function OnboardingSkeleton() {
           ))}
 
           {/* Bottom stepper navigation buttons */}
-          <div className="flex justify-between items-center pt-6 mt-6 border-t border-[#2E3344]/5">
+          <div className="flex justify-between items-center pt-6 mt-6 border-t border-[#1E293B]/5">
             <Block className="h-12 w-24 rounded-xl" />
             <Block className="h-12 w-32 rounded-xl" />
           </div>

@@ -260,8 +260,8 @@ function IntentDialog({
       }}
     >
       <DialogContent className="sm:max-w-md rounded-3xl p-0 overflow-hidden gap-0">
-        <DialogHeader className="px-6 pt-6 pb-4 border-b border-[#2E3344]/8">
-          <DialogTitle className="font-black text-[#27324A] text-lg leading-tight">
+        <DialogHeader className="px-6 pt-6 pb-4 border-b border-[#1E293B]/8">
+          <DialogTitle className="font-black text-[#0F172A] text-lg leading-tight">
             What would you like to do?
           </DialogTitle>
 
@@ -271,13 +271,13 @@ function IntentDialog({
               {thumb ? (
                 <img src={thumb} alt="" className="h-11 w-11 object-cover" />
               ) : (
-                <span className="text-base font-black text-[#A7653A]">
+                <span className="text-base font-black text-[#3B82F6]">
                   {product.name[0]}
                 </span>
               )}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="font-black text-[#27324A] text-sm truncate">
+              <p className="font-black text-[#0F172A] text-sm truncate">
                 {product.name}
               </p>
               <p className="text-[11px] text-[#746E73] truncate">
@@ -287,7 +287,7 @@ function IntentDialog({
               </p>
             </div>
             <div className="text-right shrink-0">
-              <p className="text-xs font-black text-[#A7653A]">
+              <p className="text-xs font-black text-[#3B82F6]">
                 Rs. {product.price}
               </p>
               <p className="text-[10px] text-[#746E73]">
@@ -304,22 +304,22 @@ function IntentDialog({
             onClick={() => setIntent(intent === "restock" ? null : "restock")}
             className={`w-full text-left rounded-2xl border-2 transition-all ${
               intent === "restock"
-                ? "border-[#27324A] bg-[#27324A]/[0.03]"
-                : "border-[#2E3344]/10 hover:border-[#27324A]/30 hover:bg-[#f8f8f7]"
+                ? "border-[#0F172A] bg-[#0F172A]/[0.03]"
+                : "border-[#1E293B]/10 hover:border-[#0F172A]/30 hover:bg-[#f8f8f7]"
             }`}
           >
             <div className="flex items-center gap-3 px-4 py-3.5">
               <div
                 className={`h-10 w-10 rounded-xl flex items-center justify-center shrink-0 ${
-                  intent === "restock" ? "bg-[#27324A]" : "bg-[#f8f8f7]"
+                  intent === "restock" ? "bg-[#0F172A]" : "bg-[#f8f8f7]"
                 }`}
               >
                 <PackagePlus
-                  className={`h-5 w-5 ${intent === "restock" ? "text-white" : "text-[#27324A]"}`}
+                  className={`h-5 w-5 ${intent === "restock" ? "text-white" : "text-[#0F172A]"}`}
                 />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="font-black text-[#27324A] text-sm">
+                <p className="font-black text-[#0F172A] text-sm">
                   Restock existing
                 </p>
                 <p className="text-[11px] text-[#746E73]">
@@ -327,7 +327,7 @@ function IntentDialog({
                 </p>
               </div>
               <div className="flex items-center gap-1.5 shrink-0">
-                <span className="text-[10px] font-black bg-[#27324A] text-white px-2 py-0.5 rounded-full uppercase tracking-wide">
+                <span className="text-[10px] font-black bg-[#0F172A] text-white px-2 py-0.5 rounded-full uppercase tracking-wide">
                   Recommended
                 </span>
                 <ChevronRight
@@ -339,10 +339,10 @@ function IntentDialog({
 
           {/* Restock inline form */}
           {intent === "restock" && (
-            <div className="mx-1 p-4 rounded-2xl bg-[#F7F0E6]/40 border border-[#A7653A]/20 space-y-3">
+            <div className="mx-1 p-4 rounded-2xl bg-[#F8FAFC]/40 border border-[#3B82F6]/20 space-y-3">
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <Label className="font-bold text-[#27324A] text-xs">
+                  <Label className="font-bold text-[#0F172A] text-xs">
                     Units to add *
                   </Label>
                   <Input
@@ -357,7 +357,7 @@ function IntentDialog({
                   />
                 </div>
                 <div>
-                  <Label className="font-bold text-[#27324A] text-xs">
+                  <Label className="font-bold text-[#0F172A] text-xs">
                     New cost price (Rs.)
                   </Label>
                   <Input
@@ -372,7 +372,7 @@ function IntentDialog({
                 </div>
               </div>
               <div>
-                <Label className="font-bold text-[#27324A] text-xs">
+                <Label className="font-bold text-[#0F172A] text-xs">
                   New selling price (Rs.) — current: Rs. {product.price}
                 </Label>
                 <Input
@@ -389,7 +389,7 @@ function IntentDialog({
                 type="button"
                 onClick={handleRestock}
                 disabled={isPending || !qty}
-                className="w-full h-11 rounded-xl bg-[#27324A] hover:bg-[#1b2333] text-white font-bold"
+                className="w-full h-11 rounded-xl bg-[#0F172A] hover:bg-[#1b2333] text-white font-bold"
               >
                 {isPending ? (
                   <>
@@ -412,14 +412,14 @@ function IntentDialog({
             onClick={() => {
               onVariant();
             }}
-            className="w-full text-left rounded-2xl border-2 border-[#2E3344]/10 hover:border-[#A7653A]/40 hover:bg-[#FFF8F3] transition-all"
+            className="w-full text-left rounded-2xl border-2 border-[#1E293B]/10 hover:border-[#3B82F6]/40 hover:bg-[#FFF8F3] transition-all"
           >
             <div className="flex items-center gap-3 px-4 py-3.5">
-              <div className="h-10 w-10 rounded-xl bg-[#F7F0E6] flex items-center justify-center shrink-0">
-                <Layers className="h-5 w-5 text-[#A7653A]" />
+              <div className="h-10 w-10 rounded-xl bg-[#F8FAFC] flex items-center justify-center shrink-0">
+                <Layers className="h-5 w-5 text-[#3B82F6]" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="font-black text-[#27324A] text-sm">
+                <p className="font-black text-[#0F172A] text-sm">
                   Add new variant
                 </p>
                 <p className="text-[11px] text-[#746E73]">
@@ -436,14 +436,14 @@ function IntentDialog({
             onClick={() => {
               onNew();
             }}
-            className="w-full text-left rounded-2xl border-2 border-[#2E3344]/10 hover:border-[#2E3344]/20 hover:bg-[#f8f8f7] transition-all"
+            className="w-full text-left rounded-2xl border-2 border-[#1E293B]/10 hover:border-[#1E293B]/20 hover:bg-[#f8f8f7] transition-all"
           >
             <div className="flex items-center gap-3 px-4 py-3.5">
               <div className="h-10 w-10 rounded-xl bg-[#f8f8f7] flex items-center justify-center shrink-0">
                 <Sparkles className="h-5 w-5 text-[#746E73]" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="font-black text-[#27324A] text-sm">
+                <p className="font-black text-[#0F172A] text-sm">
                   Create as new product
                 </p>
                 <p className="text-[11px] text-[#746E73]">
@@ -630,20 +630,20 @@ export function ProductForm({ shopId, shopSlug, catalog }: ProductFormProps) {
   if (restockResult) {
     return (
       <div className="max-w-lg mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500 pt-8 pb-12">
-        <div className="bg-white rounded-4xl border border-[#2E3344]/8 shadow-sm p-8 text-center space-y-6">
+        <div className="bg-white rounded-4xl border border-[#1E293B]/8 shadow-sm p-8 text-center space-y-6">
           <div className="h-16 w-16 rounded-2xl bg-green-50 flex items-center justify-center mx-auto">
             <CheckCircle2 className="h-8 w-8 text-green-600" />
           </div>
           <div>
-            <h2 className="text-xl font-black text-[#27324A]">
+            <h2 className="text-xl font-black text-[#0F172A]">
               Stock Updated!
             </h2>
             <p className="text-sm text-[#746E73] mt-1">
-              <span className="font-bold text-[#27324A]">
+              <span className="font-bold text-[#0F172A]">
                 {restockResult.productName}
               </span>{" "}
               now has{" "}
-              <span className="font-bold text-[#27324A]">
+              <span className="font-bold text-[#0F172A]">
                 {restockResult.newStock}
               </span>{" "}
               units in stock.
@@ -651,7 +651,7 @@ export function ProductForm({ shopId, shopSlug, catalog }: ProductFormProps) {
           </div>
 
           <div className="flex justify-center">
-            <div className="p-4 bg-white rounded-2xl border border-[#2E3344]/8 inline-block overflow-hidden">
+            <div className="p-4 bg-white rounded-2xl border border-[#1E293B]/8 inline-block overflow-hidden">
               <BarcodeImage
                 value={restockResult.barcode}
                 height={80}
@@ -665,7 +665,7 @@ export function ProductForm({ shopId, shopSlug, catalog }: ProductFormProps) {
             href={restockResult.productUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 text-sm font-bold text-[#A7653A] hover:underline"
+            className="inline-flex items-center gap-2 text-sm font-bold text-[#3B82F6] hover:underline"
           >
             <ExternalLink className="h-4 w-4" /> View product page
           </a>
@@ -681,7 +681,7 @@ export function ProductForm({ shopId, shopSlug, catalog }: ProductFormProps) {
             </Button>
             <Button
               type="button"
-              className="flex-1 rounded-xl bg-[#27324A] hover:bg-[#1b2333] text-white font-bold"
+              className="flex-1 rounded-xl bg-[#0F172A] hover:bg-[#1b2333] text-white font-bold"
               onClick={() => router.push("/dashboard/owner/products")}
             >
               Back to Products
@@ -697,12 +697,12 @@ export function ProductForm({ shopId, shopSlug, catalog }: ProductFormProps) {
   if (created) {
     return (
       <div className="max-w-lg mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500 pt-8 pb-12">
-        <div className="bg-white rounded-4xl border border-[#2E3344]/8 shadow-sm p-8 text-center space-y-6">
+        <div className="bg-white rounded-4xl border border-[#1E293B]/8 shadow-sm p-8 text-center space-y-6">
           <div className="h-16 w-16 rounded-2xl bg-green-50 flex items-center justify-center mx-auto">
             <Barcode className="h-8 w-8 text-green-600" />
           </div>
           <div>
-            <h2 className="text-xl font-black text-[#27324A]">
+            <h2 className="text-xl font-black text-[#0F172A]">
               Product Created!
             </h2>
             <p className="text-sm text-[#746E73] mt-1">
@@ -711,7 +711,7 @@ export function ProductForm({ shopId, shopSlug, catalog }: ProductFormProps) {
           </div>
 
           <div className="flex justify-center">
-            <div className="p-4 bg-white rounded-2xl border border-[#2E3344]/8 inline-block overflow-hidden">
+            <div className="p-4 bg-white rounded-2xl border border-[#1E293B]/8 inline-block overflow-hidden">
               <BarcodeImage
                 value={created.barcode}
                 height={80}
@@ -725,7 +725,7 @@ export function ProductForm({ shopId, shopSlug, catalog }: ProductFormProps) {
             href={created.productUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 text-sm font-bold text-[#A7653A] hover:underline"
+            className="inline-flex items-center gap-2 text-sm font-bold text-[#3B82F6] hover:underline"
           >
             <ExternalLink className="h-4 w-4" /> Preview product page
           </a>
@@ -741,7 +741,7 @@ export function ProductForm({ shopId, shopSlug, catalog }: ProductFormProps) {
             </Button>
             <Button
               type="button"
-              className="flex-1 rounded-xl bg-[#27324A] hover:bg-[#1b2333] text-white font-bold"
+              className="flex-1 rounded-xl bg-[#0F172A] hover:bg-[#1b2333] text-white font-bold"
               onClick={() => router.push("/dashboard/owner/products")}
             >
               Back to Products
@@ -797,11 +797,11 @@ export function ProductForm({ shopId, shopSlug, catalog }: ProductFormProps) {
                 variant="ghost"
                 className="h-10 w-10 p-0 rounded-full hover:bg-white"
               >
-                <ArrowLeft className="h-5 w-5 text-[#27324A]" />
+                <ArrowLeft className="h-5 w-5 text-[#0F172A]" />
               </Button>
             </Link>
             <div>
-              <h1 className="text-2xl font-black text-[#27324A]">
+              <h1 className="text-2xl font-black text-[#0F172A]">
                 Add Product
               </h1>
               <p className="text-xs font-medium text-[#746E73] mt-0.5">
@@ -812,7 +812,7 @@ export function ProductForm({ shopId, shopSlug, catalog }: ProductFormProps) {
           <Button
             type="submit"
             disabled={busy}
-            className="rounded-xl h-11 bg-[#27324A] hover:bg-[#1b2333] text-white font-bold px-6"
+            className="rounded-xl h-11 bg-[#0F172A] hover:bg-[#1b2333] text-white font-bold px-6"
           >
             {busy ? (
               <>
@@ -831,15 +831,15 @@ export function ProductForm({ shopId, shopSlug, catalog }: ProductFormProps) {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Main Details */}
           <div className="lg:col-span-2 space-y-6">
-            <div className="bg-white p-6 rounded-[2rem] border border-[#2E3344]/8 shadow-sm space-y-5">
-              <h2 className="text-sm font-black uppercase tracking-widest text-[#746E73] border-b border-[#2E3344]/5 pb-3">
+            <div className="bg-white p-6 rounded-[2rem] border border-[#1E293B]/8 shadow-sm space-y-5">
+              <h2 className="text-sm font-black uppercase tracking-widest text-[#746E73] border-b border-[#1E293B]/5 pb-3">
                 Basic Information
               </h2>
 
               {/* Variant prefill notice */}
               {prefill && prefillMode === "variant" && (
-                <div className="flex items-center gap-2 bg-[#F7F0E6]/60 border border-[#A7653A]/20 rounded-xl px-4 py-2.5">
-                  <div className="h-6 w-6 rounded-md bg-[#A7653A]/10 flex items-center justify-center shrink-0">
+                <div className="flex items-center gap-2 bg-[#F8FAFC]/60 border border-[#3B82F6]/20 rounded-xl px-4 py-2.5">
+                  <div className="h-6 w-6 rounded-md bg-[#3B82F6]/10 flex items-center justify-center shrink-0">
                     {(prefill.images?.[0] ?? prefill.image_url) ? (
                       <img
                         src={prefill.images?.[0] ?? prefill.image_url!}
@@ -847,12 +847,12 @@ export function ProductForm({ shopId, shopSlug, catalog }: ProductFormProps) {
                         className="h-6 w-6 rounded-md object-cover"
                       />
                     ) : (
-                      <span className="text-[10px] font-black text-[#A7653A]">
+                      <span className="text-[10px] font-black text-[#3B82F6]">
                         {prefill.name[0]}
                       </span>
                     )}
                   </div>
-                  <p className="text-xs font-bold text-[#A7653A] flex-1 min-w-0 truncate">
+                  <p className="text-xs font-bold text-[#3B82F6] flex-1 min-w-0 truncate">
                     Variant of{" "}
                     <span className="font-black">
                       &quot;{prefill.name}&quot;
@@ -868,7 +868,7 @@ export function ProductForm({ shopId, shopSlug, catalog }: ProductFormProps) {
                       setNameQuery("");
                       setImages([]);
                     }}
-                    className="text-[#746E73] hover:text-[#27324A] shrink-0"
+                    className="text-[#746E73] hover:text-[#0F172A] shrink-0"
                   >
                     <X className="h-3.5 w-3.5" />
                   </button>
@@ -886,7 +886,7 @@ export function ProductForm({ shopId, shopSlug, catalog }: ProductFormProps) {
                   >
                     <PopoverAnchor asChild>
                       <div>
-                        <Label className="font-bold text-[#27324A]">
+                        <Label className="font-bold text-[#0F172A]">
                           Product Name <span className="text-red-500">*</span>
                         </Label>
                         <Input
@@ -913,7 +913,7 @@ export function ProductForm({ shopId, shopSlug, catalog }: ProductFormProps) {
                     <PopoverContent
                       align="start"
                       sideOffset={4}
-                      className="w-[--radix-popover-trigger-width] p-0 rounded-2xl border border-[#2E3344]/10 shadow-xl overflow-hidden"
+                      className="w-[--radix-popover-trigger-width] p-0 rounded-2xl border border-[#1E293B]/10 shadow-xl overflow-hidden"
                       onOpenAutoFocus={(e) => e.preventDefault()}
                     >
                       <Command shouldFilter={false}>
@@ -926,7 +926,7 @@ export function ProductForm({ shopId, shopSlug, catalog }: ProductFormProps) {
                                   key={p.id}
                                   value={p.id}
                                   onSelect={() => handleSuggestionPick(p)}
-                                  className="flex items-center gap-3 px-3 py-2.5 cursor-pointer aria-selected:bg-[#F7F0E6]"
+                                  className="flex items-center gap-3 px-3 py-2.5 cursor-pointer aria-selected:bg-[#F8FAFC]"
                                 >
                                   <div className="h-9 w-9 rounded-lg bg-[#E8E3D1]/60 flex items-center justify-center shrink-0 overflow-hidden">
                                     {thumb ? (
@@ -936,13 +936,13 @@ export function ProductForm({ shopId, shopSlug, catalog }: ProductFormProps) {
                                         className="h-9 w-9 object-cover"
                                       />
                                     ) : (
-                                      <span className="text-sm font-black text-[#A7653A]">
+                                      <span className="text-sm font-black text-[#3B82F6]">
                                         {p.name[0]}
                                       </span>
                                     )}
                                   </div>
                                   <div className="flex-1 min-w-0">
-                                    <p className="font-black text-[#27324A] text-sm truncate">
+                                    <p className="font-black text-[#0F172A] text-sm truncate">
                                       {p.name}
                                     </p>
                                     <p className="text-[10px] font-bold text-[#746E73] truncate">
@@ -950,13 +950,13 @@ export function ProductForm({ shopId, shopSlug, catalog }: ProductFormProps) {
                                         .filter(Boolean)
                                         .join(" • ")}
                                       {p.stock !== null && (
-                                        <span className="ml-1.5 text-[#A7653A]">
+                                        <span className="ml-1.5 text-[#3B82F6]">
                                           · Stock: {fmtStock(p.stock, p.unit)}
                                         </span>
                                       )}
                                     </p>
                                   </div>
-                                  <span className="text-xs font-black text-[#A7653A] shrink-0 bg-[#F7F0E6] px-2 py-0.5 rounded-md">
+                                  <span className="text-xs font-black text-[#3B82F6] shrink-0 bg-[#F8FAFC] px-2 py-0.5 rounded-md">
                                     Rs. {p.price}
                                   </span>
                                 </CommandItem>
@@ -979,7 +979,7 @@ export function ProductForm({ shopId, shopSlug, catalog }: ProductFormProps) {
                                 <Plus className="h-4 w-4 text-[#746E73]" />
                               </div>
                               <div>
-                                <p className="font-bold text-[#27324A] text-sm">
+                                <p className="font-bold text-[#0F172A] text-sm">
                                   Create &quot;{nameQuery}&quot; as new product
                                 </p>
                                 <p className="text-[10px] text-[#746E73]">
@@ -996,7 +996,7 @@ export function ProductForm({ shopId, shopSlug, catalog }: ProductFormProps) {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <Label className="font-bold text-[#27324A]">
+                    <Label className="font-bold text-[#0F172A]">
                       Brand / Manufacturer
                     </Label>
                     <Input
@@ -1007,7 +1007,7 @@ export function ProductForm({ shopId, shopSlug, catalog }: ProductFormProps) {
                     />
                   </div>
                   <div>
-                    <Label className="font-bold text-[#27324A]">
+                    <Label className="font-bold text-[#0F172A]">
                       Category <span className="text-red-500">*</span>
                     </Label>
                     <Select
@@ -1030,7 +1030,7 @@ export function ProductForm({ shopId, shopSlug, catalog }: ProductFormProps) {
 
                 <div className="grid grid-cols-3 gap-4">
                   <div>
-                    <Label className="font-bold text-[#27324A]">
+                    <Label className="font-bold text-[#0F172A]">
                       Unit Size
                     </Label>
                     <Input
@@ -1041,7 +1041,7 @@ export function ProductForm({ shopId, shopSlug, catalog }: ProductFormProps) {
                     />
                   </div>
                   <div>
-                    <Label className="font-bold text-[#27324A]">
+                    <Label className="font-bold text-[#0F172A]">
                       Unit Type
                     </Label>
                     <Select name="unit_type" defaultValue={prefillUnit.type}>
@@ -1058,10 +1058,10 @@ export function ProductForm({ shopId, shopSlug, catalog }: ProductFormProps) {
                     </Select>
                   </div>
                   <div>
-                    <Label className="font-bold text-[#27324A]">
+                    <Label className="font-bold text-[#0F172A]">
                       Variant / Flavor
                       {prefillMode === "variant" && (
-                        <span className="ml-1 text-[10px] font-black text-[#A7653A] uppercase tracking-wide bg-[#F7F0E6] px-1.5 py-0.5 rounded-md">
+                        <span className="ml-1 text-[10px] font-black text-[#3B82F6] uppercase tracking-wide bg-[#F8FAFC] px-1.5 py-0.5 rounded-md">
                           Change me
                         </span>
                       )}
@@ -1074,13 +1074,13 @@ export function ProductForm({ shopId, shopSlug, catalog }: ProductFormProps) {
                           ? "e.g. Masala, 150g…"
                           : "e.g. Hot & Spicy"
                       }
-                      className={`h-12 rounded-xl mt-1.5 ${prefillMode === "variant" ? "ring-2 ring-[#A7653A]/30 border-[#A7653A]/40" : ""}`}
+                      className={`h-12 rounded-xl mt-1.5 ${prefillMode === "variant" ? "ring-2 ring-[#3B82F6]/30 border-[#3B82F6]/40" : ""}`}
                     />
                   </div>
                 </div>
 
                 <div>
-                  <Label className="font-bold text-[#27324A]">
+                  <Label className="font-bold text-[#0F172A]">
                     Description
                   </Label>
                   <Textarea
@@ -1095,16 +1095,16 @@ export function ProductForm({ shopId, shopSlug, catalog }: ProductFormProps) {
             {/* Pricing & Inventory */}
             <div
               key={`pricing-${prefillKey}`}
-              className="bg-white p-6 rounded-[2rem] border border-[#2E3344]/8 shadow-sm space-y-5"
+              className="bg-white p-6 rounded-[2rem] border border-[#1E293B]/8 shadow-sm space-y-5"
             >
-              <h2 className="text-sm font-black uppercase tracking-widest text-[#746E73] border-b border-[#2E3344]/5 pb-3">
+              <h2 className="text-sm font-black uppercase tracking-widest text-[#746E73] border-b border-[#1E293B]/5 pb-3">
                 Pricing & Inventory
               </h2>
 
               <div className="grid grid-cols-2 gap-6">
                 <div className="space-y-4">
                   <div>
-                    <Label className="font-bold text-[#27324A]">
+                    <Label className="font-bold text-[#0F172A]">
                       Cost Price (Rs.)
                     </Label>
                     <Input
@@ -1117,7 +1117,7 @@ export function ProductForm({ shopId, shopSlug, catalog }: ProductFormProps) {
                     />
                   </div>
                   <div>
-                    <Label className="font-bold text-[#27324A]">
+                    <Label className="font-bold text-[#0F172A]">
                       Selling Price (Rs.){" "}
                       <span className="text-red-500">*</span>
                     </Label>
@@ -1135,7 +1135,7 @@ export function ProductForm({ shopId, shopSlug, catalog }: ProductFormProps) {
                 </div>
                 <div className="space-y-4">
                   <div>
-                    <Label className="font-bold text-[#27324A]">
+                    <Label className="font-bold text-[#0F172A]">
                       Opening Stock
                     </Label>
                     <Input
@@ -1147,7 +1147,7 @@ export function ProductForm({ shopId, shopSlug, catalog }: ProductFormProps) {
                     />
                   </div>
                   <div>
-                    <Label className="font-bold text-[#27324A]">
+                    <Label className="font-bold text-[#0F172A]">
                       Low Stock Alert At
                     </Label>
                     <Input
@@ -1158,6 +1158,18 @@ export function ProductForm({ shopId, shopSlug, catalog }: ProductFormProps) {
                       className="h-12 rounded-xl mt-1.5"
                     />
                   </div>
+                  <div>
+                    <Label className="font-bold text-[#0F172A]">
+                      Max Stock Level
+                    </Label>
+                    <Input
+                      name="max_stock"
+                      type="number"
+                      min="0"
+                      className="h-12 rounded-xl mt-1.5"
+                      placeholder="Optional"
+                    />
+                  </div>
                 </div>
               </div>
             </div>
@@ -1166,10 +1178,10 @@ export function ProductForm({ shopId, shopSlug, catalog }: ProductFormProps) {
           {/* Sidebar */}
           <div className="space-y-6">
             {/* Product Images */}
-            <div className="bg-white p-6 rounded-[2rem] border border-[#2E3344]/8 shadow-sm space-y-4">
-              <h2 className="text-sm font-black uppercase tracking-widest text-[#746E73] border-b border-[#2E3344]/5 pb-3">
+            <div className="bg-white p-6 rounded-[2rem] border border-[#1E293B]/8 shadow-sm space-y-4">
+              <h2 className="text-sm font-black uppercase tracking-widest text-[#746E73] border-b border-[#1E293B]/5 pb-3">
                 Product Images{" "}
-                <span className="text-[#A7653A]">
+                <span className="text-[#3B82F6]">
                   {images.length}/{MAX_IMAGES}
                 </span>
               </h2>
@@ -1181,10 +1193,10 @@ export function ProductForm({ shopId, shopSlug, catalog }: ProductFormProps) {
                       <img
                         src={img.preview}
                         alt=""
-                        className="w-full h-full object-cover rounded-xl border border-[#2E3344]/10"
+                        className="w-full h-full object-cover rounded-xl border border-[#1E293B]/10"
                       />
                       {i === 0 && (
-                        <span className="absolute top-1 left-1 text-[8px] font-black bg-[#A7653A] text-white px-1.5 py-0.5 rounded-md uppercase tracking-wide">
+                        <span className="absolute top-1 left-1 text-[8px] font-black bg-[#3B82F6] text-white px-1.5 py-0.5 rounded-md uppercase tracking-wide">
                           Main
                         </span>
                       )}
@@ -1204,12 +1216,12 @@ export function ProductForm({ shopId, shopSlug, catalog }: ProductFormProps) {
                 <button
                   type="button"
                   onClick={() => fileRef.current?.click()}
-                  className="w-full border-2 border-dashed border-[#2E3344]/10 rounded-2xl h-32 flex flex-col items-center justify-center gap-2 hover:bg-[#F7F0E6]/30 hover:border-[#A7653A]/30 transition group"
+                  className="w-full border-2 border-dashed border-[#1E293B]/10 rounded-2xl h-32 flex flex-col items-center justify-center gap-2 hover:bg-[#F8FAFC]/30 hover:border-[#3B82F6]/30 transition group"
                 >
-                  <div className="h-9 w-9 rounded-full bg-[#f8f8f7] group-hover:bg-[#F7F0E6] flex items-center justify-center transition">
-                    <UploadCloud className="h-4 w-4 text-[#746E73] group-hover:text-[#A7653A] transition" />
+                  <div className="h-9 w-9 rounded-full bg-[#f8f8f7] group-hover:bg-[#F8FAFC] flex items-center justify-center transition">
+                    <UploadCloud className="h-4 w-4 text-[#746E73] group-hover:text-[#3B82F6] transition" />
                   </div>
-                  <span className="text-xs font-bold text-[#27324A]">
+                  <span className="text-xs font-bold text-[#0F172A]">
                     {images.length === 0 ? "Upload images" : "Add more"}
                   </span>
                   <span className="text-[10px] text-[#746E73]">
@@ -1235,12 +1247,12 @@ export function ProductForm({ shopId, shopSlug, catalog }: ProductFormProps) {
             </div>
 
             {/* Barcode */}
-            <div className="bg-white p-6 rounded-[2rem] border border-[#2E3344]/8 shadow-sm space-y-5">
-              <h2 className="text-sm font-black uppercase tracking-widest text-[#746E73] border-b border-[#2E3344]/5 pb-3">
+            <div className="bg-white p-6 rounded-[2rem] border border-[#1E293B]/8 shadow-sm space-y-5">
+              <h2 className="text-sm font-black uppercase tracking-widest text-[#746E73] border-b border-[#1E293B]/5 pb-3">
                 Barcode (SKU)
               </h2>
               <div>
-                <Label className="font-bold text-[#27324A]">
+                <Label className="font-bold text-[#0F172A]">
                   Scan or Enter Barcode
                 </Label>
                 <div className="flex mt-1.5">
@@ -1249,7 +1261,7 @@ export function ProductForm({ shopId, shopSlug, catalog }: ProductFormProps) {
                     placeholder="Leave blank to auto-generate"
                     className="h-12 rounded-r-none rounded-l-xl font-mono"
                   />
-                  <div className="h-12 rounded-l-none rounded-r-xl bg-[#F7F0E6] text-[#A7653A] border border-l-0 border-[#2E3344]/10 px-4 flex items-center">
+                  <div className="h-12 rounded-l-none rounded-r-xl bg-[#F8FAFC] text-[#3B82F6] border border-l-0 border-[#1E293B]/10 px-4 flex items-center">
                     <Barcode className="h-5 w-5" />
                   </div>
                 </div>

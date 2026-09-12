@@ -56,7 +56,7 @@ export function TrackingMap({
     }).addTo(map);
 
     const shopIcon = L.divIcon({
-      html: `<div style="background:#27324A;color:white;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:14px;box-shadow:0 2px 8px rgba(0,0,0,0.25)">🏪</div>`,
+      html: `<div style="background:#0F172A;color:white;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:14px;box-shadow:0 2px 8px rgba(0,0,0,0.25)">🏪</div>`,
       className: "",
       iconSize: [28, 28],
       iconAnchor: [14, 14],
@@ -68,7 +68,7 @@ export function TrackingMap({
     const riderLat = lerp(shopCoords.lat, custCoords.lat, 0.45);
     const riderLng = lerp(shopCoords.lng, custCoords.lng, 0.45);
     const riderIcon = L.divIcon({
-      html: `<div style="background:#A7653A;color:white;border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;font-size:16px;box-shadow:0 2px 12px rgba(167,101,58,0.5);animation:pulse 2s ease-in-out infinite">🛵</div>`,
+      html: `<div style="background:#3B82F6;color:white;border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;font-size:16px;box-shadow:0 2px 12px rgba(167,101,58,0.5);animation:pulse 2s ease-in-out infinite">🛵</div>`,
       className: "",
       iconSize: [32, 32],
       iconAnchor: [16, 16],
@@ -78,7 +78,7 @@ export function TrackingMap({
       .bindTooltip("Your rider", { permanent: false });
 
     const custIcon = L.divIcon({
-      html: `<div style="background:#F7F0E6;border:2px solid #A7653A;border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-size:13px">📍</div>`,
+      html: `<div style="background:#F8FAFC;border:2px solid #3B82F6;border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-size:13px">📍</div>`,
       className: "",
       iconSize: [26, 26],
       iconAnchor: [13, 13],
@@ -92,7 +92,7 @@ export function TrackingMap({
         [shopCoords.lat, shopCoords.lng],
         [custCoords.lat, custCoords.lng],
       ],
-      { color: "#A7653A", weight: 2.5, dashArray: "6 8", opacity: 0.7 },
+      { color: "#3B82F6", weight: 2.5, dashArray: "6 8", opacity: 0.7 },
     ).addTo(map);
 
     map.fitBounds(

@@ -116,56 +116,56 @@ const QUICK_ACTIONS = [
     label: "Cash Sale",
     icon: Calculator,
     href: "/dashboard/owner/pos",
-    color: "bg-[#27324A] text-white hover:bg-[#1b2333]",
+    color: "bg-[#0F172A] text-white hover:bg-[#1b2333]",
   },
   {
     label: "Add Product",
     icon: Plus,
     href: "/dashboard/owner/products/add",
     color:
-      "bg-white text-[#27324A] border border-[#2E3344]/10 hover:border-[#A7653A]",
+      "bg-white text-[#0F172A] border border-[#1E293B]/10 hover:border-[#3B82F6]",
   },
   {
     label: "Add Expense",
     icon: ReceiptText,
     href: "/dashboard/owner/finances",
     color:
-      "bg-white text-[#27324A] border border-[#2E3344]/10 hover:border-[#A7653A]",
+      "bg-white text-[#0F172A] border border-[#1E293B]/10 hover:border-[#3B82F6]",
   },
   {
     label: "New Invoice",
     icon: FileText,
     href: null,
     color:
-      "bg-white text-[#27324A] border border-[#2E3344]/10 opacity-50 cursor-not-allowed",
+      "bg-white text-[#0F172A] border border-[#1E293B]/10 opacity-50 cursor-not-allowed",
   },
   {
     label: "Barcode Scan",
     icon: Barcode,
     href: "/dashboard/owner/pos",
     color:
-      "bg-white text-[#27324A] border border-[#2E3344]/10 hover:border-[#A7653A]",
+      "bg-white text-[#0F172A] border border-[#1E293B]/10 hover:border-[#3B82F6]",
   },
   {
     label: "Shop QR",
     icon: QrCode,
     href: "/dashboard/owner/storefront",
     color:
-      "bg-white text-[#27324A] border border-[#2E3344]/10 hover:border-[#A7653A]",
+      "bg-white text-[#0F172A] border border-[#1E293B]/10 hover:border-[#3B82F6]",
   },
   {
     label: "Add Customer",
     icon: UserPlus,
     href: "/dashboard/owner/customers",
     color:
-      "bg-white text-[#27324A] border border-[#2E3344]/10 hover:border-[#A7653A]",
+      "bg-white text-[#0F172A] border border-[#1E293B]/10 hover:border-[#3B82F6]",
   },
   {
     label: "Upload Bill",
     icon: Camera,
     href: null,
     color:
-      "bg-white text-[#27324A] border border-[#2E3344]/10 opacity-50 cursor-not-allowed",
+      "bg-white text-[#0F172A] border border-[#1E293B]/10 opacity-50 cursor-not-allowed",
   },
 ];
 
@@ -233,14 +233,14 @@ export function OwnerDashboard({
   return (
     <div className="space-y-6 max-w-7xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500 fill-mode-both pb-10">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 bg-white p-6 rounded-[2rem] border border-[#2E3344]/8 shadow-sm relative overflow-hidden">
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 bg-white p-6 rounded-[2rem] border border-[#1E293B]/8 shadow-sm relative overflow-hidden">
         <div className="absolute -right-10 -top-10 opacity-[0.03] pointer-events-none">
           <Store className="w-64 h-64 rotate-12" />
         </div>
         <div className="relative z-10 min-w-0">
-          <h1 className="text-3xl font-black tracking-[-0.03em] text-[#27324A]">
+          <h1 className="text-3xl font-black tracking-[-0.03em] text-[#0F172A]">
             {firstWord}
-            {restName && <span className="text-[#A7653A]"> {restName}</span>}
+            {restName && <span className="text-[#3B82F6]"> {restName}</span>}
           </h1>
           {shop ? (
             <p className="mt-1 text-sm font-bold text-[#746E73] flex flex-wrap items-center gap-x-2 gap-y-1">
@@ -250,7 +250,7 @@ export function OwnerDashboard({
                   href={`/s/${shop.slug}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-[#A7653A] hover:underline"
+                  className="text-[#3B82F6] hover:underline"
                 >
                   /s/{shop.slug} ↗
                 </a>
@@ -258,7 +258,7 @@ export function OwnerDashboard({
               <span className="text-[#746E73]/30">·</span>
               <Link
                 href="/onboarding/owner"
-                className="text-[#A7653A] hover:underline"
+                className="text-[#3B82F6] hover:underline"
               >
                 + New shop
               </Link>
@@ -273,18 +273,18 @@ export function OwnerDashboard({
               You haven&apos;t created a shop yet.{" "}
               <Link
                 href="/onboarding/owner"
-                className="text-[#A7653A] hover:underline"
+                className="text-[#3B82F6] hover:underline"
               >
                 Set up your first shop →
               </Link>
             </p>
           )}
         </div>
-        <div className="relative z-10 flex items-center gap-2 bg-[#F7F0E6] py-2 px-4 rounded-xl border border-[#A7653A]/20 self-start sm:self-auto">
+        <div className="relative z-10 flex items-center gap-2 bg-[#F8FAFC] py-2 px-4 rounded-xl border border-[#3B82F6]/20 self-start sm:self-auto">
           <div
             className={`h-2 w-2 rounded-full ${statusDot} ${statusKey === "active" ? "animate-pulse" : ""}`}
           />
-          <span className="text-xs font-bold text-[#A7653A] uppercase tracking-widest">
+          <span className="text-xs font-bold text-[#3B82F6] uppercase tracking-widest">
             {statusLabel}
           </span>
         </div>
@@ -295,7 +295,7 @@ export function OwnerDashboard({
         {kpis.map((kpi, i) => (
           <div
             key={i}
-            className={`p-5 rounded-[1.5rem] bg-white border border-[#2E3344]/8 shadow-sm flex flex-col justify-between ${
+            className={`p-5 rounded-[1.5rem] bg-white border border-[#1E293B]/8 shadow-sm flex flex-col justify-between ${
               kpi.alert ? "border-orange-200 bg-orange-50/50" : ""
             }`}
           >
@@ -304,7 +304,7 @@ export function OwnerDashboard({
                 className={`h-10 w-10 rounded-xl flex items-center justify-center ${
                   kpi.alert
                     ? "bg-orange-100 text-orange-600"
-                    : "bg-[#F7F0E6] text-[#A7653A]"
+                    : "bg-[#F8FAFC] text-[#3B82F6]"
                 }`}
               >
                 <kpi.icon className="h-5 w-5" />
@@ -322,7 +322,7 @@ export function OwnerDashboard({
               )}
             </div>
             <div className="mt-4">
-              <p className="text-2xl font-black text-[#27324A]">{kpi.value}</p>
+              <p className="text-2xl font-black text-[#0F172A]">{kpi.value}</p>
               <p className="text-[10px] font-black uppercase tracking-widest text-[#746E73] mt-1">
                 {kpi.label}
               </p>
@@ -367,10 +367,10 @@ export function OwnerDashboard({
         {/* Main Charts & Lists Column */}
         <div className="lg:col-span-8 space-y-6">
           {/* Revenue Chart */}
-          <div className="bg-white rounded-[2rem] border border-[#2E3344]/8 p-6 shadow-sm">
+          <div className="bg-white rounded-[2rem] border border-[#1E293B]/8 p-6 shadow-sm">
             <div className="flex items-center justify-between mb-6">
               <div>
-                <h2 className="text-lg font-black text-[#27324A]">
+                <h2 className="text-lg font-black text-[#0F172A]">
                   Revenue Overview
                 </h2>
                 <p className="text-xs text-[#746E73] font-medium">
@@ -379,7 +379,7 @@ export function OwnerDashboard({
               </div>
               <Link
                 href="/dashboard/owner/finances"
-                className="text-xs font-bold text-[#A7653A] hover:underline"
+                className="text-xs font-bold text-[#3B82F6] hover:underline"
               >
                 Full Report →
               </Link>
@@ -414,7 +414,7 @@ export function OwnerDashboard({
                     />
                     <RechartsTooltip
                       cursor={{
-                        stroke: "#A7653A",
+                        stroke: "#3B82F6",
                         strokeWidth: 1,
                         strokeDasharray: "3 3",
                       }}
@@ -431,11 +431,11 @@ export function OwnerDashboard({
                     <Line
                       type="monotone"
                       dataKey="revenue"
-                      stroke="#A7653A"
+                      stroke="#3B82F6"
                       strokeWidth={3}
                       dot={{
                         r: 4,
-                        fill: "#A7653A",
+                        fill: "#3B82F6",
                         strokeWidth: 2,
                         stroke: "#fff",
                       }}
@@ -450,13 +450,13 @@ export function OwnerDashboard({
           {/* Low Stock + Recent Transactions */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Low Stock */}
-            <div className="bg-white rounded-[2rem] border border-[#2E3344]/8 p-6 shadow-sm">
+            <div className="bg-white rounded-[2rem] border border-[#1E293B]/8 p-6 shadow-sm">
               <div className="flex items-center gap-3 mb-6">
                 <div className="h-10 w-10 rounded-xl bg-red-50 text-red-500 flex items-center justify-center">
                   <PackageMinus className="h-5 w-5" />
                 </div>
                 <div>
-                  <h2 className="text-sm font-black text-[#27324A]">
+                  <h2 className="text-sm font-black text-[#0F172A]">
                     Low Stock Items
                   </h2>
                   <p className="text-[10px] uppercase tracking-widest text-[#746E73] font-bold">
@@ -473,17 +473,17 @@ export function OwnerDashboard({
                   {lowStockItems.map((item) => (
                     <div
                       key={item.id}
-                      className="flex items-center justify-between p-3 rounded-xl bg-[#f8f8f7] border border-[#2E3344]/5"
+                      className="flex items-center justify-between p-3 rounded-xl bg-[#f8f8f7] border border-[#1E293B]/5"
                     >
                       <div>
-                        <p className="text-xs font-bold text-[#27324A] line-clamp-1">
+                        <p className="text-xs font-bold text-[#0F172A] line-clamp-1">
                           {item.name}
                         </p>
                         <p className="text-[10px] text-red-500 font-bold mt-0.5">
                           Low Stock
                         </p>
                       </div>
-                      <span className="text-xs font-black text-[#27324A] bg-white px-2 py-1 rounded-lg border border-[#2E3344]/5 shrink-0">
+                      <span className="text-xs font-black text-[#0F172A] bg-white px-2 py-1 rounded-lg border border-[#1E293B]/5 shrink-0">
                         {item.stock} left
                       </span>
                     </div>
@@ -492,20 +492,20 @@ export function OwnerDashboard({
               )}
               <Link
                 href="/dashboard/owner/products"
-                className="block w-full mt-4 text-xs font-bold text-[#A7653A] hover:underline text-center"
+                className="block w-full mt-4 text-xs font-bold text-[#3B82F6] hover:underline text-center"
               >
                 View All Inventory →
               </Link>
             </div>
 
             {/* Recent Transactions */}
-            <div className="bg-white rounded-[2rem] border border-[#2E3344]/8 p-6 shadow-sm">
+            <div className="bg-white rounded-[2rem] border border-[#1E293B]/8 p-6 shadow-sm">
               <div className="flex items-center gap-3 mb-6">
-                <div className="h-10 w-10 rounded-xl bg-[#F7F0E6] text-[#A7653A] flex items-center justify-center">
+                <div className="h-10 w-10 rounded-xl bg-[#F8FAFC] text-[#3B82F6] flex items-center justify-center">
                   <Clock className="h-5 w-5" />
                 </div>
                 <div>
-                  <h2 className="text-sm font-black text-[#27324A]">
+                  <h2 className="text-sm font-black text-[#0F172A]">
                     Recent Transactions
                   </h2>
                   <p className="text-[10px] uppercase tracking-widest text-[#746E73] font-bold">
@@ -522,15 +522,15 @@ export function OwnerDashboard({
                   {recentTransactions.map((txn) => {
                     const typeLabel = TXN_TYPE_LABEL[txn.type] ?? txn.type;
                     const typeColor =
-                      TXN_TYPE_COLOR[txn.type] ?? "text-[#27324A]";
+                      TXN_TYPE_COLOR[txn.type] ?? "text-[#0F172A]";
                     const isExpense = txn.type === "expense";
                     return (
                       <div
                         key={txn.id}
-                        className="flex items-center justify-between p-3 rounded-xl border border-[#2E3344]/5 hover:bg-[#f8f8f7] transition"
+                        className="flex items-center justify-between p-3 rounded-xl border border-[#1E293B]/5 hover:bg-[#f8f8f7] transition"
                       >
                         <div>
-                          <p className="text-xs font-bold text-[#27324A]">
+                          <p className="text-xs font-bold text-[#0F172A]">
                             {txn.payment_method
                               ? txn.payment_method.charAt(0).toUpperCase() +
                                 txn.payment_method.slice(1)
@@ -544,7 +544,7 @@ export function OwnerDashboard({
                           </p>
                         </div>
                         <span
-                          className={`text-sm font-black ${isExpense ? "text-red-500" : "text-[#27324A]"}`}
+                          className={`text-sm font-black ${isExpense ? "text-red-500" : "text-[#0F172A]"}`}
                         >
                           {isExpense ? "-" : "+"}Rs.{" "}
                           {Number(txn.amount).toLocaleString()}
@@ -556,7 +556,7 @@ export function OwnerDashboard({
               )}
               <Link
                 href="/dashboard/owner/finances"
-                className="block w-full mt-4 text-xs font-bold text-[#A7653A] hover:underline text-center"
+                className="block w-full mt-4 text-xs font-bold text-[#3B82F6] hover:underline text-center"
               >
                 Full Finance Report →
               </Link>
@@ -567,12 +567,12 @@ export function OwnerDashboard({
         {/* Sidebar */}
         <aside className="lg:col-span-4 space-y-6">
           {/* Online Orders Queue */}
-          <div className="rounded-[2rem] bg-[#F7F0E6]/40 border border-[#A7653A]/10 p-6">
+          <div className="rounded-[2rem] bg-[#F8FAFC]/40 border border-[#3B82F6]/10 p-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xs font-black uppercase tracking-widest text-[#8D5132]">
                 Online Orders Queue
               </h2>
-              <span className="h-6 w-6 rounded-full bg-[#A7653A] text-white text-[10px] font-bold flex items-center justify-center">
+              <span className="h-6 w-6 rounded-full bg-[#3B82F6] text-white text-[10px] font-bold flex items-center justify-center">
                 {dashStats.pending_orders}
               </span>
             </div>
@@ -585,7 +585,7 @@ export function OwnerDashboard({
                 {pendingOrders.map((order) => (
                   <div
                     key={order.id}
-                    className="rounded-[1.25rem] bg-white border border-[#2E3344]/5 p-4 shadow-sm"
+                    className="rounded-[1.25rem] bg-white border border-[#1E293B]/5 p-4 shadow-sm"
                   >
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-[10px] font-bold text-[#746E73]">
@@ -595,7 +595,7 @@ export function OwnerDashboard({
                         Pending
                       </span>
                     </div>
-                    <p className="font-black text-[#27324A] text-sm">
+                    <p className="font-black text-[#0F172A] text-sm">
                       Rs. {Number(order.total_amount).toLocaleString()}
                     </p>
                     <p className="text-[10px] text-[#746E73] mt-1">
@@ -603,7 +603,7 @@ export function OwnerDashboard({
                     </p>
                     <Link
                       href="/dashboard/owner/orders"
-                      className="mt-3 block w-full py-2 rounded-xl bg-[#F7F0E6] text-[#A7653A] text-xs font-bold hover:bg-[#A7653A] hover:text-white transition text-center"
+                      className="mt-3 block w-full py-2 rounded-xl bg-[#F8FAFC] text-[#3B82F6] text-xs font-bold hover:bg-[#3B82F6] hover:text-white transition text-center"
                     >
                       Process Order
                     </Link>
@@ -613,14 +613,14 @@ export function OwnerDashboard({
             )}
             <Link
               href="/dashboard/owner/orders"
-              className="block w-full mt-4 text-xs font-bold text-[#A7653A] hover:underline text-center"
+              className="block w-full mt-4 text-xs font-bold text-[#3B82F6] hover:underline text-center"
             >
               View All Orders →
             </Link>
           </div>
 
           {/* Supplier Dues */}
-          <div className="rounded-[2rem] bg-[#27324A] p-6 text-white shadow-xl flex flex-col justify-between">
+          <div className="rounded-[2rem] bg-[#0F172A] p-6 text-white shadow-xl flex flex-col justify-between">
             <div className="flex items-center gap-3 mb-2">
               <Truck className="h-5 w-5 text-[#D8C99A]" />
               <p className="text-[10px] font-black uppercase tracking-widest text-[#D8C99A]">
@@ -644,13 +644,13 @@ export function OwnerDashboard({
           </div>
 
           {/* Udhar Overview */}
-          <div className="rounded-[2rem] bg-white border border-[#2E3344]/8 p-6 shadow-sm">
+          <div className="rounded-[2rem] bg-white border border-[#1E293B]/8 p-6 shadow-sm">
             <div className="flex items-center gap-3 mb-4">
-              <div className="h-10 w-10 rounded-xl bg-[#F7F0E6] text-[#A7653A] flex items-center justify-center">
+              <div className="h-10 w-10 rounded-xl bg-[#F8FAFC] text-[#3B82F6] flex items-center justify-center">
                 <Banknote className="h-5 w-5" />
               </div>
               <div>
-                <h2 className="text-sm font-black text-[#27324A]">
+                <h2 className="text-sm font-black text-[#0F172A]">
                   Customer Udhar
                 </h2>
                 <p className="text-[10px] uppercase tracking-widest text-[#746E73] font-bold">
@@ -658,7 +658,7 @@ export function OwnerDashboard({
                 </p>
               </div>
             </div>
-            <p className="text-2xl font-black text-[#27324A]">
+            <p className="text-2xl font-black text-[#0F172A]">
               Rs. {dashStats.total_udhar.toLocaleString()}
             </p>
             <p className="text-xs text-[#746E73] font-medium mt-1">
@@ -666,7 +666,7 @@ export function OwnerDashboard({
             </p>
             <Link
               href="/dashboard/owner/customers"
-              className="mt-4 block w-full py-3 rounded-xl bg-[#F7F0E6] text-[#A7653A] text-xs font-bold hover:bg-[#A7653A] hover:text-white transition text-center"
+              className="mt-4 block w-full py-3 rounded-xl bg-[#F8FAFC] text-[#3B82F6] text-xs font-bold hover:bg-[#3B82F6] hover:text-white transition text-center"
             >
               Manage Customers →
             </Link>

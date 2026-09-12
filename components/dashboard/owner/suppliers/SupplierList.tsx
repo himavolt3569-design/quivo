@@ -138,10 +138,10 @@ export function SupplierList({ shopId, initialSuppliers }: SupplierListProps) {
     <div className="space-y-6 max-w-7xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500 pb-10">
       <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
         <div>
-          <p className="text-[10px] font-black uppercase tracking-widest text-[#A7653A]">
+          <p className="text-[10px] font-black uppercase tracking-widest text-[#3B82F6]">
             Payables ledger
           </p>
-          <h1 className="text-2xl font-black text-[#27324A]">Suppliers</h1>
+          <h1 className="text-2xl font-black text-[#0F172A]">Suppliers</h1>
           <p className="text-sm font-medium text-[#746E73] mt-1">
             Manage distributors, supplier profiles, purchases, payments, and
             printable ledgers.
@@ -149,11 +149,11 @@ export function SupplierList({ shopId, initialSuppliers }: SupplierListProps) {
         </div>
 
         <div className="grid grid-cols-2 gap-3 sm:flex sm:items-center">
-          <div className="rounded-2xl border border-[#2E3344]/8 bg-white px-4 py-3 shadow-sm">
+          <div className="rounded-2xl border border-[#1E293B]/8 bg-white px-4 py-3 shadow-sm">
             <p className="text-[10px] font-black uppercase tracking-widest text-[#746E73]">
               Open Suppliers
             </p>
-            <p className="text-xl font-black text-[#27324A]">
+            <p className="text-xl font-black text-[#0F172A]">
               {suppliersWithDues}
             </p>
           </div>
@@ -167,19 +167,19 @@ export function SupplierList({ shopId, initialSuppliers }: SupplierListProps) {
           </div>
           <Button
             onClick={() => setShowAddModal(true)}
-            className="col-span-2 h-12 rounded-xl bg-[#27324A] px-6 font-bold text-white shadow-sm hover:bg-[#1b2333] sm:col-span-1"
+            className="col-span-2 h-12 rounded-xl bg-[#0F172A] px-6 font-bold text-white shadow-sm hover:bg-[#1b2333] sm:col-span-1"
           >
             <Plus className="mr-2 h-4 w-4" /> Add Supplier
           </Button>
         </div>
       </div>
 
-      <div className="flex flex-col gap-3 rounded-[1.5rem] border border-[#2E3344]/8 bg-white p-4 shadow-sm sm:flex-row sm:items-center">
+      <div className="flex flex-col gap-3 rounded-[1.5rem] border border-[#1E293B]/8 bg-white p-4 shadow-sm sm:flex-row sm:items-center">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#746E73]" />
           <Input
             placeholder="Search by supplier, contact, category, phone, or email..."
-            className="h-11 rounded-xl border-transparent bg-[#f8f8f7] pl-9 focus-visible:ring-[#A7653A]/20"
+            className="h-11 rounded-xl border-transparent bg-[#f8f8f7] pl-9 focus-visible:ring-[#3B82F6]/20"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
@@ -191,11 +191,11 @@ export function SupplierList({ shopId, initialSuppliers }: SupplierListProps) {
       </div>
 
       {suppliers.length === 0 && (
-        <div className="flex flex-col items-center justify-center gap-4 rounded-[2rem] border border-[#2E3344]/8 bg-white py-24 text-center">
-          <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[#F7F0E6]">
-            <Truck className="h-8 w-8 text-[#A7653A]" />
+        <div className="flex flex-col items-center justify-center gap-4 rounded-[2rem] border border-[#1E293B]/8 bg-white py-24 text-center">
+          <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[#F8FAFC]">
+            <Truck className="h-8 w-8 text-[#3B82F6]" />
           </div>
-          <h3 className="text-lg font-black text-[#27324A]">
+          <h3 className="text-lg font-black text-[#0F172A]">
             No suppliers yet
           </h3>
           <p className="max-w-sm text-sm font-medium text-[#746E73]">
@@ -204,7 +204,7 @@ export function SupplierList({ shopId, initialSuppliers }: SupplierListProps) {
           </p>
           <Button
             onClick={() => setShowAddModal(true)}
-            className="h-11 rounded-xl bg-[#27324A] font-bold text-white hover:bg-[#1b2333]"
+            className="h-11 rounded-xl bg-[#0F172A] font-bold text-white hover:bg-[#1b2333]"
           >
             <Plus className="mr-2 h-4 w-4" /> Add First Supplier
           </Button>
@@ -217,23 +217,23 @@ export function SupplierList({ shopId, initialSuppliers }: SupplierListProps) {
           return (
             <div
               key={supplier.id}
-              className="rounded-[1.5rem] border border-[#2E3344]/8 bg-white p-5 shadow-sm transition hover:border-[#A7653A]/30"
+              className="rounded-[1.5rem] border border-[#1E293B]/8 bg-white p-5 shadow-sm transition hover:border-[#3B82F6]/30"
             >
               <div className="flex items-start justify-between gap-4">
                 <div className="flex min-w-0 items-center gap-3">
-                  <Avatar className="h-14 w-14 rounded-2xl border border-[#2E3344]/8 bg-[#F7F0E6]">
+                  <Avatar className="h-14 w-14 rounded-2xl border border-[#1E293B]/8 bg-[#F8FAFC]">
                     {supplier.logo_url && (
                       <AvatarImage
                         src={supplier.logo_url}
                         alt={`${supplier.name} logo`}
                       />
                     )}
-                    <AvatarFallback className="rounded-2xl bg-[#F7F0E6] text-lg font-black text-[#A7653A]">
+                    <AvatarFallback className="rounded-2xl bg-[#F8FAFC] text-lg font-black text-[#3B82F6]">
                       {supplier.name[0]?.toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
                   <div className="min-w-0">
-                    <h3 className="truncate text-base font-black text-[#27324A]">
+                    <h3 className="truncate text-base font-black text-[#0F172A]">
                       {supplier.name}
                     </h3>
                     <p className="truncate text-xs font-bold text-[#746E73]">
@@ -243,12 +243,12 @@ export function SupplierList({ shopId, initialSuppliers }: SupplierListProps) {
                     </p>
                     <div className="mt-1 flex flex-wrap gap-1.5">
                       {supplier.category && (
-                        <Badge className="rounded-lg bg-[#F7F0E6] text-[#A7653A] shadow-none hover:bg-[#F7F0E6]">
+                        <Badge className="rounded-lg bg-[#F8FAFC] text-[#3B82F6] shadow-none hover:bg-[#F8FAFC]">
                           {supplier.category}
                         </Badge>
                       )}
                       {supplier.tax_id && (
-                        <Badge className="rounded-lg bg-[#27324A]/5 text-[#27324A] shadow-none hover:bg-[#27324A]/5">
+                        <Badge className="rounded-lg bg-[#0F172A]/5 text-[#0F172A] shadow-none hover:bg-[#0F172A]/5">
                           PAN {supplier.tax_id}
                         </Badge>
                       )}
@@ -303,7 +303,7 @@ export function SupplierList({ shopId, initialSuppliers }: SupplierListProps) {
               <div className="mt-5 flex flex-col gap-2 sm:flex-row">
                 <Button
                   asChild
-                  className="h-10 flex-1 rounded-xl border border-[#2E3344]/10 bg-white text-xs font-bold text-[#27324A] shadow-none hover:bg-[#F7F0E6]"
+                  className="h-10 flex-1 rounded-xl border border-[#1E293B]/10 bg-white text-xs font-bold text-[#0F172A] shadow-none hover:bg-[#F8FAFC]"
                 >
                   <Link href={`/dashboard/owner/suppliers/${supplier.id}`}>
                     <FileText className="mr-1.5 h-3.5 w-3.5" /> Ledger
@@ -314,7 +314,7 @@ export function SupplierList({ shopId, initialSuppliers }: SupplierListProps) {
                   <Button
                     disabled={isPending}
                     onClick={() => handlePay(supplier.id, supplier.name)}
-                    className="h-10 flex-1 rounded-xl bg-[#27324A] text-xs font-bold text-white hover:bg-[#1b2333]"
+                    className="h-10 flex-1 rounded-xl bg-[#0F172A] text-xs font-bold text-white hover:bg-[#1b2333]"
                   >
                     Pay Now
                   </Button>
@@ -336,16 +336,16 @@ export function SupplierList({ shopId, initialSuppliers }: SupplierListProps) {
           <div className="max-h-[92vh] w-full max-w-2xl overflow-y-auto rounded-[1.5rem] bg-white p-6 shadow-2xl animate-in slide-in-from-bottom-4 duration-300">
             <div className="mb-5 flex items-center justify-between">
               <div>
-                <p className="text-[10px] font-black uppercase tracking-widest text-[#A7653A]">
+                <p className="text-[10px] font-black uppercase tracking-widest text-[#3B82F6]">
                   Supplier profile
                 </p>
-                <h2 className="text-lg font-black text-[#27324A]">
+                <h2 className="text-lg font-black text-[#0F172A]">
                   Add Supplier
                 </h2>
               </div>
               <button
                 onClick={() => setShowAddModal(false)}
-                className="rounded-lg p-1 text-[#746E73] hover:text-[#27324A]"
+                className="rounded-lg p-1 text-[#746E73] hover:text-[#0F172A]"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -460,14 +460,14 @@ export function SupplierList({ shopId, initialSuppliers }: SupplierListProps) {
               <Button
                 variant="outline"
                 onClick={() => setShowAddModal(false)}
-                className="h-12 flex-1 rounded-xl border-[#2E3344]/10 font-bold"
+                className="h-12 flex-1 rounded-xl border-[#1E293B]/10 font-bold"
               >
                 Cancel
               </Button>
               <Button
                 disabled={isPending || !form.name.trim()}
                 onClick={handleAdd}
-                className="h-12 flex-1 rounded-xl bg-[#27324A] font-bold text-white hover:bg-[#1b2333]"
+                className="h-12 flex-1 rounded-xl bg-[#0F172A] font-bold text-white hover:bg-[#1b2333]"
               >
                 {isPending ? "Saving..." : "Add Supplier"}
               </Button>
@@ -490,7 +490,7 @@ function Field({
 }) {
   return (
     <div className={className}>
-      <Label className="mb-1.5 block font-bold text-[#27324A]">{label}</Label>
+      <Label className="mb-1.5 block font-bold text-[#0F172A]">{label}</Label>
       {children}
     </div>
   );
@@ -507,7 +507,7 @@ function ContactLine({
 }) {
   return (
     <div className="flex min-w-0 items-center gap-2 rounded-xl bg-[#f8f8f7] px-3 py-2 text-xs font-bold text-[#746E73]">
-      <Icon className="h-3.5 w-3.5 shrink-0 text-[#A7653A]" />
+      <Icon className="h-3.5 w-3.5 shrink-0 text-[#3B82F6]" />
       <span className="truncate">{text || fallback}</span>
     </div>
   );

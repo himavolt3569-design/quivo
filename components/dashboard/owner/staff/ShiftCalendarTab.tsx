@@ -12,9 +12,9 @@ interface Props {
 }
 
 const STATUS_STYLES: Record<string, string> = {
-  scheduled: "bg-[#F7F0E6] text-[#A7653A]",
+  scheduled: "bg-[#F8FAFC] text-[#3B82F6]",
   in_progress: "bg-[#41A560]/10 text-[#41A560]",
-  completed: "bg-[#27324A]/10 text-[#27324A]",
+  completed: "bg-[#0F172A]/10 text-[#0F172A]",
   no_show: "bg-red-100 text-red-600",
   cancelled: "bg-gray-100 text-gray-500",
 };
@@ -77,9 +77,9 @@ export function ShiftCalendarTab({ shifts, onCancel, isPending }: Props) {
           modifiers={{ hasShift: (date) => shiftDays.has(dayKey(date)) }}
           modifiersClassNames={{
             hasShift:
-              "relative after:absolute after:bottom-0.5 after:left-1/2 after:-translate-x-1/2 after:h-1 after:w-1 after:rounded-full after:bg-[#A7653A]",
+              "relative after:absolute after:bottom-0.5 after:left-1/2 after:-translate-x-1/2 after:h-1 after:w-1 after:rounded-full after:bg-[#3B82F6]",
           }}
-          className="rounded-2xl border border-[#2E3344]/8 bg-[#fcfbfa] p-3"
+          className="rounded-2xl border border-[#1E293B]/8 bg-[#fcfbfa] p-3"
         />
       </div>
 
@@ -92,7 +92,7 @@ export function ShiftCalendarTab({ shifts, onCancel, isPending }: Props) {
           })}
         </h3>
         {selectedShifts.length === 0 ? (
-          <p className="text-xs text-[#746E73] py-8 text-center font-medium border border-dashed border-[#2E3344]/10 rounded-2xl">
+          <p className="text-xs text-[#746E73] py-8 text-center font-medium border border-dashed border-[#1E293B]/10 rounded-2xl">
             No shifts on this day.
           </p>
         ) : (
@@ -100,7 +100,7 @@ export function ShiftCalendarTab({ shifts, onCancel, isPending }: Props) {
             {selectedShifts.map((s) => (
               <li
                 key={s.id}
-                className="flex items-center gap-3 p-3 rounded-xl border border-[#2E3344]/5 bg-[#f8f8f7]"
+                className="flex items-center gap-3 p-3 rounded-xl border border-[#1E293B]/5 bg-[#f8f8f7]"
               >
                 <div
                   className={`h-10 w-10 rounded-xl flex items-center justify-center ${STATUS_STYLES[s.status] ?? "bg-[#f8f8f7]"}`}
@@ -108,7 +108,7 @@ export function ShiftCalendarTab({ shifts, onCancel, isPending }: Props) {
                   <UserCheck className="h-4 w-4" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-bold text-[#27324A] truncate">
+                  <p className="text-sm font-bold text-[#0F172A] truncate">
                     {s.staff_name ?? "Unknown"}
                   </p>
                   <p className="text-[11px] text-[#746E73] font-medium flex items-center gap-1">

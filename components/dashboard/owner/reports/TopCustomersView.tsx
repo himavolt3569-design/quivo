@@ -60,19 +60,19 @@ export function TopCustomersView({ shopId, shopName }: Props) {
         <div>
           <Link
             href="/dashboard/owner/customers"
-            className="inline-flex items-center gap-1 text-xs font-bold text-[#746E73] hover:text-[#27324A] mb-2"
+            className="inline-flex items-center gap-1 text-xs font-bold text-[#746E73] hover:text-[#0F172A] mb-2"
           >
             <ChevronLeft className="h-3 w-3" /> Back to Customers
           </Link>
-          <h1 className="text-2xl font-black text-[#27324A] flex items-center gap-2">
-            <Users className="h-6 w-6 text-[#A7653A]" /> Top customers
+          <h1 className="text-2xl font-black text-[#0F172A] flex items-center gap-2">
+            <Users className="h-6 w-6 text-[#3B82F6]" /> Top customers
           </h1>
           <p className="text-sm font-medium text-[#746E73] mt-1">
             Your most valuable customers by lifetime spend or order count.
           </p>
         </div>
         <div className="flex gap-2 items-end">
-          <div className="flex rounded-xl border border-[#2E3344]/15 overflow-hidden h-11">
+          <div className="flex rounded-xl border border-[#1E293B]/15 overflow-hidden h-11">
             {(
               [
                 ["spent", "By spend"],
@@ -82,7 +82,7 @@ export function TopCustomersView({ shopId, shopName }: Props) {
               <button
                 key={id}
                 onClick={() => setBy(id)}
-                className={`px-3 text-xs font-bold ${by === id ? "bg-[#27324A] text-white" : "bg-white text-[#27324A]"}`}
+                className={`px-3 text-xs font-bold ${by === id ? "bg-[#0F172A] text-white" : "bg-white text-[#0F172A]"}`}
               >
                 {label}
               </button>
@@ -91,7 +91,7 @@ export function TopCustomersView({ shopId, shopName }: Props) {
           <button
             onClick={exportCsv}
             disabled={isPending || rows.length === 0}
-            className="h-11 px-4 rounded-xl bg-[#27324A] hover:bg-[#1b2333] text-white font-bold text-sm flex items-center gap-2 disabled:opacity-40"
+            className="h-11 px-4 rounded-xl bg-[#0F172A] hover:bg-[#1b2333] text-white font-bold text-sm flex items-center gap-2 disabled:opacity-40"
           >
             <Download className="h-4 w-4" /> CSV
           </button>
@@ -104,7 +104,7 @@ export function TopCustomersView({ shopId, shopName }: Props) {
         </div>
       )}
 
-      <div className="bg-white rounded-2xl border border-[#2E3344]/8 shadow-sm overflow-hidden">
+      <div className="bg-white rounded-2xl border border-[#1E293B]/8 shadow-sm overflow-hidden">
         {isPending ? (
           <div className="py-12 text-center text-sm font-bold text-[#746E73]">
             Loading…
@@ -125,12 +125,12 @@ export function TopCustomersView({ shopId, shopName }: Props) {
                   <th className="px-4 py-3 text-right">Udhar</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#2E3344]/5">
+              <tbody className="divide-y divide-[#1E293B]/5">
                 {rows.map((r, i) => (
                   <tr key={r.id} className="hover:bg-[#f8f8f7]/50">
                     <td className="px-4 py-3 text-[#746E73]">{i + 1}</td>
                     <td className="px-4 py-3">
-                      <p className="font-bold text-[#27324A]">{r.name}</p>
+                      <p className="font-bold text-[#0F172A]">{r.name}</p>
                       {r.phone && (
                         <p className="text-[11px] text-[#746E73]">{r.phone}</p>
                       )}
@@ -140,7 +140,7 @@ export function TopCustomersView({ shopId, shopName }: Props) {
                     </td>
                     <td className="px-4 py-3 text-right">{r.order_count}</td>
                     <td
-                      className={`px-4 py-3 text-right font-bold ${r.udhar_balance > 0 ? "text-[#A7653A]" : "text-[#746E73]"}`}
+                      className={`px-4 py-3 text-right font-bold ${r.udhar_balance > 0 ? "text-[#3B82F6]" : "text-[#746E73]"}`}
                     >
                       {money(r.udhar_balance)}
                     </td>

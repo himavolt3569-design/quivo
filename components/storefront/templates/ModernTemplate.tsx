@@ -30,7 +30,7 @@ export function ModernTemplate({
   activeCategory,
   setActiveCategory,
 }: TemplateProps) {
-  const themeColor = shop.theme_color || "#A7653A";
+  const themeColor = shop.theme_color || "#3B82F6";
   const itemCount = cart.reduce((a, b) => a + b.qty, 0);
   const total = cart.reduce((a, b) => a + b.price * b.qty, 0);
   const shopInitial = shop.name[0]?.toUpperCase() ?? "S";
@@ -324,7 +324,7 @@ export function ModernTemplate({
                           </p>
                         )}
                         <div className="mt-3 flex items-center justify-between">
-                          <span className="font-bold text-[#27324A]">
+                          <span className="font-bold text-[#0F172A]">
                           Rs. {p.price}
                         </span>
                         {p.original_price && (

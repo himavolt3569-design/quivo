@@ -18,6 +18,7 @@ import type { User } from "@supabase/supabase-js";
 import type { Profile } from "@/lib/types";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { getProfile } from "@/app/actions/auth";
 
 interface NavbarProps {
   scrollToSection?: (id: string) => void;
@@ -74,11 +75,7 @@ function NavbarContent({ scrollToSection }: NavbarProps) {
       } = await supabase.auth.getUser();
       setUser(user);
       if (user) {
-        const { data } = await supabase
-          .from("profiles")
-          .select("avatar_url, full_name")
-          .eq("id", user.id)
-          .single();
+        const data = await getProfile();
         setProfile(data);
       }
     };
@@ -88,11 +85,7 @@ function NavbarContent({ scrollToSection }: NavbarProps) {
       async (event, session) => {
         setUser(session?.user ?? null);
         if (session?.user) {
-          const { data } = await supabase
-            .from("profiles")
-            .select("avatar_url, full_name")
-            .eq("id", session.user.id)
-            .single();
+          const data = await getProfile();
           setProfile(data);
         } else {
           setProfile(null);
@@ -139,7 +132,7 @@ function NavbarContent({ scrollToSection }: NavbarProps) {
       />
       <header
         suppressHydrationWarning
-        className="award-header fixed inset-x-0 top-0 z-50 border-b border-[#2E3344]/8 bg-[#F7F0E6]/85 backdrop-blur-2xl"
+        className="award-header fixed inset-x-0 top-0 z-50 border-b border-[#1E293B]/8 bg-[#F8FAFC]/85 backdrop-blur-2xl"
       >
         <div className="container flex h-16 items-center justify-between gap-2 sm:h-20 lg:gap-4">
           <Link
@@ -147,11 +140,11 @@ function NavbarContent({ scrollToSection }: NavbarProps) {
             className="flex min-w-0 shrink items-center justify-between gap-2.5 sm:shrink-0 sm:justify-start sm:gap-3"
             aria-label="Quivo home"
           >
-            <span className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-[#27324A] text-lg font-bold text-white shadow-lg shadow-[#27324A]/18 sm:h-11 sm:w-11">
+            <span className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-[#0F172A] text-lg font-bold text-white shadow-lg shadow-[#0F172A]/18 sm:h-11 sm:w-11">
               Q
             </span>
             <span className="leading-none">
-              <span className="block text-xl font-bold tracking-[-0.02em] text-[#27324A]">
+              <span className="block text-xl font-bold tracking-[-0.02em] text-[#0F172A]">
                 Quivo
               </span>
               <span className="block max-w-[8.75rem] truncate text-[0.58rem] font-semibold uppercase tracking-[0.08em] text-[#7A7378] sm:max-w-none sm:text-[0.67rem] sm:tracking-[0.16em]">
@@ -169,7 +162,7 @@ function NavbarContent({ scrollToSection }: NavbarProps) {
                 key={id}
                 type="button"
                 onClick={() => handleScrollToSection(id)}
-                className="text-sm font-medium text-[#2E3344]/70 transition hover:text-[#A7653A] focus:outline-none focus:ring-2 focus:ring-[#A7653A] focus:ring-offset-4 focus:ring-offset-[#F7F0E6]"
+                className="text-sm font-medium text-[#1E293B]/70 transition hover:text-[#3B82F6] focus:outline-none focus:ring-2 focus:ring-[#3B82F6] focus:ring-offset-4 focus:ring-offset-[#F8FAFC]"
               >
                 {label}
               </button>
@@ -179,7 +172,7 @@ function NavbarContent({ scrollToSection }: NavbarProps) {
           <div className="hidden items-center gap-3 md:flex">
             <button
               onClick={() => handleScrollToSection("orders")}
-              className="rounded-full border border-[#2E3344]/12 bg-white px-5 py-3 text-sm font-semibold text-[#27324A] shadow-sm transition hover:-translate-y-0.5 hover:border-[#A7653A]/40 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-[#A7653A] focus:ring-offset-4"
+              className="rounded-full border border-[#1E293B]/12 bg-white px-5 py-3 text-sm font-semibold text-[#0F172A] shadow-sm transition hover:-translate-y-0.5 hover:border-[#3B82F6]/40 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-[#3B82F6] focus:ring-offset-4"
             >
               Scan barcode
             </button>
@@ -187,7 +180,7 @@ function NavbarContent({ scrollToSection }: NavbarProps) {
               <>
                 <Link
                   href="/dashboard"
-                  className="flex items-center gap-2 rounded-full bg-[#27324A] px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-[#27324A]/25 transition hover:-translate-y-0.5 hover:bg-[#1B2030] focus:outline-none focus:ring-2 focus:ring-[#27324A] focus:ring-offset-4"
+                  className="flex items-center gap-2 rounded-full bg-[#0F172A] px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-[#0F172A]/25 transition hover:-translate-y-0.5 hover:bg-[#1B2030] focus:outline-none focus:ring-2 focus:ring-[#0F172A] focus:ring-offset-4"
                 >
                   {profile?.avatar_url ? (
                     <img
@@ -202,7 +195,7 @@ function NavbarContent({ scrollToSection }: NavbarProps) {
                 </Link>
                 <button
                   onClick={handleSignOut}
-                  className="rounded-full border border-[#2E3344]/12 bg-white p-3 text-[#27324A] shadow-sm transition hover:-translate-y-0.5 hover:border-[#A7653A]/40 hover:text-[#A7653A] hover:shadow-md focus:outline-none focus:ring-2 focus:ring-[#A7653A] focus:ring-offset-4"
+                  className="rounded-full border border-[#1E293B]/12 bg-white p-3 text-[#0F172A] shadow-sm transition hover:-translate-y-0.5 hover:border-[#3B82F6]/40 hover:text-[#3B82F6] hover:shadow-md focus:outline-none focus:ring-2 focus:ring-[#3B82F6] focus:ring-offset-4"
                   aria-label="Sign out"
                 >
                   <LogOut className="h-4 w-4" />
@@ -211,7 +204,7 @@ function NavbarContent({ scrollToSection }: NavbarProps) {
             ) : (
               <button
                 onClick={() => setAuthModalOpen(true)}
-                className="rounded-full bg-[#A7653A] px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-[#A7653A]/25 transition hover:-translate-y-0.5 hover:bg-[#8E5432] focus:outline-none focus:ring-2 focus:ring-[#A7653A] focus:ring-offset-4"
+                className="rounded-full bg-[#3B82F6] px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-[#3B82F6]/25 transition hover:-translate-y-0.5 hover:bg-[#1E40AF] focus:outline-none focus:ring-2 focus:ring-[#3B82F6] focus:ring-offset-4"
               >
                 Login / Sign up
               </button>
@@ -221,7 +214,7 @@ function NavbarContent({ scrollToSection }: NavbarProps) {
           <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
             <SheetTrigger asChild>
               <button
-                className="ml-auto grid h-11 w-11 shrink-0 place-items-center rounded-full border border-[#2E3344]/12 bg-white text-[#27324A] shadow-sm ring-1 ring-[#27324A]/5 lg:hidden"
+                className="ml-auto grid h-11 w-11 shrink-0 place-items-center rounded-full border border-[#1E293B]/12 bg-white text-[#0F172A] shadow-sm ring-1 ring-[#0F172A]/5 lg:hidden"
                 aria-label="Open menu"
                 aria-expanded={mobileMenuOpen}
                 aria-controls="mobile-navigation-menu"
@@ -231,11 +224,11 @@ function NavbarContent({ scrollToSection }: NavbarProps) {
             </SheetTrigger>
             <SheetContent
               side="right"
-              className="max-h-dvh w-[min(92vw,24rem)] overflow-y-auto border-[#2E3344]/10 bg-[#F7F0E6] px-0 pt-2 text-[#27324A] sm:max-w-sm"
+              className="max-h-dvh w-[min(92vw,24rem)] overflow-y-auto border-[#1E293B]/10 bg-[#F8FAFC] px-0 pt-2 text-[#0F172A] sm:max-w-sm"
             >
-              <SheetHeader className="border-b border-[#2E3344]/8 px-6 pb-5 pt-6 text-left">
-                <SheetTitle className="flex items-center gap-3 text-[#27324A]">
-                  <span className="grid h-10 w-10 place-items-center rounded-2xl bg-[#27324A] font-bold text-white">
+              <SheetHeader className="border-b border-[#1E293B]/8 px-6 pb-5 pt-6 text-left">
+                <SheetTitle className="flex items-center gap-3 text-[#0F172A]">
+                  <span className="grid h-10 w-10 place-items-center rounded-2xl bg-[#0F172A] font-bold text-white">
                     Q
                   </span>
                   Quivo menu
@@ -250,17 +243,17 @@ function NavbarContent({ scrollToSection }: NavbarProps) {
                     key={id}
                     type="button"
                     onClick={() => navigateFromMobileMenu(id)}
-                    className="flex min-h-12 items-center justify-between rounded-2xl bg-white px-4 text-left text-base font-semibold text-[#27324A] shadow-sm transition hover:bg-[#FFFBF4] focus:outline-none focus:ring-2 focus:ring-[#A7653A] focus:ring-offset-2 focus:ring-offset-[#F7F0E6]"
+                    className="flex min-h-12 items-center justify-between rounded-2xl bg-white px-4 text-left text-base font-semibold text-[#0F172A] shadow-sm transition hover:bg-[#F1F5F9] focus:outline-none focus:ring-2 focus:ring-[#3B82F6] focus:ring-offset-2 focus:ring-offset-[#F8FAFC]"
                   >
                     {label}
                     <ArrowRight
-                      className="h-4 w-4 text-[#A7653A]"
+                      className="h-4 w-4 text-[#3B82F6]"
                       aria-hidden="true"
                     />
                   </button>
                 ))}
               </div>
-              <div className="mt-auto grid gap-3 border-t border-[#2E3344]/8 px-4 py-5">
+              <div className="mt-auto grid gap-3 border-t border-[#1E293B]/8 px-4 py-5">
                 <SheetClose asChild>
                   <button
                     onClick={() => {
@@ -270,7 +263,7 @@ function NavbarContent({ scrollToSection }: NavbarProps) {
                         router.push("/#orders");
                       }
                     }}
-                    className="min-h-12 rounded-full border border-[#2E3344]/12 bg-white px-5 text-sm font-semibold text-[#27324A]"
+                    className="min-h-12 rounded-full border border-[#1E293B]/12 bg-white px-5 text-sm font-semibold text-[#0F172A]"
                   >
                     Scan barcode
                   </button>
@@ -280,7 +273,7 @@ function NavbarContent({ scrollToSection }: NavbarProps) {
                     <SheetClose asChild>
                       <Link
                         href="/dashboard"
-                        className="flex min-h-12 items-center justify-center gap-2 rounded-full bg-[#27324A] px-5 text-sm font-semibold text-white shadow-lg shadow-[#27324A]/20"
+                        className="flex min-h-12 items-center justify-center gap-2 rounded-full bg-[#0F172A] px-5 text-sm font-semibold text-white shadow-lg shadow-[#0F172A]/20"
                       >
                         {profile?.avatar_url ? (
                           <img
@@ -297,7 +290,7 @@ function NavbarContent({ scrollToSection }: NavbarProps) {
                     <SheetClose asChild>
                       <button
                         onClick={handleSignOut}
-                        className="flex min-h-12 items-center justify-center gap-2 rounded-full border border-[#2E3344]/12 bg-white px-5 text-sm font-semibold text-[#27324A]"
+                        className="flex min-h-12 items-center justify-center gap-2 rounded-full border border-[#1E293B]/12 bg-white px-5 text-sm font-semibold text-[#0F172A]"
                       >
                         <LogOut className="h-4 w-4" />
                         Sign Out
@@ -311,7 +304,7 @@ function NavbarContent({ scrollToSection }: NavbarProps) {
                         setMobileMenuOpen(false);
                         setAuthModalOpen(true);
                       }}
-                      className="min-h-12 rounded-full bg-[#A7653A] px-5 text-sm font-semibold text-white shadow-lg shadow-[#A7653A]/20"
+                      className="min-h-12 rounded-full bg-[#3B82F6] px-5 text-sm font-semibold text-white shadow-lg shadow-[#3B82F6]/20"
                     >
                       Login / Sign up
                     </button>

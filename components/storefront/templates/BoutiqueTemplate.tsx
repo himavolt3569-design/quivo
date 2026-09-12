@@ -28,7 +28,7 @@ export function BoutiqueTemplate({
   activeCategory,
   setActiveCategory,
 }: TemplateProps) {
-  const themeColor = shop.theme_color || "#27324A";
+  const themeColor = shop.theme_color || "#0F172A";
   const itemCount = cart.reduce((a, b) => a + b.qty, 0);
   const total = cart.reduce((a, b) => a + b.price * b.qty, 0);
   const shopInitial = shop.name[0]?.toUpperCase() ?? "S";

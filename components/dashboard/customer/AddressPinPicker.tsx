@@ -17,9 +17,9 @@ const KATHMANDU = { lat: 27.7108, lng: 85.324 };
 const PIN_ICON = L.divIcon({
   html: `<svg xmlns="http://www.w3.org/2000/svg" width="36" height="44" viewBox="0 0 36 44">
     <ellipse cx="18" cy="42" rx="7" ry="2.5" fill="rgba(0,0,0,0.18)"/>
-    <path d="M18 0C8.06 0 0 8.06 0 18c0 11.5 18 26 18 26S36 29.5 36 18C36 8.06 27.94 0 18 0z" fill="#A7653A"/>
+    <path d="M18 0C8.06 0 0 8.06 0 18c0 11.5 18 26 18 26S36 29.5 36 18C36 8.06 27.94 0 18 0z" fill="#3B82F6"/>
     <circle cx="18" cy="18" r="8" fill="white"/>
-    <circle cx="18" cy="18" r="4.5" fill="#A7653A"/>
+    <circle cx="18" cy="18" r="4.5" fill="#3B82F6"/>
   </svg>`,
   className: "",
   iconSize: [36, 44],
@@ -242,15 +242,15 @@ export function AddressPinPicker({
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <div className="rounded-xl ring-2 ring-[#A7653A]/25">
+    <div className="rounded-xl ring-2 ring-[#3B82F6]/25">
       {/* Search bar */}
       <div
         ref={searchWrapRef}
-        className="relative rounded-t-xl border-b border-[#A7653A]/15 bg-white"
+        className="relative rounded-t-xl border-b border-[#3B82F6]/15 bg-white"
       >
         <div className="flex items-center gap-2 px-3 py-2.5">
           {searching ? (
-            <span className="h-4 w-4 flex-shrink-0 animate-spin rounded-full border-2 border-[#A7653A] border-t-transparent" />
+            <span className="h-4 w-4 flex-shrink-0 animate-spin rounded-full border-2 border-[#3B82F6] border-t-transparent" />
           ) : (
             <Search className="h-4 w-4 flex-shrink-0 text-[#746E73]" />
           )}
@@ -260,7 +260,7 @@ export function AddressPinPicker({
             onChange={(e) => setQuery(e.target.value)}
             onFocus={() => results.length > 0 && setShowResults(true)}
             placeholder="Search for a place or area…"
-            className="flex-1 bg-transparent text-sm text-[#27324A] outline-none placeholder:text-[#746E73]/60"
+            className="flex-1 bg-transparent text-sm text-[#0F172A] outline-none placeholder:text-[#746E73]/60"
           />
           {query && (
             <button
@@ -270,7 +270,7 @@ export function AddressPinPicker({
                 setResults([]);
                 setShowResults(false);
               }}
-              className="flex-shrink-0 rounded-full p-0.5 text-[#746E73] transition hover:bg-[#F7F0E6]"
+              className="flex-shrink-0 rounded-full p-0.5 text-[#746E73] transition hover:bg-[#F8FAFC]"
             >
               <X className="h-3.5 w-3.5" />
             </button>
@@ -279,7 +279,7 @@ export function AddressPinPicker({
 
         {/* Results dropdown */}
         {showResults && (
-          <ul className="absolute left-0 right-0 top-full z-[1000] max-h-52 overflow-y-auto rounded-b-xl border border-t-0 border-[#A7653A]/20 bg-white shadow-lg">
+          <ul className="absolute left-0 right-0 top-full z-[1000] max-h-52 overflow-y-auto rounded-b-xl border border-t-0 border-[#3B82F6]/20 bg-white shadow-lg">
             {results.map((r, i) => (
               <li key={i}>
                 <button
@@ -288,10 +288,10 @@ export function AddressPinPicker({
                     e.preventDefault();
                     handleSelectResult(r);
                   }}
-                  className="flex w-full items-start gap-2.5 px-4 py-2.5 text-left transition hover:bg-[#F7F0E6]"
+                  className="flex w-full items-start gap-2.5 px-4 py-2.5 text-left transition hover:bg-[#F8FAFC]"
                 >
-                  <MapPin className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-[#A7653A]" />
-                  <span className="line-clamp-2 text-xs text-[#27324A]">
+                  <MapPin className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-[#3B82F6]" />
+                  <span className="line-clamp-2 text-xs text-[#0F172A]">
                     {r.display_name}
                   </span>
                 </button>

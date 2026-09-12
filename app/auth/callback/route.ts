@@ -7,6 +7,7 @@ import { NextResponse } from "next/server";
 import { createHash } from "crypto";
 import { headers } from "next/headers";
 import { log } from "@/lib/log";
+import { prisma } from "@/lib/prisma";
 
 function parseIntent(value: string | null): Role | null {
   return value === "owner" || value === "customer" ? value : null;
@@ -71,11 +72,10 @@ export async function GET(request: Request) {
 
     // Look up existing profile (do not create yet — decision logic uses
     // null to signal "no profile yet").
-    const { data: existingProfile } = await supabase
-      .from("profiles")
-      .select("role")
-      .eq("id", user.id)
-      .maybeSingle();
+    const existingProfile = await prisma.profiles.findUnique({
+      where: { id: user.id },
+      select: { role: true },
+    });
 
     const existingRole: Role | null =
       existingProfile?.role === "owner" || existingProfile?.role === "customer"
@@ -98,16 +98,13 @@ export async function GET(request: Request) {
         userAgeMs,
       });
       try {
-        await supabase.rpc("record_security_event", {
-          p_event_type: "account_revoked",
-          p_metadata: {
-            email: user.email,
-            user_id: user.id,
-            user_age_ms: userAgeMs,
-            via: "callback",
-          },
-          p_ip_hash: null,
-        });
+        await prisma.$executeRaw`
+          SELECT record_security_event(
+            'account_revoked',
+            ${JSON.stringify({ email: user.email, user_id: user.id, user_age_ms: userAgeMs, via: "callback" })}::jsonb,
+            null
+          )
+        `;
       } catch {
         /* best-effort */
       }
@@ -126,15 +123,14 @@ export async function GET(request: Request) {
           ? metaRole
           : (intent ?? "customer");
 
-      const { error: insertError } = await supabase
-        .from("profiles")
-        .upsert(
-          { id: user.id, email: user.email!, role: seedRole },
-          { onConflict: "id", ignoreDuplicates: true },
-        );
-
-      if (insertError) {
-        if (insertError.code === "23505") {
+      try {
+        await prisma.profiles.upsert({
+          where: { id: user.id },
+          create: { id: user.id, email: user.email!, role: seedRole },
+          update: { role: seedRole },
+        });
+      } catch (insertError: any) {
+        if (insertError.code === "P2002") {
           profileCreationConflict = true;
         } else {
           log.error("auth/callback: profile upsert failed", {
@@ -152,12 +148,13 @@ export async function GET(request: Request) {
     const effectiveRole: Role = existingRole ?? intent ?? "customer";
     let hasShop = false;
     if (effectiveRole === "owner" && !profileCreationConflict) {
-      const { count } = await supabase
-        .from("shop_members")
-        .select("shop_id", { count: "exact", head: true })
-        .eq("user_id", user.id)
-        .eq("status", "active");
-      hasShop = (count ?? 0) > 0;
+      const count = await prisma.shop_members.count({
+        where: {
+          user_id: user.id,
+          status: "active"
+        }
+      });
+      hasShop = count > 0;
     }
 
     const outcome = decideCallbackOutcome({
@@ -184,11 +181,13 @@ export async function GET(request: Request) {
           outcome.kind === "conflict"
             ? { actual: outcome.actual, attempted: outcome.attempted, intent }
             : { intent };
-        await supabase.rpc("record_security_event", {
-          p_event_type: outcome.code,
-          p_metadata: metadata,
-          p_ip_hash: ipHash,
-        });
+        await prisma.$executeRaw`
+          SELECT record_security_event(
+            ${outcome.code},
+            ${JSON.stringify(metadata)}::jsonb,
+            ${ipHash}
+          )
+        `;
       } catch (auditErr) {
         log.error("auth/callback: audit log failed", {
           event: "audit_log_failed",

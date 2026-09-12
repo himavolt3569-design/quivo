@@ -13,7 +13,7 @@ export function StoriesSection() {
       <div className="container grid gap-10 lg:grid-cols-[0.8fr_1.2fr]">
         <div className="reveal-item">
           <Eyebrow icon={UsersRound}>Shop owner stories</Eyebrow>
-          <h2 className="mt-5 text-[clamp(2.25rem,4vw,4rem)] font-bold leading-[1.08] tracking-[-0.03em] text-[#27324A]">
+          <h2 className="mt-5 text-[clamp(2.25rem,4vw,4rem)] font-bold leading-[1.08] tracking-[-0.03em] text-[#0F172A]">
             Practical software for real local commerce.
           </h2>
           <p className="mt-5 text-lg leading-8 text-[#5F5A61]">
@@ -24,7 +24,7 @@ export function StoriesSection() {
           {testimonials.map((testimonial) => (
             <blockquote
               key={testimonial.name}
-              className="magnetic-card reveal-item rounded-[1.75rem] border border-[#2E3344]/8 bg-[#F7F0E6] p-6 shadow-sm"
+              className="magnetic-card reveal-item rounded-[1.75rem] border border-[#1E293B]/8 bg-[#F8FAFC] p-6 shadow-sm"
             >
               <div className="flex gap-1 text-[#B76E42]" aria-hidden="true">
                 {[0, 1, 2, 3, 4].map((star) => (
@@ -34,7 +34,7 @@ export function StoriesSection() {
               <p className="mt-4 text-base leading-7 text-[#4A4854]">
                 “{testimonial.quote}”
               </p>
-              <footer className="mt-5 text-sm font-semibold text-[#27324A]">
+              <footer className="mt-5 text-sm font-semibold text-[#0F172A]">
                 {testimonial.name}{" "}
                 <span className="font-normal text-[#746E73]">
                   — {testimonial.role}

@@ -7,6 +7,7 @@ import { checkRateLimit } from "@/lib/rate-limit";
 import { cookies } from "next/headers";
 import { getSiteUrl } from "@/lib/security";
 import { log } from "@/lib/log";
+import { prisma } from "@/lib/prisma";
 
 const DISPOSABLE_EMAIL_DOMAINS = [
   "mailinator.com",
@@ -109,11 +110,10 @@ export async function loginWithEmail(formData: FormData) {
   // the session out globally and refuse the login. Profile rows are only
   // created during the legitimate signup paths (email verification or OAuth
   // callback inside /auth/callback).
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("id")
-    .eq("id", authData.user.id)
-    .maybeSingle();
+  const profile = await prisma.profiles.findUnique({
+    where: { id: authData.user.id },
+    select: { id: true },
+  });
 
   if (!profile) {
     log.warn("loginWithEmail: authenticated user has no profile — revoking", {
@@ -123,15 +123,13 @@ export async function loginWithEmail(formData: FormData) {
     });
     // Audit while we still have auth.uid() — the RPC binds it at call time.
     try {
-      await supabase.rpc("record_security_event", {
-        p_event_type: "account_revoked",
-        p_metadata: {
-          email: authData.user.email,
-          user_id: authData.user.id,
-          via: "loginWithEmail",
-        },
-        p_ip_hash: null,
-      });
+      await prisma.$executeRaw`
+        SELECT record_security_event(
+          'account_revoked',
+          ${JSON.stringify({ email: authData.user.email, user_id: authData.user.id, via: "loginWithEmail" })}::jsonb,
+          null
+        )
+      `;
     } catch {
       /* best-effort */
     }
@@ -250,4 +248,15 @@ export async function signOut() {
   const supabase = await createClient();
   await supabase.auth.signOut();
   redirect("/");
+}
+
+export async function getProfile() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return null;
+  const profile = await prisma.profiles.findUnique({
+    where: { id: user.id },
+    select: { avatar_url: true, full_name: true },
+  });
+  return profile;
 }

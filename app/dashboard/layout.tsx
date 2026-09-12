@@ -49,13 +49,13 @@ export default async function DashboardLayout({
       initialOwnerFontSize={profile?.owner_font_size ?? "standard"}
     >
       <div className="min-h-screen bg-[#f8f8f7] font-[Poppins]">
-        <header className="sticky top-0 z-40 border-b border-[#2E3344]/8 bg-[#F7F0E6]/85 backdrop-blur-2xl">
+        <header className="sticky top-0 z-40 border-b border-[#1E293B]/8 bg-[#F8FAFC]/85 backdrop-blur-2xl">
           <div className="container flex h-16 items-center justify-between px-4 sm:px-6">
             <Link href="/" className="group flex items-center gap-2">
-              <span className="grid h-8 w-8 place-items-center rounded-xl bg-[#27324A] text-sm font-bold text-white shadow-sm transition-transform duration-300 group-hover:scale-105">
+              <span className="grid h-8 w-8 place-items-center rounded-xl bg-[#0F172A] text-sm font-bold text-white shadow-sm transition-transform duration-300 group-hover:scale-105">
                 Q
               </span>
-              <span className="text-lg font-bold tracking-[-0.02em] text-[#27324A]">
+              <span className="text-lg font-bold tracking-[-0.02em] text-[#0F172A]">
                 Quivo
               </span>
             </Link>
@@ -66,10 +66,10 @@ export default async function DashboardLayout({
                   <img
                     src={profile.avatar_url}
                     alt="Profile"
-                    className="h-8 w-8 rounded-full object-cover border border-[#2E3344]/10"
+                    className="h-8 w-8 rounded-full object-cover border border-[#1E293B]/10"
                   />
                 ) : (
-                  <div className="h-8 w-8 rounded-full bg-[#27324A] flex items-center justify-center text-white text-xs font-bold">
+                  <div className="h-8 w-8 rounded-full bg-[#0F172A] flex items-center justify-center text-white text-xs font-bold">
                     {(profile?.full_name ??
                       user?.email ??
                       "U")[0].toUpperCase()}
@@ -79,7 +79,7 @@ export default async function DashboardLayout({
                   {profile?.full_name ?? user?.email}
                 </span>
               </div>
-              <div className="h-6 w-px bg-[#2E3344]/10" />
+              <div className="h-6 w-px bg-[#1E293B]/10" />
               <form
                 action={async () => {
                   "use server";
@@ -88,7 +88,7 @@ export default async function DashboardLayout({
               >
                 <button
                   type="submit"
-                  className="inline-flex items-center gap-1.5 text-sm font-medium text-[#A7653A] hover:underline"
+                  className="inline-flex items-center gap-1.5 text-sm font-medium text-[#3B82F6] hover:underline"
                 >
                   <LogOut className="h-4 w-4" />
                   Sign Out

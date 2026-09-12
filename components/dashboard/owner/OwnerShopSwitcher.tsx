@@ -100,13 +100,13 @@ export function OwnerShopSwitcher({
     return (
       <Link
         href="/onboarding/owner"
-        className="flex items-center gap-3 w-full h-14 rounded-2xl border border-dashed border-[#A7653A]/40 bg-white px-3 hover:bg-[#F7F0E6]/50 transition-all"
+        className="flex items-center gap-3 w-full h-14 rounded-2xl border border-dashed border-[#3B82F6]/40 bg-white px-3 hover:bg-[#F8FAFC]/50 transition-all"
       >
-        <div className="h-8 w-8 rounded-lg bg-[#A7653A]/10 text-[#A7653A] flex items-center justify-center shrink-0">
+        <div className="h-8 w-8 rounded-lg bg-[#3B82F6]/10 text-[#3B82F6] flex items-center justify-center shrink-0">
           <PlusCircle className="h-4 w-4" />
         </div>
         <div className="flex flex-col items-start truncate">
-          <span className="text-sm font-bold text-[#A7653A]">
+          <span className="text-sm font-bold text-[#3B82F6]">
             Set up your shop
           </span>
           <span className="text-[10px] text-[#746E73] font-medium uppercase tracking-widest">
@@ -124,14 +124,14 @@ export function OwnerShopSwitcher({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-full justify-between md:justify-center lg:justify-between h-14 rounded-2xl border-[#2E3344]/10 bg-white hover:bg-[#F7F0E6]/50 hover:text-[#27324A] transition-all"
+          className="w-full justify-between md:justify-center lg:justify-between h-14 rounded-2xl border-[#1E293B]/10 bg-white hover:bg-[#F8FAFC]/50 hover:text-[#0F172A] transition-all"
         >
           <div className="flex items-center gap-3 overflow-hidden">
-            <div className="h-8 w-8 rounded-lg bg-[#27324A] text-white flex items-center justify-center shrink-0">
+            <div className="h-8 w-8 rounded-lg bg-[#0F172A] text-white flex items-center justify-center shrink-0">
               <Store className="h-4 w-4 text-[#D8C99A]" />
             </div>
             <div className="flex flex-col items-start truncate md:hidden lg:flex">
-              <span className="text-sm font-bold truncate text-[#27324A]">
+              <span className="text-sm font-bold truncate text-[#0F172A]">
                 {selectedShop.name}
               </span>
               <span className="text-[10px] text-[#746E73] font-medium uppercase tracking-widest">
@@ -140,13 +140,13 @@ export function OwnerShopSwitcher({
             </div>
           </div>
           {switching ? (
-            <Loader2 className="ml-2 h-4 w-4 shrink-0 animate-spin text-[#A7653A]" />
+            <Loader2 className="ml-2 h-4 w-4 shrink-0 animate-spin text-[#3B82F6]" />
           ) : (
             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50 md:hidden lg:block" />
           )}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[var(--radix-popover-trigger-width)] min-w-[200px] p-0 rounded-2xl border-[#2E3344]/10 shadow-xl">
+      <PopoverContent className="w-[var(--radix-popover-trigger-width)] min-w-[200px] p-0 rounded-2xl border-[#1E293B]/10 shadow-xl">
         <Command>
           <CommandInput placeholder="Search shop..." className="h-11" />
           <CommandList>
@@ -161,11 +161,11 @@ export function OwnerShopSwitcher({
                   }}
                   className="rounded-xl my-1 cursor-pointer font-medium text-sm"
                 >
-                  <Store className="mr-2 h-4 w-4 text-[#A7653A]" />
+                  <Store className="mr-2 h-4 w-4 text-[#3B82F6]" />
                   <span className="truncate">{shop.name}</span>
                   <Check
                     className={cn(
-                      "ml-auto h-4 w-4 text-[#27324A]",
+                      "ml-auto h-4 w-4 text-[#0F172A]",
                       selectedShop.id === shop.id ? "opacity-100" : "opacity-0",
                     )}
                   />
@@ -196,7 +196,7 @@ export function OwnerShopSwitcher({
                     toast.error("Failed to start onboarding. Check if SUPABASE_SERVICE_ROLE_KEY is set in Vercel.");
                   });
                 }}
-                className="rounded-xl my-1 cursor-pointer text-[#A7653A] font-bold"
+                className="rounded-xl my-1 cursor-pointer text-[#3B82F6] font-bold"
               >
                 <PlusCircle className="mr-2 h-4 w-4" />
                 Add New Shop

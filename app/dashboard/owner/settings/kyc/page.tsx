@@ -15,10 +15,10 @@ export default async function KYCPage() {
   if (!shop) {
     return (
       <div className="flex flex-col items-center justify-center h-64 gap-4 text-center">
-        <p className="text-lg font-bold text-[#27324A]">No shop selected.</p>
+        <p className="text-lg font-bold text-[#0F172A]">No shop selected.</p>
         <Link
           href="/onboarding/owner"
-          className="text-sm text-[#A7653A] hover:underline font-bold"
+          className="text-sm text-[#3B82F6] hover:underline font-bold"
         >
           Create your first shop →
         </Link>
@@ -48,12 +48,12 @@ export default async function KYCPage() {
       <div className="flex items-center gap-3 mb-8">
         <Link
           href="/dashboard/owner/settings"
-          className="h-9 w-9 rounded-xl border border-[#2E3344]/10 flex items-center justify-center hover:bg-[#f8f8f7] transition"
+          className="h-9 w-9 rounded-xl border border-[#1E293B]/10 flex items-center justify-center hover:bg-[#f8f8f7] transition"
         >
           <ChevronLeft className="h-4 w-4 text-[#746E73]" />
         </Link>
         <div>
-          <h1 className="font-black text-2xl text-[#27324A]">
+          <h1 className="font-black text-2xl text-[#0F172A]">
             KYC Verification
           </h1>
           <p className="text-sm text-[#746E73]">

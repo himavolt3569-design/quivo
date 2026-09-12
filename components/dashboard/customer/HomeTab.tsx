@@ -146,14 +146,14 @@ export function HomeTab({
       {/* ── Top Bento Grid Header ───────────────────────────────────── */}
       <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
         {/* Welcome Card */}
-        <div className="md:col-span-8 flex flex-col justify-between rounded-[2rem] bg-white border border-[#2E3344]/8 p-6 md:p-8 relative overflow-hidden shadow-sm group">
+        <div className="md:col-span-8 flex flex-col justify-between rounded-[2rem] bg-white border border-[#1E293B]/8 p-6 md:p-8 relative overflow-hidden shadow-sm group">
           <div className="absolute top-0 right-0 p-8 opacity-[0.03] group-hover:opacity-[0.05] transition-opacity">
             <Barcode className="h-32 w-32 rotate-12" />
           </div>
           <div>
-            <h1 className="text-3xl sm:text-4xl font-bold tracking-[-0.03em] text-[#27324A]">
+            <h1 className="text-3xl sm:text-4xl font-bold tracking-[-0.03em] text-[#0F172A]">
               {getGreeting()},{" "}
-              <span className="text-[#A7653A]">{firstName}</span>.
+              <span className="text-[#3B82F6]">{firstName}</span>.
             </h1>
             <p className="mt-2 text-base font-medium text-[#746E73] max-w-md">
               Your neighborhood is ready. Scan any product barcode to find local
@@ -163,25 +163,25 @@ export function HomeTab({
           <div className="mt-8 flex flex-wrap gap-4 items-center">
             <button
               onClick={() => setScannerOpen(true)}
-              className="inline-flex h-14 items-center justify-center gap-2.5 rounded-full bg-[#27324A] px-8 text-sm font-bold text-white shadow-xl shadow-[#27324A]/15 transition hover:-translate-y-0.5 hover:bg-[#1b2333] active:scale-95"
+              className="inline-flex h-14 items-center justify-center gap-2.5 rounded-full bg-[#0F172A] px-8 text-sm font-bold text-white shadow-xl shadow-[#0F172A]/15 transition hover:-translate-y-0.5 hover:bg-[#1b2333] active:scale-95"
             >
               <Barcode className="h-5 w-5" />
               Open Camera Scanner
             </button>
             <div className="flex gap-2">
-              <div className="px-4 py-3 rounded-2xl bg-[#F7F0E6] flex flex-col justify-center">
+              <div className="px-4 py-3 rounded-2xl bg-[#F8FAFC] flex flex-col justify-center">
                 <p className="text-[10px] font-bold uppercase tracking-widest text-[#8D5132] leading-none">
                   Spent this month
                 </p>
-                <p className="text-lg font-bold text-[#27324A] mt-1">
+                <p className="text-lg font-bold text-[#0F172A] mt-1">
                   Rs. {monthlySpend.toLocaleString()}
                 </p>
               </div>
-              <div className="px-4 py-3 rounded-2xl bg-[#F7F0E6] flex flex-col justify-center">
+              <div className="px-4 py-3 rounded-2xl bg-[#F8FAFC] flex flex-col justify-center">
                 <p className="text-[10px] font-bold uppercase tracking-widest text-[#8D5132] leading-none">
                   Total orders
                 </p>
-                <p className="text-lg font-bold text-[#27324A] mt-1">
+                <p className="text-lg font-bold text-[#0F172A] mt-1">
                   {totalOrderCount}
                 </p>
               </div>
@@ -205,12 +205,12 @@ export function HomeTab({
         <div className="lg:col-span-8 space-y-6">
           {/* Active Orders Horizontal */}
           {activeOrders.length > 0 && (
-            <section className="rounded-[2rem] bg-[#F7F0E6]/40 border border-[#A7653A]/10 p-6 md:p-8">
+            <section className="rounded-[2rem] bg-[#F8FAFC]/40 border border-[#3B82F6]/10 p-6 md:p-8">
               <div className="mb-4 flex items-center justify-between px-2">
                 <h2 className="text-sm font-bold uppercase tracking-[0.14em] text-[#8D5132]">
                   Live Shipments
                 </h2>
-                <span className="rounded-full bg-[#A7653A] px-2.5 py-0.5 text-xs font-bold text-white">
+                <span className="rounded-full bg-[#3B82F6] px-2.5 py-0.5 text-xs font-bold text-white">
                   {activeOrders.length}
                 </span>
               </div>
@@ -232,12 +232,12 @@ export function HomeTab({
           {topReorderItems.length > 0 && (
             <section>
               <div className="mb-4 flex items-center justify-between px-2">
-                <h2 className="text-sm font-bold uppercase tracking-[0.14em] text-[#27324A]">
+                <h2 className="text-sm font-bold uppercase tracking-[0.14em] text-[#0F172A]">
                   Weekly Essentials
                 </h2>
                 <Link
                   href="/dashboard/orders"
-                  className="text-xs font-semibold text-[#A7653A] hover:underline"
+                  className="text-xs font-semibold text-[#3B82F6] hover:underline"
                 >
                   History
                 </Link>
@@ -246,20 +246,20 @@ export function HomeTab({
                 {topReorderItems.map(({ item, count }) => (
                   <div
                     key={`${item.name}::${item.shop}`}
-                    className="flex min-w-[180px] max-w-[180px] snap-start flex-col rounded-2xl border border-[#2E3344]/8 bg-white p-4 shadow-sm hover:shadow-md transition"
+                    className="flex min-w-[180px] max-w-[180px] snap-start flex-col rounded-2xl border border-[#1E293B]/8 bg-white p-4 shadow-sm hover:shadow-md transition"
                   >
                     <div className="mb-3">
-                      <span className="rounded-full bg-[#F7F0E6] px-2.5 py-1 text-[10px] font-bold text-[#A7653A]">
+                      <span className="rounded-full bg-[#F8FAFC] px-2.5 py-1 text-[10px] font-bold text-[#3B82F6]">
                         Ordered {count}×
                       </span>
                     </div>
-                    <p className="text-[10px] font-bold text-[#A7653A] uppercase tracking-wider truncate">
+                    <p className="text-[10px] font-bold text-[#3B82F6] uppercase tracking-wider truncate">
                       {item.shop}
                     </p>
-                    <h4 className="mt-1 flex-1 text-sm font-bold leading-tight text-[#27324A] line-clamp-2">
+                    <h4 className="mt-1 flex-1 text-sm font-bold leading-tight text-[#0F172A] line-clamp-2">
                       {item.name}
                     </h4>
-                    <p className="mt-2 text-base font-bold text-[#27324A]">
+                    <p className="mt-2 text-base font-bold text-[#0F172A]">
                       Rs. {item.price.toLocaleString()}
                     </p>
                     <ReorderButton
@@ -278,7 +278,7 @@ export function HomeTab({
           {/* Neighborhood Pulse - Products + Shops from DB */}
           <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-4">
-              <h2 className="text-sm font-bold uppercase tracking-[0.14em] text-[#27324A] px-2">
+              <h2 className="text-sm font-bold uppercase tracking-[0.14em] text-[#0F172A] px-2">
                 Trending Nearby
               </h2>
               {trendingProducts.length === 0 ? (
@@ -294,9 +294,9 @@ export function HomeTab({
                     return (
                       <div
                         key={product.id}
-                        className="group flex flex-col rounded-2xl border border-[#2E3344]/8 bg-white p-3 shadow-sm hover:shadow-md transition"
+                        className="group flex flex-col rounded-2xl border border-[#1E293B]/8 bg-white p-3 shadow-sm hover:shadow-md transition"
                       >
-                        <div className="relative mb-2 h-24 w-full overflow-hidden rounded-xl bg-[#F7F0E6]">
+                        <div className="relative mb-2 h-24 w-full overflow-hidden rounded-xl bg-[#F8FAFC]">
                           {product.image_url ? (
                             // eslint-disable-next-line @next/next/no-img-element
                             <img
@@ -306,7 +306,7 @@ export function HomeTab({
                             />
                           ) : (
                             <div className="h-full w-full flex items-center justify-center">
-                              <span className="text-2xl font-black text-[#A7653A]/30">
+                              <span className="text-2xl font-black text-[#3B82F6]/30">
                                 {product.name[0]}
                               </span>
                             </div>
@@ -315,8 +315,8 @@ export function HomeTab({
                             onClick={() => handleToggleProduct(product)}
                             className={`absolute right-1.5 top-1.5 rounded-full p-1.5 backdrop-blur-md transition ${
                               isSaved
-                                ? "bg-[#A7653A] text-white"
-                                : "bg-white/60 text-[#746E73] hover:text-[#A7653A]"
+                                ? "bg-[#3B82F6] text-white"
+                                : "bg-white/60 text-[#746E73] hover:text-[#3B82F6]"
                             }`}
                           >
                             <Heart
@@ -324,10 +324,10 @@ export function HomeTab({
                             />
                           </button>
                         </div>
-                        <h4 className="line-clamp-1 text-[11px] font-bold text-[#27324A]">
+                        <h4 className="line-clamp-1 text-[11px] font-bold text-[#0F172A]">
                           {product.name}
                         </h4>
-                        <p className="text-[10px] font-semibold text-[#A7653A]">
+                        <p className="text-[10px] font-semibold text-[#3B82F6]">
                           Rs. {product.price.toLocaleString()}
                         </p>
                       </div>
@@ -338,7 +338,7 @@ export function HomeTab({
             </div>
 
             <div className="space-y-4">
-              <h2 className="text-sm font-bold uppercase tracking-[0.14em] text-[#27324A] px-2">
+              <h2 className="text-sm font-bold uppercase tracking-[0.14em] text-[#0F172A] px-2">
                 Verified Shops
               </h2>
               {nearbyShops.length === 0 ? (
@@ -354,9 +354,9 @@ export function HomeTab({
                     return (
                       <div
                         key={shop.id}
-                        className="flex items-center gap-3 rounded-2xl border border-[#2E3344]/8 bg-white p-3 shadow-sm hover:border-[#A7653A]/20 transition"
+                        className="flex items-center gap-3 rounded-2xl border border-[#1E293B]/8 bg-white p-3 shadow-sm hover:border-[#3B82F6]/20 transition"
                       >
-                        <div className="h-10 w-10 rounded-xl bg-[#F7F0E6] overflow-hidden shrink-0 flex items-center justify-center">
+                        <div className="h-10 w-10 rounded-xl bg-[#F8FAFC] overflow-hidden shrink-0 flex items-center justify-center">
                           {shop.image_url ? (
                             // eslint-disable-next-line @next/next/no-img-element
                             <img
@@ -365,13 +365,13 @@ export function HomeTab({
                               className="h-10 w-10 object-cover"
                             />
                           ) : (
-                            <span className="text-sm font-black text-[#A7653A]">
+                            <span className="text-sm font-black text-[#3B82F6]">
                               {shop.name[0]}
                             </span>
                           )}
                         </div>
                         <div className="min-w-0 flex-1">
-                          <p className="truncate text-xs font-bold text-[#27324A]">
+                          <p className="truncate text-xs font-bold text-[#0F172A]">
                             {shop.name}
                           </p>
                           <p className="text-[10px] text-[#746E73]">
@@ -382,8 +382,8 @@ export function HomeTab({
                           onClick={() => handleToggleShop(shop)}
                           className={`shrink-0 rounded-full p-1.5 transition ${
                             isSaved
-                              ? "bg-[#A7653A] text-white"
-                              : "bg-[#F7F0E6] text-[#746E73] hover:text-[#A7653A]"
+                              ? "bg-[#3B82F6] text-white"
+                              : "bg-[#F8FAFC] text-[#746E73] hover:text-[#3B82F6]"
                           }`}
                         >
                           <Heart
@@ -402,7 +402,7 @@ export function HomeTab({
         {/* Manage Sidebar - Right Column */}
         <aside className="lg:col-span-4 space-y-6">
           {/* Quick Actions Panel */}
-          <div className="rounded-[2rem] bg-[#27324A] p-6 md:p-8 text-white shadow-xl shadow-[#27324A]/10">
+          <div className="rounded-[2rem] bg-[#0F172A] p-6 md:p-8 text-white shadow-xl shadow-[#0F172A]/10">
             <h2 className="text-xs font-bold uppercase tracking-widest text-[#D8C99A] mb-5">
               Quick Actions
             </h2>
@@ -432,34 +432,34 @@ export function HomeTab({
           </div>
 
           {/* Membership / Stats Badge */}
-          <div className="rounded-[2rem] bg-gradient-to-br from-[#F7F0E6] to-[#EFE5D6] p-6 md:p-8 border border-[#2E3344]/5">
+          <div className="rounded-[2rem] bg-gradient-to-br from-[#F8FAFC] to-[#EFE5D6] p-6 md:p-8 border border-[#1E293B]/5">
             <div className="flex items-center gap-3">
               <div className="h-10 w-10 rounded-xl bg-white flex items-center justify-center shadow-sm">
-                <Package className="h-5 w-5 text-[#A7653A]" />
+                <Package className="h-5 w-5 text-[#3B82F6]" />
               </div>
               <div>
                 <p className="text-[10px] font-bold uppercase tracking-widest text-[#8D5132]">
                   Member Activity
                 </p>
-                <p className="text-sm font-bold text-[#27324A]">
+                <p className="text-sm font-bold text-[#0F172A]">
                   {pastOrderCount} completed orders
                 </p>
               </div>
             </div>
-            <div className="mt-4 pt-4 border-t border-[#2E3344]/5 flex items-center justify-between">
+            <div className="mt-4 pt-4 border-t border-[#1E293B]/5 flex items-center justify-between">
               <div className="text-center">
                 <p className="text-[10px] font-bold text-[#746E73] uppercase">
                   Addresses
                 </p>
-                <p className="text-lg font-bold text-[#27324A]">
+                <p className="text-lg font-bold text-[#0F172A]">
                   {addressCount}
                 </p>
               </div>
-              <div className="text-center border-l border-r border-[#2E3344]/10 px-6">
+              <div className="text-center border-l border-r border-[#1E293B]/10 px-6">
                 <p className="text-[10px] font-bold text-[#746E73] uppercase">
                   Saved
                 </p>
-                <p className="text-lg font-bold text-[#27324A]">
+                <p className="text-lg font-bold text-[#0F172A]">
                   {savedProductIds.size}
                 </p>
               </div>
@@ -467,7 +467,7 @@ export function HomeTab({
                 <p className="text-[10px] font-bold text-[#746E73] uppercase">
                   Items
                 </p>
-                <p className="text-lg font-bold text-[#27324A]">
+                <p className="text-lg font-bold text-[#0F172A]">
                   {totalOrderCount}
                 </p>
               </div>
@@ -525,7 +525,7 @@ function ReorderButton({
     <button
       onClick={handleReorder}
       disabled={loading}
-      className="mt-2.5 w-full rounded-xl bg-[#F7F0E6] py-2 text-xs font-semibold text-[#27324A] transition hover:bg-[#A7653A] hover:text-white disabled:opacity-50 active:scale-95"
+      className="mt-2.5 w-full rounded-xl bg-[#F8FAFC] py-2 text-xs font-semibold text-[#0F172A] transition hover:bg-[#3B82F6] hover:text-white disabled:opacity-50 active:scale-95"
     >
       {loading ? "Ordering…" : "Order again"}
     </button>

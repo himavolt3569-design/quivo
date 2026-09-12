@@ -208,9 +208,9 @@ export function ScanToOrderSection({
       const shopIcon = Leaflet.divIcon({
         html: `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="36" viewBox="0 0 28 36">
           <ellipse cx="14" cy="34" rx="5" ry="1.8" fill="rgba(0,0,0,0.18)"/>
-          <path d="M14 0C6.27 0 0 6.27 0 14c0 9 14 22 14 22S28 23 28 14C28 6.27 21.73 0 14 0z" fill="#A7653A"/>
+          <path d="M14 0C6.27 0 0 6.27 0 14c0 9 14 22 14 22S28 23 28 14C28 6.27 21.73 0 14 0z" fill="#3B82F6"/>
           <circle cx="14" cy="14" r="5.5" fill="white"/>
-          <circle cx="14" cy="14" r="3" fill="#A7653A"/>
+          <circle cx="14" cy="14" r="3" fill="#3B82F6"/>
         </svg>`,
         className: "",
         iconSize: [28, 36],
@@ -235,10 +235,10 @@ export function ScanToOrderSection({
           [customerLocation.lat, customerLocation.lng],
           {
             radius: 6000,
-            color: "#A7653A",
+            color: "#3B82F6",
             opacity: 0.9,
             weight: 2,
-            fillColor: "#A7653A",
+            fillColor: "#3B82F6",
             fillOpacity: 0.08,
           },
         ).addTo(map);
@@ -280,21 +280,21 @@ export function ScanToOrderSection({
   return (
     <section
       id="orders"
-      className="reveal-section relative overflow-hidden bg-[#F7F0E6] py-14 sm:py-20 lg:py-24"
+      className="reveal-section relative overflow-hidden bg-[#F8FAFC] py-14 sm:py-20 lg:py-24"
     >
       <div
-        className="absolute -right-24 top-20 h-72 w-72 rounded-full bg-[#A7653A]/12 blur-3xl"
+        className="absolute -right-24 top-20 h-72 w-72 rounded-full bg-[#3B82F6]/12 blur-3xl"
         aria-hidden="true"
       />
       <div
-        className="absolute left-[-6rem] bottom-10 h-72 w-72 rounded-full bg-[#626A54]/10 blur-3xl"
+        className="absolute left-[-6rem] bottom-10 h-72 w-72 rounded-full bg-[#1E3A8A]/10 blur-3xl"
         aria-hidden="true"
       />
       <div className="container relative">
         <div className="grid gap-10 lg:grid-cols-[0.78fr_1.22fr] lg:items-end">
           <div className="reveal-item">
             <Eyebrow icon={Barcode}>Scan-to-order experience</Eyebrow>
-            <h2 className="mt-5 text-[clamp(2.35rem,4.7vw,4.8rem)] font-bold leading-[1.03] tracking-[-0.04em] text-[#27324A]">
+            <h2 className="mt-5 text-[clamp(2.35rem,4.7vw,4.8rem)] font-bold leading-[1.03] tracking-[-0.04em] text-[#0F172A]">
               Barcode is the shortcut from shelf to nearby shop.
             </h2>
           </div>
@@ -313,11 +313,11 @@ export function ScanToOrderSection({
                     className="magnetic-card rounded-2xl bg-white px-4 py-3 shadow-sm"
                   >
                     <div className="flex min-w-0 items-center gap-3">
-                      <span className="grid h-10 w-10 place-items-center rounded-xl bg-[#E8E3D1] text-[#626A54]">
+                      <span className="grid h-10 w-10 place-items-center rounded-xl bg-[#F1F5F9] text-[#475569]">
                         <StepIcon className="h-5 w-5" aria-hidden="true" />
                       </span>
                       <div>
-                        <p className="font-bold text-[#27324A]">{step.label}</p>
+                        <p className="font-bold text-[#0F172A]">{step.label}</p>
                         <p className="text-xs font-medium text-[#746E73]">
                           {step.detail}
                         </p>
@@ -332,11 +332,11 @@ export function ScanToOrderSection({
 
         <div className="mt-8 grid gap-5 sm:mt-12 xl:grid-cols-[0.9fr_1.1fr]">
           <div className="reveal-item space-y-5">
-            <div className="overflow-hidden rounded-[2.25rem] border border-[#2E3344]/8 bg-white shadow-2xl shadow-[#27324A]/12">
-              <div className="bg-[#27324A] p-4 text-white sm:p-6">
+            <div className="overflow-hidden rounded-[2.25rem] border border-[#1E293B]/8 bg-white shadow-2xl shadow-[#0F172A]/12">
+              <div className="bg-[#0F172A] p-4 text-white sm:p-6">
                 <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
                   <div>
-                    <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#D8C99A]">
+                    <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#60A5FA]">
                       Barcode basket builder
                     </p>
                     <h3 className="mt-2 text-3xl font-bold tracking-[-0.03em]">
@@ -347,7 +347,7 @@ export function ScanToOrderSection({
                     type="button"
                     onClick={requestCustomerLocation}
                     disabled={locationPermission === "requesting"}
-                    className="inline-flex min-h-12 items-center justify-center rounded-full bg-white px-5 text-sm font-semibold text-[#27324A] transition hover:-translate-y-0.5 hover:bg-[#F3E1CB] disabled:cursor-wait disabled:opacity-70 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-4 focus:ring-offset-[#27324A]"
+                    className="inline-flex min-h-12 items-center justify-center rounded-full bg-white px-5 text-sm font-semibold text-[#0F172A] transition hover:-translate-y-0.5 hover:bg-[#DBEAFE] disabled:cursor-wait disabled:opacity-70 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-4 focus:ring-offset-[#0F172A]"
                   >
                     <Crosshair className="mr-2 h-4 w-4" aria-hidden="true" />
                     {locationPermission === "granted"
@@ -362,19 +362,19 @@ export function ScanToOrderSection({
                   className={`mt-5 flex items-start gap-3 rounded-2xl px-4 py-3 text-sm ${
                     locationPermission === "denied" ||
                     locationPermission === "unsupported"
-                      ? "bg-[#F3E1CB] text-[#27324A]"
+                      ? "bg-[#DBEAFE] text-[#0F172A]"
                       : "bg-white/10 text-white/76"
                   }`}
                 >
                   {locationPermission === "granted" ? (
                     <CheckCircle2
-                      className="mt-0.5 h-4 w-4 shrink-0 text-[#D8C99A]"
+                      className="mt-0.5 h-4 w-4 shrink-0 text-[#60A5FA]"
                       aria-hidden="true"
                     />
                   ) : locationPermission === "denied" ||
                     locationPermission === "unsupported" ? (
                     <XCircle
-                      className="mt-0.5 h-4 w-4 shrink-0 text-[#8D5132]"
+                      className="mt-0.5 h-4 w-4 shrink-0 text-[#2563EB]"
                       aria-hidden="true"
                     />
                   ) : (
@@ -391,7 +391,7 @@ export function ScanToOrderSection({
                 {customerDealItems.map((deal) => (
                   <article
                     key={deal.name}
-                    className="product-card magnetic-card overflow-hidden rounded-[1.35rem] bg-[#F7F0E6] shadow-inner shadow-[#27324A]/5"
+                    className="product-card magnetic-card overflow-hidden rounded-[1.35rem] bg-[#F8FAFC] shadow-inner shadow-[#0F172A]/5"
                   >
                     <img
                       src={deal.image}
@@ -404,7 +404,7 @@ export function ScanToOrderSection({
                       >
                         {deal.tag}
                       </div>
-                      <h4 className="mt-3 text-base font-bold tracking-[-0.02em] text-[#27324A]">
+                      <h4 className="mt-3 text-base font-bold tracking-[-0.02em] text-[#0F172A]">
                         {deal.name}
                       </h4>
                       <p className="mt-1 flex items-center gap-1 text-xs font-semibold text-[#746E73]">
@@ -413,7 +413,7 @@ export function ScanToOrderSection({
                       <button
                         type="button"
                         onClick={() => addProductToBasket(deal.id)}
-                        className="mt-4 inline-flex min-h-10 w-full items-center justify-center rounded-full bg-white px-4 text-sm font-semibold text-[#27324A] shadow-sm transition hover:bg-[#27324A] hover:text-white focus:outline-none focus:ring-2 focus:ring-[#A7653A] focus:ring-offset-2"
+                        className="mt-4 inline-flex min-h-10 w-full items-center justify-center rounded-full bg-white px-4 text-sm font-semibold text-[#0F172A] shadow-sm transition hover:bg-[#0F172A] hover:text-white focus:outline-none focus:ring-2 focus:ring-[#3B82F6] focus:ring-offset-2"
                       >
                         Add to basket
                       </button>
@@ -424,7 +424,7 @@ export function ScanToOrderSection({
             </div>
 
             <form
-              className="rounded-[1.5rem] border border-[#2E3344]/8 bg-white p-4 shadow-sm sm:rounded-[1.75rem] sm:p-5"
+              className="rounded-[1.5rem] border border-[#1E293B]/8 bg-white p-4 shadow-sm sm:rounded-[1.75rem] sm:p-5"
               onSubmit={(event) => {
                 event.preventDefault();
                 submitCustomerOrder();
@@ -432,15 +432,15 @@ export function ScanToOrderSection({
             >
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.13em] text-[#8D5132]">
+                  <p className="text-xs font-semibold uppercase tracking-[0.13em] text-[#2563EB]">
                     Checkout preview
                   </p>
-                  <h4 className="mt-2 text-xl font-bold leading-tight text-[#27324A] sm:text-2xl">
+                  <h4 className="mt-2 text-xl font-bold leading-tight text-[#0F172A] sm:text-2xl">
                     {basketProducts.length} barcode items · Rs.{" "}
                     {basketTotal.toLocaleString()}
                   </h4>
                 </div>
-                <div className="grid h-12 w-12 place-items-center rounded-2xl bg-[#E8E3D1] text-[#626A54]">
+                <div className="grid h-12 w-12 place-items-center rounded-2xl bg-[#F1F5F9] text-[#475569]">
                   <ShoppingBag className="h-6 w-6" aria-hidden="true" />
                 </div>
               </div>
@@ -450,10 +450,10 @@ export function ScanToOrderSection({
                   basketProducts.map((item) => (
                     <div
                       key={item.id}
-                      className="flex flex-col gap-3 rounded-2xl bg-[#F7F0E6] px-4 py-3 text-sm sm:flex-row sm:items-center sm:justify-between"
+                      className="flex flex-col gap-3 rounded-2xl bg-[#F8FAFC] px-4 py-3 text-sm sm:flex-row sm:items-center sm:justify-between"
                     >
                       <div>
-                        <span className="font-semibold text-[#27324A]">
+                        <span className="font-semibold text-[#0F172A]">
                           {item.name}
                         </span>
                         <p className="mt-1 text-xs font-medium text-[#746E73]">
@@ -461,13 +461,13 @@ export function ScanToOrderSection({
                         </p>
                       </div>
                       <div className="flex min-w-0 items-center gap-3">
-                        <span className="font-semibold text-[#A7653A]">
+                        <span className="font-semibold text-[#3B82F6]">
                           {item.price}
                         </span>
                         <button
                           type="button"
                           onClick={() => removeProductFromBasket(item.id)}
-                          className="grid h-9 w-9 place-items-center rounded-full bg-white text-[#8D5132] transition hover:bg-[#F3E1CB] focus:outline-none focus:ring-2 focus:ring-[#A7653A]"
+                          className="grid h-9 w-9 place-items-center rounded-full bg-white text-[#2563EB] transition hover:bg-[#DBEAFE] focus:outline-none focus:ring-2 focus:ring-[#3B82F6]"
                           aria-label={`Remove ${item.name}`}
                         >
                           <Trash2 className="h-4 w-4" aria-hidden="true" />
@@ -476,52 +476,52 @@ export function ScanToOrderSection({
                     </div>
                   ))
                 ) : (
-                  <div className="rounded-2xl bg-[#F7F0E6] px-4 py-5 text-sm font-semibold text-[#746E73]">
+                  <div className="rounded-2xl bg-[#F8FAFC] px-4 py-5 text-sm font-semibold text-[#746E73]">
                     Scan or add a popular product to begin the basket.
                   </div>
                 )}
               </div>
 
               <div className="mt-5 grid gap-3 sm:grid-cols-2">
-                <label className="grid gap-2 text-sm font-semibold text-[#27324A]">
+                <label className="grid gap-2 text-sm font-semibold text-[#0F172A]">
                   Customer name
                   <input
                     value={customerName}
                     onChange={(event) => setCustomerName(event.target.value)}
                     placeholder="e.g. Anita Tamang"
-                    className="min-h-12 rounded-2xl border border-[#2E3344]/10 bg-[#FFFBF4] px-4 text-sm outline-none transition focus:border-[#A7653A] focus:ring-2 focus:ring-[#A7653A]/20"
+                    className="min-h-12 rounded-2xl border border-[#1E293B]/10 bg-[#F8FAFC] px-4 text-sm outline-none transition focus:border-[#3B82F6] focus:ring-2 focus:ring-[#3B82F6]/20"
                   />
                 </label>
-                <label className="grid gap-2 text-sm font-semibold text-[#27324A]">
+                <label className="grid gap-2 text-sm font-semibold text-[#0F172A]">
                   Phone number
                   <input
                     value={customerPhone}
                     onChange={(event) => setCustomerPhone(event.target.value)}
                     placeholder="98XXXXXXXX"
-                    className="min-h-12 rounded-2xl border border-[#2E3344]/10 bg-[#FFFBF4] px-4 text-sm outline-none transition focus:border-[#A7653A] focus:ring-2 focus:ring-[#A7653A]/20"
+                    className="min-h-12 rounded-2xl border border-[#1E293B]/10 bg-[#F8FAFC] px-4 text-sm outline-none transition focus:border-[#3B82F6] focus:ring-2 focus:ring-[#3B82F6]/20"
                   />
                 </label>
               </div>
-              <label className="mt-3 grid gap-2 text-sm font-semibold text-[#27324A]">
+              <label className="mt-3 grid gap-2 text-sm font-semibold text-[#0F172A]">
                 Delivery note
                 <textarea
                   value={deliveryNote}
                   onChange={(event) => setDeliveryNote(event.target.value)}
                   placeholder="Gate color, substitution preference, pickup time..."
                   rows={3}
-                  className="rounded-2xl border border-[#2E3344]/10 bg-[#FFFBF4] px-4 py-3 text-sm outline-none transition focus:border-[#A7653A] focus:ring-2 focus:ring-[#A7653A]/20"
+                  className="rounded-2xl border border-[#1E293B]/10 bg-[#F8FAFC] px-4 py-3 text-sm outline-none transition focus:border-[#3B82F6] focus:ring-2 focus:ring-[#3B82F6]/20"
                 />
               </label>
               <button
                 type="submit"
-                className="mt-5 inline-flex min-h-12 w-full items-center justify-center rounded-full bg-[#A7653A] px-5 text-sm font-semibold text-white shadow-lg shadow-[#A7653A]/18 transition hover:-translate-y-0.5 hover:bg-[#8E5432] focus:outline-none focus:ring-2 focus:ring-[#A7653A] focus:ring-offset-4"
+                className="mt-5 inline-flex min-h-12 w-full items-center justify-center rounded-full bg-[#3B82F6] px-5 text-sm font-semibold text-white shadow-lg shadow-[#3B82F6]/18 transition hover:-translate-y-0.5 hover:bg-[#1E40AF] focus:outline-none focus:ring-2 focus:ring-[#3B82F6] focus:ring-offset-4"
               >
                 Send order to {selectedOrderShop.name}
                 <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
               </button>
 
               {submittedOrder ? (
-                <div className="mt-4 rounded-2xl border border-[#626A54]/20 bg-[#E8E3D1] px-4 py-3 text-sm font-semibold text-[#27324A]">
+                <div className="mt-4 rounded-2xl border border-[#626A54]/20 bg-[#F1F5F9] px-4 py-3 text-sm font-semibold text-[#0F172A]">
                   Order {submittedOrder.id} sent to {submittedOrder.shop}.
                   Estimated total: Rs. {submittedOrder.total.toLocaleString()}.
                 </div>
@@ -529,13 +529,13 @@ export function ScanToOrderSection({
             </form>
           </div>
 
-          <div className="reveal-item min-w-0 rounded-[1.5rem] border border-[#2E3344]/8 bg-[#FFFBF4] p-3 shadow-2xl shadow-[#27324A]/12 sm:rounded-[2.25rem] sm:p-6">
+          <div className="reveal-item min-w-0 rounded-[1.5rem] border border-[#1E293B]/8 bg-[#F8FAFC] p-3 shadow-2xl shadow-[#0F172A]/12 sm:rounded-[2.25rem] sm:p-6">
             <div className="flex flex-col gap-4 rounded-[1.75rem] bg-white p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.13em] text-[#8D5132]">
+                <p className="text-xs font-semibold uppercase tracking-[0.13em] text-[#2563EB]">
                   Stores with matching barcode stock
                 </p>
-                <h3 className="mt-1 text-2xl font-bold tracking-[-0.025em] text-[#27324A]">
+                <h3 className="mt-1 text-2xl font-bold tracking-[-0.025em] text-[#0F172A]">
                   Choose a shop inside 6km
                 </h3>
               </div>
@@ -545,10 +545,10 @@ export function ScanToOrderSection({
                     key={filter}
                     type="button"
                     onClick={() => setActiveOrderFilter(filter)}
-                    className={`rounded-full px-4 py-2 text-xs font-semibold transition focus:outline-none focus:ring-2 focus:ring-[#A7653A] focus:ring-offset-2 ${
+                    className={`rounded-full px-4 py-2 text-xs font-semibold transition focus:outline-none focus:ring-2 focus:ring-[#3B82F6] focus:ring-offset-2 ${
                       activeOrderFilter === filter
-                        ? "bg-[#A7653A] text-white"
-                        : "bg-[#F7F0E6] text-[#746E73] hover:bg-[#F3E1CB]"
+                        ? "bg-[#3B82F6] text-white"
+                        : "bg-[#F8FAFC] text-[#746E73] hover:bg-[#DBEAFE]"
                     }`}
                   >
                     {filter}
@@ -557,7 +557,7 @@ export function ScanToOrderSection({
               </div>
             </div>
 
-            <div className="mt-4 overflow-hidden rounded-[1.5rem] border border-[#2E3344]/8 bg-white shadow-sm">
+            <div className="mt-4 overflow-hidden rounded-[1.5rem] border border-[#1E293B]/8 bg-white shadow-sm">
               <div className="relative">
                 <MapView
                   initialCenter={customerFallbackLocation}
@@ -567,11 +567,11 @@ export function ScanToOrderSection({
                     discoveryMapRef.current = map;
                   }}
                 />
-                <div className="absolute left-3 top-3 rounded-2xl bg-white/92 px-3 py-2 shadow-lg shadow-[#27324A]/12 backdrop-blur sm:left-4 sm:top-4 sm:px-4 sm:py-3">
-                  <p className="text-xs font-semibold uppercase tracking-[0.13em] text-[#8D5132]">
+                <div className="absolute left-3 top-3 rounded-2xl bg-white/92 px-3 py-2 shadow-lg shadow-[#0F172A]/12 backdrop-blur sm:left-4 sm:top-4 sm:px-4 sm:py-3">
+                  <p className="text-xs font-semibold uppercase tracking-[0.13em] text-[#2563EB]">
                     Discovery radius
                   </p>
-                  <p className="mt-1 text-sm font-semibold text-[#27324A]">
+                  <p className="mt-1 text-sm font-semibold text-[#0F172A]">
                     6km around customer
                   </p>
                 </div>
@@ -584,10 +584,10 @@ export function ScanToOrderSection({
                   key={shop.name}
                   type="button"
                   onClick={() => setActiveShopName(shop.name)}
-                  className={`overflow-hidden rounded-[1.35rem] border text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-[#A7653A] focus:ring-offset-3 ${
+                  className={`overflow-hidden rounded-[1.35rem] border text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-[#3B82F6] focus:ring-offset-3 ${
                     selectedOrderShop.name === shop.name
-                      ? "border-[#A7653A]/45 bg-[#FFF6EA]"
-                      : "border-[#2E3344]/8 bg-white"
+                      ? "border-[#3B82F6]/45 bg-[#EFF6FF]"
+                      : "border-[#1E293B]/8 bg-white"
                   }`}
                 >
                   <img
@@ -598,14 +598,14 @@ export function ScanToOrderSection({
                   <div className="p-4">
                     <div className="flex items-start justify-between gap-2">
                       <div className="min-w-0">
-                        <p className="text-[0.68rem] font-semibold uppercase tracking-[0.13em] text-[#8D5132]">
+                        <p className="text-[0.68rem] font-semibold uppercase tracking-[0.13em] text-[#2563EB]">
                           {shop.category}
                         </p>
-                        <h4 className="mt-1 truncate text-base font-bold tracking-[-0.015em] text-[#27324A]">
+                        <h4 className="mt-1 truncate text-base font-bold tracking-[-0.015em] text-[#0F172A]">
                           {shop.name}
                         </h4>
                       </div>
-                      <span className="shrink-0 rounded-full bg-[#E8E3D1] px-2.5 py-1 text-[0.68rem] font-semibold text-[#626A54]">
+                      <span className="shrink-0 rounded-full bg-[#F1F5F9] px-2.5 py-1 text-[0.68rem] font-semibold text-[#475569]">
                         {shop.distance} km
                       </span>
                     </div>
@@ -613,10 +613,10 @@ export function ScanToOrderSection({
                       {shop.note}
                     </p>
                     <div className="mt-3 flex flex-wrap gap-2 text-[0.68rem] font-semibold text-[#746E73]">
-                      <span className="rounded-full bg-[#F7F0E6] px-3 py-1">
+                      <span className="rounded-full bg-[#F8FAFC] px-3 py-1">
                         {shop.eta}
                       </span>
-                      <span className="rounded-full bg-[#F3E1CB] px-3 py-1 text-[#8D5132]">
+                      <span className="rounded-full bg-[#DBEAFE] px-3 py-1 text-[#2563EB]">
                         {shop.status}
                       </span>
                     </div>
@@ -625,10 +625,10 @@ export function ScanToOrderSection({
               ))}
             </div>
 
-            <aside className="mt-4 rounded-[1.35rem] border border-[#2E3344]/8 bg-[#27324A] p-4 text-white shadow-sm sm:p-5">
+            <aside className="mt-4 rounded-[1.35rem] border border-[#1E293B]/8 bg-[#0F172A] p-4 text-white shadow-sm sm:p-5">
               <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.13em] text-[#D8C99A]">
+                  <p className="text-xs font-semibold uppercase tracking-[0.13em] text-[#60A5FA]">
                     Selected barcode-ready shop
                   </p>
                   <h4 className="mt-2 text-xl font-bold tracking-[-0.025em] sm:text-2xl">
@@ -649,7 +649,7 @@ export function ScanToOrderSection({
                       )?.id ?? popularProducts[0].id,
                     )
                   }
-                  className="inline-flex min-h-12 w-full items-center justify-center rounded-full bg-white px-5 text-sm font-semibold text-[#27324A] transition hover:-translate-y-0.5 hover:bg-[#F3E1CB] focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-4 focus:ring-offset-[#27324A] sm:w-auto"
+                  className="inline-flex min-h-12 w-full items-center justify-center rounded-full bg-white px-5 text-sm font-semibold text-[#0F172A] transition hover:-translate-y-0.5 hover:bg-[#DBEAFE] focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-4 focus:ring-offset-[#0F172A] sm:w-auto"
                 >
                   Add shop match
                   <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />

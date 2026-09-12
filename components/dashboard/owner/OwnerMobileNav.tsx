@@ -77,7 +77,7 @@ export function OwnerMobileNav({
   return (
     <>
       {/* Bottom Tab Bar for quick core actions */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-[100] bg-white border-t border-[#2E3344]/10 pb-safe shadow-[0_-4px_20px_rgba(0,0,0,0.05)] h-16">
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-[100] bg-white border-t border-[#1E293B]/10 pb-safe shadow-[0_-4px_20px_rgba(0,0,0,0.05)] h-16">
         <div className="flex items-center h-full">
           {routes.map((route) => {
             const isActive =
@@ -90,20 +90,20 @@ export function OwnerMobileNav({
                 href={route.href}
                 className={`relative flex flex-1 flex-col items-center justify-center gap-1 h-full transition-all active:scale-95 ${
                   isActive
-                    ? "text-[#A7653A]"
-                    : "text-[#746E73] hover:text-[#27324A]"
+                    ? "text-[#3B82F6]"
+                    : "text-[#746E73] hover:text-[#0F172A]"
                 }`}
               >
                 <div
-                  className={`relative flex items-center justify-center w-8 h-8 rounded-full transition-colors ${isActive ? "bg-[#F7F0E6]" : ""}`}
+                  className={`relative flex items-center justify-center w-8 h-8 rounded-full transition-colors ${isActive ? "bg-[#F8FAFC]" : ""}`}
                 >
                   <route.icon
-                    className={`h-5 w-5 ${isActive ? "text-[#A7653A]" : "text-[#746E73]"}`}
+                    className={`h-5 w-5 ${isActive ? "text-[#3B82F6]" : "text-[#746E73]"}`}
                   />
-                  <NavPendingDot className="absolute! top-0 right-0 m-0! text-[#A7653A]" />
+                  <NavPendingDot className="absolute! top-0 right-0 m-0! text-[#3B82F6]" />
                 </div>
                 <span
-                  className={`text-[11px] font-bold ${isActive ? "text-[#A7653A]" : ""}`}
+                  className={`text-[11px] font-bold ${isActive ? "text-[#3B82F6]" : ""}`}
                 >
                   {route.label}
                 </span>
@@ -114,7 +114,7 @@ export function OwnerMobileNav({
           {/* More Menu (Slide Over) */}
           <Sheet>
             <SheetTrigger asChild>
-              <button className="flex flex-1 flex-col items-center justify-center gap-1 h-full transition-all active:scale-95 text-[#746E73] hover:text-[#27324A]">
+              <button className="flex flex-1 flex-col items-center justify-center gap-1 h-full transition-all active:scale-95 text-[#746E73] hover:text-[#0F172A]">
                 <div className="relative flex items-center justify-center w-8 h-8 rounded-full">
                   <Menu className="h-5 w-5" />
                 </div>

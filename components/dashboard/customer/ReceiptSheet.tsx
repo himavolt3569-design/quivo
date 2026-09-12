@@ -23,8 +23,8 @@ export function ReceiptSheet({ order, onClose }: ReceiptSheetProps) {
       >
         {order && (
           <>
-            <SheetHeader className="border-b border-[#2E3344]/8 px-6 pb-4">
-              <SheetTitle className="text-lg font-bold text-[#27324A]">
+            <SheetHeader className="border-b border-[#1E293B]/8 px-6 pb-4">
+              <SheetTitle className="text-lg font-bold text-[#0F172A]">
                 Receipt
               </SheetTitle>
               <p className="text-xs font-medium text-[#746E73]">
@@ -44,7 +44,7 @@ export function ReceiptSheet({ order, onClose }: ReceiptSheetProps) {
                   <Store className="h-5 w-5" />
                 </div>
                 <div>
-                  <p className="text-sm font-bold text-[#27324A]">
+                  <p className="text-sm font-bold text-[#0F172A]">
                     {order.shop_name}
                   </p>
                   <p className="mt-0.5 text-xs capitalize text-[#746E73]">
@@ -54,8 +54,8 @@ export function ReceiptSheet({ order, onClose }: ReceiptSheetProps) {
               </div>
 
               {/* Items */}
-              <div className="overflow-hidden rounded-2xl border border-[#2E3344]/8 bg-white">
-                <div className="border-b border-[#2E3344]/6 px-4 py-2.5">
+              <div className="overflow-hidden rounded-2xl border border-[#1E293B]/8 bg-white">
+                <div className="border-b border-[#1E293B]/6 px-4 py-2.5">
                   <p className="text-xs font-bold uppercase tracking-widest text-[#746E73]">
                     Items
                   </p>
@@ -63,10 +63,10 @@ export function ReceiptSheet({ order, onClose }: ReceiptSheetProps) {
                 {(order.items as OrderItem[]).map((item, i) => (
                   <div
                     key={i}
-                    className="flex items-center justify-between border-b border-[#2E3344]/6 px-4 py-3 last:border-0"
+                    className="flex items-center justify-between border-b border-[#1E293B]/6 px-4 py-3 last:border-0"
                   >
                     <div>
-                      <p className="text-sm font-semibold text-[#27324A]">
+                      <p className="text-sm font-semibold text-[#0F172A]">
                         {item.name}
                       </p>
                       <p className="mt-0.5 text-xs text-[#746E73]">
@@ -74,7 +74,7 @@ export function ReceiptSheet({ order, onClose }: ReceiptSheetProps) {
                         {item.price.toLocaleString()} each
                       </p>
                     </div>
-                    <p className="text-sm font-bold text-[#27324A]">
+                    <p className="text-sm font-bold text-[#0F172A]">
                       Rs. {(item.price * item.quantity).toLocaleString()}
                     </p>
                   </div>
@@ -83,16 +83,16 @@ export function ReceiptSheet({ order, onClose }: ReceiptSheetProps) {
 
               {/* Notes */}
               {order.notes && (
-                <div className="rounded-2xl border border-[#2E3344]/8 bg-white px-4 py-3">
+                <div className="rounded-2xl border border-[#1E293B]/8 bg-white px-4 py-3">
                   <p className="mb-1 text-xs font-bold uppercase tracking-widest text-[#746E73]">
                     Note
                   </p>
-                  <p className="text-sm text-[#27324A]">{order.notes}</p>
+                  <p className="text-sm text-[#0F172A]">{order.notes}</p>
                 </div>
               )}
 
               {/* Total */}
-              <div className="flex items-center justify-between rounded-2xl bg-[#27324A] px-5 py-4 text-white">
+              <div className="flex items-center justify-between rounded-2xl bg-[#0F172A] px-5 py-4 text-white">
                 <p className="text-sm font-semibold text-white/80">
                   Total paid
                 </p>
@@ -103,13 +103,13 @@ export function ReceiptSheet({ order, onClose }: ReceiptSheetProps) {
 
               {/* Delivery address */}
               {order.delivery_address && (
-                <div className="flex items-start gap-2.5 rounded-2xl border border-[#2E3344]/8 bg-white px-4 py-3">
-                  <MapPin className="mt-0.5 h-4 w-4 flex-shrink-0 text-[#A7653A]" />
+                <div className="flex items-start gap-2.5 rounded-2xl border border-[#1E293B]/8 bg-white px-4 py-3">
+                  <MapPin className="mt-0.5 h-4 w-4 flex-shrink-0 text-[#3B82F6]" />
                   <div>
                     <p className="mb-0.5 text-xs font-bold uppercase tracking-widest text-[#746E73]">
                       Delivered to
                     </p>
-                    <p className="text-sm text-[#27324A]">
+                    <p className="text-sm text-[#0F172A]">
                       {order.delivery_address}
                     </p>
                   </div>

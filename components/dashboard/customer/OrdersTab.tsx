@@ -97,12 +97,12 @@ export function OrdersTab({ userId, initialOrders }: OrdersTabProps) {
       {/* ── Orders Bento Header ────────────────────────────────────── */}
       <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
         {/* Main Stats Card */}
-        <div className="md:col-span-8 rounded-[2.5rem] bg-white border border-[#2E3344]/8 p-8 relative overflow-hidden shadow-sm group">
+        <div className="md:col-span-8 rounded-[2.5rem] bg-white border border-[#1E293B]/8 p-8 relative overflow-hidden shadow-sm group">
           <div className="absolute top-0 right-0 p-8 opacity-[0.03] group-hover:opacity-[0.05] transition-opacity">
             <Package className="h-32 w-32 -rotate-12" />
           </div>
           <div>
-            <h2 className="text-3xl font-bold tracking-[-0.03em] text-[#27324A]">
+            <h2 className="text-3xl font-bold tracking-[-0.03em] text-[#0F172A]">
               Your Orders
             </h2>
             <p className="mt-2 text-sm font-medium text-[#746E73] max-w-sm">
@@ -114,7 +114,7 @@ export function OrdersTab({ userId, initialOrders }: OrdersTabProps) {
               {
                 label: "Active",
                 count: activeOrders.length,
-                color: "text-[#A7653A] bg-[#F7F0E6]",
+                color: "text-[#3B82F6] bg-[#F8FAFC]",
               },
               {
                 label: "Accepted",
@@ -142,7 +142,7 @@ export function OrdersTab({ userId, initialOrders }: OrdersTabProps) {
 
         {/* Scan & Order Bento */}
         <div
-          className="md:col-span-4 rounded-[2.5rem] bg-[#27324A] p-7 text-white shadow-xl shadow-[#27324A]/10 flex flex-col justify-between group cursor-pointer"
+          className="md:col-span-4 rounded-[2.5rem] bg-[#0F172A] p-7 text-white shadow-xl shadow-[#0F172A]/10 flex flex-col justify-between group cursor-pointer"
           onClick={() => setScannerOpen(true)}
         >
           <div className="h-12 w-12 rounded-2xl bg-white/10 flex items-center justify-center mb-4 transition-transform group-hover:scale-110">
@@ -154,7 +154,7 @@ export function OrdersTab({ userId, initialOrders }: OrdersTabProps) {
               Scan any barcode to find it nearby and order instantly.
             </p>
           </div>
-          <button className="mt-5 w-full py-3 rounded-full bg-[#A7653A] text-xs font-bold uppercase tracking-widest hover:bg-[#8E5432] transition">
+          <button className="mt-5 w-full py-3 rounded-full bg-[#3B82F6] text-xs font-bold uppercase tracking-widest hover:bg-[#8E5432] transition">
             Scan & Order
           </button>
         </div>
@@ -170,8 +170,8 @@ export function OrdersTab({ userId, initialOrders }: OrdersTabProps) {
             onClick={() => setOrderFilter(f)}
             className={`rounded-full px-5 py-2 text-xs font-bold capitalize transition ${
               orderFilter === f
-                ? "bg-white text-[#27324A] shadow-sm"
-                : "text-[#746E73] hover:text-[#27324A]"
+                ? "bg-white text-[#0F172A] shadow-sm"
+                : "text-[#746E73] hover:text-[#0F172A]"
             }`}
           >
             {f}
@@ -181,11 +181,11 @@ export function OrdersTab({ userId, initialOrders }: OrdersTabProps) {
 
       {/* List */}
       {filteredOrders.length === 0 ? (
-        <div className="rounded-[2.5rem] border border-dashed border-[#2E3344]/15 bg-white/50 p-16 text-center">
-          <div className="mx-auto mb-4 h-16 w-16 grid place-items-center rounded-2xl bg-[#F7F0E6] text-[#A7653A]">
+        <div className="rounded-[2.5rem] border border-dashed border-[#1E293B]/15 bg-white/50 p-16 text-center">
+          <div className="mx-auto mb-4 h-16 w-16 grid place-items-center rounded-2xl bg-[#F8FAFC] text-[#3B82F6]">
             <Package className="h-8 w-8" />
           </div>
-          <p className="text-base font-bold text-[#27324A]">
+          <p className="text-base font-bold text-[#0F172A]">
             No {orderFilter} orders found
           </p>
           <p className="mt-1 text-sm text-[#746E73]">

@@ -154,12 +154,12 @@ export function StockTransferView({
       <div>
         <Link
           href="/dashboard/owner/products"
-          className="inline-flex items-center gap-1 text-xs font-bold text-[#746E73] hover:text-[#27324A] mb-2"
+          className="inline-flex items-center gap-1 text-xs font-bold text-[#746E73] hover:text-[#0F172A] mb-2"
         >
           <ChevronLeft className="h-3 w-3" /> Back to Products
         </Link>
-        <h1 className="text-2xl font-black text-[#27324A] flex items-center gap-2">
-          <Move className="h-6 w-6 text-[#A7653A]" /> Inter-shop transfer
+        <h1 className="text-2xl font-black text-[#0F172A] flex items-center gap-2">
+          <Move className="h-6 w-6 text-[#3B82F6]" /> Inter-shop transfer
         </h1>
         <p className="text-sm font-medium text-[#746E73] mt-1">
           Move stock between your shops. The transfer is atomic — source
@@ -167,7 +167,7 @@ export function StockTransferView({
         </p>
       </div>
 
-      <div className="bg-white rounded-2xl border border-[#2E3344]/8 shadow-sm p-6 space-y-4">
+      <div className="bg-white rounded-2xl border border-[#1E293B]/8 shadow-sm p-6 space-y-4">
         {/* Shop pickers */}
         <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto_1fr] gap-3 items-end">
           <div>
@@ -177,7 +177,7 @@ export function StockTransferView({
             <select
               value={fromShop}
               onChange={(e) => setFromShop(e.target.value)}
-              className="h-11 px-3 rounded-xl border border-[#2E3344]/15 bg-white text-sm font-bold w-full mt-1"
+              className="h-11 px-3 rounded-xl border border-[#1E293B]/15 bg-white text-sm font-bold w-full mt-1"
             >
               {shops.map((s) => (
                 <option key={s.id} value={s.id}>
@@ -190,7 +190,7 @@ export function StockTransferView({
               change it.
             </p>
           </div>
-          <ArrowRight className="h-5 w-5 text-[#A7653A] mx-auto hidden sm:block" />
+          <ArrowRight className="h-5 w-5 text-[#3B82F6] mx-auto hidden sm:block" />
           <div>
             <label className="text-[10px] font-black uppercase tracking-widest text-[#746E73]">
               To shop
@@ -198,7 +198,7 @@ export function StockTransferView({
             <select
               value={toShop}
               onChange={(e) => setToShop(e.target.value)}
-              className="h-11 px-3 rounded-xl border border-[#2E3344]/15 bg-white text-sm font-bold w-full mt-1"
+              className="h-11 px-3 rounded-xl border border-[#1E293B]/15 bg-white text-sm font-bold w-full mt-1"
             >
               <option value="">— pick destination —</option>
               {shops
@@ -214,7 +214,7 @@ export function StockTransferView({
 
         {/* Note that source-product list is fixed to activeShopId */}
         {fromShop !== activeShopId && (
-          <div className="p-3 rounded-xl bg-[#F7F0E6]/60 text-[11px] font-bold text-[#A7653A]">
+          <div className="p-3 rounded-xl bg-[#F8FAFC]/60 text-[11px] font-bold text-[#3B82F6]">
             The product list below is from the currently-active shop. Switch the
             active shop to transfer from a different source.
           </div>
@@ -244,7 +244,7 @@ export function StockTransferView({
                     key={p.id}
                     type="button"
                     onClick={() => addLine(p.id)}
-                    className="w-full text-left px-3 py-2 rounded-lg hover:bg-white text-sm font-bold text-[#27324A] flex justify-between"
+                    className="w-full text-left px-3 py-2 rounded-lg hover:bg-white text-sm font-bold text-[#0F172A] flex justify-between"
                   >
                     <span>{p.name}</span>
                     <span className="text-[11px] text-[#746E73] font-normal">
@@ -264,7 +264,7 @@ export function StockTransferView({
             No lines yet.
           </div>
         ) : (
-          <ul className="divide-y divide-[#2E3344]/5 border border-[#2E3344]/10 rounded-xl overflow-hidden">
+          <ul className="divide-y divide-[#1E293B]/5 border border-[#1E293B]/10 rounded-xl overflow-hidden">
             {picked.map((l) => {
               const p = productById.get(l.id);
               return (
@@ -273,7 +273,7 @@ export function StockTransferView({
                   className="grid grid-cols-[1fr_120px_36px] gap-2 items-center px-3 py-2 bg-white"
                 >
                   <div>
-                    <p className="text-sm font-bold text-[#27324A]">
+                    <p className="text-sm font-bold text-[#0F172A]">
                       {p?.name ?? "?"}
                     </p>
                     <p className="text-[10px] text-[#746E73]">
@@ -312,12 +312,12 @@ export function StockTransferView({
           className="rounded-xl resize-none"
         />
 
-        <div className="flex justify-end gap-2 border-t border-[#2E3344]/8 pt-4">
+        <div className="flex justify-end gap-2 border-t border-[#1E293B]/8 pt-4">
           <button
             type="button"
             onClick={submit}
             disabled={isPending || picked.length === 0}
-            className="h-11 px-4 rounded-xl bg-[#27324A] hover:bg-[#1b2333] text-white font-bold text-sm flex items-center gap-2 disabled:opacity-40"
+            className="h-11 px-4 rounded-xl bg-[#0F172A] hover:bg-[#1b2333] text-white font-bold text-sm flex items-center gap-2 disabled:opacity-40"
           >
             {isPending ? (
               <Loader2 className="h-4 w-4 animate-spin" />
@@ -329,9 +329,9 @@ export function StockTransferView({
         </div>
       </div>
 
-      <div className="bg-white rounded-2xl border border-[#2E3344]/8 shadow-sm overflow-hidden">
-        <div className="p-4 border-b border-[#2E3344]/8 flex items-center gap-2">
-          <h3 className="font-black text-[#27324A]">Recent transfers</h3>
+      <div className="bg-white rounded-2xl border border-[#1E293B]/8 shadow-sm overflow-hidden">
+        <div className="p-4 border-b border-[#1E293B]/8 flex items-center gap-2">
+          <h3 className="font-black text-[#0F172A]">Recent transfers</h3>
           <span className="ml-auto text-xs font-bold text-[#746E73]">
             {history.length}
           </span>
@@ -341,12 +341,12 @@ export function StockTransferView({
             No transfers yet.
           </div>
         ) : (
-          <ul className="divide-y divide-[#2E3344]/5">
+          <ul className="divide-y divide-[#1E293B]/5">
             {history.map((t) => (
               <li key={t.id} className="p-4">
-                <div className="flex items-center gap-2 text-xs font-bold text-[#27324A]">
+                <div className="flex items-center gap-2 text-xs font-bold text-[#0F172A]">
                   <span>{shopNameById.get(t.from_shop_id) ?? "—"}</span>
-                  <ArrowRight className="h-3 w-3 text-[#A7653A]" />
+                  <ArrowRight className="h-3 w-3 text-[#3B82F6]" />
                   <span>{shopNameById.get(t.to_shop_id) ?? "—"}</span>
                   <span
                     className={`ml-auto text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full ${
@@ -364,7 +364,7 @@ export function StockTransferView({
                   {fmt(t.created_at)}
                 </p>
                 {t.lines.length > 0 && (
-                  <ul className="text-[11px] text-[#27324A] mt-2 space-y-0.5">
+                  <ul className="text-[11px] text-[#0F172A] mt-2 space-y-0.5">
                     {t.lines.map((l) => {
                       const product = Array.isArray(l.product)
                         ? l.product[0]

@@ -113,17 +113,17 @@ export default async function PaymentsReportsPage({
     <div className="space-y-5 pb-12">
       <Link
         href="/dashboard/owner/payments"
-        className="inline-flex items-center gap-1.5 text-sm font-bold text-[#27324A] hover:text-[#A7653A]"
+        className="inline-flex items-center gap-1.5 text-sm font-bold text-[#0F172A] hover:text-[#3B82F6]"
       >
         <ArrowLeft className="h-4 w-4" /> Back to Payments
       </Link>
 
       <div className="flex items-center gap-3">
-        <div className="h-11 w-11 rounded-2xl bg-[#27324A] flex items-center justify-center">
+        <div className="h-11 w-11 rounded-2xl bg-[#0F172A] flex items-center justify-center">
           <BarChart3 className="h-5 w-5 text-white" />
         </div>
         <div>
-          <h1 className="text-2xl font-black text-[#27324A]">
+          <h1 className="text-2xl font-black text-[#0F172A]">
             Cross-Shop Payments Report
           </h1>
           <p className="text-xs text-[#746E73]">
@@ -134,7 +134,7 @@ export default async function PaymentsReportsPage({
       </div>
 
       {/* Filters */}
-      <form className="bg-white rounded-3xl border border-[#2E3344]/8 shadow-sm p-4 grid grid-cols-2 md:grid-cols-4 gap-2.5 text-sm items-center">
+      <form className="bg-white rounded-3xl border border-[#1E293B]/8 shadow-sm p-4 grid grid-cols-2 md:grid-cols-4 gap-2.5 text-sm items-center">
         <Select name="shop" defaultValue={sp.shop ?? ""}>
           <SelectTrigger className="h-10 px-3 w-full">
             <SelectValue placeholder="All shops" />
@@ -199,7 +199,7 @@ export default async function PaymentsReportsPage({
           </Select>
           <button
             type="submit"
-            className="h-10 px-4 rounded-xl bg-[#27324A] text-white text-xs font-bold transition-all duration-300 active:scale-[0.98]"
+            className="h-10 px-4 rounded-xl bg-[#0F172A] text-white text-xs font-bold transition-all duration-300 active:scale-[0.98]"
           >
             Apply
           </button>
@@ -223,25 +223,25 @@ export default async function PaymentsReportsPage({
         <StatCard
           label="Shops reporting"
           raw={`${byShop.size}/${shops.length}`}
-          accent="text-[#27324A]"
-          bg="bg-white border-[#2E3344]/8"
+          accent="text-[#0F172A]"
+          bg="bg-white border-[#1E293B]/8"
         />
       </div>
 
       {/* Per-shop */}
       {byShop.size > 0 && (
-        <div className="bg-white rounded-3xl border border-[#2E3344]/8 shadow-sm overflow-hidden">
-          <div className="px-5 py-4 border-b border-[#2E3344]/8">
-            <h2 className="font-black text-[#27324A]">By Shop</h2>
+        <div className="bg-white rounded-3xl border border-[#1E293B]/8 shadow-sm overflow-hidden">
+          <div className="px-5 py-4 border-b border-[#1E293B]/8">
+            <h2 className="font-black text-[#0F172A]">By Shop</h2>
           </div>
-          <ul className="divide-y divide-[#2E3344]/8">
+          <ul className="divide-y divide-[#1E293B]/8">
             {Array.from(byShop.entries()).map(([id, s]) => (
               <li
                 key={id}
                 className="px-5 py-3 flex items-center justify-between gap-3"
               >
                 <div className="min-w-0">
-                  <p className="font-bold text-[#27324A] text-sm truncate">
+                  <p className="font-bold text-[#0F172A] text-sm truncate">
                     {s.name}
                   </p>
                   <p className="text-[10px] text-[#746E73]">
@@ -266,17 +266,17 @@ export default async function PaymentsReportsPage({
 
       {/* Per-method */}
       {byMethod.size > 0 && (
-        <div className="bg-white rounded-3xl border border-[#2E3344]/8 shadow-sm overflow-hidden">
-          <div className="px-5 py-4 border-b border-[#2E3344]/8">
-            <h2 className="font-black text-[#27324A]">By Method</h2>
+        <div className="bg-white rounded-3xl border border-[#1E293B]/8 shadow-sm overflow-hidden">
+          <div className="px-5 py-4 border-b border-[#1E293B]/8">
+            <h2 className="font-black text-[#0F172A]">By Method</h2>
           </div>
-          <ul className="divide-y divide-[#2E3344]/8">
+          <ul className="divide-y divide-[#1E293B]/8">
             {Array.from(byMethod.entries()).map(([m, e]) => (
               <li
                 key={m}
                 className="px-5 py-3 flex items-center justify-between gap-3"
               >
-                <p className="font-bold text-[#27324A] text-sm">
+                <p className="font-bold text-[#0F172A] text-sm">
                   {PAYMENT_METHOD_LABELS[m as PaymentMethod]}
                 </p>
                 <div className="text-right">
@@ -294,9 +294,9 @@ export default async function PaymentsReportsPage({
       )}
 
       {/* Recent list */}
-      <div className="bg-white rounded-3xl border border-[#2E3344]/8 shadow-sm overflow-hidden">
-        <div className="px-5 py-4 border-b border-[#2E3344]/8">
-          <h2 className="font-black text-[#27324A]">
+      <div className="bg-white rounded-3xl border border-[#1E293B]/8 shadow-sm overflow-hidden">
+        <div className="px-5 py-4 border-b border-[#1E293B]/8">
+          <h2 className="font-black text-[#0F172A]">
             Recent Payments{" "}
             {list.length === 100 && (
               <span className="text-[10px] font-bold text-[#746E73]">
@@ -310,14 +310,14 @@ export default async function PaymentsReportsPage({
             No payments matched these filters.
           </p>
         ) : (
-          <ul className="divide-y divide-[#2E3344]/8">
+          <ul className="divide-y divide-[#1E293B]/8">
             {list.map((r) => (
               <li
                 key={r.payment_id}
                 className="px-5 py-3 flex items-center justify-between gap-3"
               >
                 <div className="min-w-0">
-                  <p className="font-mono font-black text-sm text-[#27324A] truncate">
+                  <p className="font-mono font-black text-sm text-[#0F172A] truncate">
                     {r.order_number}
                   </p>
                   <p className="text-[10px] text-[#746E73] truncate">
@@ -326,7 +326,7 @@ export default async function PaymentsReportsPage({
                   </p>
                 </div>
                 <div className="text-right shrink-0">
-                  <p className="text-sm font-black text-[#27324A]">
+                  <p className="text-sm font-black text-[#0F172A]">
                     Rs. {Number(r.amount).toLocaleString()}
                   </p>
                   <p className="text-[10px] font-bold text-[#746E73]">

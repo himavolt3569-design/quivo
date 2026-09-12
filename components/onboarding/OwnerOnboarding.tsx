@@ -399,10 +399,10 @@ export function OwnerOnboarding() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F7F0E6] flex flex-col sm:items-center sm:justify-center sm:p-4 sm:py-12">
-      <div className="w-full flex-1 sm:flex-none sm:max-w-3xl bg-white sm:rounded-[2.5rem] sm:shadow-xl sm:border border-[#2E3344]/8 overflow-hidden flex flex-col">
+    <div className="min-h-screen bg-[#F8FAFC] flex flex-col sm:items-center sm:justify-center sm:p-4 sm:py-12">
+      <div className="w-full flex-1 sm:flex-none sm:max-w-3xl bg-white sm:rounded-[2.5rem] sm:shadow-xl sm:border border-[#1E293B]/8 overflow-hidden flex flex-col">
         {/* Header */}
-        <div className="bg-[#27324A] p-5 sm:p-8 text-white shrink-0">
+        <div className="bg-[#0F172A] p-5 sm:p-8 text-white shrink-0">
           <div className="flex items-center gap-3 mb-5 sm:mb-6">
             <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-xl bg-white/10 flex items-center justify-center shrink-0">
               <Store className="h-4 w-4 sm:h-5 sm:w-5 text-[#D8C99A]" />
@@ -420,7 +420,7 @@ export function OwnerOnboarding() {
           <div className="flex items-center justify-between relative">
             <div className="absolute left-0 top-1/2 -translate-y-1/2 w-full h-1 bg-white/10 rounded-full" />
             <div
-              className="absolute left-0 top-1/2 -translate-y-1/2 h-1 bg-[#A7653A] rounded-full transition-all duration-500"
+              className="absolute left-0 top-1/2 -translate-y-1/2 h-1 bg-[#3B82F6] rounded-full transition-all duration-500"
               style={{ width: `${(currentStep / (STEPS.length - 1)) * 100}%` }}
             />
             {STEPS.map((step, idx) => (
@@ -431,9 +431,9 @@ export function OwnerOnboarding() {
                 <div
                   className={`h-7 w-7 rounded-full flex items-center justify-center text-[10px] font-bold transition-colors ${
                     idx < currentStep
-                      ? "bg-[#A7653A] text-white shadow-lg shadow-[#A7653A]/40"
+                      ? "bg-[#3B82F6] text-white shadow-lg shadow-[#3B82F6]/40"
                       : idx === currentStep
-                        ? "bg-[#A7653A] text-white ring-2 ring-white/30 ring-offset-1 ring-offset-[#27324A] shadow-lg"
+                        ? "bg-[#3B82F6] text-white ring-2 ring-white/30 ring-offset-1 ring-offset-[#0F172A] shadow-lg"
                         : "bg-[#1b2333] text-white/40"
                   }`}
                 >
@@ -469,7 +469,7 @@ export function OwnerOnboarding() {
           {currentStep === 0 && (
             <div className="space-y-6 sm:space-y-8 animate-in fade-in slide-in-from-right-4">
               <div>
-                <h2 className="text-xl sm:text-2xl font-black text-[#27324A]">
+                <h2 className="text-xl sm:text-2xl font-black text-[#0F172A]">
                   Business Type
                 </h2>
                 <p className="text-sm text-[#746E73] mt-1">
@@ -484,24 +484,24 @@ export function OwnerOnboarding() {
                   onClick={() => setBusinessType("retailer")}
                   className={`rounded-2xl border-2 p-4 sm:p-5 text-left transition-all ${
                     businessType === "retailer"
-                      ? "border-[#A7653A] bg-[#F7F0E6] shadow-sm"
-                      : "border-[#2E3344]/10 hover:border-[#A7653A]/40 hover:bg-[#F7F0E6]/40 hover:shadow-md hover:-translate-y-0.5"
+                      ? "border-[#3B82F6] bg-[#F8FAFC] shadow-sm"
+                      : "border-[#1E293B]/10 hover:border-[#3B82F6]/40 hover:bg-[#F8FAFC]/40 hover:shadow-md hover:-translate-y-0.5"
                   }`}
                 >
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-2.5">
-                      <div className="h-9 w-9 rounded-xl bg-[#A7653A]/10 flex items-center justify-center shrink-0">
-                        <ShoppingCart className="h-4 w-4 text-[#A7653A]" />
+                      <div className="h-9 w-9 rounded-xl bg-[#3B82F6]/10 flex items-center justify-center shrink-0">
+                        <ShoppingCart className="h-4 w-4 text-[#3B82F6]" />
                       </div>
-                      <p className="font-black text-[#27324A] text-base">
+                      <p className="font-black text-[#0F172A] text-base">
                         Retailer
                       </p>
                     </div>
                     <div
                       className={`h-5 w-5 rounded-full border-2 flex items-center justify-center shrink-0 ${
                         businessType === "retailer"
-                          ? "border-[#A7653A] bg-[#A7653A]"
-                          : "border-[#2E3344]/20"
+                          ? "border-[#3B82F6] bg-[#3B82F6]"
+                          : "border-[#1E293B]/20"
                       }`}
                     >
                       {businessType === "retailer" && (
@@ -516,9 +516,9 @@ export function OwnerOnboarding() {
                     {RETAILER_FEATURES.map((f, i) => (
                       <li
                         key={i}
-                        className="flex items-center gap-2 text-xs text-[#27324A]"
+                        className="flex items-center gap-2 text-xs text-[#0F172A]"
                       >
-                        <span className="text-[#A7653A] shrink-0">
+                        <span className="text-[#3B82F6] shrink-0">
                           {f.icon}
                         </span>
                         {f.text}
@@ -533,24 +533,24 @@ export function OwnerOnboarding() {
                   onClick={() => setBusinessType("wholesale")}
                   className={`rounded-2xl border-2 p-4 sm:p-5 text-left transition-all ${
                     businessType === "wholesale"
-                      ? "border-[#27324A] bg-[#27324A]/5 shadow-sm"
-                      : "border-[#2E3344]/10 hover:border-[#27324A]/40 hover:bg-[#27324A]/5 hover:shadow-md hover:-translate-y-0.5"
+                      ? "border-[#0F172A] bg-[#0F172A]/5 shadow-sm"
+                      : "border-[#1E293B]/10 hover:border-[#0F172A]/40 hover:bg-[#0F172A]/5 hover:shadow-md hover:-translate-y-0.5"
                   }`}
                 >
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-2.5">
-                      <div className="h-9 w-9 rounded-xl bg-[#27324A]/10 flex items-center justify-center shrink-0">
-                        <Boxes className="h-4 w-4 text-[#27324A]" />
+                      <div className="h-9 w-9 rounded-xl bg-[#0F172A]/10 flex items-center justify-center shrink-0">
+                        <Boxes className="h-4 w-4 text-[#0F172A]" />
                       </div>
-                      <p className="font-black text-[#27324A] text-base">
+                      <p className="font-black text-[#0F172A] text-base">
                         Wholesaler
                       </p>
                     </div>
                     <div
                       className={`h-5 w-5 rounded-full border-2 flex items-center justify-center shrink-0 ${
                         businessType === "wholesale"
-                          ? "border-[#27324A] bg-[#27324A]"
-                          : "border-[#2E3344]/20"
+                          ? "border-[#0F172A] bg-[#0F172A]"
+                          : "border-[#1E293B]/20"
                       }`}
                     >
                       {businessType === "wholesale" && (
@@ -566,9 +566,9 @@ export function OwnerOnboarding() {
                     {WHOLESALE_FEATURES.map((f, i) => (
                       <li
                         key={i}
-                        className="flex items-center gap-2 text-xs text-[#27324A]"
+                        className="flex items-center gap-2 text-xs text-[#0F172A]"
                       >
-                        <span className="text-[#27324A]/70 shrink-0">
+                        <span className="text-[#0F172A]/70 shrink-0">
                           {f.icon}
                         </span>
                         {f.text}
@@ -580,7 +580,7 @@ export function OwnerOnboarding() {
 
               {/* Category */}
               <div>
-                <h2 className="text-base sm:text-lg font-black text-[#27324A] mb-1">
+                <h2 className="text-base sm:text-lg font-black text-[#0F172A] mb-1">
                   Shop Category <span className="text-red-500">*</span>
                 </h2>
                 <p className="text-xs text-[#746E73] mb-3">
@@ -595,10 +595,10 @@ export function OwnerOnboarding() {
                       onClick={() => cat.active && setCategory(cat.id)}
                       className={`py-2.5 px-1 rounded-xl border-2 text-[11px] sm:text-xs font-bold text-center transition-all leading-tight ${
                         cat.active && category === cat.id
-                          ? "border-[#A7653A] bg-[#F7F0E6] text-[#A7653A]"
+                          ? "border-[#3B82F6] bg-[#F8FAFC] text-[#3B82F6]"
                           : cat.active
-                            ? "border-[#2E3344]/10 hover:border-[#A7653A]/40 text-[#27324A]"
-                            : "border-[#2E3344]/5 bg-[#f8f8f7] text-[#2E3344]/30 cursor-not-allowed"
+                            ? "border-[#1E293B]/10 hover:border-[#3B82F6]/40 text-[#0F172A]"
+                            : "border-[#1E293B]/5 bg-[#f8f8f7] text-[#1E293B]/30 cursor-not-allowed"
                       }`}
                     >
                       <span className="block text-lg sm:text-xl mb-1">
@@ -606,7 +606,7 @@ export function OwnerOnboarding() {
                       </span>
                       {cat.label}
                       {!cat.active && (
-                        <span className="block text-[8px] mt-0.5 uppercase tracking-widest text-[#A7653A]/40">
+                        <span className="block text-[8px] mt-0.5 uppercase tracking-widest text-[#3B82F6]/40">
                           Soon
                         </span>
                       )}
@@ -620,7 +620,7 @@ export function OwnerOnboarding() {
           {currentStep === 1 && (
             <div className="space-y-6 sm:space-y-8 animate-in fade-in slide-in-from-right-4">
               <div>
-                <h2 className="text-xl sm:text-2xl font-black text-[#27324A]">
+                <h2 className="text-xl sm:text-2xl font-black text-[#0F172A]">
                   Shop Profile
                 </h2>
                 <p className="text-sm text-[#746E73] mt-1">
@@ -629,7 +629,7 @@ export function OwnerOnboarding() {
               </div>
 
               <div>
-                <Label className="text-[#27324A] font-bold text-sm">
+                <Label className="text-[#0F172A] font-bold text-sm">
                   Store Name <span className="text-red-500">*</span>
                 </Label>
                 <Input
@@ -642,13 +642,13 @@ export function OwnerOnboarding() {
               </div>
 
               <div>
-                <Label className="text-[#27324A] font-bold text-sm">
+                <Label className="text-[#0F172A] font-bold text-sm">
                   Public Web Address <span className="text-red-500">*</span>
                 </Label>
                 <div
-                  className={`flex items-stretch mt-1.5 focus-within:ring-2 focus-within:ring-[#A7653A] focus-within:ring-offset-2 rounded-xl transition-all ${touched.slug && !slug.trim() ? "border border-red-500 focus-within:ring-red-500" : ""}`}
+                  className={`flex items-stretch mt-1.5 focus-within:ring-2 focus-within:ring-[#3B82F6] focus-within:ring-offset-2 rounded-xl transition-all ${touched.slug && !slug.trim() ? "border border-red-500 focus-within:ring-red-500" : ""}`}
                 >
-                  <div className="h-12 px-2.5 sm:px-3 bg-[#f0ede8] border border-r-0 border-[#2E3344]/10 rounded-l-xl flex items-center text-[#746E73] font-mono whitespace-nowrap text-[10px] sm:text-xs">
+                  <div className="h-12 px-2.5 sm:px-3 bg-[#f0ede8] border border-r-0 border-[#1E293B]/10 rounded-l-xl flex items-center text-[#746E73] font-mono whitespace-nowrap text-[10px] sm:text-xs">
                     <span className="hidden sm:inline">quivo.com</span>/s/
                   </div>
                   <Input
@@ -667,7 +667,7 @@ export function OwnerOnboarding() {
               </div>
 
               <div>
-                <Label className="text-[#27324A] font-bold text-sm">
+                <Label className="text-[#0F172A] font-bold text-sm">
                   Phone Number <span className="text-red-500">*</span>
                 </Label>
                 <PhoneInput
@@ -682,7 +682,7 @@ export function OwnerOnboarding() {
               </div>
 
               <div>
-                <Label className="text-[#27324A] font-bold text-sm">
+                <Label className="text-[#0F172A] font-bold text-sm">
                   Description <span className="text-red-500">*</span>
                 </Label>
                 <Textarea
@@ -697,7 +697,7 @@ export function OwnerOnboarding() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label className="text-[#27324A] font-bold text-sm flex items-center gap-1">
+                  <Label className="text-[#0F172A] font-bold text-sm flex items-center gap-1">
                     <Clock className="h-3.5 w-3.5" /> Opening{" "}
                     <span className="text-red-500">*</span>
                   </Label>
@@ -709,7 +709,7 @@ export function OwnerOnboarding() {
                   />
                 </div>
                 <div>
-                  <Label className="text-[#27324A] font-bold text-sm flex items-center gap-1">
+                  <Label className="text-[#0F172A] font-bold text-sm flex items-center gap-1">
                     <Clock className="h-3.5 w-3.5" /> Closing{" "}
                     <span className="text-red-500">*</span>
                   </Label>
@@ -723,7 +723,7 @@ export function OwnerOnboarding() {
               </div>
 
               <div>
-                <Label className="text-[#27324A] font-bold text-sm mb-2 block">
+                <Label className="text-[#0F172A] font-bold text-sm mb-2 block">
                   Store Logo{" "}
                   <span className="text-[#746E73] font-normal text-xs">
                     (optional — can add later)
@@ -741,7 +741,7 @@ export function OwnerOnboarding() {
           {currentStep === 2 && (
             <div className="space-y-6 sm:space-y-8 animate-in fade-in slide-in-from-right-4">
               <div>
-                <h2 className="text-xl sm:text-2xl font-black text-[#27324A]">
+                <h2 className="text-xl sm:text-2xl font-black text-[#0F172A]">
                   Location & KYC
                 </h2>
                 <p className="text-sm text-[#746E73] mt-1">
@@ -751,11 +751,11 @@ export function OwnerOnboarding() {
               </div>
 
               <div>
-                <Label className="text-[#27324A] font-bold text-sm flex items-center gap-1.5 mb-2">
-                  <MapPin className="h-4 w-4 text-[#A7653A]" />
+                <Label className="text-[#0F172A] font-bold text-sm flex items-center gap-1.5 mb-2">
+                  <MapPin className="h-4 w-4 text-[#3B82F6]" />
                   Shop Location <span className="text-red-500">*</span>
                 </Label>
-                <div className="rounded-2xl overflow-hidden border border-[#2E3344]/10 h-64">
+                <div className="rounded-2xl overflow-hidden border border-[#1E293B]/10 h-64">
                   <AddressPinPicker
                     value={coords}
                     onChange={handleCoordsChange}
@@ -769,7 +769,7 @@ export function OwnerOnboarding() {
 
               <div>
                 <div className="flex items-center justify-between mb-1.5">
-                  <Label className="text-[#27324A] font-bold text-sm">
+                  <Label className="text-[#0F172A] font-bold text-sm">
                     Shop Address <span className="text-red-500">*</span>
                   </Label>
                   {geocoding && (
@@ -786,7 +786,7 @@ export function OwnerOnboarding() {
                   {!geocoding && !addressFromPin && address && (
                     <button
                       type="button"
-                      className="text-[10px] font-bold text-[#A7653A] hover:underline"
+                      className="text-[10px] font-bold text-[#3B82F6] hover:underline"
                       onClick={async () => {
                         if (!coords) return;
                         setGeocoding(true);
@@ -819,7 +819,7 @@ export function OwnerOnboarding() {
               </div>
 
               <div>
-                <Label className="text-[#27324A] font-bold text-sm mb-2 block">
+                <Label className="text-[#0F172A] font-bold text-sm mb-2 block">
                   Business Document
                   <span className="text-[#746E73] font-normal text-xs block sm:inline sm:ml-2">
                     Optional for first 30 days — PAN / VAT / Registration
@@ -840,7 +840,7 @@ export function OwnerOnboarding() {
           {currentStep === 3 && !result && (
             <div className="space-y-6 sm:space-y-8 animate-in fade-in slide-in-from-right-4">
               <div>
-                <h2 className="text-xl sm:text-2xl font-black text-[#27324A]">
+                <h2 className="text-xl sm:text-2xl font-black text-[#0F172A]">
                   Review & Launch
                 </h2>
                 <p className="text-sm text-[#746E73] mt-1">
@@ -918,7 +918,7 @@ export function OwnerOnboarding() {
                 <CheckCircle2 className="h-8 w-8 sm:h-10 sm:w-10 text-green-500" />
               </div>
               <div>
-                <h2 className="text-2xl sm:text-3xl font-black text-[#27324A]">
+                <h2 className="text-2xl sm:text-3xl font-black text-[#0F172A]">
                   Shop Created!
                 </h2>
                 <p className="text-sm text-[#746E73] mt-1">
@@ -928,8 +928,8 @@ export function OwnerOnboarding() {
                 </p>
               </div>
 
-              <div className="bg-[#f8f8f7] rounded-2xl p-5 sm:p-6 text-left border border-[#2E3344]/5 max-w-sm mx-auto">
-                <p className="text-[10px] font-black uppercase tracking-widest text-[#A7653A] mb-3">
+              <div className="bg-[#f8f8f7] rounded-2xl p-5 sm:p-6 text-left border border-[#1E293B]/5 max-w-sm mx-auto">
+                <p className="text-[10px] font-black uppercase tracking-widest text-[#3B82F6] mb-3">
                   Your Public Storefront
                 </p>
                 <div className="flex items-center gap-2">
@@ -937,7 +937,7 @@ export function OwnerOnboarding() {
                     href={`/s/${result.slug}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex-1 text-[#27324A] font-mono font-bold hover:underline break-all text-sm"
+                    className="flex-1 text-[#0F172A] font-mono font-bold hover:underline break-all text-sm"
                   >
                     /s/{result.slug}
                   </a>
@@ -949,26 +949,26 @@ export function OwnerOnboarding() {
                         "Storefront URL",
                       )
                     }
-                    className="rounded-lg p-1.5 text-[#746E73] hover:bg-[#A7653A]/10 hover:text-[#A7653A] transition"
+                    className="rounded-lg p-1.5 text-[#746E73] hover:bg-[#3B82F6]/10 hover:text-[#3B82F6] transition"
                     aria-label="Copy URL"
                   >
                     <Copy className="h-3.5 w-3.5" />
                   </button>
                 </div>
 
-                <div className="mt-5 pt-5 border-t border-[#2E3344]/5 flex flex-col items-center">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-[#A7653A] mb-3">
+                <div className="mt-5 pt-5 border-t border-[#1E293B]/5 flex flex-col items-center">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-[#3B82F6] mb-3">
                     Shop QR Code
                   </p>
-                  <div className="h-32 w-32 bg-white rounded-xl shadow-sm border border-[#2E3344]/5 flex items-center justify-center">
-                    <QrCode className="h-20 w-20 text-[#27324A]" />
+                  <div className="h-32 w-32 bg-white rounded-xl shadow-sm border border-[#1E293B]/5 flex items-center justify-center">
+                    <QrCode className="h-20 w-20 text-[#0F172A]" />
                   </div>
                   <button
                     type="button"
                     onClick={() =>
                       copyToClipboard(result.qr_target_url, "QR link")
                     }
-                    className="mt-3 inline-flex items-center gap-1.5 text-[10px] font-bold text-[#A7653A] hover:underline"
+                    className="mt-3 inline-flex items-center gap-1.5 text-[10px] font-bold text-[#3B82F6] hover:underline"
                   >
                     <Copy className="h-3 w-3" /> Copy QR link
                   </button>
@@ -982,7 +982,7 @@ export function OwnerOnboarding() {
           )}
 
           {/* Navigation */}
-          <div className="mt-8 sm:mt-10 flex items-center justify-between pt-5 sm:pt-6 border-t border-[#2E3344]/5">
+          <div className="mt-8 sm:mt-10 flex items-center justify-between pt-5 sm:pt-6 border-t border-[#1E293B]/5">
             <Button
               type="button"
               variant="ghost"
@@ -1001,7 +1001,7 @@ export function OwnerOnboarding() {
               <Button
                 type="button"
                 onClick={nextStep}
-                className="rounded-xl font-bold bg-[#A7653A] hover:bg-[#8D5132] text-white"
+                className="rounded-xl font-bold bg-[#3B82F6] hover:bg-[#8D5132] text-white"
               >
                 Continue <ChevronRight className="h-4 w-4 ml-1" />
               </Button>
@@ -1011,7 +1011,7 @@ export function OwnerOnboarding() {
               <Button
                 type="button"
                 onClick={nextStep}
-                className="rounded-xl font-bold bg-[#A7653A] hover:bg-[#8D5132] text-white"
+                className="rounded-xl font-bold bg-[#3B82F6] hover:bg-[#8D5132] text-white"
               >
                 Review <ChevronRight className="h-4 w-4 ml-1" />
               </Button>
@@ -1022,7 +1022,7 @@ export function OwnerOnboarding() {
                 type="button"
                 onClick={handleSubmit}
                 disabled={submitting}
-                className="rounded-xl font-bold bg-[#A7653A] hover:bg-[#8D5132] text-white"
+                className="rounded-xl font-bold bg-[#3B82F6] hover:bg-[#8D5132] text-white"
               >
                 {submitting ? (
                   <>
@@ -1041,7 +1041,7 @@ export function OwnerOnboarding() {
               <Button
                 type="button"
                 onClick={() => router.push("/dashboard/owner")}
-                className="rounded-xl font-bold bg-[#27324A] hover:bg-[#1b2333] text-white"
+                className="rounded-xl font-bold bg-[#0F172A] hover:bg-[#1b2333] text-white"
               >
                 Go to Dashboard <ChevronRight className="h-4 w-4 ml-1" />
               </Button>
@@ -1063,12 +1063,12 @@ function ReviewRow({
   mono?: boolean;
 }) {
   return (
-    <div className="py-2.5 border-b border-[#2E3344]/5 last:border-0 sm:flex sm:items-start sm:justify-between sm:gap-4">
+    <div className="py-2.5 border-b border-[#1E293B]/5 last:border-0 sm:flex sm:items-start sm:justify-between sm:gap-4">
       <span className="block text-[10px] font-bold text-[#746E73] uppercase tracking-wide mb-0.5 sm:mb-0 sm:shrink-0">
         {label}
       </span>
       <span
-        className={`block text-sm text-[#27324A] font-semibold sm:text-right break-all ${mono ? "font-mono" : ""}`}
+        className={`block text-sm text-[#0F172A] font-semibold sm:text-right break-all ${mono ? "font-mono" : ""}`}
       >
         {value || "—"}
       </span>

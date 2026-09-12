@@ -9,8 +9,8 @@ import { isSafeHttpUrl } from "@/lib/security";
 import { OptionalPhoneSchema, OptionalShortText } from "@/lib/validation";
 
 const COVER_GRADIENTS = [
-  "from-[#A7653A] via-[#D8C99A] to-[#B76E42]",
-  "from-[#27324A] via-[#4A5E82] to-[#1B2030]",
+  "from-[#3B82F6] via-[#D8C99A] to-[#B76E42]",
+  "from-[#0F172A] via-[#4A5E82] to-[#1B2030]",
   "from-[#626A54] via-[#8F987D] to-[#464D3B]",
   "from-[#8D5132] via-[#B8714B] to-[#5C331F]",
   "from-[#E8E3D1] via-[#FFFFFF] to-[#D5CDBD]",

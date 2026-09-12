@@ -151,7 +151,7 @@ export function ShopSettings({ shopId, initialData }: ShopSettingsProps) {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-black text-[#27324A]">
+            <h1 className="text-2xl font-black text-[#0F172A]">
               Shop Settings
             </h1>
             <p className="text-sm font-medium text-[#746E73] mt-1">
@@ -161,7 +161,7 @@ export function ShopSettings({ shopId, initialData }: ShopSettingsProps) {
           <Button
             type="submit"
             disabled={isPending}
-            className="rounded-xl h-11 bg-[#27324A] hover:bg-[#1b2333] text-white font-bold px-6 shadow-sm"
+            className="rounded-xl h-11 bg-[#0F172A] hover:bg-[#1b2333] text-white font-bold px-6 shadow-sm"
           >
             <Save className="h-4 w-4 mr-2" />
             {isPending ? "Saving..." : "Save Changes"}
@@ -170,13 +170,13 @@ export function ShopSettings({ shopId, initialData }: ShopSettingsProps) {
 
         <div className="space-y-6">
           {/* General Details */}
-          <div className="bg-white p-6 rounded-[2rem] border border-[#2E3344]/8 shadow-sm space-y-5">
-            <h2 className="text-sm font-black uppercase tracking-widest text-[#746E73] border-b border-[#2E3344]/5 pb-3 flex items-center gap-2">
+          <div className="bg-white p-6 rounded-[2rem] border border-[#1E293B]/8 shadow-sm space-y-5">
+            <h2 className="text-sm font-black uppercase tracking-widest text-[#746E73] border-b border-[#1E293B]/5 pb-3 flex items-center gap-2">
               <Store className="h-4 w-4" /> General Details
             </h2>
             <div className="space-y-4">
               <div>
-                <Label className="font-bold text-[#27324A]">Store Name *</Label>
+                <Label className="font-bold text-[#0F172A]">Store Name *</Label>
                 <Input
                   value={name}
                   onChange={(e) => setName(e.target.value)}
@@ -185,7 +185,7 @@ export function ShopSettings({ shopId, initialData }: ShopSettingsProps) {
                 />
               </div>
               <div>
-                <Label className="font-bold text-[#27324A]">
+                <Label className="font-bold text-[#0F172A]">
                   Description / Tagline
                 </Label>
                 <Textarea
@@ -198,7 +198,7 @@ export function ShopSettings({ shopId, initialData }: ShopSettingsProps) {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label className="font-bold text-[#27324A]">
+                  <Label className="font-bold text-[#0F172A]">
                     Phone Number
                   </Label>
                   <PhoneInput
@@ -210,7 +210,7 @@ export function ShopSettings({ shopId, initialData }: ShopSettingsProps) {
                   />
                 </div>
                 <div>
-                  <Label className="font-bold text-[#27324A]">PAN Number</Label>
+                  <Label className="font-bold text-[#0F172A]">PAN Number</Label>
                   <Input
                     value={panNumber}
                     onChange={(e) => setPanNumber(e.target.value)}
@@ -223,13 +223,13 @@ export function ShopSettings({ shopId, initialData }: ShopSettingsProps) {
           </div>
 
           {/* Tax & VAT */}
-          <div className="bg-white p-6 rounded-[2rem] border border-[#2E3344]/8 shadow-sm space-y-5">
-            <h2 className="text-sm font-black uppercase tracking-widest text-[#746E73] border-b border-[#2E3344]/5 pb-3 flex items-center gap-2">
+          <div className="bg-white p-6 rounded-[2rem] border border-[#1E293B]/8 shadow-sm space-y-5">
+            <h2 className="text-sm font-black uppercase tracking-widest text-[#746E73] border-b border-[#1E293B]/5 pb-3 flex items-center gap-2">
               <Type className="h-4 w-4" /> Tax &amp; VAT
             </h2>
             <div className="flex items-start justify-between gap-4">
               <div>
-                <p className="font-bold text-[#27324A] text-sm">
+                <p className="font-bold text-[#0F172A] text-sm">
                   VAT registered shop
                 </p>
                 <p className="text-xs text-[#746E73] mt-0.5">
@@ -244,7 +244,7 @@ export function ShopSettings({ shopId, initialData }: ShopSettingsProps) {
                   checked={vatRegistered}
                   onChange={(e) => setVatRegistered(e.target.checked)}
                 />
-                <div className="relative w-12 h-6 bg-[#E8E3D1] rounded-full peer-checked:bg-[#27324A] transition">
+                <div className="relative w-12 h-6 bg-[#E8E3D1] rounded-full peer-checked:bg-[#0F172A] transition">
                   <div
                     className={`absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white shadow transition ${vatRegistered ? "translate-x-6" : ""}`}
                   />
@@ -254,7 +254,7 @@ export function ShopSettings({ shopId, initialData }: ShopSettingsProps) {
             {vatRegistered && (
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label className="font-bold text-[#27324A]">
+                  <Label className="font-bold text-[#0F172A]">
                     VAT Rate (%)
                   </Label>
                   <Input
@@ -275,13 +275,13 @@ export function ShopSettings({ shopId, initialData }: ShopSettingsProps) {
           </div>
 
           {/* Operations */}
-          <div className="bg-white p-6 rounded-[2rem] border border-[#2E3344]/8 shadow-sm space-y-5">
-            <h2 className="text-sm font-black uppercase tracking-widest text-[#746E73] border-b border-[#2E3344]/5 pb-3 flex items-center gap-2">
+          <div className="bg-white p-6 rounded-[2rem] border border-[#1E293B]/8 shadow-sm space-y-5">
+            <h2 className="text-sm font-black uppercase tracking-widest text-[#746E73] border-b border-[#1E293B]/5 pb-3 flex items-center gap-2">
               <Clock className="h-4 w-4" /> Business Hours
             </h2>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label className="font-bold text-[#27324A]">Opening Time</Label>
+                <Label className="font-bold text-[#0F172A]">Opening Time</Label>
                 <Input
                   type="time"
                   value={openingTime}
@@ -290,7 +290,7 @@ export function ShopSettings({ shopId, initialData }: ShopSettingsProps) {
                 />
               </div>
               <div>
-                <Label className="font-bold text-[#27324A]">Closing Time</Label>
+                <Label className="font-bold text-[#0F172A]">Closing Time</Label>
                 <Input
                   type="time"
                   value={closingTime}
@@ -299,11 +299,11 @@ export function ShopSettings({ shopId, initialData }: ShopSettingsProps) {
                 />
               </div>
               <div className="col-span-2">
-                <Label className="font-bold text-[#27324A]">Time zone</Label>
+                <Label className="font-bold text-[#0F172A]">Time zone</Label>
                 <select
                   value={timezone}
                   onChange={(e) => setTimezone(e.target.value)}
-                  className="h-12 w-full px-3 rounded-xl border border-[#2E3344]/15 bg-white text-sm font-bold mt-1.5"
+                  className="h-12 w-full px-3 rounded-xl border border-[#1E293B]/15 bg-white text-sm font-bold mt-1.5"
                 >
                   {COMMON_TIMEZONES.map((tz) => (
                     <option key={tz.id} value={tz.id}>
@@ -320,12 +320,12 @@ export function ShopSettings({ shopId, initialData }: ShopSettingsProps) {
           </div>
 
           {/* Display Preference */}
-          <div className="bg-white p-6 rounded-[2rem] border border-[#2E3344]/8 shadow-sm space-y-5">
-            <h2 className="text-sm font-black uppercase tracking-widest text-[#746E73] border-b border-[#2E3344]/5 pb-3 flex items-center gap-2">
+          <div className="bg-white p-6 rounded-[2rem] border border-[#1E293B]/8 shadow-sm space-y-5">
+            <h2 className="text-sm font-black uppercase tracking-widest text-[#746E73] border-b border-[#1E293B]/5 pb-3 flex items-center gap-2">
               <Type className="h-4 w-4" /> Display Preference
             </h2>
             <div>
-              <Label className="font-bold text-[#27324A] mb-3 block text-xs uppercase tracking-wider opacity-60">
+              <Label className="font-bold text-[#0F172A] mb-3 block text-xs uppercase tracking-wider opacity-60">
                 Dashboard UI Scale
               </Label>
               <div className="flex p-1 bg-[#E8E3D1]/40 rounded-2xl gap-1">
@@ -337,8 +337,8 @@ export function ShopSettings({ shopId, initialData }: ShopSettingsProps) {
                     onClick={() => handleUpdateFontSize(sz.id)}
                     className={`flex-1 py-3 text-[10px] font-black uppercase tracking-wider rounded-xl transition ${
                       ownerFontSize === sz.id
-                        ? "bg-white text-[#27324A] shadow-sm"
-                        : "text-[#746E73] hover:text-[#27324A]"
+                        ? "bg-white text-[#0F172A] shadow-sm"
+                        : "text-[#746E73] hover:text-[#0F172A]"
                     }`}
                   >
                     {sz.label}
@@ -367,7 +367,7 @@ export function ShopSettings({ shopId, initialData }: ShopSettingsProps) {
             {deleteStage === "idle" && (
               <div className="flex items-center justify-between gap-6">
                 <div>
-                  <p className="font-bold text-[#27324A] text-sm">
+                  <p className="font-bold text-[#0F172A] text-sm">
                     Delete this shop
                   </p>
                   <p className="text-xs text-[#746E73] mt-0.5">
@@ -403,7 +403,7 @@ export function ShopSettings({ shopId, initialData }: ShopSettingsProps) {
                 </div>
 
                 <div>
-                  <Label className="font-bold text-[#27324A] text-sm">
+                  <Label className="font-bold text-[#0F172A] text-sm">
                     Type{" "}
                     <span className="font-mono bg-[#f8f8f7] px-1.5 py-0.5 rounded text-red-600">
                       {initialData.name}

@@ -90,11 +90,11 @@ export default async function PaymentsPage() {
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div className="flex items-center gap-3">
-          <div className="h-11 w-11 rounded-2xl bg-[#27324A] flex items-center justify-center">
+          <div className="h-11 w-11 rounded-2xl bg-[#0F172A] flex items-center justify-center">
             <CreditCard className="h-5 w-5 text-white" />
           </div>
           <div>
-            <h1 className="text-2xl font-black text-[#27324A]">Payments</h1>
+            <h1 className="text-2xl font-black text-[#0F172A]">Payments</h1>
             <p className="text-xs text-[#746E73]">
               Verify customer payments, manage methods, view reports.
             </p>
@@ -104,13 +104,13 @@ export default async function PaymentsPage() {
         <div className="flex items-center gap-2">
           <Link
             href="/dashboard/owner/payments/reports"
-            className="inline-flex items-center gap-1.5 px-3.5 h-10 rounded-xl bg-white border border-[#2E3344]/10 text-xs font-bold text-[#27324A] hover:bg-[#f8f8f7]"
+            className="inline-flex items-center gap-1.5 px-3.5 h-10 rounded-xl bg-white border border-[#1E293B]/10 text-xs font-bold text-[#0F172A] hover:bg-[#f8f8f7]"
           >
             <BarChart3 className="h-4 w-4" /> Reports
           </Link>
           <Link
             href="/dashboard/owner/payments/settings"
-            className="inline-flex items-center gap-1.5 px-3.5 h-10 rounded-xl bg-[#27324A] text-white text-xs font-bold hover:bg-[#1b2333]"
+            className="inline-flex items-center gap-1.5 px-3.5 h-10 rounded-xl bg-[#0F172A] text-white text-xs font-bold hover:bg-[#1b2333]"
           >
             <SettingsIcon className="h-4 w-4" /> Configure Methods
           </Link>
@@ -143,9 +143,9 @@ export default async function PaymentsPage() {
       </div>
 
       {/* Pending payments */}
-      <div className="bg-white rounded-3xl border border-[#2E3344]/8 shadow-sm overflow-hidden">
-        <div className="px-5 py-4 border-b border-[#2E3344]/8">
-          <h2 className="font-black text-[#27324A]">Awaiting Your Action</h2>
+      <div className="bg-white rounded-3xl border border-[#1E293B]/8 shadow-sm overflow-hidden">
+        <div className="px-5 py-4 border-b border-[#1E293B]/8">
+          <h2 className="font-black text-[#0F172A]">Awaiting Your Action</h2>
           <p className="text-xs text-[#746E73] mt-0.5">
             Verify or reject customer payments below. Bank / QR receipts open in
             a new tab.

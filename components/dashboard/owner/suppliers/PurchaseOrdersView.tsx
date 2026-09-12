@@ -303,21 +303,21 @@ export function PurchaseOrdersView({
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h2 className="text-lg font-black text-[#27324A] flex items-center gap-2">
-            <ClipboardList className="h-5 w-5 text-[#A7653A]" /> Purchase Orders
+          <h2 className="text-lg font-black text-[#0F172A] flex items-center gap-2">
+            <ClipboardList className="h-5 w-5 text-[#3B82F6]" /> Purchase Orders
           </h2>
           <p className="text-xs text-[#746E73]">Restock from {supplierName}.</p>
         </div>
         <button
           onClick={() => setCreateOpen((v) => !v)}
-          className="h-10 px-4 rounded-xl bg-[#27324A] hover:bg-[#1b2333] text-white text-sm font-bold flex items-center gap-2"
+          className="h-10 px-4 rounded-xl bg-[#0F172A] hover:bg-[#1b2333] text-white text-sm font-bold flex items-center gap-2"
         >
           <Plus className="h-4 w-4" /> {createOpen ? "Close" : "New PO"}
         </button>
       </div>
 
       {createOpen && (
-        <div className="bg-white rounded-2xl border border-[#27324A]/15 shadow-sm p-4 space-y-4">
+        <div className="bg-white rounded-2xl border border-[#0F172A]/15 shadow-sm p-4 space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="text-[10px] font-black uppercase tracking-widest text-[#746E73]">
@@ -331,12 +331,12 @@ export function PurchaseOrdersView({
               />
             </div>
             <div className="flex items-end">
-              <label className="flex items-center gap-2 text-xs font-bold text-[#27324A]">
+              <label className="flex items-center gap-2 text-xs font-bold text-[#0F172A]">
                 <input
                   type="checkbox"
                   checked={billedAfter}
                   onChange={(e) => setBilledAfter(e.target.checked)}
-                  className="h-4 w-4 accent-[#27324A]"
+                  className="h-4 w-4 accent-[#0F172A]"
                 />
                 Bill supplier on receive (adds to balance due)
               </label>
@@ -365,7 +365,7 @@ export function PurchaseOrdersView({
                       key={p.id}
                       type="button"
                       onClick={() => addLine(p.id)}
-                      className="w-full text-left px-3 py-2 rounded-lg hover:bg-white text-sm font-bold text-[#27324A] flex justify-between"
+                      className="w-full text-left px-3 py-2 rounded-lg hover:bg-white text-sm font-bold text-[#0F172A] flex justify-between"
                     >
                       <span>{p.name}</span>
                       <span className="text-[11px] text-[#746E73] font-normal">
@@ -381,7 +381,7 @@ export function PurchaseOrdersView({
                 No lines yet.
               </div>
             ) : (
-              <ul className="divide-y divide-[#2E3344]/5 border border-[#2E3344]/10 rounded-xl overflow-hidden">
+              <ul className="divide-y divide-[#1E293B]/5 border border-[#1E293B]/10 rounded-xl overflow-hidden">
                 {draftLines.map((l) => {
                   const p = productById.get(l.product_id);
                   return (
@@ -390,7 +390,7 @@ export function PurchaseOrdersView({
                       className="grid grid-cols-[1fr_80px_110px_120px_36px] gap-2 items-center px-3 py-2 bg-white"
                     >
                       <div>
-                        <p className="text-sm font-bold text-[#27324A]">
+                        <p className="text-sm font-bold text-[#0F172A]">
                           {p?.name ?? "?"}
                         </p>
                         <p className="text-[10px] text-[#746E73]">
@@ -454,24 +454,24 @@ export function PurchaseOrdersView({
             className="rounded-xl resize-none"
           />
 
-          <div className="flex items-center justify-between border-t border-[#2E3344]/8 pt-4">
-            <p className="text-sm font-bold text-[#27324A]">
+          <div className="flex items-center justify-between border-t border-[#1E293B]/8 pt-4">
+            <p className="text-sm font-bold text-[#0F172A]">
               Total:{" "}
-              <span className="text-lg font-black text-[#A7653A]">
+              <span className="text-lg font-black text-[#3B82F6]">
                 {money(draftTotal)}
               </span>
             </p>
             <div className="flex gap-2">
               <button
                 onClick={resetCreate}
-                className="h-10 px-3 rounded-xl border border-[#2E3344]/10 font-bold text-xs"
+                className="h-10 px-3 rounded-xl border border-[#1E293B]/10 font-bold text-xs"
               >
                 Cancel
               </button>
               <button
                 onClick={submitCreate}
                 disabled={isPending || draftLines.length === 0}
-                className="h-10 px-4 rounded-xl bg-[#27324A] hover:bg-[#1b2333] text-white font-bold text-xs flex items-center gap-2 disabled:opacity-40"
+                className="h-10 px-4 rounded-xl bg-[#0F172A] hover:bg-[#1b2333] text-white font-bold text-xs flex items-center gap-2 disabled:opacity-40"
               >
                 {isPending ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -486,7 +486,7 @@ export function PurchaseOrdersView({
       )}
 
       {orders.length === 0 ? (
-        <div className="bg-white rounded-2xl border border-[#2E3344]/8 shadow-sm p-12 text-center text-sm font-bold text-[#746E73]">
+        <div className="bg-white rounded-2xl border border-[#1E293B]/8 shadow-sm p-12 text-center text-sm font-bold text-[#746E73]">
           No purchase orders yet for {supplierName}.
         </div>
       ) : (
@@ -498,7 +498,7 @@ export function PurchaseOrdersView({
             return (
               <li
                 key={po.id}
-                className="bg-white rounded-2xl border border-[#2E3344]/8 shadow-sm"
+                className="bg-white rounded-2xl border border-[#1E293B]/8 shadow-sm"
               >
                 <button
                   type="button"
@@ -513,7 +513,7 @@ export function PurchaseOrdersView({
                     {po.status}
                   </span>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-bold text-[#27324A]">
+                    <p className="text-sm font-bold text-[#0F172A]">
                       {money(po.total_amount)} · {po.lines.length} line
                       {po.lines.length === 1 ? "" : "s"}
                     </p>
@@ -529,7 +529,7 @@ export function PurchaseOrdersView({
                   )}
                 </button>
                 {isOpen && (
-                  <div className="border-t border-[#2E3344]/8 p-4 space-y-3">
+                  <div className="border-t border-[#1E293B]/8 p-4 space-y-3">
                     <table className="w-full text-xs">
                       <thead className="text-[10px] uppercase tracking-widest text-[#746E73] font-black">
                         <tr>
@@ -542,12 +542,12 @@ export function PurchaseOrdersView({
                           )}
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-[#2E3344]/5">
+                      <tbody className="divide-y divide-[#1E293B]/5">
                         {po.lines.map((l) => {
                           const remaining = l.qty_ordered - l.qty_received;
                           return (
                             <tr key={l.id}>
-                              <td className="py-2 font-bold text-[#27324A]">
+                              <td className="py-2 font-bold text-[#0F172A]">
                                 {l.product_name}
                               </td>
                               <td className="text-right">{l.qty_ordered}</td>
@@ -589,7 +589,7 @@ export function PurchaseOrdersView({
                         &quot;{po.notes}&quot;
                       </p>
                     )}
-                    <div className="flex justify-end gap-2 pt-2 border-t border-[#2E3344]/5">
+                    <div className="flex justify-end gap-2 pt-2 border-t border-[#1E293B]/5">
                       {receivable && (
                         <button
                           onClick={() => submitReceive(po.id)}

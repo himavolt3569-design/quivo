@@ -4,8 +4,8 @@ import { useRef, useState } from "react";
 import { UploadCloud, Check } from "lucide-react";
 
 const INITIAL_COLORS = [
-  "#A7653A",
-  "#27324A",
+  "#3B82F6",
+  "#0F172A",
   "#2E7D32",
   "#1565C0",
   "#6A1B9A",
@@ -86,13 +86,13 @@ export function LogoPicker({ onFile, previewUrl }: LogoPickerProps) {
           <img
             src={previewUrl}
             alt="Logo preview"
-            className="h-14 w-14 rounded-xl object-cover border border-[#2E3344]/10"
+            className="h-14 w-14 rounded-xl object-cover border border-[#1E293B]/10"
           />
           <span className="text-sm text-[#746E73]">Preview</span>
         </div>
       )}
 
-      <div className="border border-[#2E3344]/10 rounded-2xl p-3 sm:p-4 bg-[#fafafa]">
+      <div className="border border-[#1E293B]/10 rounded-2xl p-3 sm:p-4 bg-[#fafafa]">
         <p className="text-[10px] font-black uppercase tracking-widest text-[#746E73] mb-3">
           Pick an initial
         </p>
@@ -105,7 +105,7 @@ export function LogoPicker({ onFile, previewUrl }: LogoPickerProps) {
                 key={l}
                 type="button"
                 onClick={() => pickInitial(l, color)}
-                className="relative h-9 w-9 rounded-lg flex items-center justify-center text-white text-xs font-black transition-transform hover:scale-110 active:scale-95 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-[#A7653A]"
+                className="relative h-9 w-9 rounded-lg flex items-center justify-center text-white text-xs font-black transition-transform hover:scale-110 active:scale-95 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-[#3B82F6]"
                 style={{ backgroundColor: color }}
                 aria-label={`Use letter ${l} as logo`}
               >
@@ -113,7 +113,7 @@ export function LogoPicker({ onFile, previewUrl }: LogoPickerProps) {
                 {isSelected && (
                   <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-white flex items-center justify-center shadow">
                     <Check
-                      className="h-2.5 w-2.5 text-[#27324A]"
+                      className="h-2.5 w-2.5 text-[#0F172A]"
                       strokeWidth={3}
                     />
                   </span>
@@ -126,11 +126,11 @@ export function LogoPicker({ onFile, previewUrl }: LogoPickerProps) {
 
       <div className="relative">
         <div
-          className="border-2 border-dashed border-[#2E3344]/10 rounded-xl p-4 flex flex-col items-center gap-1.5 hover:bg-[#F7F0E6]/30 transition cursor-pointer text-center"
+          className="border-2 border-dashed border-[#1E293B]/10 rounded-xl p-4 flex flex-col items-center gap-1.5 hover:bg-[#F8FAFC]/30 transition cursor-pointer text-center"
           onClick={() => fileRef.current?.click()}
         >
-          <UploadCloud className="h-5 w-5 text-[#A7653A]" />
-          <span className="text-sm font-bold text-[#27324A]">
+          <UploadCloud className="h-5 w-5 text-[#3B82F6]" />
+          <span className="text-sm font-bold text-[#0F172A]">
             Or upload your own logo
           </span>
           <span className="text-xs text-[#746E73]">PNG, JPG up to 2 MB</span>

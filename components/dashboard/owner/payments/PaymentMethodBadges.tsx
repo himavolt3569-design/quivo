@@ -19,7 +19,7 @@ export async function PaymentMethodBadges({ shopId }: { shopId: string }) {
   const enabled = new Set<string>(data?.enabled_methods ?? ["cod"]);
 
   return (
-    <div className="bg-white rounded-3xl border border-[#2E3344]/8 shadow-sm p-4 flex items-center justify-between flex-wrap gap-3">
+    <div className="bg-white rounded-3xl border border-[#1E293B]/8 shadow-sm p-4 flex items-center justify-between flex-wrap gap-3">
       <div>
         <p className="text-[10px] font-black uppercase tracking-wider text-[#746E73]">
           Enabled payment methods

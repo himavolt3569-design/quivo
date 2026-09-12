@@ -203,7 +203,7 @@ export function LiveChat({ currentUser, customerName }: LiveChatProps) {
             setIsOpen(true);
           }}
           onMouseEnter={() => isPeek && setIsPeek(false)}
-          className={`group flex items-center justify-center rounded-full bg-[#27324A] text-white shadow-xl shadow-[#27324A]/25 transition-all duration-300 hover:shadow-2xl active:scale-95 focus:outline-none focus:ring-2 focus:ring-[#A7653A] focus:ring-offset-2 ${
+          className={`group flex items-center justify-center rounded-full bg-[#0F172A] text-white shadow-xl shadow-[#0F172A]/25 transition-all duration-300 hover:shadow-2xl active:scale-95 focus:outline-none focus:ring-2 focus:ring-[#3B82F6] focus:ring-offset-2 ${
             isPeek ? "h-10 w-10" : "h-12 w-12"
           }`}
           aria-label="Open Shop Chat"
@@ -217,7 +217,7 @@ export function LiveChat({ currentUser, customerName }: LiveChatProps) {
         {!isPeek && (
           <button
             onClick={() => setIsPeek(true)}
-            className="h-8 w-8 rounded-full bg-white/80 border border-[#2E3344]/10 flex items-center justify-center text-[#746E73] hover:text-[#27324A] transition-colors"
+            className="h-8 w-8 rounded-full bg-white/80 border border-[#1E293B]/10 flex items-center justify-center text-[#746E73] hover:text-[#0F172A] transition-colors"
           >
             <X className="h-3 w-3" />
           </button>
@@ -231,10 +231,10 @@ export function LiveChat({ currentUser, customerName }: LiveChatProps) {
             initial={{ opacity: 0, y: 20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
-            className="fixed bottom-32 right-6 z-50 flex h-120 w-80 sm:w-88 flex-col overflow-hidden rounded-4xl border border-[#2E3344]/10 bg-white shadow-2xl"
+            className="fixed bottom-32 right-6 z-50 flex h-120 w-80 sm:w-88 flex-col overflow-hidden rounded-4xl border border-[#1E293B]/10 bg-white shadow-2xl"
           >
             {/* Header */}
-            <div className="flex items-center justify-between bg-[#27324A] px-5 py-4 text-white shrink-0">
+            <div className="flex items-center justify-between bg-[#0F172A] px-5 py-4 text-white shrink-0">
               <div className="flex items-center gap-2.5">
                 {selectedShop && (
                   <button
@@ -266,7 +266,7 @@ export function LiveChat({ currentUser, customerName }: LiveChatProps) {
             {/* Shop selector */}
             {!selectedShop ? (
               <div className="flex flex-1 flex-col overflow-hidden">
-                <div className="p-3 border-b border-[#2E3344]/8">
+                <div className="p-3 border-b border-[#1E293B]/8">
                   <div className="relative">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[#746E73]" />
                     <input
@@ -274,7 +274,7 @@ export function LiveChat({ currentUser, customerName }: LiveChatProps) {
                       value={shopSearch}
                       onChange={(e) => setShopSearch(e.target.value)}
                       placeholder="Search shops…"
-                      className="w-full pl-8 pr-3 py-2 text-xs rounded-xl bg-[#f8f8f7] border border-[#2E3344]/8 outline-none focus:border-[#A7653A] transition"
+                      className="w-full pl-8 pr-3 py-2 text-xs rounded-xl bg-[#f8f8f7] border border-[#1E293B]/8 outline-none focus:border-[#3B82F6] transition"
                     />
                   </div>
                 </div>
@@ -291,10 +291,10 @@ export function LiveChat({ currentUser, customerName }: LiveChatProps) {
                           key={i}
                           className="flex items-center gap-3 p-3 rounded-2xl bg-[#f8f8f7] animate-pulse"
                         >
-                          <div className="h-9 w-9 rounded-xl bg-[#2E3344]/10 shrink-0" />
+                          <div className="h-9 w-9 rounded-xl bg-[#1E293B]/10 shrink-0" />
                           <div className="flex-1 space-y-1.5">
-                            <div className="h-2.5 w-24 rounded-full bg-[#2E3344]/10" />
-                            <div className="h-2 w-16 rounded-full bg-[#2E3344]/5" />
+                            <div className="h-2.5 w-24 rounded-full bg-[#1E293B]/10" />
+                            <div className="h-2 w-16 rounded-full bg-[#1E293B]/5" />
                           </div>
                         </div>
                       ))}
@@ -320,9 +320,9 @@ export function LiveChat({ currentUser, customerName }: LiveChatProps) {
                           setSelectedShop(shop);
                           setMessages([]);
                         }}
-                        className="w-full flex items-center gap-3 p-3 rounded-2xl hover:bg-[#F7F0E6]/60 border border-transparent hover:border-[#A7653A]/10 transition text-left"
+                        className="w-full flex items-center gap-3 p-3 rounded-2xl hover:bg-[#F8FAFC]/60 border border-transparent hover:border-[#3B82F6]/10 transition text-left"
                       >
-                        <div className="h-9 w-9 rounded-xl bg-[#F7F0E6] overflow-hidden shrink-0 flex items-center justify-center">
+                        <div className="h-9 w-9 rounded-xl bg-[#F8FAFC] overflow-hidden shrink-0 flex items-center justify-center">
                           {shop.image_url ? (
                             // eslint-disable-next-line @next/next/no-img-element
                             <img
@@ -331,13 +331,13 @@ export function LiveChat({ currentUser, customerName }: LiveChatProps) {
                               className="h-9 w-9 object-cover"
                             />
                           ) : (
-                            <span className="text-sm font-black text-[#A7653A]">
+                            <span className="text-sm font-black text-[#3B82F6]">
                               {shop.name[0]}
                             </span>
                           )}
                         </div>
                         <div className="min-w-0 flex-1">
-                          <p className="text-xs font-bold text-[#27324A] truncate">
+                          <p className="text-xs font-bold text-[#0F172A] truncate">
                             {shop.name}
                           </p>
                           <p className="text-[10px] text-[#746E73] font-medium">
@@ -352,13 +352,13 @@ export function LiveChat({ currentUser, customerName }: LiveChatProps) {
             ) : (
               <>
                 {/* Messages */}
-                <div className="flex-1 overflow-y-auto bg-[#F7F0E6]/20 p-4 space-y-3">
+                <div className="flex-1 overflow-y-auto bg-[#F8FAFC]/20 p-4 space-y-3">
                   {messages.length === 0 ? (
                     <div className="h-full flex flex-col items-center justify-center text-center px-4">
                       <div className="h-12 w-12 rounded-2xl bg-[#E8E3D1] flex items-center justify-center mb-3">
                         <MessageSquare className="h-6 w-6 text-[#626A54]" />
                       </div>
-                      <p className="text-xs font-bold text-[#27324A]">
+                      <p className="text-xs font-bold text-[#0F172A]">
                         Start the conversation
                       </p>
                       <p className="text-[10px] text-[#746E73] mt-1 leading-relaxed">
@@ -377,8 +377,8 @@ export function LiveChat({ currentUser, customerName }: LiveChatProps) {
                           <div
                             className={`rounded-2xl px-4 py-2.5 text-xs leading-relaxed ${
                               isMe
-                                ? "rounded-tr-sm bg-[#27324A] text-white shadow-lg shadow-[#27324A]/10"
-                                : "rounded-tl-sm bg-white text-[#27324A] shadow-sm border border-[#2E3344]/5"
+                                ? "rounded-tr-sm bg-[#0F172A] text-white shadow-lg shadow-[#0F172A]/10"
+                                : "rounded-tl-sm bg-white text-[#0F172A] shadow-sm border border-[#1E293B]/5"
                             }`}
                           >
                             {msg.message}
@@ -396,19 +396,19 @@ export function LiveChat({ currentUser, customerName }: LiveChatProps) {
                 {/* Input */}
                 <form
                   onSubmit={handleSend}
-                  className="flex items-center gap-2 border-t border-[#2E3344]/8 bg-white p-3 shrink-0"
+                  className="flex items-center gap-2 border-t border-[#1E293B]/8 bg-white p-3 shrink-0"
                 >
                   <input
                     type="text"
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     placeholder={`Message ${selectedShop.name}…`}
-                    className="flex-1 rounded-full border border-[#2E3344]/8 bg-[#F7F0E6]/30 px-4 py-2 text-xs outline-none focus:border-[#A7653A] focus:ring-4 focus:ring-[#A7653A]/5 transition"
+                    className="flex-1 rounded-full border border-[#1E293B]/8 bg-[#F8FAFC]/30 px-4 py-2 text-xs outline-none focus:border-[#3B82F6] focus:ring-4 focus:ring-[#3B82F6]/5 transition"
                   />
                   <button
                     type="submit"
                     disabled={!input.trim() || sending}
-                    className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[#A7653A] text-white shadow-md shadow-[#A7653A]/20 transition hover:bg-[#8E5432] disabled:opacity-50 active:scale-95"
+                    className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[#3B82F6] text-white shadow-md shadow-[#3B82F6]/20 transition hover:bg-[#8E5432] disabled:opacity-50 active:scale-95"
                   >
                     <Send className="h-3.5 w-3.5" />
                   </button>

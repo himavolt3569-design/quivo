@@ -76,7 +76,7 @@ export function VerificationGate({
 
       {/* Fixed fullscreen overlay — sits above sidebar and everything */}
       <div className="fixed inset-0 z-200 flex items-start justify-center pt-24 px-4 bg-black/30 backdrop-blur-sm">
-        <div className="bg-white rounded-4xl border border-[#2E3344]/10 shadow-2xl p-8 max-w-sm w-full text-center animate-in fade-in slide-in-from-top-4 duration-300">
+        <div className="bg-white rounded-4xl border border-[#1E293B]/10 shadow-2xl p-8 max-w-sm w-full text-center animate-in fade-in slide-in-from-top-4 duration-300">
           <div
             className={`h-16 w-16 rounded-2xl flex items-center justify-center mx-auto mb-5 ${
               status === "pending" ? "bg-amber-50" : "bg-red-50"
@@ -88,7 +88,7 @@ export function VerificationGate({
               <ShieldAlert className="h-8 w-8 text-red-500" />
             )}
           </div>
-          <h2 className="font-black text-2xl text-[#27324A] mb-3">
+          <h2 className="font-black text-2xl text-[#0F172A] mb-3">
             {cfg.title}
           </h2>
           <p className="text-sm text-[#746E73] mb-7 leading-relaxed">
@@ -98,7 +98,7 @@ export function VerificationGate({
           {cfg.cta ? (
             <Link
               href="/dashboard/owner/settings/kyc"
-              className="inline-flex items-center justify-center gap-2 w-full py-3.5 bg-[#27324A] text-white rounded-2xl font-bold text-sm hover:bg-[#1b2333] transition"
+              className="inline-flex items-center justify-center gap-2 w-full py-3.5 bg-[#0F172A] text-white rounded-2xl font-bold text-sm hover:bg-[#1b2333] transition"
             >
               {cfg.cta}
             </Link>
@@ -114,7 +114,7 @@ export function VerificationGate({
                 View status in{" "}
                 <Link
                   href="/dashboard/owner/settings/kyc"
-                  className="text-[#A7653A] font-bold hover:underline"
+                  className="text-[#3B82F6] font-bold hover:underline"
                 >
                   KYC Settings
                 </Link>

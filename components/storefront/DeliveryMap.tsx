@@ -44,9 +44,9 @@ export function DeliveryMap({
       const SHOP_ICON = L.divIcon({
         html: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="40" viewBox="0 0 32 40">
           <ellipse cx="16" cy="38" rx="7" ry="2" fill="rgba(0,0,0,0.18)"/>
-          <path d="M16 0C7.16 0 0 7.16 0 16c0 10.5 16 24 16 24S32 26.5 32 16C32 7.16 24.84 0 16 0z" fill="#27324A"/>
+          <path d="M16 0C7.16 0 0 7.16 0 16c0 10.5 16 24 16 24S32 26.5 32 16C32 7.16 24.84 0 16 0z" fill="#0F172A"/>
           <circle cx="16" cy="16" r="7" fill="white"/>
-          <text x="16" y="20" font-family="sans-serif" font-size="10" font-weight="bold" text-anchor="middle" fill="#27324A">S</text>
+          <text x="16" y="20" font-family="sans-serif" font-size="10" font-weight="bold" text-anchor="middle" fill="#0F172A">S</text>
         </svg>`,
         className: "",
         iconSize: [32, 40],
@@ -55,9 +55,9 @@ export function DeliveryMap({
       const DELIVERY_ICON = L.divIcon({
         html: `<svg xmlns="http://www.w3.org/2000/svg" width="36" height="44" viewBox="0 0 36 44">
           <ellipse cx="18" cy="42" rx="7" ry="2.5" fill="rgba(0,0,0,0.18)"/>
-          <path d="M18 0C8.06 0 0 8.06 0 18c0 11.5 18 26 18 26S36 29.5 36 18C36 8.06 27.94 0 18 0z" fill="#A7653A"/>
+          <path d="M18 0C8.06 0 0 8.06 0 18c0 11.5 18 26 18 26S36 29.5 36 18C36 8.06 27.94 0 18 0z" fill="#3B82F6"/>
           <circle cx="18" cy="18" r="8" fill="white"/>
-          <circle cx="18" cy="18" r="4.5" fill="#A7653A"/>
+          <circle cx="18" cy="18" r="4.5" fill="#3B82F6"/>
         </svg>`,
         className: "",
         iconSize: [36, 44],
@@ -104,7 +104,7 @@ export function DeliveryMap({
             [shopLat, shopLng],
             [deliveryLat, deliveryLng],
           ],
-          { color: "#A7653A", weight: 3, opacity: 0.7, dashArray: "6 6" },
+          { color: "#3B82F6", weight: 3, opacity: 0.7, dashArray: "6 6" },
         ).addTo(map);
         const bounds = L.latLngBounds([
           [shopLat, shopLng],

@@ -172,12 +172,12 @@ export function StockTakeView({
         <div>
           <Link
             href="/dashboard/owner/products"
-            className="inline-flex items-center gap-1 text-xs font-bold text-[#746E73] hover:text-[#27324A] mb-2"
+            className="inline-flex items-center gap-1 text-xs font-bold text-[#746E73] hover:text-[#0F172A] mb-2"
           >
             <ChevronLeft className="h-3 w-3" /> Back to Products
           </Link>
-          <h1 className="text-2xl font-black text-[#27324A] flex items-center gap-2">
-            <ClipboardCheck className="h-6 w-6 text-[#A7653A]" /> Stock take —{" "}
+          <h1 className="text-2xl font-black text-[#0F172A] flex items-center gap-2">
+            <ClipboardCheck className="h-6 w-6 text-[#3B82F6]" /> Stock take —{" "}
             {shopName}
           </h1>
           <p className="text-sm font-medium text-[#746E73] mt-1">
@@ -189,7 +189,7 @@ export function StockTakeView({
             type="button"
             onClick={() => handleStart()}
             disabled={isPending}
-            className="h-11 px-4 rounded-xl bg-[#27324A] hover:bg-[#1b2333] text-white font-bold text-sm flex items-center gap-2 disabled:opacity-40"
+            className="h-11 px-4 rounded-xl bg-[#0F172A] hover:bg-[#1b2333] text-white font-bold text-sm flex items-center gap-2 disabled:opacity-40"
           >
             {isPending ? (
               <Loader2 className="h-4 w-4 animate-spin" />
@@ -203,15 +203,15 @@ export function StockTakeView({
 
       {openTake ? (
         <>
-          <div className="bg-white rounded-2xl border border-[#2E3344]/8 shadow-sm p-4 flex items-center justify-between gap-3 flex-wrap">
+          <div className="bg-white rounded-2xl border border-[#1E293B]/8 shadow-sm p-4 flex items-center justify-between gap-3 flex-wrap">
             <div>
               <p className="text-xs font-black uppercase tracking-widest text-[#746E73]">
                 Open stock take
               </p>
-              <p className="text-sm font-bold text-[#27324A]">
+              <p className="text-sm font-bold text-[#0F172A]">
                 Started {fmt(openTake.row.started_at)}
               </p>
-              <p className="text-[11px] text-[#A7653A] mt-1">
+              <p className="text-[11px] text-[#3B82F6] mt-1">
                 {totalVariance} item{totalVariance === 1 ? "" : "s"} with
                 non-zero variance
               </p>
@@ -234,7 +234,7 @@ export function StockTakeView({
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl border border-[#2E3344]/8 shadow-sm p-4">
+          <div className="bg-white rounded-2xl border border-[#1E293B]/8 shadow-sm p-4">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#746E73]" />
               <Input
@@ -246,7 +246,7 @@ export function StockTakeView({
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl border border-[#2E3344]/8 shadow-sm overflow-hidden">
+          <div className="bg-white rounded-2xl border border-[#1E293B]/8 shadow-sm overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead className="bg-[#f8f8f7] text-[10px] uppercase tracking-widest text-[#746E73] font-black">
@@ -257,7 +257,7 @@ export function StockTakeView({
                     <th className="px-4 py-3 text-right">Variance</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#2E3344]/5">
+                <tbody className="divide-y divide-[#1E293B]/5">
                   {filtered.map((p) => {
                     const raw = counts[p.id] ?? "";
                     const counted = raw === "" ? null : Number(raw);
@@ -267,14 +267,14 @@ export function StockTakeView({
                       variance === null
                         ? "text-[#746E73]"
                         : variance === 0
-                          ? "text-[#27324A]"
+                          ? "text-[#0F172A]"
                           : variance > 0
                             ? "text-emerald-600"
                             : "text-red-600";
                     return (
                       <tr key={p.id} className="hover:bg-[#f8f8f7]/50">
                         <td className="px-4 py-3">
-                          <p className="font-bold text-[#27324A]">{p.name}</p>
+                          <p className="font-bold text-[#0F172A]">{p.name}</p>
                           <p className="text-[11px] text-[#746E73]">
                             {[p.brand, p.unit].filter(Boolean).join(" · ")}
                           </p>
@@ -300,7 +300,7 @@ export function StockTakeView({
                                 void saveCount(p.id, p.stock, e.target.value)
                               }
                               placeholder="—"
-                              className="h-9 w-24 text-right px-2 border border-[#2E3344]/10 rounded-lg text-sm"
+                              className="h-9 w-24 text-right px-2 border border-[#1E293B]/10 rounded-lg text-sm"
                             />
                             {savingId === p.id && (
                               <Loader2 className="h-3 w-3 animate-spin text-[#746E73]" />
@@ -322,7 +322,7 @@ export function StockTakeView({
                 </tbody>
               </table>
             </div>
-            <div className="p-4 border-t border-[#2E3344]/8 flex items-center justify-end gap-2">
+            <div className="p-4 border-t border-[#1E293B]/8 flex items-center justify-end gap-2">
               <Save className="h-3.5 w-3.5 text-[#746E73]" />
               <span className="text-[11px] text-[#746E73]">
                 Counts auto-save when you leave each field.
@@ -331,9 +331,9 @@ export function StockTakeView({
           </div>
         </>
       ) : (
-        <div className="bg-white rounded-2xl border border-[#2E3344]/8 shadow-sm p-12 text-center">
+        <div className="bg-white rounded-2xl border border-[#1E293B]/8 shadow-sm p-12 text-center">
           <ClipboardCheck className="h-10 w-10 text-[#746E73] opacity-30 mx-auto mb-3" />
-          <p className="text-sm font-bold text-[#27324A]">
+          <p className="text-sm font-bold text-[#0F172A]">
             No open stock take.
           </p>
           <p className="text-xs text-[#746E73] mt-1">
@@ -343,10 +343,10 @@ export function StockTakeView({
       )}
 
       {/* History */}
-      <div className="bg-white rounded-2xl border border-[#2E3344]/8 shadow-sm overflow-hidden">
-        <div className="p-4 border-b border-[#2E3344]/8 flex items-center gap-2">
-          <History className="h-4 w-4 text-[#A7653A]" />
-          <h3 className="font-black text-[#27324A]">History</h3>
+      <div className="bg-white rounded-2xl border border-[#1E293B]/8 shadow-sm overflow-hidden">
+        <div className="p-4 border-b border-[#1E293B]/8 flex items-center gap-2">
+          <History className="h-4 w-4 text-[#3B82F6]" />
+          <h3 className="font-black text-[#0F172A]">History</h3>
           <span className="ml-auto text-xs font-bold text-[#746E73]">
             {history.length}
           </span>
@@ -366,7 +366,7 @@ export function StockTakeView({
                   <th className="px-4 py-3 text-left">Notes</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#2E3344]/5">
+              <tbody className="divide-y divide-[#1E293B]/5">
                 {history.map((h) => (
                   <tr key={h.id}>
                     <td className="px-4 py-3 text-xs">{fmt(h.started_at)}</td>

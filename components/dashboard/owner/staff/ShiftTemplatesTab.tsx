@@ -241,10 +241,10 @@ export function ShiftTemplatesTab({
   return (
     <div className="p-5 sm:p-6 space-y-6">
       {/* Generator */}
-      <div className="bg-[#F7F0E6]/40 border border-[#A7653A]/15 rounded-2xl p-4 sm:p-5">
+      <div className="bg-[#F8FAFC]/40 border border-[#3B82F6]/15 rounded-2xl p-4 sm:p-5">
         <div className="flex items-center gap-2 mb-1">
-          <CalendarPlus className="h-4 w-4 text-[#A7653A]" />
-          <h3 className="text-sm font-black text-[#27324A]">
+          <CalendarPlus className="h-4 w-4 text-[#3B82F6]" />
+          <h3 className="text-sm font-black text-[#0F172A]">
             Generate shifts from templates
           </h3>
         </div>
@@ -287,7 +287,7 @@ export function ShiftTemplatesTab({
             disabled={
               generating || templates.filter((t) => t.active).length === 0
             }
-            className="h-10 rounded-xl bg-[#A7653A] hover:bg-[#8D5132] text-white font-bold"
+            className="h-10 rounded-xl bg-[#3B82F6] hover:bg-[#8D5132] text-white font-bold"
           >
             <Repeat
               className={`h-4 w-4 mr-2 ${generating ? "animate-spin" : ""}`}
@@ -305,7 +305,7 @@ export function ShiftTemplatesTab({
         <Button
           onClick={() => (showForm ? setShowForm(false) : openCreate())}
           disabled={activeStaff.length === 0}
-          className="h-10 rounded-xl bg-[#27324A] hover:bg-[#1b2333] text-white text-xs font-bold"
+          className="h-10 rounded-xl bg-[#0F172A] hover:bg-[#1b2333] text-white text-xs font-bold"
         >
           {showForm ? <X className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
           <span className="ml-1.5">{showForm ? "Close" : "Add template"}</span>
@@ -315,7 +315,7 @@ export function ShiftTemplatesTab({
       {showForm && activeStaff.length > 0 && (
         <form
           onSubmit={handleSubmit}
-          className="grid sm:grid-cols-2 gap-3 p-4 bg-[#F7F0E6]/30 rounded-2xl border border-[#2E3344]/8"
+          className="grid sm:grid-cols-2 gap-3 p-4 bg-[#F8FAFC]/30 rounded-2xl border border-[#1E293B]/8"
         >
           <div className="sm:col-span-2">
             <Label className="text-[10px] font-black uppercase tracking-wider text-[#746E73]">
@@ -358,14 +358,14 @@ export function ShiftTemplatesTab({
             </Select>
           </div>
           <div className="flex items-end pb-1">
-            <label className="flex items-center gap-2 text-xs font-bold text-[#27324A]">
+            <label className="flex items-center gap-2 text-xs font-bold text-[#0F172A]">
               <input
                 type="checkbox"
                 checked={form.active}
                 onChange={(e) =>
                   setForm((f) => ({ ...f, active: e.target.checked }))
                 }
-                className="h-4 w-4 rounded border-[#2E3344]/30"
+                className="h-4 w-4 rounded border-[#1E293B]/30"
               />
               Active
             </label>
@@ -415,7 +415,7 @@ export function ShiftTemplatesTab({
             <Button
               type="submit"
               disabled={isPending}
-              className="h-11 px-6 rounded-xl bg-[#27324A] hover:bg-[#1b2333] text-white font-bold"
+              className="h-11 px-6 rounded-xl bg-[#0F172A] hover:bg-[#1b2333] text-white font-bold"
             >
               {isPending
                 ? "Saving…"
@@ -428,14 +428,14 @@ export function ShiftTemplatesTab({
       )}
 
       {grouped.length === 0 ? (
-        <p className="text-sm text-[#746E73] py-8 text-center font-medium border border-dashed border-[#2E3344]/10 rounded-2xl">
+        <p className="text-sm text-[#746E73] py-8 text-center font-medium border border-dashed border-[#1E293B]/10 rounded-2xl">
           No templates yet. Add one to start generating recurring shifts.
         </p>
       ) : (
         <ul className="space-y-4">
           {grouped.map((g) => (
             <li key={g.staff_id}>
-              <p className="text-xs font-black uppercase tracking-wider text-[#27324A] ml-1 mb-2">
+              <p className="text-xs font-black uppercase tracking-wider text-[#0F172A] ml-1 mb-2">
                 {g.staff_name ?? "Unknown"}
               </p>
               <ul className="space-y-1.5">
@@ -444,17 +444,17 @@ export function ShiftTemplatesTab({
                     key={t.id}
                     className={`flex items-center gap-3 p-3 rounded-xl border ${
                       t.active
-                        ? "border-[#2E3344]/8 bg-[#f8f8f7]"
-                        : "border-[#2E3344]/5 bg-white opacity-60"
+                        ? "border-[#1E293B]/8 bg-[#f8f8f7]"
+                        : "border-[#1E293B]/5 bg-white opacity-60"
                     }`}
                   >
-                    <div className="h-10 w-12 rounded-lg bg-[#F7F0E6] flex flex-col items-center justify-center">
-                      <span className="text-[9px] font-black uppercase tracking-widest text-[#A7653A]">
+                    <div className="h-10 w-12 rounded-lg bg-[#F8FAFC] flex flex-col items-center justify-center">
+                      <span className="text-[9px] font-black uppercase tracking-widest text-[#3B82F6]">
                         {DAYS[t.day_of_week]}
                       </span>
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-bold text-[#27324A] flex items-center gap-1">
+                      <p className="text-sm font-bold text-[#0F172A] flex items-center gap-1">
                         <Clock className="h-3 w-3" />{" "}
                         {trimSeconds(t.start_time)} – {trimSeconds(t.end_time)}
                         {!t.active && (
@@ -472,7 +472,7 @@ export function ShiftTemplatesTab({
                     <button
                       type="button"
                       onClick={() => openEdit(t)}
-                      className="h-8 px-2.5 rounded-lg text-[11px] font-bold text-[#27324A] hover:bg-white transition"
+                      className="h-8 px-2.5 rounded-lg text-[11px] font-bold text-[#0F172A] hover:bg-white transition"
                     >
                       Edit
                     </button>

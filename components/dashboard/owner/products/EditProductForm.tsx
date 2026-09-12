@@ -209,8 +209,8 @@ export function EditProductForm({
             className="bg-white rounded-[2rem] p-8 space-y-5 text-center shadow-2xl max-w-sm w-full"
             onClick={(e) => e.stopPropagation()}
           >
-            <h3 className="font-black text-[#27324A]">Product Barcode</h3>
-            <div className="flex justify-center overflow-hidden rounded-2xl border border-[#2E3344]/8 p-4">
+            <h3 className="font-black text-[#0F172A]">Product Barcode</h3>
+            <div className="flex justify-center overflow-hidden rounded-2xl border border-[#1E293B]/8 p-4">
               <BarcodeImage
                 value={product.barcode ?? ""}
                 height={80}
@@ -222,7 +222,7 @@ export function EditProductForm({
               href={productUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 text-xs font-bold text-[#A7653A] hover:underline"
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-[#3B82F6] hover:underline"
             >
               <ExternalLink className="h-3 w-3" /> Product page
             </a>
@@ -250,11 +250,11 @@ export function EditProductForm({
                 variant="ghost"
                 className="h-10 w-10 p-0 rounded-full hover:bg-white"
               >
-                <ArrowLeft className="h-5 w-5 text-[#27324A]" />
+                <ArrowLeft className="h-5 w-5 text-[#0F172A]" />
               </Button>
             </Link>
             <div>
-              <h1 className="text-2xl font-black text-[#27324A]">
+              <h1 className="text-2xl font-black text-[#0F172A]">
                 Edit Product
               </h1>
               <p className="text-xs font-medium text-[#746E73] mt-0.5">
@@ -268,7 +268,7 @@ export function EditProductForm({
                 type="button"
                 variant="outline"
                 onClick={() => setShowBarcode(true)}
-                className="rounded-xl h-11 font-bold border-[#2E3344]/10"
+                className="rounded-xl h-11 font-bold border-[#1E293B]/10"
               >
                 <Barcode className="h-4 w-4 mr-2" /> Barcode
               </Button>
@@ -276,7 +276,7 @@ export function EditProductForm({
             <Button
               type="submit"
               disabled={busy}
-              className="rounded-xl h-11 bg-[#27324A] hover:bg-[#1b2333] text-white font-bold px-6"
+              className="rounded-xl h-11 bg-[#0F172A] hover:bg-[#1b2333] text-white font-bold px-6"
             >
               {busy ? (
                 <>
@@ -296,14 +296,14 @@ export function EditProductForm({
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Main Details */}
           <div className="lg:col-span-2 space-y-6">
-            <div className="bg-white p-6 rounded-[2rem] border border-[#2E3344]/8 shadow-sm space-y-5">
-              <h2 className="text-sm font-black uppercase tracking-widest text-[#746E73] border-b border-[#2E3344]/5 pb-3">
+            <div className="bg-white p-6 rounded-[2rem] border border-[#1E293B]/8 shadow-sm space-y-5">
+              <h2 className="text-sm font-black uppercase tracking-widest text-[#746E73] border-b border-[#1E293B]/5 pb-3">
                 Basic Information
               </h2>
 
               <div className="space-y-4">
                 <div>
-                  <Label className="font-bold text-[#27324A]">
+                  <Label className="font-bold text-[#0F172A]">
                     Product Name <span className="text-red-500">*</span>
                   </Label>
                   <Input
@@ -316,7 +316,7 @@ export function EditProductForm({
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <Label className="font-bold text-[#27324A]">
+                    <Label className="font-bold text-[#0F172A]">
                       Brand / Manufacturer
                     </Label>
                     <Input
@@ -326,7 +326,7 @@ export function EditProductForm({
                     />
                   </div>
                   <div>
-                    <Label className="font-bold text-[#27324A]">
+                    <Label className="font-bold text-[#0F172A]">
                       Category <span className="text-red-500">*</span>
                     </Label>
                     <select
@@ -346,7 +346,7 @@ export function EditProductForm({
 
                 <div className="grid grid-cols-3 gap-4">
                   <div>
-                    <Label className="font-bold text-[#27324A]">
+                    <Label className="font-bold text-[#0F172A]">
                       Unit Size
                     </Label>
                     <Input
@@ -357,7 +357,7 @@ export function EditProductForm({
                     />
                   </div>
                   <div>
-                    <Label className="font-bold text-[#27324A]">
+                    <Label className="font-bold text-[#0F172A]">
                       Unit Type
                     </Label>
                     <Select name="unit_type" defaultValue={initUnitType}>
@@ -374,7 +374,7 @@ export function EditProductForm({
                     </Select>
                   </div>
                   <div>
-                    <Label className="font-bold text-[#27324A]">
+                    <Label className="font-bold text-[#0F172A]">
                       Variant / Flavor
                     </Label>
                     <Input
@@ -386,7 +386,7 @@ export function EditProductForm({
                 </div>
 
                 <div>
-                  <Label className="font-bold text-[#27324A]">
+                  <Label className="font-bold text-[#0F172A]">
                     Description
                   </Label>
                   <Textarea
@@ -398,15 +398,15 @@ export function EditProductForm({
               </div>
             </div>
 
-            <div className="bg-white p-6 rounded-[2rem] border border-[#2E3344]/8 shadow-sm space-y-5">
-              <h2 className="text-sm font-black uppercase tracking-widest text-[#746E73] border-b border-[#2E3344]/5 pb-3">
+            <div className="bg-white p-6 rounded-[2rem] border border-[#1E293B]/8 shadow-sm space-y-5">
+              <h2 className="text-sm font-black uppercase tracking-widest text-[#746E73] border-b border-[#1E293B]/5 pb-3">
                 Pricing & Inventory
               </h2>
 
               <div className="grid grid-cols-2 gap-6">
                 <div className="space-y-4">
                   <div>
-                    <Label className="font-bold text-[#27324A]">
+                    <Label className="font-bold text-[#0F172A]">
                       Cost Price (Rs.)
                     </Label>
                     <Input
@@ -419,7 +419,7 @@ export function EditProductForm({
                     />
                   </div>
                   <div>
-                    <Label className="font-bold text-[#27324A]">
+                    <Label className="font-bold text-[#0F172A]">
                       Selling Price (Rs.){" "}
                       <span className="text-red-500">*</span>
                     </Label>
@@ -436,7 +436,7 @@ export function EditProductForm({
                 </div>
                 <div className="space-y-4">
                   <div>
-                    <Label className="font-bold text-[#27324A]">
+                    <Label className="font-bold text-[#0F172A]">
                       Current Stock
                     </Label>
                     <Input
@@ -448,7 +448,7 @@ export function EditProductForm({
                     />
                   </div>
                   <div>
-                    <Label className="font-bold text-[#27324A]">
+                    <Label className="font-bold text-[#0F172A]">
                       Low Stock Alert At
                     </Label>
                     <Input
@@ -463,7 +463,7 @@ export function EditProductForm({
               </div>
 
               <div>
-                <Label className="font-bold text-[#27324A]">Status</Label>
+                <Label className="font-bold text-[#0F172A]">Status</Label>
                 <select
                   name="status"
                   defaultValue={product.status}
@@ -479,10 +479,10 @@ export function EditProductForm({
           {/* Sidebar */}
           <div className="space-y-6">
             {/* Product Images */}
-            <div className="bg-white p-6 rounded-[2rem] border border-[#2E3344]/8 shadow-sm space-y-4">
-              <h2 className="text-sm font-black uppercase tracking-widest text-[#746E73] border-b border-[#2E3344]/5 pb-3">
+            <div className="bg-white p-6 rounded-[2rem] border border-[#1E293B]/8 shadow-sm space-y-4">
+              <h2 className="text-sm font-black uppercase tracking-widest text-[#746E73] border-b border-[#1E293B]/5 pb-3">
                 Product Images{" "}
-                <span className="text-[#A7653A]">
+                <span className="text-[#3B82F6]">
                   {images.length}/{MAX_IMAGES}
                 </span>
               </h2>
@@ -494,10 +494,10 @@ export function EditProductForm({
                       <img
                         src={img.preview}
                         alt=""
-                        className="w-full h-full object-cover rounded-xl border border-[#2E3344]/10"
+                        className="w-full h-full object-cover rounded-xl border border-[#1E293B]/10"
                       />
                       {i === 0 && (
-                        <span className="absolute top-1 left-1 text-[8px] font-black bg-[#A7653A] text-white px-1.5 py-0.5 rounded-md uppercase tracking-wide">
+                        <span className="absolute top-1 left-1 text-[8px] font-black bg-[#3B82F6] text-white px-1.5 py-0.5 rounded-md uppercase tracking-wide">
                           Main
                         </span>
                       )}
@@ -517,10 +517,10 @@ export function EditProductForm({
                 <button
                   type="button"
                   onClick={() => fileRef.current?.click()}
-                  className="w-full border-2 border-dashed border-[#2E3344]/10 rounded-2xl h-28 flex flex-col items-center justify-center gap-2 hover:bg-[#F7F0E6]/30 hover:border-[#A7653A]/30 transition group"
+                  className="w-full border-2 border-dashed border-[#1E293B]/10 rounded-2xl h-28 flex flex-col items-center justify-center gap-2 hover:bg-[#F8FAFC]/30 hover:border-[#3B82F6]/30 transition group"
                 >
-                  <UploadCloud className="h-5 w-5 text-[#746E73] group-hover:text-[#A7653A] transition" />
-                  <span className="text-xs font-bold text-[#27324A]">
+                  <UploadCloud className="h-5 w-5 text-[#746E73] group-hover:text-[#3B82F6] transition" />
+                  <span className="text-xs font-bold text-[#0F172A]">
                     Add images
                   </span>
                 </button>
@@ -537,12 +537,12 @@ export function EditProductForm({
             </div>
 
             {/* Barcode */}
-            <div className="bg-white p-6 rounded-[2rem] border border-[#2E3344]/8 shadow-sm space-y-4">
-              <h2 className="text-sm font-black uppercase tracking-widest text-[#746E73] border-b border-[#2E3344]/5 pb-3">
+            <div className="bg-white p-6 rounded-[2rem] border border-[#1E293B]/8 shadow-sm space-y-4">
+              <h2 className="text-sm font-black uppercase tracking-widest text-[#746E73] border-b border-[#1E293B]/5 pb-3">
                 Barcode
               </h2>
               <div>
-                <Label className="font-bold text-[#27324A]">
+                <Label className="font-bold text-[#0F172A]">
                   Barcode Value
                 </Label>
                 <div className="flex mt-1.5">
@@ -552,7 +552,7 @@ export function EditProductForm({
                     className="h-12 rounded-r-none rounded-l-xl font-mono"
                     readOnly
                   />
-                  <div className="h-12 rounded-l-none rounded-r-xl bg-[#F7F0E6] text-[#A7653A] border border-l-0 border-[#2E3344]/10 px-4 flex items-center">
+                  <div className="h-12 rounded-l-none rounded-r-xl bg-[#F8FAFC] text-[#3B82F6] border border-l-0 border-[#1E293B]/10 px-4 flex items-center">
                     <Barcode className="h-5 w-5" />
                   </div>
                 </div>

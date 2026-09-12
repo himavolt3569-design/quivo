@@ -43,7 +43,7 @@ export function ProductPreviewSection() {
         </div>
         <div className="reveal-item relative">
           <div
-            className="absolute -inset-5 rounded-[2rem] bg-[#A7653A]/15 blur-2xl"
+            className="absolute -inset-5 rounded-[2rem] bg-[#3B82F6]/15 blur-2xl"
             aria-hidden="true"
           />
           <img

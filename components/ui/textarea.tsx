@@ -56,7 +56,7 @@ function Textarea({
     <textarea
       data-slot="textarea"
       className={cn(
-        "border-[#2E3344]/8 dark:border-white/10 placeholder:text-[#746E73] dark:placeholder:text-white/50 focus-visible:border-[#A7653A] focus-visible:ring-[#A7653A]/20 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:bg-[#1B2030] flex field-sizing-content min-h-[100px] w-full rounded-xl border bg-white px-4 py-3 text-sm font-medium text-[#27324A] dark:text-white shadow-sm transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50 resize-y",
+        "border-[#1E293B]/8 dark:border-white/10 placeholder:text-[#746E73] dark:placeholder:text-white/50 focus-visible:border-[#3B82F6] focus-visible:ring-[#3B82F6]/20 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:bg-[#1B2030] flex field-sizing-content min-h-[100px] w-full rounded-xl border bg-white px-4 py-3 text-sm font-medium text-[#0F172A] dark:text-white shadow-sm transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50 resize-y",
         className,
       )}
       onCompositionStart={handleCompositionStart}

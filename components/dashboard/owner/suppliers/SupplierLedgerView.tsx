@@ -126,17 +126,17 @@ export function SupplierLedgerView({
           <Button
             asChild
             variant="ghost"
-            className="h-9 rounded-xl px-2 font-bold text-[#746E73] hover:text-[#27324A]"
+            className="h-9 rounded-xl px-2 font-bold text-[#746E73] hover:text-[#0F172A]"
           >
             <Link href="/dashboard/owner/suppliers">
               <ArrowLeft className="mr-2 h-4 w-4" /> Suppliers
             </Link>
           </Button>
           <div>
-            <p className="text-[10px] font-black uppercase tracking-widest text-[#A7653A]">
+            <p className="text-[10px] font-black uppercase tracking-widest text-[#3B82F6]">
               Supplier statement
             </p>
-            <h1 className="text-2xl font-black text-[#27324A]">
+            <h1 className="text-2xl font-black text-[#0F172A]">
               {supplier.name}
             </h1>
           </div>
@@ -144,50 +144,50 @@ export function SupplierLedgerView({
         <div className="flex flex-col gap-2 sm:flex-row">
           <Button
             onClick={() => setShowEntryModal(true)}
-            className="h-11 rounded-xl bg-[#27324A] px-5 font-bold text-white hover:bg-[#1b2333]"
+            className="h-11 rounded-xl bg-[#0F172A] px-5 font-bold text-white hover:bg-[#1b2333]"
           >
             <FilePlus2 className="mr-2 h-4 w-4" /> Add Ledger Entry
           </Button>
           <Button
             variant="outline"
             onClick={() => window.print()}
-            className="h-11 rounded-xl border-[#2E3344]/10 bg-white px-5 font-bold text-[#27324A]"
+            className="h-11 rounded-xl border-[#1E293B]/10 bg-white px-5 font-bold text-[#0F172A]"
           >
             <Printer className="mr-2 h-4 w-4" /> Print Statement
           </Button>
         </div>
       </div>
 
-      <section className="printable-ledger rounded-[1.5rem] border border-[#2E3344]/8 bg-white shadow-sm">
-        <div className="border-b border-[#2E3344]/8 p-5 sm:p-6">
+      <section className="printable-ledger rounded-[1.5rem] border border-[#1E293B]/8 bg-white shadow-sm">
+        <div className="border-b border-[#1E293B]/8 p-5 sm:p-6">
           <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
             <div className="flex items-start gap-4">
-              <Avatar className="h-16 w-16 rounded-2xl border border-[#2E3344]/8 bg-[#F7F0E6]">
+              <Avatar className="h-16 w-16 rounded-2xl border border-[#1E293B]/8 bg-[#F8FAFC]">
                 {supplier.logo_url && (
                   <AvatarImage
                     src={supplier.logo_url}
                     alt={`${supplier.name} logo`}
                   />
                 )}
-                <AvatarFallback className="rounded-2xl bg-[#F7F0E6] text-xl font-black text-[#A7653A]">
+                <AvatarFallback className="rounded-2xl bg-[#F8FAFC] text-xl font-black text-[#3B82F6]">
                   {supplier.name[0]?.toUpperCase()}
                 </AvatarFallback>
               </Avatar>
               <div>
-                <p className="text-xs font-black uppercase tracking-widest text-[#A7653A]">
+                <p className="text-xs font-black uppercase tracking-widest text-[#3B82F6]">
                   {shopName}
                 </p>
-                <h2 className="text-xl font-black text-[#27324A]">
+                <h2 className="text-xl font-black text-[#0F172A]">
                   {supplier.name}
                 </h2>
                 <div className="mt-2 flex flex-wrap gap-2">
                   {supplier.category && (
-                    <Badge className="rounded-lg bg-[#F7F0E6] text-[#A7653A] shadow-none">
+                    <Badge className="rounded-lg bg-[#F8FAFC] text-[#3B82F6] shadow-none">
                       {supplier.category}
                     </Badge>
                   )}
                   {supplier.tax_id && (
-                    <Badge className="rounded-lg bg-[#27324A]/5 text-[#27324A] shadow-none">
+                    <Badge className="rounded-lg bg-[#0F172A]/5 text-[#0F172A] shadow-none">
                       PAN {supplier.tax_id}
                     </Badge>
                   )}
@@ -195,7 +195,7 @@ export function SupplierLedgerView({
               </div>
             </div>
 
-            <div className="rounded-2xl bg-[#27324A] px-5 py-4 text-white sm:text-right">
+            <div className="rounded-2xl bg-[#0F172A] px-5 py-4 text-white sm:text-right">
               <p className="text-[10px] font-black uppercase tracking-widest text-[#D8C99A]">
                 Current Payable
               </p>
@@ -255,9 +255,9 @@ export function SupplierLedgerView({
           />
         </div>
 
-        <div className="overflow-x-auto border-t border-[#2E3344]/8">
+        <div className="overflow-x-auto border-t border-[#1E293B]/8">
           <table className="w-full min-w-[760px] text-left text-sm">
-            <thead className="bg-[#F7F0E6]/60 text-[10px] font-black uppercase tracking-widest text-[#746E73]">
+            <thead className="bg-[#F8FAFC]/60 text-[10px] font-black uppercase tracking-widest text-[#746E73]">
               <tr>
                 <th className="px-5 py-3">Date</th>
                 <th className="px-5 py-3">Particulars</th>
@@ -267,14 +267,14 @@ export function SupplierLedgerView({
                 <th className="px-5 py-3 text-right">Balance</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#2E3344]/5">
+            <tbody className="divide-y divide-[#1E293B]/5">
               {ledger.rows.map((row) => (
                 <tr key={row.id} className="align-top">
                   <td className="px-5 py-4 font-bold text-[#746E73]">
                     {formatDate(row.date)}
                   </td>
                   <td className="px-5 py-4">
-                    <p className="font-black text-[#27324A]">{row.title}</p>
+                    <p className="font-black text-[#0F172A]">{row.title}</p>
                     {row.description && (
                       <p className="mt-0.5 text-xs font-medium text-[#746E73]">
                         {row.description}
@@ -292,7 +292,7 @@ export function SupplierLedgerView({
                       ? `Rs. ${row.credit.toLocaleString()}`
                       : "-"}
                   </td>
-                  <td className="px-5 py-4 text-right font-black text-[#27324A]">
+                  <td className="px-5 py-4 text-right font-black text-[#0F172A]">
                     Rs. {row.balance.toLocaleString()}
                   </td>
                 </tr>
@@ -303,8 +303,8 @@ export function SupplierLedgerView({
 
         {ledger.rows.length === 0 && (
           <div className="flex flex-col items-center justify-center gap-3 px-6 py-16 text-center">
-            <ReceiptText className="h-10 w-10 text-[#A7653A]" />
-            <p className="font-black text-[#27324A]">No ledger entries yet</p>
+            <ReceiptText className="h-10 w-10 text-[#3B82F6]" />
+            <p className="font-black text-[#0F172A]">No ledger entries yet</p>
             <p className="max-w-md text-sm font-medium text-[#746E73]">
               Add supplier purchases or payments to build a printable running
               statement.
@@ -312,7 +312,7 @@ export function SupplierLedgerView({
           </div>
         )}
 
-        <div className="hidden grid-cols-3 gap-8 border-t border-[#2E3344]/8 p-8 text-xs font-bold text-[#746E73] print:grid">
+        <div className="hidden grid-cols-3 gap-8 border-t border-[#1E293B]/8 p-8 text-xs font-bold text-[#746E73] print:grid">
           <SignatureLine label="Prepared By" />
           <SignatureLine label="Checked By" />
           <SignatureLine label="Supplier Signature" />
@@ -327,17 +327,17 @@ export function SupplierLedgerView({
           >
             <div className="mb-5 flex items-center justify-between">
               <div>
-                <p className="text-[10px] font-black uppercase tracking-widest text-[#A7653A]">
+                <p className="text-[10px] font-black uppercase tracking-widest text-[#3B82F6]">
                   Ledger entry
                 </p>
-                <h2 className="text-lg font-black text-[#27324A]">
+                <h2 className="text-lg font-black text-[#0F172A]">
                   Record Supplier Activity
                 </h2>
               </div>
               <button
                 type="button"
                 onClick={() => setShowEntryModal(false)}
-                className="rounded-lg p-1 text-[#746E73] hover:text-[#27324A]"
+                className="rounded-lg p-1 text-[#746E73] hover:text-[#0F172A]"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -345,7 +345,7 @@ export function SupplierLedgerView({
 
             <div className="space-y-4">
               <div>
-                <Label className="mb-1.5 block font-bold text-[#27324A]">
+                <Label className="mb-1.5 block font-bold text-[#0F172A]">
                   Entry Type
                 </Label>
                 <select
@@ -356,7 +356,7 @@ export function SupplierLedgerView({
                       entry_type: e.target.value as LedgerEntryType,
                     }))
                   }
-                  className="h-12 w-full rounded-xl border border-[#2E3344]/10 bg-white px-3 text-sm font-bold text-[#27324A] outline-none focus:ring-2 focus:ring-[#A7653A]/20"
+                  className="h-12 w-full rounded-xl border border-[#1E293B]/10 bg-white px-3 text-sm font-bold text-[#0F172A] outline-none focus:ring-2 focus:ring-[#3B82F6]/20"
                 >
                   {Object.entries(entryTypeLabels).map(([value, label]) => (
                     <option key={value} value={value}>
@@ -367,7 +367,7 @@ export function SupplierLedgerView({
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
-                  <Label className="mb-1.5 block font-bold text-[#27324A]">
+                  <Label className="mb-1.5 block font-bold text-[#0F172A]">
                     Amount *
                   </Label>
                   <Input
@@ -384,7 +384,7 @@ export function SupplierLedgerView({
                   />
                 </div>
                 <div>
-                  <Label className="mb-1.5 block font-bold text-[#27324A]">
+                  <Label className="mb-1.5 block font-bold text-[#0F172A]">
                     Payment Method
                   </Label>
                   <select
@@ -395,7 +395,7 @@ export function SupplierLedgerView({
                         payment_method: e.target.value as PaymentMethod,
                       }))
                     }
-                    className="h-12 w-full rounded-xl border border-[#2E3344]/10 bg-white px-3 text-sm font-bold capitalize text-[#27324A] outline-none focus:ring-2 focus:ring-[#A7653A]/20"
+                    className="h-12 w-full rounded-xl border border-[#1E293B]/10 bg-white px-3 text-sm font-bold capitalize text-[#0F172A] outline-none focus:ring-2 focus:ring-[#3B82F6]/20"
                     disabled={
                       form.entry_type === "purchase" ||
                       form.entry_type === "credit_adjustment"
@@ -409,7 +409,7 @@ export function SupplierLedgerView({
                 </div>
               </div>
               <div>
-                <Label className="mb-1.5 block font-bold text-[#27324A]">
+                <Label className="mb-1.5 block font-bold text-[#0F172A]">
                   Particulars / Reference
                 </Label>
                 <Textarea
@@ -428,13 +428,13 @@ export function SupplierLedgerView({
                 type="button"
                 variant="outline"
                 onClick={() => setShowEntryModal(false)}
-                className="h-12 flex-1 rounded-xl border-[#2E3344]/10 font-bold"
+                className="h-12 flex-1 rounded-xl border-[#1E293B]/10 font-bold"
               >
                 Cancel
               </Button>
               <Button
                 disabled={isPending || !form.amount}
-                className="h-12 flex-1 rounded-xl bg-[#27324A] font-bold text-white hover:bg-[#1b2333]"
+                className="h-12 flex-1 rounded-xl bg-[#0F172A] font-bold text-white hover:bg-[#1b2333]"
               >
                 {isPending ? "Saving..." : "Record Entry"}
               </Button>
@@ -521,10 +521,10 @@ function InfoCell({
   return (
     <div className="rounded-2xl bg-[#f8f8f7] p-3">
       <div className="mb-1 flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-[#746E73]">
-        <Icon className="h-3.5 w-3.5 text-[#A7653A]" />
+        <Icon className="h-3.5 w-3.5 text-[#3B82F6]" />
         {label}
       </div>
-      <p className="break-words text-xs font-bold text-[#27324A]">{value}</p>
+      <p className="break-words text-xs font-bold text-[#0F172A]">{value}</p>
     </div>
   );
 }
@@ -543,9 +543,9 @@ function SummaryBox({
       ? "text-red-700"
       : tone === "debit"
         ? "text-green-700"
-        : "text-[#27324A]";
+        : "text-[#0F172A]";
   return (
-    <div className="rounded-2xl border border-[#2E3344]/8 bg-[#f8f8f7] p-4">
+    <div className="rounded-2xl border border-[#1E293B]/8 bg-[#f8f8f7] p-4">
       <p className="text-[10px] font-black uppercase tracking-widest text-[#746E73]">
         {label}
       </p>
@@ -559,7 +559,7 @@ function SummaryBox({
 function SignatureLine({ label }: { label: string }) {
   return (
     <div className="pt-10">
-      <div className="border-t border-[#2E3344]/40 pt-2">{label}</div>
+      <div className="border-t border-[#1E293B]/40 pt-2">{label}</div>
     </div>
   );
 }

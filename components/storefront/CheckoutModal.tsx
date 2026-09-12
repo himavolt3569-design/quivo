@@ -284,7 +284,7 @@ export function CheckoutModal({
               </div>
             )}
             {wallet > 0 && (
-              <div className="flex justify-between items-center text-xs text-[#A7653A]">
+              <div className="flex justify-between items-center text-xs text-[#3B82F6]">
                 <span>Wallet</span>
                 <span>−Rs. {wallet.toLocaleString()}</span>
               </div>

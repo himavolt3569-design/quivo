@@ -179,7 +179,7 @@ export function CustomerList({ shopId, initialCustomers }: CustomerListProps) {
       {/* Header & Quick Stats */}
       <div className="flex flex-col md:flex-row justify-between gap-6">
         <div>
-          <h1 className="text-2xl font-black text-[#27324A]">
+          <h1 className="text-2xl font-black text-[#0F172A]">
             Customers & Udhar
           </h1>
           <p className="text-sm font-medium text-[#746E73] mt-1">
@@ -189,7 +189,7 @@ export function CustomerList({ shopId, initialCustomers }: CustomerListProps) {
 
         <div className="flex items-center gap-4">
           {totalUdhar > 0 && (
-            <div className="bg-[#27324A] text-white px-6 py-3 rounded-2xl flex items-center gap-4 shadow-md">
+            <div className="bg-[#0F172A] text-white px-6 py-3 rounded-2xl flex items-center gap-4 shadow-md">
               <WalletCards className="h-6 w-6 text-[#D8C99A]" />
               <div>
                 <p className="text-[10px] font-bold uppercase tracking-widest text-[#D8C99A]">
@@ -203,7 +203,7 @@ export function CustomerList({ shopId, initialCustomers }: CustomerListProps) {
           )}
           <Button
             onClick={() => setShowAddModal(true)}
-            className="rounded-xl h-12 bg-[#A7653A] hover:bg-[#8D5132] text-white font-bold px-6 shadow-sm hidden sm:flex"
+            className="rounded-xl h-12 bg-[#3B82F6] hover:bg-[#8D5132] text-white font-bold px-6 shadow-sm hidden sm:flex"
           >
             <UserPlus className="h-4 w-4 mr-2" /> Add Customer
           </Button>
@@ -211,12 +211,12 @@ export function CustomerList({ shopId, initialCustomers }: CustomerListProps) {
       </div>
 
       {/* Toolbar */}
-      <div className="bg-white p-4 rounded-[1.5rem] border border-[#2E3344]/8 shadow-sm flex flex-col sm:flex-row items-center gap-3">
+      <div className="bg-white p-4 rounded-[1.5rem] border border-[#1E293B]/8 shadow-sm flex flex-col sm:flex-row items-center gap-3">
         <div className="relative flex-1 w-full">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#746E73]" />
           <Input
             placeholder="Search by name or phone..."
-            className="pl-9 h-11 rounded-xl bg-[#f8f8f7] border-transparent focus-visible:ring-[#A7653A]/20"
+            className="pl-9 h-11 rounded-xl bg-[#f8f8f7] border-transparent focus-visible:ring-[#3B82F6]/20"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
@@ -225,14 +225,14 @@ export function CustomerList({ shopId, initialCustomers }: CustomerListProps) {
           <Button
             variant="outline"
             onClick={() => setUdharOnly(false)}
-            className={`rounded-xl h-11 border-[#2E3344]/10 font-bold flex-1 sm:flex-none ${!udharOnly ? "bg-[#27324A] text-white border-[#27324A]" : "text-[#27324A]"}`}
+            className={`rounded-xl h-11 border-[#1E293B]/10 font-bold flex-1 sm:flex-none ${!udharOnly ? "bg-[#0F172A] text-white border-[#0F172A]" : "text-[#0F172A]"}`}
           >
             All
           </Button>
           <Button
             variant="outline"
             onClick={() => setUdharOnly(true)}
-            className={`rounded-xl h-11 font-bold flex-1 sm:flex-none ${udharOnly ? "bg-[#A7653A] text-white border-[#A7653A]" : "border-[#A7653A]/30 bg-[#F7F0E6]/50 text-[#A7653A]"}`}
+            className={`rounded-xl h-11 font-bold flex-1 sm:flex-none ${udharOnly ? "bg-[#3B82F6] text-white border-[#3B82F6]" : "border-[#3B82F6]/30 bg-[#F8FAFC]/50 text-[#3B82F6]"}`}
           >
             Udhar Only
           </Button>
@@ -241,11 +241,11 @@ export function CustomerList({ shopId, initialCustomers }: CustomerListProps) {
 
       {/* Empty state */}
       {customers.length === 0 && (
-        <div className="flex flex-col items-center justify-center py-24 gap-4 text-center bg-white rounded-[2rem] border border-[#2E3344]/8">
-          <div className="h-16 w-16 rounded-2xl bg-[#F7F0E6] flex items-center justify-center">
-            <Users className="h-8 w-8 text-[#A7653A]" />
+        <div className="flex flex-col items-center justify-center py-24 gap-4 text-center bg-white rounded-[2rem] border border-[#1E293B]/8">
+          <div className="h-16 w-16 rounded-2xl bg-[#F8FAFC] flex items-center justify-center">
+            <Users className="h-8 w-8 text-[#3B82F6]" />
           </div>
-          <h3 className="text-lg font-black text-[#27324A]">
+          <h3 className="text-lg font-black text-[#0F172A]">
             No customers yet
           </h3>
           <p className="text-sm text-[#746E73] font-medium max-w-xs">
@@ -253,7 +253,7 @@ export function CustomerList({ shopId, initialCustomers }: CustomerListProps) {
           </p>
           <Button
             onClick={() => setShowAddModal(true)}
-            className="rounded-xl h-11 bg-[#A7653A] hover:bg-[#8D5132] text-white font-bold"
+            className="rounded-xl h-11 bg-[#3B82F6] hover:bg-[#8D5132] text-white font-bold"
           >
             <UserPlus className="h-4 w-4 mr-2" /> Add First Customer
           </Button>
@@ -262,9 +262,9 @@ export function CustomerList({ shopId, initialCustomers }: CustomerListProps) {
 
       {/* Desktop Table */}
       {filtered.length > 0 && (
-        <div className="hidden md:block bg-white rounded-[1.5rem] border border-[#2E3344]/8 shadow-sm overflow-hidden">
+        <div className="hidden md:block bg-white rounded-[1.5rem] border border-[#1E293B]/8 shadow-sm overflow-hidden">
           <table className="w-full text-left text-sm whitespace-nowrap">
-            <thead className="bg-[#F7F0E6]/50 border-b border-[#2E3344]/8 text-[#746E73] font-bold uppercase tracking-widest text-[10px]">
+            <thead className="bg-[#F8FAFC]/50 border-b border-[#1E293B]/8 text-[#746E73] font-bold uppercase tracking-widest text-[10px]">
               <tr>
                 <th className="px-6 py-4">Customer</th>
                 <th className="px-6 py-4">Contact</th>
@@ -273,7 +273,7 @@ export function CustomerList({ shopId, initialCustomers }: CustomerListProps) {
                 <th className="px-6 py-4 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#2E3344]/5">
+            <tbody className="divide-y divide-[#1E293B]/5">
               {filtered.map((customer) => (
                 <tr
                   key={customer.id}
@@ -281,11 +281,11 @@ export function CustomerList({ shopId, initialCustomers }: CustomerListProps) {
                 >
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
-                      <div className="h-10 w-10 rounded-full bg-[#E8E3D1]/50 flex items-center justify-center font-black text-[#A7653A]">
+                      <div className="h-10 w-10 rounded-full bg-[#E8E3D1]/50 flex items-center justify-center font-black text-[#3B82F6]">
                         {customer.name[0].toUpperCase()}
                       </div>
                       <div>
-                        <p className="font-black text-[#27324A]">
+                        <p className="font-black text-[#0F172A]">
                           {customer.name}
                         </p>
                         <p className="text-[10px] font-bold text-[#746E73]">
@@ -298,7 +298,7 @@ export function CustomerList({ shopId, initialCustomers }: CustomerListProps) {
                   <td className="px-6 py-4 font-bold text-[#746E73]">
                     {customer.phone ?? "—"}
                   </td>
-                  <td className="px-6 py-4 font-bold text-[#27324A]">
+                  <td className="px-6 py-4 font-bold text-[#0F172A]">
                     Rs. {(customer.total_spent ?? 0).toLocaleString()}
                   </td>
                   <td className="px-6 py-4">
@@ -329,7 +329,7 @@ export function CustomerList({ shopId, initialCustomers }: CustomerListProps) {
                           <Button
                             variant="ghost"
                             size="icon"
-                            className="h-8 w-8 text-[#746E73] hover:text-[#27324A] rounded-full"
+                            className="h-8 w-8 text-[#746E73] hover:text-[#0F172A] rounded-full"
                           >
                             <MoreVertical className="h-4 w-4" />
                           </Button>
@@ -374,15 +374,15 @@ export function CustomerList({ shopId, initialCustomers }: CustomerListProps) {
           {filtered.map((customer) => (
             <div
               key={customer.id}
-              className="bg-white p-4 rounded-[1.5rem] border border-[#2E3344]/8 shadow-sm"
+              className="bg-white p-4 rounded-[1.5rem] border border-[#1E293B]/8 shadow-sm"
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-full bg-[#E8E3D1]/50 flex items-center justify-center font-black text-[#A7653A]">
+                  <div className="h-10 w-10 rounded-full bg-[#E8E3D1]/50 flex items-center justify-center font-black text-[#3B82F6]">
                     {customer.name[0].toUpperCase()}
                   </div>
                   <div>
-                    <p className="font-black text-[#27324A]">{customer.name}</p>
+                    <p className="font-black text-[#0F172A]">{customer.name}</p>
                     <p className="text-xs text-[#746E73]">
                       {customer.phone ?? "No phone"}
                     </p>
@@ -434,19 +434,19 @@ export function CustomerList({ shopId, initialCustomers }: CustomerListProps) {
         <div className="fixed inset-0 z-50 bg-black/40 flex items-end sm:items-center justify-center p-4">
           <div className="bg-white rounded-[2rem] w-full max-w-md shadow-2xl p-6 space-y-5 animate-in slide-in-from-bottom-4 duration-300">
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-black text-[#27324A]">
+              <h2 className="text-lg font-black text-[#0F172A]">
                 Add Customer
               </h2>
               <button
                 onClick={() => setShowAddModal(false)}
-                className="text-[#746E73] hover:text-[#27324A] p-1"
+                className="text-[#746E73] hover:text-[#0F172A] p-1"
               >
                 <X className="h-5 w-5" />
               </button>
             </div>
             <div className="space-y-4">
               <div>
-                <Label className="font-bold text-[#27324A]">Name *</Label>
+                <Label className="font-bold text-[#0F172A]">Name *</Label>
                 <Input
                   value={addName}
                   onChange={(e) => setAddName(e.target.value)}
@@ -455,7 +455,7 @@ export function CustomerList({ shopId, initialCustomers }: CustomerListProps) {
                 />
               </div>
               <div>
-                <Label className="font-bold text-[#27324A]">Phone</Label>
+                <Label className="font-bold text-[#0F172A]">Phone</Label>
                 <PhoneInput
                   value={addPhone}
                   onChange={(e) => setAddPhone(e.target.value)}
@@ -464,7 +464,7 @@ export function CustomerList({ shopId, initialCustomers }: CustomerListProps) {
                 />
               </div>
               <div>
-                <Label className="font-bold text-[#27324A]">
+                <Label className="font-bold text-[#0F172A]">
                   Email (optional)
                 </Label>
                 <EmailInput
@@ -479,14 +479,14 @@ export function CustomerList({ shopId, initialCustomers }: CustomerListProps) {
               <Button
                 variant="outline"
                 onClick={() => setShowAddModal(false)}
-                className="flex-1 h-12 rounded-xl border-[#2E3344]/10 font-bold"
+                className="flex-1 h-12 rounded-xl border-[#1E293B]/10 font-bold"
               >
                 Cancel
               </Button>
               <Button
                 disabled={isPending || !addName.trim()}
                 onClick={handleAddCustomer}
-                className="flex-1 h-12 rounded-xl bg-[#A7653A] hover:bg-[#8D5132] text-white font-bold"
+                className="flex-1 h-12 rounded-xl bg-[#3B82F6] hover:bg-[#8D5132] text-white font-bold"
               >
                 {isPending ? "Saving..." : "Add Customer"}
               </Button>
@@ -504,7 +504,7 @@ export function CustomerList({ shopId, initialCustomers }: CustomerListProps) {
             <AlertDialogTitle>Delete Customer</AlertDialogTitle>
             <AlertDialogDescription>
               Are you sure you want to delete{" "}
-              <span className="font-bold text-[#27324A] dark:text-white">
+              <span className="font-bold text-[#0F172A] dark:text-white">
                 {customerToDelete?.name}
               </span>
               ? This action cannot be undone.
@@ -529,14 +529,14 @@ export function CustomerList({ shopId, initialCustomers }: CustomerListProps) {
             <DialogTitle>Settle Udhar</DialogTitle>
             <DialogDescription>
               Enter the amount to settle for{" "}
-              <span className="font-bold text-[#27324A] dark:text-white">
+              <span className="font-bold text-[#0F172A] dark:text-white">
                 {customerToSettle?.name}
               </span>
               . (Current balance: Rs. {customerToSettle?.udhar_balance})
             </DialogDescription>
           </DialogHeader>
           <div className="py-2">
-            <Label className="font-bold text-[#27324A] dark:text-white">
+            <Label className="font-bold text-[#0F172A] dark:text-white">
               Amount (Rs.)
             </Label>
             <Input
@@ -553,7 +553,7 @@ export function CustomerList({ shopId, initialCustomers }: CustomerListProps) {
             <Button
               variant="outline"
               onClick={() => setCustomerToSettle(null)}
-              className="h-12 rounded-xl border-[#2E3344]/10 dark:border-white/10 font-bold hover:bg-[#F7F0E6] dark:hover:bg-white/5"
+              className="h-12 rounded-xl border-[#1E293B]/10 dark:border-white/10 font-bold hover:bg-[#F8FAFC] dark:hover:bg-white/5"
             >
               Cancel
             </Button>

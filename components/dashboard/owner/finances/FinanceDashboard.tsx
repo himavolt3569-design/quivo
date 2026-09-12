@@ -140,7 +140,7 @@ export function FinanceDashboard({
   return (
     <div className="space-y-6 max-w-7xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500 pb-10">
       <div>
-        <h1 className="text-2xl font-black text-[#27324A]">Finances</h1>
+        <h1 className="text-2xl font-black text-[#0F172A]">Finances</h1>
         <p className="text-sm font-medium text-[#746E73] mt-1">
           Track income, expenses, and generate invoices.
         </p>
@@ -148,7 +148,7 @@ export function FinanceDashboard({
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-white p-6 rounded-[2rem] border border-[#2E3344]/8 shadow-sm">
+        <div className="bg-white p-6 rounded-[2rem] border border-[#1E293B]/8 shadow-sm">
           <div className="flex items-center gap-3 mb-2">
             <div className="h-10 w-10 rounded-xl bg-green-50 flex items-center justify-center">
               <ArrowUpRight className="h-5 w-5 text-green-600" />
@@ -158,7 +158,7 @@ export function FinanceDashboard({
             </span>
           </div>
           {monthlyIncome > 0 ? (
-            <p className="text-3xl font-black text-[#27324A] mt-4">
+            <p className="text-3xl font-black text-[#0F172A] mt-4">
               Rs. {monthlyIncome.toLocaleString()}
             </p>
           ) : (
@@ -173,7 +173,7 @@ export function FinanceDashboard({
           )}
         </div>
 
-        <div className="bg-white p-6 rounded-[2rem] border border-[#2E3344]/8 shadow-sm">
+        <div className="bg-white p-6 rounded-[2rem] border border-[#1E293B]/8 shadow-sm">
           <div className="flex items-center gap-3 mb-2">
             <div className="h-10 w-10 rounded-xl bg-red-50 flex items-center justify-center">
               <ArrowDownRight className="h-5 w-5 text-red-600" />
@@ -182,7 +182,7 @@ export function FinanceDashboard({
               Expenses (This Month)
             </span>
           </div>
-          <p className="text-3xl font-black text-[#27324A] mt-4">
+          <p className="text-3xl font-black text-[#0F172A] mt-4">
             Rs. {monthlyExpenses.toLocaleString()}
           </p>
           {expenseDelta !== undefined && (
@@ -193,7 +193,7 @@ export function FinanceDashboard({
         </div>
 
         <div
-          className={`p-6 rounded-[2rem] shadow-xl ${netProfit >= 0 ? "bg-[#27324A]" : "bg-red-700"} text-white`}
+          className={`p-6 rounded-[2rem] shadow-xl ${netProfit >= 0 ? "bg-[#0F172A]" : "bg-red-700"} text-white`}
         >
           <div className="flex items-center gap-3 mb-2">
             <div className="h-10 w-10 rounded-xl bg-white/10 flex items-center justify-center">
@@ -222,15 +222,15 @@ export function FinanceDashboard({
 
       {/* Tools + Transactions */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
-        <div className="bg-white rounded-[2rem] border border-[#2E3344]/8 p-6 shadow-sm space-y-4">
-          <h2 className="text-lg font-black text-[#27324A]">Financial Tools</h2>
-          <button className="w-full flex items-center justify-between p-4 rounded-xl border border-[#2E3344]/5 hover:bg-[#F7F0E6] hover:border-[#A7653A]/30 transition group opacity-60 cursor-not-allowed">
+        <div className="bg-white rounded-[2rem] border border-[#1E293B]/8 p-6 shadow-sm space-y-4">
+          <h2 className="text-lg font-black text-[#0F172A]">Financial Tools</h2>
+          <button className="w-full flex items-center justify-between p-4 rounded-xl border border-[#1E293B]/5 hover:bg-[#F8FAFC] hover:border-[#3B82F6]/30 transition group opacity-60 cursor-not-allowed">
             <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-lg bg-[#E8E3D1]/50 flex items-center justify-center text-[#A7653A]">
+              <div className="h-10 w-10 rounded-lg bg-[#E8E3D1]/50 flex items-center justify-center text-[#3B82F6]">
                 <FileText className="h-5 w-5" />
               </div>
               <div className="text-left">
-                <p className="text-sm font-bold text-[#27324A]">
+                <p className="text-sm font-bold text-[#0F172A]">
                   Create Custom Invoice
                 </p>
                 <p className="text-[10px] font-bold text-[#746E73] uppercase tracking-wider mt-0.5">
@@ -242,14 +242,14 @@ export function FinanceDashboard({
 
           <button
             onClick={() => setShowExpenseModal(true)}
-            className="w-full flex items-center justify-between p-4 rounded-xl border border-[#2E3344]/5 hover:bg-red-50 hover:border-red-200 transition group"
+            className="w-full flex items-center justify-between p-4 rounded-xl border border-[#1E293B]/5 hover:bg-red-50 hover:border-red-200 transition group"
           >
             <div className="flex items-center gap-3">
               <div className="h-10 w-10 rounded-lg bg-red-100/50 flex items-center justify-center text-red-600">
                 <ReceiptText className="h-5 w-5" />
               </div>
               <div className="text-left">
-                <p className="text-sm font-bold text-[#27324A]">
+                <p className="text-sm font-bold text-[#0F172A]">
                   Record Expense
                 </p>
                 <p className="text-[10px] font-bold text-[#746E73] uppercase tracking-wider mt-0.5">
@@ -262,8 +262,8 @@ export function FinanceDashboard({
         </div>
 
         {/* Recent Transactions */}
-        <div className="bg-white rounded-[2rem] border border-[#2E3344]/8 p-6 shadow-sm">
-          <h2 className="text-lg font-black text-[#27324A] mb-4">
+        <div className="bg-white rounded-[2rem] border border-[#1E293B]/8 p-6 shadow-sm">
+          <h2 className="text-lg font-black text-[#0F172A] mb-4">
             Recent Transactions
           </h2>
           {localTransactions.length === 0 ? (
@@ -275,10 +275,10 @@ export function FinanceDashboard({
               {localTransactions.map((txn) => (
                 <div
                   key={txn.id}
-                  className="flex items-center justify-between p-3 rounded-xl border border-[#2E3344]/5"
+                  className="flex items-center justify-between p-3 rounded-xl border border-[#1E293B]/5"
                 >
                   <div>
-                    <p className="text-xs font-bold text-[#27324A]">
+                    <p className="text-xs font-bold text-[#0F172A]">
                       {txn.description ?? TYPE_LABEL[txn.type] ?? txn.type}
                     </p>
                     <p className="text-[10px] text-[#746E73] font-bold uppercase tracking-widest mt-0.5">
@@ -303,19 +303,19 @@ export function FinanceDashboard({
         <div className="fixed inset-0 z-50 bg-black/40 flex items-end sm:items-center justify-center p-4">
           <div className="bg-white rounded-[2rem] w-full max-w-md shadow-2xl p-6 space-y-5 animate-in slide-in-from-bottom-4 duration-300">
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-black text-[#27324A]">
+              <h2 className="text-lg font-black text-[#0F172A]">
                 Record Expense
               </h2>
               <button
                 onClick={() => setShowExpenseModal(false)}
-                className="text-[#746E73] hover:text-[#27324A] p-1"
+                className="text-[#746E73] hover:text-[#0F172A] p-1"
               >
                 <X className="h-5 w-5" />
               </button>
             </div>
             <div className="space-y-4">
               <div>
-                <Label className="font-bold text-[#27324A]">
+                <Label className="font-bold text-[#0F172A]">
                   Amount (Rs.) *
                 </Label>
                 <Input
@@ -329,7 +329,7 @@ export function FinanceDashboard({
                 />
               </div>
               <div>
-                <Label className="font-bold text-[#27324A]">
+                <Label className="font-bold text-[#0F172A]">
                   Description *
                 </Label>
                 <Input
@@ -340,7 +340,7 @@ export function FinanceDashboard({
                 />
               </div>
               <div>
-                <Label className="font-bold text-[#27324A]">
+                <Label className="font-bold text-[#0F172A]">
                   Payment Method
                 </Label>
                 <Select
@@ -364,7 +364,7 @@ export function FinanceDashboard({
               <Button
                 variant="outline"
                 onClick={() => setShowExpenseModal(false)}
-                className="flex-1 h-12 rounded-xl border-[#2E3344]/10 font-bold"
+                className="flex-1 h-12 rounded-xl border-[#1E293B]/10 font-bold"
               >
                 Cancel
               </Button>

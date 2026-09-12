@@ -11,10 +11,10 @@ export default async function StorefrontPage() {
   if (!activeShop) {
     return (
       <div className="flex flex-col items-center justify-center h-64 gap-4 text-center">
-        <p className="text-lg font-bold text-[#27324A]">No shop selected.</p>
+        <p className="text-lg font-bold text-[#0F172A]">No shop selected.</p>
         <Link
           href="/onboarding/owner"
-          className="text-sm text-[#A7653A] hover:underline font-bold"
+          className="text-sm text-[#3B82F6] hover:underline font-bold"
         >
           Create your first shop →
         </Link>
@@ -49,7 +49,7 @@ export default async function StorefrontPage() {
       qrDataUrl = await QRCode.toDataURL(qrCode.qr_target_url, {
         width: 300,
         margin: 2,
-        color: { dark: "#27324A", light: "#ffffff" },
+        color: { dark: "#0F172A", light: "#ffffff" },
       });
     } catch {
       qrDataUrl = null;
@@ -70,7 +70,7 @@ export default async function StorefrontPage() {
       publicUrl={publicUrl}
       qrDataUrl={qrDataUrl}
       scanCount={qrCode?.scan_count ?? 0}
-      initialThemeColor={shopData?.theme_color ?? "#A7653A"}
+      initialThemeColor={shopData?.theme_color ?? "#3B82F6"}
       initialThemeLayout={
         (shopData?.theme_layout as "modern" | "list") ?? "modern"
       }

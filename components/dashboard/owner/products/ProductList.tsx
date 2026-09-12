@@ -148,7 +148,7 @@ export function ProductList({
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between">
-              <h3 className="font-black text-[#27324A]">Product Barcode</h3>
+              <h3 className="font-black text-[#0F172A]">Product Barcode</h3>
               <button
                 onClick={() => setBarcodeModal(null)}
                 className="h-8 w-8 rounded-full bg-[#f8f8f7] flex items-center justify-center"
@@ -156,7 +156,7 @@ export function ProductList({
                 <X className="h-4 w-4 text-[#746E73]" />
               </button>
             </div>
-            <div className="flex justify-center overflow-hidden rounded-2xl border border-[#2E3344]/8 bg-white p-4">
+            <div className="flex justify-center overflow-hidden rounded-2xl border border-[#1E293B]/8 bg-white p-4">
               <BarcodeImage
                 value={barcodeModal.barcode}
                 height={80}
@@ -168,7 +168,7 @@ export function ProductList({
               href={barcodeModal.productUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 text-xs font-bold text-[#A7653A] hover:underline"
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-[#3B82F6] hover:underline"
             >
               <ExternalLink className="h-3 w-3" /> Product page
             </a>
@@ -180,7 +180,7 @@ export function ProductList({
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-black text-[#27324A]">
+            <h1 className="text-2xl font-black text-[#0F172A]">
               Inventory & Products
             </h1>
             <p className="text-sm font-medium text-[#746E73] mt-1">
@@ -194,7 +194,7 @@ export function ProductList({
             >
               <Button
                 variant="outline"
-                className="rounded-xl h-11 border-[#27324A]/15 text-[#27324A] font-bold w-full sm:w-auto"
+                className="rounded-xl h-11 border-[#0F172A]/15 text-[#0F172A] font-bold w-full sm:w-auto"
               >
                 Import CSV
               </Button>
@@ -206,7 +206,7 @@ export function ProductList({
               >
                 <Button
                   variant="outline"
-                  className="rounded-xl h-11 border-[#27324A]/15 text-[#27324A] font-bold w-full sm:w-auto"
+                  className="rounded-xl h-11 border-[#0F172A]/15 text-[#0F172A] font-bold w-full sm:w-auto"
                 >
                   Transfer
                 </Button>
@@ -218,7 +218,7 @@ export function ProductList({
             >
               <Button
                 variant="outline"
-                className="rounded-xl h-11 border-[#27324A]/15 text-[#27324A] font-bold w-full sm:w-auto"
+                className="rounded-xl h-11 border-[#0F172A]/15 text-[#0F172A] font-bold w-full sm:w-auto"
               >
                 Stock take
               </Button>
@@ -227,7 +227,7 @@ export function ProductList({
               href="/dashboard/owner/products/add"
               className="flex-1 sm:flex-initial"
             >
-              <Button className="rounded-xl h-11 bg-[#A7653A] hover:bg-[#8D5132] text-white font-bold w-full">
+              <Button className="rounded-xl h-11 bg-[#3B82F6] hover:bg-[#8D5132] text-white font-bold w-full">
                 <Plus className="h-4 w-4 mr-2" /> Add Product
               </Button>
             </Link>
@@ -235,12 +235,12 @@ export function ProductList({
         </div>
 
         {/* Search + filter chips */}
-        <div className="bg-white p-4 rounded-[1.5rem] border border-[#2E3344]/8 shadow-sm space-y-3">
+        <div className="bg-white p-4 rounded-[1.5rem] border border-[#1E293B]/8 shadow-sm space-y-3">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#746E73]" />
             <Input
               placeholder="Search by name, brand, or barcode..."
-              className="pl-9 h-11 rounded-xl bg-[#f8f8f7] border-transparent focus-visible:ring-[#A7653A]/20"
+              className="pl-9 h-11 rounded-xl bg-[#f8f8f7] border-transparent focus-visible:ring-[#3B82F6]/20"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -252,13 +252,13 @@ export function ProductList({
                   id: "all",
                   label: `All`,
                   count: products.length,
-                  accent: "bg-[#27324A] text-white",
+                  accent: "bg-[#0F172A] text-white",
                 },
                 {
                   id: "low_stock",
                   label: `Low stock`,
                   count: lowStockCount,
-                  accent: "bg-[#A7653A] text-white",
+                  accent: "bg-[#3B82F6] text-white",
                 },
                 {
                   id: "out_of_stock",
@@ -286,7 +286,7 @@ export function ProductList({
                 className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition flex items-center gap-2 ${
                   filter === chip.id
                     ? chip.accent
-                    : "bg-[#f8f8f7] text-[#27324A] hover:bg-[#F7F0E6]"
+                    : "bg-[#f8f8f7] text-[#0F172A] hover:bg-[#F8FAFC]"
                 }`}
               >
                 {chip.label}
@@ -300,7 +300,7 @@ export function ProductList({
             {filter === "low_stock" && lowStockCount > 0 && (
               <Link
                 href="/dashboard/owner/suppliers"
-                className="ml-auto px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap bg-[#27324A] text-white hover:bg-[#1b2333] transition flex items-center gap-1"
+                className="ml-auto px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap bg-[#0F172A] text-white hover:bg-[#1b2333] transition flex items-center gap-1"
               >
                 Create PO →
               </Link>
@@ -310,11 +310,11 @@ export function ProductList({
 
         {/* Empty State */}
         {products.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-24 gap-4 text-center bg-white rounded-[2rem] border border-[#2E3344]/8">
-            <div className="h-16 w-16 rounded-2xl bg-[#F7F0E6] flex items-center justify-center">
-              <Package className="h-8 w-8 text-[#A7653A]" />
+          <div className="flex flex-col items-center justify-center py-24 gap-4 text-center bg-white rounded-[2rem] border border-[#1E293B]/8">
+            <div className="h-16 w-16 rounded-2xl bg-[#F8FAFC] flex items-center justify-center">
+              <Package className="h-8 w-8 text-[#3B82F6]" />
             </div>
-            <h3 className="text-lg font-black text-[#27324A]">
+            <h3 className="text-lg font-black text-[#0F172A]">
               No products yet
             </h3>
             <p className="text-sm text-[#746E73] font-medium max-w-xs">
@@ -322,7 +322,7 @@ export function ProductList({
               online ordering.
             </p>
             <Link href="/dashboard/owner/products/add">
-              <Button className="rounded-xl h-11 bg-[#A7653A] hover:bg-[#8D5132] text-white font-bold">
+              <Button className="rounded-xl h-11 bg-[#3B82F6] hover:bg-[#8D5132] text-white font-bold">
                 <Plus className="h-4 w-4 mr-2" /> Add First Product
               </Button>
             </Link>
@@ -331,10 +331,10 @@ export function ProductList({
 
         {/* Desktop Table */}
         {filtered.length > 0 && (
-          <div className="hidden md:block bg-white rounded-[1.5rem] border border-[#2E3344]/8 shadow-sm overflow-hidden">
+          <div className="hidden md:block bg-white rounded-[1.5rem] border border-[#1E293B]/8 shadow-sm overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-left text-sm whitespace-nowrap">
-                <thead className="bg-[#F7F0E6]/50 border-b border-[#2E3344]/8 text-[#746E73] font-bold uppercase tracking-widest text-[10px]">
+                <thead className="bg-[#F8FAFC]/50 border-b border-[#1E293B]/8 text-[#746E73] font-bold uppercase tracking-widest text-[10px]">
                   <tr>
                     <th className="px-6 py-4">Product</th>
                     <th className="px-6 py-4">Category</th>
@@ -344,7 +344,7 @@ export function ProductList({
                     <th className="px-6 py-4 text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#2E3344]/5">
+                <tbody className="divide-y divide-[#1E293B]/5">
                   {filtered.map((product) => {
                     const isLow =
                       product.stock <= (product.low_stock_threshold ?? 5);
@@ -356,7 +356,7 @@ export function ProductList({
                       >
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-3">
-                            <div className="h-10 w-10 rounded-lg bg-[#E8E3D1]/50 flex items-center justify-center font-bold text-[#A7653A] text-xs shrink-0 overflow-hidden">
+                            <div className="h-10 w-10 rounded-lg bg-[#E8E3D1]/50 flex items-center justify-center font-bold text-[#3B82F6] text-xs shrink-0 overflow-hidden">
                               {thumb ? (
                                 <img
                                   src={thumb}
@@ -368,7 +368,7 @@ export function ProductList({
                               )}
                             </div>
                             <div>
-                              <p className="font-black text-[#27324A]">
+                              <p className="font-black text-[#0F172A]">
                                 {product.name}
                               </p>
                               <p className="text-[10px] font-bold text-[#746E73]">
@@ -382,7 +382,7 @@ export function ProductList({
                         <td className="px-6 py-4 font-bold text-[#746E73]">
                           {product.category ?? "—"}
                         </td>
-                        <td className="px-6 py-4 font-black text-[#27324A]">
+                        <td className="px-6 py-4 font-black text-[#0F172A]">
                           Rs. {product.price}
                         </td>
                         <td className="px-6 py-4">
@@ -390,7 +390,7 @@ export function ProductList({
                             <button
                               onClick={() => handleAdjustStock(product.id, -1)}
                               disabled={isPending || product.stock <= 0}
-                              className="h-6 w-6 rounded-md bg-[#f8f8f7] border border-[#2E3344]/10 flex items-center justify-center text-[#746E73] hover:bg-red-50 hover:text-red-500 hover:border-red-200 disabled:opacity-30 transition"
+                              className="h-6 w-6 rounded-md bg-[#f8f8f7] border border-[#1E293B]/10 flex items-center justify-center text-[#746E73] hover:bg-red-50 hover:text-red-500 hover:border-red-200 disabled:opacity-30 transition"
                             >
                               <Minus className="h-3 w-3" />
                             </button>
@@ -400,14 +400,14 @@ export function ProductList({
                                 {product.stock}
                               </span>
                             ) : (
-                              <span className="font-black text-[#27324A] text-sm min-w-[2.5rem] text-center">
+                              <span className="font-black text-[#0F172A] text-sm min-w-[2.5rem] text-center">
                                 {product.stock}
                               </span>
                             )}
                             <button
                               onClick={() => handleAdjustStock(product.id, 1)}
                               disabled={isPending}
-                              className="h-6 w-6 rounded-md bg-[#f8f8f7] border border-[#2E3344]/10 flex items-center justify-center text-[#746E73] hover:bg-green-50 hover:text-green-600 hover:border-green-200 disabled:opacity-30 transition"
+                              className="h-6 w-6 rounded-md bg-[#f8f8f7] border border-[#1E293B]/10 flex items-center justify-center text-[#746E73] hover:bg-green-50 hover:text-green-600 hover:border-green-200 disabled:opacity-30 transition"
                             >
                               <ChevronUp className="h-3 w-3" />
                             </button>
@@ -418,7 +418,7 @@ export function ProductList({
                             className={`inline-block px-2.5 py-1 rounded-md font-bold text-[10px] uppercase tracking-wider border ${
                               product.status === "active"
                                 ? "bg-green-50 text-green-700 border-green-100"
-                                : "bg-[#f8f8f7] text-[#746E73] border-[#2E3344]/10"
+                                : "bg-[#f8f8f7] text-[#746E73] border-[#1E293B]/10"
                             }`}
                           >
                             {product.status}
@@ -429,7 +429,7 @@ export function ProductList({
                             {product.barcode && (
                               <button
                                 onClick={() => handleShowBarcode(product)}
-                                className="h-8 w-8 rounded-lg border border-[#2E3344]/10 flex items-center justify-center text-[#746E73] hover:bg-[#F7F0E6] hover:text-[#A7653A] hover:border-[#A7653A]/20 transition"
+                                className="h-8 w-8 rounded-lg border border-[#1E293B]/10 flex items-center justify-center text-[#746E73] hover:bg-[#F8FAFC] hover:text-[#3B82F6] hover:border-[#3B82F6]/20 transition"
                                 title="Show QR"
                               >
                                 <BarcodeIcon className="h-3.5 w-3.5" />
@@ -438,14 +438,14 @@ export function ProductList({
                             <Link
                               href={`/dashboard/owner/products/${product.id}/edit`}
                             >
-                              <button className="h-8 w-8 rounded-lg border border-[#2E3344]/10 flex items-center justify-center text-[#746E73] hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 transition">
+                              <button className="h-8 w-8 rounded-lg border border-[#1E293B]/10 flex items-center justify-center text-[#746E73] hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 transition">
                                 <Pencil className="h-3.5 w-3.5" />
                               </button>
                             </Link>
                             <button
                               onClick={() => handleDelete(product.id)}
                               disabled={isPending}
-                              className="h-8 w-8 rounded-lg border border-[#2E3344]/10 flex items-center justify-center text-[#746E73] hover:bg-red-50 hover:text-red-500 hover:border-red-200 transition"
+                              className="h-8 w-8 rounded-lg border border-[#1E293B]/10 flex items-center justify-center text-[#746E73] hover:bg-red-50 hover:text-red-500 hover:border-red-200 transition"
                             >
                               <Trash2 className="h-3.5 w-3.5" />
                             </button>
@@ -469,11 +469,11 @@ export function ProductList({
               return (
                 <div
                   key={product.id}
-                  className="bg-white p-4 rounded-[1.5rem] border border-[#2E3344]/8 shadow-sm space-y-4"
+                  className="bg-white p-4 rounded-[1.5rem] border border-[#1E293B]/8 shadow-sm space-y-4"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex items-center gap-3 min-w-0">
-                      <div className="h-12 w-12 rounded-xl bg-[#E8E3D1]/50 flex items-center justify-center font-bold text-[#A7653A] text-lg shrink-0 overflow-hidden">
+                      <div className="h-12 w-12 rounded-xl bg-[#E8E3D1]/50 flex items-center justify-center font-bold text-[#3B82F6] text-lg shrink-0 overflow-hidden">
                         {thumb ? (
                           <img
                             src={thumb}
@@ -485,7 +485,7 @@ export function ProductList({
                         )}
                       </div>
                       <div className="min-w-0">
-                        <p className="font-black text-[#27324A] truncate">
+                        <p className="font-black text-[#0F172A] truncate">
                           {product.name}
                         </p>
                         <p className="text-xs font-bold text-[#746E73] mt-0.5 truncate">
@@ -499,7 +499,7 @@ export function ProductList({
                       {product.barcode && (
                         <button
                           onClick={() => handleShowBarcode(product)}
-                          className="h-8 w-8 rounded-lg border border-[#2E3344]/10 flex items-center justify-center text-[#746E73] hover:bg-[#F7F0E6] hover:text-[#A7653A]"
+                          className="h-8 w-8 rounded-lg border border-[#1E293B]/10 flex items-center justify-center text-[#746E73] hover:bg-[#F8FAFC] hover:text-[#3B82F6]"
                         >
                           <BarcodeIcon className="h-3.5 w-3.5" />
                         </button>
@@ -507,22 +507,22 @@ export function ProductList({
                       <Link
                         href={`/dashboard/owner/products/${product.id}/edit`}
                       >
-                        <button className="h-8 w-8 rounded-lg border border-[#2E3344]/10 flex items-center justify-center text-[#746E73] hover:bg-blue-50 hover:text-blue-600">
+                        <button className="h-8 w-8 rounded-lg border border-[#1E293B]/10 flex items-center justify-center text-[#746E73] hover:bg-blue-50 hover:text-blue-600">
                           <Pencil className="h-3.5 w-3.5" />
                         </button>
                       </Link>
                       <button
                         onClick={() => handleDelete(product.id)}
                         disabled={isPending}
-                        className="h-8 w-8 rounded-lg border border-[#2E3344]/10 flex items-center justify-center text-[#746E73] hover:bg-red-50 hover:text-red-500"
+                        className="h-8 w-8 rounded-lg border border-[#1E293B]/10 flex items-center justify-center text-[#746E73] hover:bg-red-50 hover:text-red-500"
                       >
                         <Trash2 className="h-3.5 w-3.5" />
                       </button>
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between pt-3 border-t border-[#2E3344]/5">
-                    <p className="font-black text-[#27324A]">
+                  <div className="flex items-center justify-between pt-3 border-t border-[#1E293B]/5">
+                    <p className="font-black text-[#0F172A]">
                       Rs. {product.price}
                     </p>
 
@@ -531,7 +531,7 @@ export function ProductList({
                       <button
                         onClick={() => handleAdjustStock(product.id, -1)}
                         disabled={isPending || product.stock <= 0}
-                        className="h-7 w-7 rounded-lg bg-[#f8f8f7] border border-[#2E3344]/10 flex items-center justify-center text-[#746E73] disabled:opacity-30"
+                        className="h-7 w-7 rounded-lg bg-[#f8f8f7] border border-[#1E293B]/10 flex items-center justify-center text-[#746E73] disabled:opacity-30"
                       >
                         <ChevronDown className="h-3.5 w-3.5" />
                       </button>
@@ -540,14 +540,14 @@ export function ProductList({
                           <AlertTriangle className="h-3 w-3" /> {product.stock}
                         </span>
                       ) : (
-                        <span className="text-sm font-black text-[#27324A] min-w-[2rem] text-center">
+                        <span className="text-sm font-black text-[#0F172A] min-w-[2rem] text-center">
                           {product.stock}
                         </span>
                       )}
                       <button
                         onClick={() => handleAdjustStock(product.id, 1)}
                         disabled={isPending}
-                        className="h-7 w-7 rounded-lg bg-[#f8f8f7] border border-[#2E3344]/10 flex items-center justify-center text-[#746E73] disabled:opacity-30"
+                        className="h-7 w-7 rounded-lg bg-[#f8f8f7] border border-[#1E293B]/10 flex items-center justify-center text-[#746E73] disabled:opacity-30"
                       >
                         <ChevronUp className="h-3.5 w-3.5" />
                       </button>

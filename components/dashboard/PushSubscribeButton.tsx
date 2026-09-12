@@ -192,7 +192,7 @@ export function PushSubscribeButton() {
         type="button"
         onClick={disable}
         disabled={busy}
-        className="h-11 px-4 rounded-xl border border-[#27324A]/15 text-[#27324A] font-bold text-sm flex items-center gap-2 hover:bg-[#f8f8f7] disabled:opacity-40"
+        className="h-11 px-4 rounded-xl border border-[#0F172A]/15 text-[#0F172A] font-bold text-sm flex items-center gap-2 hover:bg-[#f8f8f7] disabled:opacity-40"
       >
         {busy ? (
           <Loader2 className="h-4 w-4 animate-spin" />
@@ -209,7 +209,7 @@ export function PushSubscribeButton() {
       type="button"
       onClick={enable}
       disabled={busy}
-      className="h-11 px-4 rounded-xl bg-[#27324A] hover:bg-[#1b2333] text-white font-bold text-sm flex items-center gap-2 disabled:opacity-40"
+      className="h-11 px-4 rounded-xl bg-[#0F172A] hover:bg-[#1b2333] text-white font-bold text-sm flex items-center gap-2 disabled:opacity-40"
     >
       {busy ? (
         <Loader2 className="h-4 w-4 animate-spin" />

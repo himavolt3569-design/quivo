@@ -6,7 +6,7 @@ export default function ShopsLoading() {
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
       {/* Header skeleton */}
-      <div className="rounded-[2.5rem] bg-white border border-[#2E3344]/8 p-8 shadow-sm">
+      <div className="rounded-[2.5rem] bg-white border border-[#1E293B]/8 p-8 shadow-sm">
         <Skeleton className="h-8 w-48 rounded-full mb-3" />
         <Skeleton className="h-4 w-72 rounded-full" />
       </div>
@@ -18,7 +18,7 @@ export default function ShopsLoading() {
           {Array.from({ length: 6 }).map((_, i) => (
             <div
               key={i}
-              className="rounded-[1.75rem] border border-[#2E3344]/8 bg-white p-5 shadow-sm"
+              className="rounded-[1.75rem] border border-[#1E293B]/8 bg-white p-5 shadow-sm"
             >
               <div className="flex items-center gap-3 mb-4">
                 <Skeleton className="h-14 w-14 rounded-2xl shrink-0" />

@@ -8,7 +8,7 @@ export default function HomeLoading() {
       {/* ── Dashboard Bento Header Skeleton ────────────────────────── */}
       <div className="grid grid-cols-1 md:grid-cols-12 gap-5">
         {/* Welcome Card Skeleton */}
-        <div className="md:col-span-8 h-[240px] rounded-[2.5rem] bg-white border border-[#2E3344]/8 p-8 shadow-sm flex flex-col justify-between">
+        <div className="md:col-span-8 h-[240px] rounded-[2.5rem] bg-white border border-[#1E293B]/8 p-8 shadow-sm flex flex-col justify-between">
           <div className="space-y-4">
             <Skeleton className="h-10 w-48 rounded-xl" />
             <Skeleton className="h-4 w-64 rounded-lg" />
@@ -20,9 +20,9 @@ export default function HomeLoading() {
         </div>
 
         {/* Wallet Card Skeleton - Premium split layout */}
-        <div className="md:col-span-4 rounded-[1.5rem] border border-[#2E3344]/8 shadow-sm bg-white overflow-hidden flex flex-col justify-between h-[240px]">
+        <div className="md:col-span-4 rounded-[1.5rem] border border-[#1E293B]/8 shadow-sm bg-white overflow-hidden flex flex-col justify-between h-[240px]">
           {/* Dark Blue Header Banner */}
-          <div className="bg-[#27324A] p-5 flex flex-col justify-between flex-1">
+          <div className="bg-[#0F172A] p-5 flex flex-col justify-between flex-1">
             <div className="flex justify-between items-start">
               <div className="space-y-2">
                 <Skeleton className="h-3.5 w-24 rounded-md bg-white/15 border-none animate-pulse" />
@@ -34,7 +34,7 @@ export default function HomeLoading() {
             <Skeleton className="h-7 w-40 rounded-xl bg-white/10 border-none mt-2 shrink-0 animate-pulse" />
           </div>
           {/* Earn tips row */}
-          <div className="border-b border-[#2E3344]/8 bg-[#F7F0E6]/50 px-5 py-3 flex items-center gap-2">
+          <div className="border-b border-[#1E293B]/8 bg-[#F8FAFC]/50 px-5 py-3 flex items-center gap-2">
             <Skeleton className="h-4 w-4 rounded-full shrink-0" />
             <Skeleton className="h-3 w-5/6 rounded-md" />
           </div>
@@ -60,7 +60,7 @@ export default function HomeLoading() {
           {[1, 2, 3, 4].map((i) => (
             <div
               key={i}
-              className="h-[200px] rounded-[2rem] bg-white border border-[#2E3344]/8 p-4 flex flex-col gap-3"
+              className="h-[200px] rounded-[2rem] bg-white border border-[#1E293B]/8 p-4 flex flex-col gap-3"
             >
               <Skeleton className="h-24 w-full rounded-2xl" />
               <Skeleton className="h-4 w-3/4 rounded-lg" />
@@ -75,7 +75,7 @@ export default function HomeLoading() {
         {[1, 2, 3].map((i) => (
           <div
             key={i}
-            className="h-32 rounded-[2.5rem] bg-white border border-[#2E3344]/8 p-6 flex items-center gap-4"
+            className="h-32 rounded-[2.5rem] bg-white border border-[#1E293B]/8 p-6 flex items-center gap-4"
           >
             <Skeleton className="h-12 w-12 rounded-2xl" />
             <div className="space-y-2">

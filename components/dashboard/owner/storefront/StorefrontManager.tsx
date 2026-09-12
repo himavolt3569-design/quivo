@@ -80,8 +80,8 @@ interface StorefrontManagerProps {
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const THEME_COLORS = [
-  "#A7653A",
-  "#27324A",
+  "#3B82F6",
+  "#0F172A",
   "#41A560",
   "#D84B4B",
   "#6B46C1",
@@ -175,7 +175,7 @@ function SectionDragItem({
       value={sId}
       dragListener={false}
       dragControls={controls}
-      className="flex items-center gap-3 p-3 bg-[#f8f8f7] rounded-xl border border-[#2E3344]/5 select-none"
+      className="flex items-center gap-3 p-3 bg-[#f8f8f7] rounded-xl border border-[#1E293B]/5 select-none"
       whileDrag={{ scale: 1.02, boxShadow: "0 8px 20px rgba(0,0,0,0.08)" }}
     >
       <button
@@ -186,8 +186,8 @@ function SectionDragItem({
       >
         <GripVertical className="h-4 w-4" />
       </button>
-      <span className="text-[#A7653A]">{section.icon}</span>
-      <span className="text-sm font-bold text-[#27324A] flex-1">
+      <span className="text-[#3B82F6]">{section.icon}</span>
+      <span className="text-sm font-bold text-[#0F172A] flex-1">
         {section.label}
       </span>
     </Reorder.Item>
@@ -440,7 +440,7 @@ export function StorefrontManager({
     <div className="space-y-6 max-w-6xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500 pb-10">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-black text-[#27324A]">Storefront & QR</h1>
+        <h1 className="text-2xl font-black text-[#0F172A]">Storefront & QR</h1>
         <p className="text-sm font-medium text-[#746E73] mt-1">
           Customize your public shop page, manage your QR code, and reply to
           customer chats.
@@ -450,7 +450,7 @@ export function StorefrontManager({
             href={publicUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-xs font-bold text-[#A7653A] hover:underline mt-1 inline-flex items-center gap-1"
+            className="text-xs font-bold text-[#3B82F6] hover:underline mt-1 inline-flex items-center gap-1"
           >
             <Globe2 className="h-3.5 w-3.5" /> {publicUrl} ↗
           </a>
@@ -458,15 +458,15 @@ export function StorefrontManager({
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 border-b border-[#2E3344]/10">
+      <div className="flex gap-1 border-b border-[#1E293B]/10">
         {TABS.map((tab) => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
             className={`flex items-center gap-2 pb-3 px-3 text-sm font-bold border-b-2 transition-all ${
               activeTab === tab.id
-                ? "border-[#A7653A] text-[#A7653A]"
-                : "border-transparent text-[#746E73] hover:text-[#27324A]"
+                ? "border-[#3B82F6] text-[#3B82F6]"
+                : "border-transparent text-[#746E73] hover:text-[#0F172A]"
             }`}
           >
             {tab.icon} {tab.label}
@@ -478,8 +478,8 @@ export function StorefrontManager({
       {activeTab === "qr" && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <div className="space-y-6">
-            <div className="bg-white p-6 rounded-[2rem] border border-[#2E3344]/8 shadow-sm">
-              <h2 className="text-lg font-black text-[#27324A]">
+            <div className="bg-white p-6 rounded-[2rem] border border-[#1E293B]/8 shadow-sm">
+              <h2 className="text-lg font-black text-[#0F172A]">
                 Share Your Shop
               </h2>
               <p className="text-xs text-[#746E73] font-medium mt-1">
@@ -487,7 +487,7 @@ export function StorefrontManager({
                 products, and place orders.
               </p>
               {scanCount > 0 && (
-                <p className="text-xs font-bold text-[#A7653A] mt-2">
+                <p className="text-xs font-bold text-[#3B82F6] mt-2">
                   📊 Scanned {scanCount} time{scanCount !== 1 ? "s" : ""}
                 </p>
               )}
@@ -495,7 +495,7 @@ export function StorefrontManager({
               <div className="mt-6 space-y-4">
                 {publicUrl && (
                   <div>
-                    <Label className="font-bold text-[#27324A]">
+                    <Label className="font-bold text-[#0F172A]">
                       Public URL
                     </Label>
                     <div className="flex items-center mt-1.5 gap-2">
@@ -508,7 +508,7 @@ export function StorefrontManager({
                         type="button"
                         variant="outline"
                         onClick={handleCopyUrl}
-                        className="h-12 rounded-xl border-[#2E3344]/10 text-[#27324A] font-bold px-4"
+                        className="h-12 rounded-xl border-[#1E293B]/10 text-[#0F172A] font-bold px-4"
                       >
                         <Copy className="h-4 w-4" />
                       </Button>
@@ -522,11 +522,11 @@ export function StorefrontManager({
                   </div>
                 )}
                 {qrDataUrl && (
-                  <div className="grid grid-cols-2 gap-3 pt-4 border-t border-[#2E3344]/5">
+                  <div className="grid grid-cols-2 gap-3 pt-4 border-t border-[#1E293B]/5">
                     <Button
                       type="button"
                       onClick={handleDownloadQR}
-                      className="h-12 rounded-xl bg-[#27324A] hover:bg-[#1b2333] text-white font-bold w-full"
+                      className="h-12 rounded-xl bg-[#0F172A] hover:bg-[#1b2333] text-white font-bold w-full"
                     >
                       <Download className="h-4 w-4 mr-2" /> Download PNG
                     </Button>
@@ -541,7 +541,7 @@ export function StorefrontManager({
                           });
                         else handleCopyUrl();
                       }}
-                      className="h-12 rounded-xl border-[#2E3344]/10 text-[#27324A] font-bold w-full"
+                      className="h-12 rounded-xl border-[#1E293B]/10 text-[#0F172A] font-bold w-full"
                     >
                       <Share2 className="h-4 w-4 mr-2" /> Share
                     </Button>
@@ -550,9 +550,9 @@ export function StorefrontManager({
               </div>
             </div>
 
-            <div className="bg-[#E8E3D1]/50 p-6 rounded-[2rem] border border-[#2E3344]/5">
-              <h3 className="text-sm font-black text-[#27324A] flex items-center gap-2">
-                <Globe2 className="h-4 w-4 text-[#A7653A]" /> Usage Ideas
+            <div className="bg-[#E8E3D1]/50 p-6 rounded-[2rem] border border-[#1E293B]/5">
+              <h3 className="text-sm font-black text-[#0F172A] flex items-center gap-2">
+                <Globe2 className="h-4 w-4 text-[#3B82F6]" /> Usage Ideas
               </h3>
               <ul className="mt-3 space-y-2 text-xs font-medium text-[#746E73]">
                 {[
@@ -571,19 +571,19 @@ export function StorefrontManager({
           </div>
 
           {/* QR Preview */}
-          <div className="flex items-center justify-center bg-[#f8f8f7] p-8 rounded-[2.5rem] border border-[#2E3344]/5">
-            <div className="bg-white p-8 rounded-[2rem] shadow-xl text-center w-full max-w-sm border border-[#2E3344]/5">
+          <div className="flex items-center justify-center bg-[#f8f8f7] p-8 rounded-[2.5rem] border border-[#1E293B]/5">
+            <div className="bg-white p-8 rounded-[2rem] shadow-xl text-center w-full max-w-sm border border-[#1E293B]/5">
               <div
                 className="mx-auto h-16 w-16 text-white rounded-2xl flex items-center justify-center font-black text-xl mb-4 shadow-sm"
                 style={{ backgroundColor: themeColor }}
               >
                 {shopInitial}
               </div>
-              <h3 className="text-xl font-black text-[#27324A]">{shopName}</h3>
-              <p className="text-[10px] uppercase tracking-widest text-[#A7653A] font-bold mt-1">
+              <h3 className="text-xl font-black text-[#0F172A]">{shopName}</h3>
+              <p className="text-[10px] uppercase tracking-widest text-[#3B82F6] font-bold mt-1">
                 Scan to order online
               </p>
-              <div className="mt-8 mb-6 p-4 bg-white border-4 border-[#2E3344] rounded-3xl inline-block">
+              <div className="mt-8 mb-6 p-4 bg-white border-4 border-[#1E293B] rounded-3xl inline-block">
                 {qrDataUrl ? (
                   <img
                     src={qrDataUrl}
@@ -591,7 +591,7 @@ export function StorefrontManager({
                     className="h-48 w-48 object-contain"
                   />
                 ) : (
-                  <QrCode className="h-48 w-48 text-[#27324A]" />
+                  <QrCode className="h-48 w-48 text-[#0F172A]" />
                 )}
               </div>
               <p className="text-xs font-bold text-[#746E73] font-mono">
@@ -610,8 +610,8 @@ export function StorefrontManager({
           {/* Controls */}
           <div className="lg:col-span-2 space-y-6">
             {/* Template Picker */}
-            <div className="bg-white p-6 rounded-[2rem] border border-[#2E3344]/8 shadow-sm">
-              <Label className="font-black text-[#27324A] text-sm uppercase tracking-wider mb-4 block">
+            <div className="bg-white p-6 rounded-[2rem] border border-[#1E293B]/8 shadow-sm">
+              <Label className="font-black text-[#0F172A] text-sm uppercase tracking-wider mb-4 block">
                 Choose Template
               </Label>
               <div className="grid grid-cols-2 gap-3">
@@ -620,7 +620,7 @@ export function StorefrontManager({
                     key={t.id}
                     type="button"
                     onClick={() => setTemplate(t.id)}
-                    className={`border-2 rounded-2xl p-4 text-left transition ${template === t.id ? "border-[#A7653A]" : "border-[#2E3344]/10 hover:border-[#A7653A]/40"}`}
+                    className={`border-2 rounded-2xl p-4 text-left transition ${template === t.id ? "border-[#3B82F6]" : "border-[#1E293B]/10 hover:border-[#3B82F6]/40"}`}
                   >
                     {/* Mini preview swatch */}
                     <div
@@ -631,7 +631,7 @@ export function StorefrontManager({
                       />
                     </div>
                     <p
-                      className={`text-sm font-black ${template === t.id ? "text-[#A7653A]" : "text-[#27324A]"}`}
+                      className={`text-sm font-black ${template === t.id ? "text-[#3B82F6]" : "text-[#0F172A]"}`}
                     >
                       {t.name}
                     </p>
@@ -644,13 +644,13 @@ export function StorefrontManager({
             </div>
 
             {/* Appearance */}
-            <div className="bg-white p-6 rounded-[2rem] border border-[#2E3344]/8 shadow-sm space-y-5">
-              <h2 className="text-sm font-black text-[#27324A] uppercase tracking-wider">
+            <div className="bg-white p-6 rounded-[2rem] border border-[#1E293B]/8 shadow-sm space-y-5">
+              <h2 className="text-sm font-black text-[#0F172A] uppercase tracking-wider">
                 Appearance
               </h2>
 
               <div>
-                <Label className="font-bold text-[#27324A] mb-2 block">
+                <Label className="font-bold text-[#0F172A] mb-2 block">
                   Brand Color
                 </Label>
                 <div className="flex flex-wrap gap-2">
@@ -659,7 +659,7 @@ export function StorefrontManager({
                       key={color}
                       type="button"
                       onClick={() => setThemeColor(color)}
-                      className={`h-9 w-9 rounded-full shadow-sm hover:scale-110 transition-transform ring-2 ring-offset-2 ${themeColor === color ? "ring-[#27324A]" : "ring-transparent"}`}
+                      className={`h-9 w-9 rounded-full shadow-sm hover:scale-110 transition-transform ring-2 ring-offset-2 ${themeColor === color ? "ring-[#0F172A]" : "ring-transparent"}`}
                       style={{ backgroundColor: color }}
                     />
                   ))}
@@ -674,7 +674,7 @@ export function StorefrontManager({
               </div>
 
               <div>
-                <Label className="font-bold text-[#27324A] mb-2 block">
+                <Label className="font-bold text-[#0F172A] mb-2 block">
                   Font Family
                 </Label>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
@@ -683,7 +683,7 @@ export function StorefrontManager({
                       key={f.id}
                       type="button"
                       onClick={() => setFontFamily(f.id)}
-                      className={`border-2 rounded-xl p-3 text-sm font-bold transition ${f.style} ${fontFamily === f.id ? "border-[#A7653A] bg-[#F7F0E6] text-[#A7653A]" : "border-[#2E3344]/10 text-[#746E73] hover:bg-[#f8f8f7]"}`}
+                      className={`border-2 rounded-xl p-3 text-sm font-bold transition ${f.style} ${fontFamily === f.id ? "border-[#3B82F6] bg-[#F8FAFC] text-[#3B82F6]" : "border-[#1E293B]/10 text-[#746E73] hover:bg-[#f8f8f7]"}`}
                     >
                       {f.name}
                     </button>
@@ -693,12 +693,12 @@ export function StorefrontManager({
             </div>
 
             {/* Hero Section */}
-            <div className="bg-white p-6 rounded-[2rem] border border-[#2E3344]/8 shadow-sm space-y-4">
-              <h2 className="text-sm font-black text-[#27324A] uppercase tracking-wider">
+            <div className="bg-white p-6 rounded-[2rem] border border-[#1E293B]/8 shadow-sm space-y-4">
+              <h2 className="text-sm font-black text-[#0F172A] uppercase tracking-wider">
                 Hero Section
               </h2>
               <div>
-                <Label className="font-bold text-[#27324A]">Headline</Label>
+                <Label className="font-bold text-[#0F172A]">Headline</Label>
                 <Input
                   value={heroHeadline}
                   onChange={(e) => setHeroHeadline(e.target.value)}
@@ -708,7 +708,7 @@ export function StorefrontManager({
                 />
               </div>
               <div>
-                <Label className="font-bold text-[#27324A]">
+                <Label className="font-bold text-[#0F172A]">
                   Subtext / Tagline
                 </Label>
                 <Input
@@ -722,16 +722,16 @@ export function StorefrontManager({
             </div>
 
             {/* Announcement */}
-            <div className="bg-white p-6 rounded-[2rem] border border-[#2E3344]/8 shadow-sm space-y-4">
+            <div className="bg-white p-6 rounded-[2rem] border border-[#1E293B]/8 shadow-sm space-y-4">
               <div className="flex items-center justify-between">
-                <h2 className="text-sm font-black text-[#27324A] uppercase tracking-wider flex items-center gap-2">
-                  <Megaphone className="h-4 w-4 text-[#A7653A]" /> Announcement
+                <h2 className="text-sm font-black text-[#0F172A] uppercase tracking-wider flex items-center gap-2">
+                  <Megaphone className="h-4 w-4 text-[#3B82F6]" /> Announcement
                   Ribbon
                 </h2>
                 <button
                   type="button"
                   onClick={() => setAnnouncementActive(!announcementActive)}
-                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${announcementActive ? "bg-[#A7653A]" : "bg-gray-200"}`}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${announcementActive ? "bg-[#3B82F6]" : "bg-gray-200"}`}
                 >
                   <span
                     className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${announcementActive ? "translate-x-6" : "translate-x-1"}`}
@@ -749,8 +749,8 @@ export function StorefrontManager({
             </div>
 
             {/* Section Order — drag-and-drop */}
-            <div className="bg-white p-6 rounded-[2rem] border border-[#2E3344]/8 shadow-sm space-y-4">
-              <h2 className="text-sm font-black text-[#27324A] uppercase tracking-wider">
+            <div className="bg-white p-6 rounded-[2rem] border border-[#1E293B]/8 shadow-sm space-y-4">
+              <h2 className="text-sm font-black text-[#0F172A] uppercase tracking-wider">
                 Section Order
               </h2>
               <p className="text-xs text-[#746E73] font-medium -mt-2">
@@ -773,16 +773,16 @@ export function StorefrontManager({
             </div>
 
             {/* Contact */}
-            <div className="bg-white p-6 rounded-[2rem] border border-[#2E3344]/8 shadow-sm space-y-4">
-              <h2 className="text-sm font-black text-[#27324A] uppercase tracking-wider">
+            <div className="bg-white p-6 rounded-[2rem] border border-[#1E293B]/8 shadow-sm space-y-4">
+              <h2 className="text-sm font-black text-[#0F172A] uppercase tracking-wider">
                 Contact & Integrations
               </h2>
               <div>
-                <Label className="font-bold text-[#27324A]">
+                <Label className="font-bold text-[#0F172A]">
                   WhatsApp Number
                 </Label>
                 <div className="flex items-start mt-1.5">
-                  <span className="h-12 px-3 flex items-center bg-[#f8f8f7] border border-r-0 border-[#2E3344]/10 rounded-l-xl text-sm font-bold text-[#746E73]">
+                  <span className="h-12 px-3 flex items-center bg-[#f8f8f7] border border-r-0 border-[#1E293B]/10 rounded-l-xl text-sm font-bold text-[#746E73]">
                     +977
                   </span>
                   <div className="flex-1">
@@ -806,8 +806,8 @@ export function StorefrontManager({
           {/* Sticky Publish Button */}
           <div className="lg:col-span-1">
             <div className="sticky top-6 space-y-4">
-              <div className="bg-white p-5 rounded-[2rem] border border-[#2E3344]/8 shadow-sm">
-                <h3 className="text-sm font-black text-[#27324A] mb-3">
+              <div className="bg-white p-5 rounded-[2rem] border border-[#1E293B]/8 shadow-sm">
+                <h3 className="text-sm font-black text-[#0F172A] mb-3">
                   Live Preview
                 </h3>
                 {publicUrl ? (
@@ -815,7 +815,7 @@ export function StorefrontManager({
                     href={publicUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="block w-full py-3 rounded-xl text-center text-xs font-bold bg-[#f8f8f7] text-[#A7653A] hover:bg-[#F7F0E6] transition border border-[#2E3344]/5"
+                    className="block w-full py-3 rounded-xl text-center text-xs font-bold bg-[#f8f8f7] text-[#3B82F6] hover:bg-[#F8FAFC] transition border border-[#1E293B]/5"
                   >
                     <Eye className="h-4 w-4 inline mr-1.5" /> Open Storefront ↗
                   </a>
@@ -827,7 +827,7 @@ export function StorefrontManager({
 
                 {/* Mini preview */}
                 <div
-                  className="mt-4 rounded-2xl overflow-hidden border border-[#2E3344]/8"
+                  className="mt-4 rounded-2xl overflow-hidden border border-[#1E293B]/8"
                   style={{
                     height: "200px",
                     backgroundColor:
@@ -862,7 +862,7 @@ export function StorefrontManager({
                 type="button"
                 disabled={isPending}
                 onClick={handlePublish}
-                className="w-full h-12 rounded-xl bg-[#27324A] hover:bg-[#1b2333] text-white font-bold"
+                className="w-full h-12 rounded-xl bg-[#0F172A] hover:bg-[#1b2333] text-white font-bold"
               >
                 {isPending ? "Publishing..." : "Publish Changes"}
               </Button>
@@ -881,14 +881,14 @@ export function StorefrontManager({
           style={{ minHeight: "500px" }}
         >
           {/* Session list */}
-          <div className="bg-white rounded-[2rem] border border-[#2E3344]/8 shadow-sm overflow-hidden flex flex-col">
-            <div className="p-5 border-b border-[#2E3344]/8 flex items-center justify-between">
-              <h2 className="font-black text-[#27324A] text-sm">
+          <div className="bg-white rounded-[2rem] border border-[#1E293B]/8 shadow-sm overflow-hidden flex flex-col">
+            <div className="p-5 border-b border-[#1E293B]/8 flex items-center justify-between">
+              <h2 className="font-black text-[#0F172A] text-sm">
                 Customer Chats
               </h2>
               <button
                 onClick={loadChatSessions}
-                className="h-8 w-8 rounded-xl bg-[#f8f8f7] flex items-center justify-center text-[#746E73] hover:bg-[#F7F0E6] transition"
+                className="h-8 w-8 rounded-xl bg-[#f8f8f7] flex items-center justify-center text-[#746E73] hover:bg-[#F8FAFC] transition"
               >
                 <RefreshCw className="h-3.5 w-3.5" />
               </button>
@@ -907,15 +907,15 @@ export function StorefrontManager({
                   <button
                     key={s.session_id}
                     onClick={() => openSession(s.session_id)}
-                    className={`w-full text-left px-5 py-4 border-b border-[#2E3344]/5 hover:bg-[#f8f8f7] transition ${activeSession === s.session_id ? "bg-[#F7F0E6]/60" : ""}`}
+                    className={`w-full text-left px-5 py-4 border-b border-[#1E293B]/5 hover:bg-[#f8f8f7] transition ${activeSession === s.session_id ? "bg-[#F8FAFC]/60" : ""}`}
                   >
                     <div className="flex justify-between items-start mb-1">
-                      <span className="text-sm font-bold text-[#27324A]">
+                      <span className="text-sm font-bold text-[#0F172A]">
                         {s.customer_name || "Anonymous"}
                       </span>
                       <div className="flex items-center gap-1.5">
                         {s.unread > 0 && (
-                          <span className="h-4 w-4 bg-[#A7653A] text-white text-[9px] font-black rounded-full flex items-center justify-center">
+                          <span className="h-4 w-4 bg-[#3B82F6] text-white text-[9px] font-black rounded-full flex items-center justify-center">
                             {s.unread}
                           </span>
                         )}
@@ -934,7 +934,7 @@ export function StorefrontManager({
           </div>
 
           {/* Message thread */}
-          <div className="lg:col-span-2 bg-white rounded-[2rem] border border-[#2E3344]/8 shadow-sm flex flex-col overflow-hidden">
+          <div className="lg:col-span-2 bg-white rounded-[2rem] border border-[#1E293B]/8 shadow-sm flex flex-col overflow-hidden">
             {!activeSession ? (
               <div className="flex-1 flex flex-col items-center justify-center text-[#746E73] p-6 text-center">
                 <MessageSquare className="h-12 w-12 opacity-20 mb-3" />
@@ -946,9 +946,9 @@ export function StorefrontManager({
             ) : (
               <>
                 {/* Thread header */}
-                <div className="p-5 border-b border-[#2E3344]/8 flex items-center justify-between">
+                <div className="p-5 border-b border-[#1E293B]/8 flex items-center justify-between">
                   <div>
-                    <h3 className="font-black text-[#27324A] text-sm">
+                    <h3 className="font-black text-[#0F172A] text-sm">
                       {sessions.find((s) => s.session_id === activeSession)
                         ?.customer_name || "Anonymous"}
                     </h3>
@@ -975,10 +975,10 @@ export function StorefrontManager({
                       className={`flex ${msg.sender === "owner" ? "justify-end" : "justify-start"}`}
                     >
                       <div
-                        className={`max-w-xs px-4 py-2.5 rounded-2xl text-sm ${msg.sender === "owner" ? "text-white rounded-tr-sm" : "bg-white text-[#27324A] rounded-tl-sm shadow-sm border border-[#2E3344]/5"}`}
+                        className={`max-w-xs px-4 py-2.5 rounded-2xl text-sm ${msg.sender === "owner" ? "text-white rounded-tr-sm" : "bg-white text-[#0F172A] rounded-tl-sm shadow-sm border border-[#1E293B]/5"}`}
                         style={
                           msg.sender === "owner"
-                            ? { backgroundColor: "#27324A" }
+                            ? { backgroundColor: "#0F172A" }
                             : {}
                         }
                       >
@@ -993,7 +993,7 @@ export function StorefrontManager({
                 </div>
 
                 {/* Reply */}
-                <div className="p-4 border-t border-[#2E3344]/8 flex gap-2">
+                <div className="p-4 border-t border-[#1E293B]/8 flex gap-2">
                   <Input
                     value={chatInput}
                     onChange={(e) => setChatInput(e.target.value)}
@@ -1009,7 +1009,7 @@ export function StorefrontManager({
                     type="button"
                     onClick={handleSendReply}
                     disabled={chatPending || !chatInput.trim()}
-                    className="h-11 px-4 rounded-xl bg-[#27324A] hover:bg-[#1b2333] text-white"
+                    className="h-11 px-4 rounded-xl bg-[#0F172A] hover:bg-[#1b2333] text-white"
                   >
                     <Send className="h-4 w-4" />
                   </Button>

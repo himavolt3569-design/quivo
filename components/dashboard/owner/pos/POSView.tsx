@@ -61,6 +61,7 @@ interface CatalogProduct {
   category: string | null;
   price: number;
   stock: number;
+  barcode: string | null;
   image_url: string | null;
 }
 
@@ -314,7 +315,7 @@ const PAYMENT_METHODS: {
     id: "cash",
     label: "Cash",
     icon: Banknote,
-    color: "bg-[#27324A] text-white",
+    color: "bg-[#0F172A] text-white",
   },
   {
     id: "online",
@@ -328,7 +329,7 @@ const PAYMENT_METHODS: {
     label: "Udhar",
     icon: User,
     color:
-      "bg-[#F7F0E6] text-[#A7653A] border border-[#A7653A]/20 hover:bg-[#A7653A] hover:text-white",
+      "bg-[#F8FAFC] text-[#3B82F6] border border-[#3B82F6]/20 hover:bg-[#3B82F6] hover:text-white",
   },
 ];
 
@@ -388,7 +389,7 @@ function printBill(
       <td style="padding:4px 6px;font-size:12px;vertical-align:top;">
         ${esc(item.name)}
         <div style="font-size:10px;color:#666;">${fmtQty(item.qty, item.cfg)} &times; Rs. ${item.price.toFixed(2)}</div>
-        ${item.lineDiscount > 0 ? `<div style="font-size:10px;color:#A7653A;">Line discount: &minus; Rs. ${item.lineDiscount.toFixed(2)}</div>` : ""}
+        ${item.lineDiscount > 0 ? `<div style="font-size:10px;color:#3B82F6;">Line discount: &minus; Rs. ${item.lineDiscount.toFixed(2)}</div>` : ""}
       </td>
       <td style="padding:4px 6px;font-size:12px;text-align:right;vertical-align:top;font-weight:bold;">Rs. ${(lineSubtotal - item.lineDiscount).toFixed(2)}</td>
     </tr>`;
@@ -443,8 +444,8 @@ ${bill.customerName ? `<div class="row"><span>Buyer</span><strong>${esc(bill.cus
 <table><tbody>${lines}</tbody></table>
 <div class="divider"></div>
 <div class="row"><span>Subtotal</span><span>Rs. ${bill.subtotal.toFixed(2)}</span></div>
-${bill.lineDiscountTotal > 0 ? `<div class="row" style="color:#A7653A"><span>Line discounts</span><span>&minus; Rs. ${bill.lineDiscountTotal.toFixed(2)}</span></div>` : ""}
-${bill.orderDiscount > 0 ? `<div class="row" style="color:#A7653A"><span>Order discount${bill.orderDiscountKind === "percent" ? ` (${bill.orderDiscountValue}%)` : ""}</span><span>&minus; Rs. ${bill.orderDiscount.toFixed(2)}</span></div>` : ""}
+${bill.lineDiscountTotal > 0 ? `<div class="row" style="color:#3B82F6"><span>Line discounts</span><span>&minus; Rs. ${bill.lineDiscountTotal.toFixed(2)}</span></div>` : ""}
+${bill.orderDiscount > 0 ? `<div class="row" style="color:#3B82F6"><span>Order discount${bill.orderDiscountKind === "percent" ? ` (${bill.orderDiscountValue}%)` : ""}</span><span>&minus; Rs. ${bill.orderDiscount.toFixed(2)}</span></div>` : ""}
 ${bill.taxAmount > 0 ? `<div class="row"><span>VAT (${bill.taxRate.toFixed(2)}%)</span><span>Rs. ${bill.taxAmount.toFixed(2)}</span></div>` : ""}
 <table><tr class="total-row">
   <td>TOTAL</td>
@@ -524,7 +525,8 @@ export function POSView({
         !search ||
         p.name.toLowerCase().includes(search.toLowerCase()) ||
         (p.brand ?? "").toLowerCase().includes(search.toLowerCase()) ||
-        (p.variant ?? "").toLowerCase().includes(search.toLowerCase());
+        (p.variant ?? "").toLowerCase().includes(search.toLowerCase()) ||
+        (p.barcode ?? "").toLowerCase().includes(search.toLowerCase());
       const matchesCategory =
         activeCategory === "All" || p.category === activeCategory;
       return matchesSearch && matchesCategory;
@@ -977,20 +979,32 @@ export function POSView({
       <OfflineSync />
       <div className="h-[calc(100vh-6rem)] flex flex-col lg:flex-row gap-6 animate-in fade-in duration-500 pb-16 lg:pb-0">
         {/* Left: Product Search & Catalog */}
-        <div className="flex-1 flex flex-col bg-white lg:rounded-[2rem] border border-[#2E3344]/8 shadow-sm overflow-hidden -mx-4 sm:-mx-6 lg:mx-0">
-          <div className="p-4 lg:p-6 border-b border-[#2E3344]/8 bg-[#f8f8f7]">
+        <div className="flex-1 flex flex-col bg-white lg:rounded-[2rem] border border-[#1E293B]/8 shadow-sm overflow-hidden -mx-4 sm:-mx-6 lg:mx-0">
+          <div className="p-4 lg:p-6 border-b border-[#1E293B]/8 bg-[#f8f8f7]">
             <div className="flex items-center gap-3">
               <div className="relative flex-1">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-[#746E73]" />
                 <Input
-                  placeholder="Search by name, brand or variant..."
-                  className="pl-12 h-12 lg:h-14 rounded-xl lg:rounded-2xl bg-white border-transparent focus-visible:ring-[#A7653A]/30 text-base lg:text-lg shadow-sm"
+                  placeholder="Search by name, brand, variant, or barcode..."
+                  className="pl-12 h-12 lg:h-14 rounded-xl lg:rounded-2xl bg-white border-transparent focus-visible:ring-[#3B82F6]/30 text-base lg:text-lg shadow-sm"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && search.trim()) {
+                      const exactMatch = catalogProducts.find(p => p.barcode === search.trim());
+                      if (exactMatch) {
+                        addToCart(exactMatch);
+                        setSearch("");
+                      } else if (filteredProducts.length === 1) {
+                        addToCart(filteredProducts[0]);
+                        setSearch("");
+                      }
+                    }
+                  }}
                   autoFocus
                 />
               </div>
-              <Button className="h-12 w-12 lg:h-14 lg:w-14 rounded-xl lg:rounded-2xl bg-[#27324A] hover:bg-[#1b2333] text-white shrink-0 shadow-lg">
+              <Button className="h-12 w-12 lg:h-14 lg:w-14 rounded-xl lg:rounded-2xl bg-[#0F172A] hover:bg-[#1b2333] text-white shrink-0 shadow-lg">
                 <Barcode className="h-5 w-5 lg:h-6 lg:w-6" />
               </Button>
               {/* Held sales sheet trigger */}
@@ -998,12 +1012,12 @@ export function POSView({
                 <SheetTrigger asChild>
                   <Button
                     variant="outline"
-                    className="h-12 lg:h-14 rounded-xl lg:rounded-2xl border-[#27324A]/15 text-[#27324A] font-bold shrink-0 px-3 lg:px-4 gap-2"
+                    className="h-12 lg:h-14 rounded-xl lg:rounded-2xl border-[#0F172A]/15 text-[#0F172A] font-bold shrink-0 px-3 lg:px-4 gap-2"
                   >
                     <History className="h-4 w-4" />
                     <span className="hidden sm:inline">Held</span>
                     {heldSales.length > 0 && (
-                      <span className="bg-[#A7653A] text-white text-[10px] font-black rounded-full h-5 min-w-[1.25rem] px-1 flex items-center justify-center">
+                      <span className="bg-[#3B82F6] text-white text-[10px] font-black rounded-full h-5 min-w-[1.25rem] px-1 flex items-center justify-center">
                         {heldSales.length}
                       </span>
                     )}
@@ -1027,8 +1041,8 @@ export function POSView({
                   onClick={() => setActiveCategory(cat)}
                   className={`px-4 py-2 rounded-xl text-xs font-bold transition whitespace-nowrap ${
                     activeCategory === cat
-                      ? "bg-[#27324A] text-white"
-                      : "bg-white border border-[#2E3344]/5 text-[#27324A] hover:bg-[#F7F0E6] hover:border-[#A7653A]/30"
+                      ? "bg-[#0F172A] text-white"
+                      : "bg-white border border-[#1E293B]/5 text-[#0F172A] hover:bg-[#F8FAFC] hover:border-[#3B82F6]/30"
                   }`}
                 >
                   {cat}
@@ -1041,7 +1055,7 @@ export function POSView({
             {catalogProducts.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full gap-4 text-center">
                 <Package className="h-16 w-16 text-[#746E73] opacity-20" />
-                <p className="font-bold text-[#27324A]">
+                <p className="font-bold text-[#0F172A]">
                   No products in catalog yet.
                 </p>
                 <p className="text-sm text-[#746E73]">
@@ -1063,8 +1077,8 @@ export function POSView({
                     <button
                       key={p.id}
                       onClick={() => addToCart(p)}
-                      className={`text-left bg-white p-4 rounded-[1.5rem] border border-[#2E3344]/8 hover:border-[#A7653A]/50 hover:shadow-md transition group flex flex-col h-32 lg:h-36 relative overflow-hidden ${
-                        cartItem ? "border-[#A7653A]/40 bg-[#FDF8F4]" : ""
+                      className={`text-left bg-white p-4 rounded-[1.5rem] border border-[#1E293B]/8 hover:border-[#3B82F6]/50 hover:shadow-md transition group flex flex-col h-32 lg:h-36 relative overflow-hidden ${
+                        cartItem ? "border-[#3B82F6]/40 bg-[#FDF8F4]" : ""
                       }`}
                     >
                       {p.image_url ? (
@@ -1080,12 +1094,12 @@ export function POSView({
                         />
                       )}
                       {cartItem && (
-                        <span className="absolute top-2 right-2 h-5 min-w-[1.25rem] px-1 bg-[#A7653A] text-white rounded-full text-[10px] font-black flex items-center justify-center z-10">
+                        <span className="absolute top-2 right-2 h-5 min-w-[1.25rem] px-1 bg-[#3B82F6] text-white rounded-full text-[10px] font-black flex items-center justify-center z-10">
                           {fmtQty(cartItem.qty, cartItem.cfg)}
                         </span>
                       )}
                       <div className="mt-auto relative z-10">
-                        <span className="text-xs lg:text-sm font-black text-[#27324A] line-clamp-2 block">
+                        <span className="text-xs lg:text-sm font-black text-[#0F172A] line-clamp-2 block">
                           {p.name}
                         </span>
                         {p.variant && (
@@ -1094,7 +1108,7 @@ export function POSView({
                           </span>
                         )}
                         <div className="flex items-center gap-1 mt-1">
-                          <span className="text-[10px] lg:text-xs font-bold text-[#A7653A]">
+                          <span className="text-[10px] lg:text-xs font-bold text-[#3B82F6]">
                             Rs. {p.price}
                           </span>
                           <span className="text-[9px] text-[#746E73]">
@@ -1127,12 +1141,12 @@ export function POSView({
         <div className="lg:hidden fixed bottom-16 left-0 right-0 p-4 bg-gradient-to-t from-[#f8f8f7] to-transparent z-40">
           <Sheet open={isMobileCartOpen} onOpenChange={setIsMobileCartOpen}>
             <SheetTrigger asChild>
-              <Button className="w-full h-14 rounded-2xl bg-[#A7653A] hover:bg-[#8D5132] text-white shadow-xl flex items-center justify-between px-6">
+              <Button className="w-full h-14 rounded-2xl bg-[#3B82F6] hover:bg-[#8D5132] text-white shadow-xl flex items-center justify-between px-6">
                 <div className="flex items-center gap-3">
                   <div className="relative">
                     <ShoppingCart className="h-5 w-5" />
                     {cart.length > 0 && (
-                      <span className="absolute -top-2 -right-2 h-4 w-4 bg-white text-[#A7653A] rounded-full text-[9px] font-black flex items-center justify-center">
+                      <span className="absolute -top-2 -right-2 h-4 w-4 bg-white text-[#3B82F6] rounded-full text-[9px] font-black flex items-center justify-center">
                         {cart.length}
                       </span>
                     )}
@@ -1165,7 +1179,7 @@ export function POSView({
           onClick={() =>
             printBill(lastReceiptBill, shopName, ownerName, shopPanNumber)
           }
-          className="fixed bottom-24 lg:bottom-6 right-4 z-40 h-12 px-4 rounded-2xl bg-white border-2 border-[#27324A]/15 text-[#27324A] font-bold shadow-lg flex items-center gap-2 hover:bg-[#f8f8f7] transition"
+          className="fixed bottom-24 lg:bottom-6 right-4 z-40 h-12 px-4 rounded-2xl bg-white border-2 border-[#0F172A]/15 text-[#0F172A] font-bold shadow-lg flex items-center gap-2 hover:bg-[#f8f8f7] transition"
           title={`Re-print receipt #${lastReceiptBill.receiptNo}`}
         >
           <Printer className="h-4 w-4" />
@@ -1177,7 +1191,7 @@ export function POSView({
       {completedBill && (
         <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4 animate-in fade-in duration-200">
           <div className="bg-white rounded-[2rem] w-full max-w-md shadow-2xl overflow-hidden">
-            <div className="bg-gradient-to-br from-[#27324A] to-[#1b2333] p-6 text-white text-center">
+            <div className="bg-gradient-to-br from-[#0F172A] to-[#1b2333] p-6 text-white text-center">
               <div className="h-14 w-14 rounded-full bg-white/15 flex items-center justify-center mx-auto mb-3">
                 <CheckCircle2 className="h-8 w-8 text-green-300" />
               </div>
@@ -1199,19 +1213,19 @@ export function POSView({
                     className="flex justify-between items-center text-sm"
                   >
                     <div>
-                      <span className="font-bold text-[#27324A]">
+                      <span className="font-bold text-[#0F172A]">
                         {item.name}
                       </span>
                       <span className="text-[#746E73] ml-2 text-xs">
                         × {fmtQty(item.qty, item.cfg)}
                       </span>
                       {item.lineDiscount > 0 && (
-                        <span className="text-[10px] text-[#A7653A] block">
+                        <span className="text-[10px] text-[#3B82F6] block">
                           − Rs. {item.lineDiscount.toFixed(2)} line discount
                         </span>
                       )}
                     </div>
-                    <span className="font-bold text-[#27324A]">
+                    <span className="font-bold text-[#0F172A]">
                       Rs.{" "}
                       {(item.price * item.qty - item.lineDiscount).toFixed(2)}
                     </span>
@@ -1219,13 +1233,13 @@ export function POSView({
                 ))}
               </div>
 
-              <div className="border-t border-[#2E3344]/10 mt-4 pt-4 space-y-1.5">
+              <div className="border-t border-[#1E293B]/10 mt-4 pt-4 space-y-1.5">
                 <div className="flex justify-between text-sm text-[#746E73] font-medium">
                   <span>Subtotal</span>
                   <span>Rs. {completedBill.subtotal.toFixed(2)}</span>
                 </div>
                 {completedBill.lineDiscountTotal > 0 && (
-                  <div className="flex justify-between text-sm text-[#A7653A]">
+                  <div className="flex justify-between text-sm text-[#3B82F6]">
                     <span>Line discounts</span>
                     <span>
                       − Rs. {completedBill.lineDiscountTotal.toFixed(2)}
@@ -1233,7 +1247,7 @@ export function POSView({
                   </div>
                 )}
                 {completedBill.orderDiscount > 0 && (
-                  <div className="flex justify-between text-sm font-bold text-[#A7653A]">
+                  <div className="flex justify-between text-sm font-bold text-[#3B82F6]">
                     <span>
                       Order discount
                       {completedBill.orderDiscountKind === "percent"
@@ -1244,12 +1258,12 @@ export function POSView({
                   </div>
                 )}
                 {completedBill.taxAmount > 0 && (
-                  <div className="flex justify-between text-sm text-[#27324A]">
+                  <div className="flex justify-between text-sm text-[#0F172A]">
                     <span>VAT ({completedBill.taxRate.toFixed(2)}%)</span>
                     <span>Rs. {completedBill.taxAmount.toFixed(2)}</span>
                   </div>
                 )}
-                <div className="flex justify-between font-black text-lg text-[#27324A] pt-1.5 border-t border-[#2E3344]/10">
+                <div className="flex justify-between font-black text-lg text-[#0F172A] pt-1.5 border-t border-[#1E293B]/10">
                   <span>Total</span>
                   <span>Rs. {completedBill.total.toFixed(2)}</span>
                 </div>
@@ -1261,7 +1275,7 @@ export function POSView({
                     completedBill.splits.map((s, i) => (
                       <span
                         key={i}
-                        className="text-xs font-black px-2 py-1 rounded-lg bg-[#27324A]/10 text-[#27324A]"
+                        className="text-xs font-black px-2 py-1 rounded-lg bg-[#0F172A]/10 text-[#0F172A]"
                       >
                         {paymentLabel(s.method)} · Rs. {s.amount.toFixed(2)}
                       </span>
@@ -1270,12 +1284,12 @@ export function POSView({
                     <span
                       className={`text-xs font-black px-2 py-1 rounded-lg ${
                         completedBill.paymentMethod === "cash"
-                          ? "bg-[#27324A]/10 text-[#27324A]"
+                          ? "bg-[#0F172A]/10 text-[#0F172A]"
                           : completedBill.paymentMethod === "online"
                             ? "bg-[#41A560]/10 text-[#41A560]"
                             : completedBill.paymentMethod === "udhar"
-                              ? "bg-[#A7653A]/10 text-[#A7653A]"
-                              : "bg-[#27324A]/10 text-[#27324A]"
+                              ? "bg-[#3B82F6]/10 text-[#3B82F6]"
+                              : "bg-[#0F172A]/10 text-[#0F172A]"
                       }`}
                     >
                       {completedBill.paymentMethod === "udhar"
@@ -1290,7 +1304,7 @@ export function POSView({
                       <span className="text-xs font-bold text-[#746E73] uppercase tracking-wider">
                         Buyer
                       </span>
-                      <span className="text-xs font-bold text-[#27324A]">
+                      <span className="text-xs font-bold text-[#0F172A]">
                         {completedBill.customerName}
                       </span>
                     </div>
@@ -1303,14 +1317,14 @@ export function POSView({
                 onClick={() =>
                   printBill(completedBill, shopName, ownerName, shopPanNumber)
                 }
-                className="flex-1 h-12 rounded-2xl border-2 border-[#27324A]/15 font-bold text-[#27324A] flex items-center justify-center gap-2 hover:bg-[#f8f8f7] transition"
+                className="flex-1 h-12 rounded-2xl border-2 border-[#0F172A]/15 font-bold text-[#0F172A] flex items-center justify-center gap-2 hover:bg-[#f8f8f7] transition"
               >
                 <Printer className="h-4 w-4" />
                 Print Bill
               </button>
               <button
                 onClick={() => setCompletedBill(null)}
-                className="flex-1 h-12 rounded-2xl bg-[#27324A] text-white font-bold flex items-center justify-center gap-2 hover:bg-[#1b2333] transition"
+                className="flex-1 h-12 rounded-2xl bg-[#0F172A] text-white font-bold flex items-center justify-center gap-2 hover:bg-[#1b2333] transition"
               >
                 <Receipt className="h-4 w-4" />
                 New Sale
@@ -1403,18 +1417,18 @@ function CartContent(props: CartContentProps) {
   } = props;
 
   return (
-    <div className="w-full h-full flex flex-col bg-white lg:rounded-[2rem] lg:border border-[#2E3344]/8 lg:shadow-sm overflow-hidden shrink-0">
+    <div className="w-full h-full flex flex-col bg-white lg:rounded-[2rem] lg:border border-[#1E293B]/8 lg:shadow-sm overflow-hidden shrink-0">
       {/* Header */}
-      <div className="p-5 border-b border-[#2E3344]/8 flex items-center justify-between bg-[#F7F0E6]/30">
-        <h2 className="font-black text-[#27324A] flex items-center gap-2">
-          <ShoppingCart className="h-5 w-5 text-[#A7653A]" /> Current Sale
+      <div className="p-5 border-b border-[#1E293B]/8 flex items-center justify-between bg-[#F8FAFC]/30">
+        <h2 className="font-black text-[#0F172A] flex items-center gap-2">
+          <ShoppingCart className="h-5 w-5 text-[#3B82F6]" /> Current Sale
         </h2>
         {cart.length > 0 && (
           <div className="flex items-center gap-2">
             <button
               onClick={onPark}
               disabled={isPending}
-              className="text-xs font-bold text-[#27324A] hover:bg-[#27324A]/5 px-3 py-1.5 rounded-lg transition flex items-center gap-1 disabled:opacity-40"
+              className="text-xs font-bold text-[#0F172A] hover:bg-[#0F172A]/5 px-3 py-1.5 rounded-lg transition flex items-center gap-1 disabled:opacity-40"
               title="Park this cart"
             >
               <PauseCircle className="h-3.5 w-3.5" />
@@ -1449,10 +1463,10 @@ function CartContent(props: CartContentProps) {
                   className="flex flex-col p-3 hover:bg-[#f8f8f7] rounded-xl group transition"
                 >
                   <div className="flex justify-between items-start mb-2">
-                    <p className="text-sm font-bold text-[#27324A] line-clamp-1 pr-2">
+                    <p className="text-sm font-bold text-[#0F172A] line-clamp-1 pr-2">
                       {item.name}
                     </p>
-                    <p className="text-sm font-black text-[#27324A] shrink-0">
+                    <p className="text-sm font-black text-[#0F172A] shrink-0">
                       Rs. {lineNet.toFixed(2)}
                     </p>
                   </div>
@@ -1461,10 +1475,10 @@ function CartContent(props: CartContentProps) {
                       <UnitIcon kind={item.cfg.kind} />
                       Rs. {item.price} {item.cfg.priceLabel}
                     </span>
-                    <div className="flex items-center gap-2 bg-white border border-[#2E3344]/10 rounded-lg p-1">
+                    <div className="flex items-center gap-2 bg-white border border-[#1E293B]/10 rounded-lg p-1">
                       <button
                         onClick={() => onUpdateQty(item.id, -1)}
-                        className="h-6 w-6 rounded bg-[#f8f8f7] hover:bg-[#E8E3D1] flex items-center justify-center text-[#27324A]"
+                        className="h-6 w-6 rounded bg-[#f8f8f7] hover:bg-[#E8E3D1] flex items-center justify-center text-[#0F172A]"
                       >
                         <Minus className="h-3 w-3" />
                       </button>
@@ -1473,7 +1487,7 @@ function CartContent(props: CartContentProps) {
                       </span>
                       <button
                         onClick={() => onUpdateQty(item.id, 1)}
-                        className="h-6 w-6 rounded bg-[#F7F0E6] hover:bg-[#A7653A] hover:text-white flex items-center justify-center text-[#A7653A] transition"
+                        className="h-6 w-6 rounded bg-[#F8FAFC] hover:bg-[#3B82F6] hover:text-white flex items-center justify-center text-[#3B82F6] transition"
                       >
                         <Plus className="h-3 w-3" />
                       </button>
@@ -1481,7 +1495,7 @@ function CartContent(props: CartContentProps) {
                   </div>
                   {/* Per-line discount */}
                   <div className="flex items-center gap-2 mt-2 text-[10px] font-bold text-[#746E73]">
-                    <Tag className="h-3 w-3 text-[#A7653A]" />
+                    <Tag className="h-3 w-3 text-[#3B82F6]" />
                     <span className="uppercase tracking-wider">
                       Line discount
                     </span>
@@ -1499,7 +1513,7 @@ function CartContent(props: CartContentProps) {
                         )
                       }
                       placeholder="0"
-                      className="flex-1 px-2 h-7 text-xs text-right outline-none border border-[#2E3344]/10 rounded bg-white"
+                      className="flex-1 px-2 h-7 text-xs text-right outline-none border border-[#1E293B]/10 rounded bg-white"
                     />
                     <span>Rs.</span>
                   </div>
@@ -1512,8 +1526,8 @@ function CartContent(props: CartContentProps) {
 
       {/* Udhar Customer Name Prompt */}
       {showUdharPrompt && (
-        <div className="px-5 py-3 bg-[#F7F0E6]/60 border-t border-[#A7653A]/20">
-          <p className="text-xs font-bold text-[#A7653A] mb-2 uppercase tracking-wider">
+        <div className="px-5 py-3 bg-[#F8FAFC]/60 border-t border-[#3B82F6]/20">
+          <p className="text-xs font-bold text-[#3B82F6] mb-2 uppercase tracking-wider">
             Customer name (Udhar)
           </p>
           <div className="flex gap-2">
@@ -1532,13 +1546,13 @@ function CartContent(props: CartContentProps) {
             <button
               onClick={() => onCheckout("udhar", udharName || undefined)}
               disabled={isPending}
-              className="px-4 h-9 rounded-xl bg-[#A7653A] text-white text-sm font-bold shrink-0 disabled:opacity-50"
+              className="px-4 h-9 rounded-xl bg-[#3B82F6] text-white text-sm font-bold shrink-0 disabled:opacity-50"
             >
               Confirm
             </button>
             <button
               onClick={onDismissUdhar}
-              className="h-9 w-9 rounded-xl border border-[#2E3344]/10 flex items-center justify-center shrink-0"
+              className="h-9 w-9 rounded-xl border border-[#1E293B]/10 flex items-center justify-center shrink-0"
             >
               <X className="h-4 w-4 text-[#746E73]" />
             </button>
@@ -1547,7 +1561,7 @@ function CartContent(props: CartContentProps) {
       )}
 
       {/* Footer */}
-      <div className="p-5 border-t border-[#2E3344]/8 bg-[#f8f8f7]">
+      <div className="p-5 border-t border-[#1E293B]/8 bg-[#f8f8f7]">
         {/* Buyer name (optional) */}
         {cart.length > 0 && (
           <div className="mb-3">
@@ -1566,11 +1580,11 @@ function CartContent(props: CartContentProps) {
             <span className="text-[10px] font-black uppercase tracking-wider text-[#746E73] shrink-0">
               Order discount
             </span>
-            <div className="flex flex-1 rounded-xl border border-[#2E3344]/10 overflow-hidden bg-white">
+            <div className="flex flex-1 rounded-xl border border-[#1E293B]/10 overflow-hidden bg-white">
               <button
                 type="button"
                 onClick={() => onDiscountKindChange("flat")}
-                className={`px-2 text-xs font-black ${orderDiscountKind === "flat" ? "bg-[#27324A] text-white" : "text-[#746E73]"}`}
+                className={`px-2 text-xs font-black ${orderDiscountKind === "flat" ? "bg-[#0F172A] text-white" : "text-[#746E73]"}`}
                 aria-label="Flat amount"
               >
                 Rs
@@ -1578,7 +1592,7 @@ function CartContent(props: CartContentProps) {
               <button
                 type="button"
                 onClick={() => onDiscountKindChange("percent")}
-                className={`px-2 text-xs font-black ${orderDiscountKind === "percent" ? "bg-[#27324A] text-white" : "text-[#746E73]"}`}
+                className={`px-2 text-xs font-black ${orderDiscountKind === "percent" ? "bg-[#0F172A] text-white" : "text-[#746E73]"}`}
                 aria-label="Percent"
               >
                 %
@@ -1608,13 +1622,13 @@ function CartContent(props: CartContentProps) {
             <span>Rs. {subtotal.toFixed(2)}</span>
           </div>
           {lineDiscountTotal > 0 && (
-            <div className="flex justify-between text-xs text-[#A7653A]">
+            <div className="flex justify-between text-xs text-[#3B82F6]">
               <span>Line discounts</span>
               <span>− Rs. {lineDiscountTotal.toFixed(2)}</span>
             </div>
           )}
           {orderDiscount > 0 && (
-            <div className="flex justify-between text-sm font-bold text-[#A7653A]">
+            <div className="flex justify-between text-sm font-bold text-[#3B82F6]">
               <span>
                 Order discount
                 {orderDiscountKind === "percent"
@@ -1625,12 +1639,12 @@ function CartContent(props: CartContentProps) {
             </div>
           )}
           {vatRegistered && cart.length > 0 && (
-            <div className="flex justify-between text-xs text-[#27324A] font-bold">
+            <div className="flex justify-between text-xs text-[#0F172A] font-bold">
               <span>VAT ({taxRate.toFixed(2)}%)</span>
               <span>Rs. {taxAmount.toFixed(2)}</span>
             </div>
           )}
-          <div className="flex justify-between text-xl font-black text-[#27324A] pt-2 border-t border-[#2E3344]/10">
+          <div className="flex justify-between text-xl font-black text-[#0F172A] pt-2 border-t border-[#1E293B]/10">
             <span>Total</span>
             <span>Rs. {total.toFixed(2)}</span>
           </div>
@@ -1642,8 +1656,8 @@ function CartContent(props: CartContentProps) {
             onClick={onToggleSplit}
             className={`w-full mb-3 h-10 rounded-xl border text-xs font-bold flex items-center justify-center gap-2 transition ${
               splitMode
-                ? "bg-[#27324A] text-white border-[#27324A]"
-                : "bg-white text-[#27324A] border-[#27324A]/15 hover:bg-[#f8f8f7]"
+                ? "bg-[#0F172A] text-white border-[#0F172A]"
+                : "bg-white text-[#0F172A] border-[#0F172A]/15 hover:bg-[#f8f8f7]"
             }`}
           >
             <Split className="h-4 w-4" />
@@ -1653,7 +1667,7 @@ function CartContent(props: CartContentProps) {
 
         {/* Splits editor */}
         {splitMode && (
-          <div className="mb-3 p-3 rounded-xl bg-white border border-[#27324A]/10 space-y-2">
+          <div className="mb-3 p-3 rounded-xl bg-white border border-[#0F172A]/10 space-y-2">
             {splits.length === 0 ? (
               <p className="text-[11px] font-bold text-[#746E73]">
                 Tap a method below to start a split (max 3).
@@ -1661,7 +1675,7 @@ function CartContent(props: CartContentProps) {
             ) : (
               splits.map((s, idx) => (
                 <div key={idx} className="flex items-center gap-2">
-                  <span className="text-[11px] font-black uppercase tracking-wider text-[#27324A] w-16">
+                  <span className="text-[11px] font-black uppercase tracking-wider text-[#0F172A] w-16">
                     {paymentLabel(s.method)}
                   </span>
                   <input
@@ -1672,11 +1686,11 @@ function CartContent(props: CartContentProps) {
                     value={s.amount}
                     onChange={(e) => onUpdateSplitAmount(idx, e.target.value)}
                     placeholder="0.00"
-                    className="flex-1 h-9 px-2 text-sm border border-[#2E3344]/10 rounded-lg outline-none"
+                    className="flex-1 h-9 px-2 text-sm border border-[#1E293B]/10 rounded-lg outline-none"
                   />
                   <button
                     onClick={() => onRemoveSplit(idx)}
-                    className="h-9 w-9 rounded-lg border border-[#2E3344]/10 flex items-center justify-center text-red-500 hover:bg-red-50"
+                    className="h-9 w-9 rounded-lg border border-[#1E293B]/10 flex items-center justify-center text-red-500 hover:bg-red-50"
                   >
                     <Trash2 className="h-3.5 w-3.5" />
                   </button>
@@ -1685,13 +1699,13 @@ function CartContent(props: CartContentProps) {
             )}
             <div className="flex items-center justify-between pt-1 text-[11px] font-bold">
               <span className="text-[#746E73]">Allocated</span>
-              <span className="text-[#27324A]">
+              <span className="text-[#0F172A]">
                 Rs. {splitSum.toFixed(2)} / Rs. {total.toFixed(2)}
               </span>
             </div>
             {Math.abs(splitRemaining) > 0.01 && (
               <p
-                className={`text-[11px] font-bold ${splitRemaining > 0 ? "text-[#A7653A]" : "text-red-600"}`}
+                className={`text-[11px] font-bold ${splitRemaining > 0 ? "text-[#3B82F6]" : "text-red-600"}`}
               >
                 {splitRemaining > 0
                   ? `Remaining: Rs. ${splitRemaining.toFixed(2)}`
@@ -1705,7 +1719,7 @@ function CartContent(props: CartContentProps) {
                 splits.length === 0 ||
                 Math.abs(splitRemaining) > 0.01
               }
-              className="w-full h-10 rounded-xl bg-[#27324A] text-white text-sm font-bold disabled:opacity-40"
+              className="w-full h-10 rounded-xl bg-[#0F172A] text-white text-sm font-bold disabled:opacity-40"
             >
               Confirm split sale
             </button>
@@ -1736,7 +1750,7 @@ function CartContent(props: CartContentProps) {
                 key={pm.id}
                 disabled={isPending || cart.length === 0 || splits.length >= 3}
                 onClick={() => onAddSplit(pm.id)}
-                className="py-2 rounded-xl flex flex-col items-center gap-1 active:scale-95 transition shadow-sm disabled:opacity-40 bg-white border border-[#27324A]/15 text-[#27324A] hover:bg-[#f8f8f7]"
+                className="py-2 rounded-xl flex flex-col items-center gap-1 active:scale-95 transition shadow-sm disabled:opacity-40 bg-white border border-[#0F172A]/15 text-[#0F172A] hover:bg-[#f8f8f7]"
               >
                 <pm.icon className="h-4 w-4" />
                 <span className="text-[10px] font-bold uppercase tracking-wider">
@@ -1768,9 +1782,9 @@ function HeldSalesPanel({
 }: HeldSalesPanelProps) {
   return (
     <div className="flex flex-col h-full bg-white">
-      <div className="p-5 border-b border-[#2E3344]/8 flex items-center gap-2">
-        <History className="h-5 w-5 text-[#A7653A]" />
-        <h2 className="font-black text-[#27324A]">Held sales</h2>
+      <div className="p-5 border-b border-[#1E293B]/8 flex items-center gap-2">
+        <History className="h-5 w-5 text-[#3B82F6]" />
+        <h2 className="font-black text-[#0F172A]">Held sales</h2>
         <span className="ml-auto text-xs font-bold text-[#746E73]">
           {holds.length}
         </span>
@@ -1787,11 +1801,11 @@ function HeldSalesPanel({
             {holds.map((h) => (
               <li
                 key={h.id}
-                className="p-3 rounded-2xl border border-[#2E3344]/8 bg-[#f8f8f7]/50 hover:bg-white transition"
+                className="p-3 rounded-2xl border border-[#1E293B]/8 bg-[#f8f8f7]/50 hover:bg-white transition"
               >
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
-                    <p className="text-sm font-black text-[#27324A]">
+                    <p className="text-sm font-black text-[#0F172A]">
                       Rs. {h.total.toFixed(2)}
                     </p>
                     <p className="text-[11px] font-bold text-[#746E73] mt-0.5">
@@ -1814,7 +1828,7 @@ function HeldSalesPanel({
                     <button
                       onClick={() => onResume(h.id)}
                       disabled={isPending}
-                      className="h-9 px-3 rounded-xl bg-[#27324A] text-white text-xs font-bold flex items-center gap-1 disabled:opacity-40 hover:bg-[#1b2333]"
+                      className="h-9 px-3 rounded-xl bg-[#0F172A] text-white text-xs font-bold flex items-center gap-1 disabled:opacity-40 hover:bg-[#1b2333]"
                     >
                       <PlayCircle className="h-3.5 w-3.5" />
                       Resume

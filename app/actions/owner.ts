@@ -7,6 +7,7 @@ import { getSiteUrl, isSafeHttpUrl } from "@/lib/security";
 import { KYC_GRACE_DAYS, sendKycComplianceEmail } from "@/lib/kyc-compliance";
 import { log } from "@/lib/log";
 import { emitBackground } from "@/lib/events/emit";
+import { prisma } from "@/lib/prisma";
 import {
   OptionalPhoneSchema,
   OptionalEmailSchema,
@@ -110,28 +111,22 @@ export async function createShop(formData: FormData) {
 
   let slug = base;
   for (let attempt = 0; attempt < 8; attempt++) {
-    const { data: existing, error: lookupError } = await supabase
-      .from("shops")
-      .select("id")
-      .eq("slug", slug)
-      .maybeSingle();
-
-    if (lookupError) {
-      log.error("createShop: shops lookup failed", {
-        code: lookupError.code,
-        message: lookupError.message,
-        details: lookupError.details,
+    try {
+      const existing = await prisma.shops.findUnique({
+        where: { slug },
+        select: { id: true },
       });
-      if (lookupError.code === "42P01") {
+      if (!existing) break;
+    } catch (e: any) {
+      log.error("createShop: shops lookup failed", { error: e.message });
+      if (e.message?.includes("does not exist")) {
         return {
-          error:
-            "Shop tables are not set up yet. Apply migration 20240101000012_owner_foundation.sql in your Supabase SQL editor and try again.",
+          error: "Shop tables are not set up yet. Check database configuration."
         };
       }
-      return { error: `Database error: ${lookupError.message}` };
+      return { error: `Database error: ${e.message}` };
     }
 
-    if (!existing) break;
     slug = `${base}-${randomSuffix()}`;
     if (attempt === 7) {
       return {
@@ -140,72 +135,80 @@ export async function createShop(formData: FormData) {
     }
   }
 
-  const { data: rpcData, error: rpcError } = await supabase.rpc(
-    "create_shop_with_owner",
-    {
-      p_name: data.name,
-      p_slug: slug,
-      p_business_type: data.business_type,
-      p_category: data.category,
-      p_phone: data.phone || null,
-      p_address: data.address || null,
-      p_lat: data.lat ?? null,
-      p_lng: data.lng ?? null,
-      p_description: data.description || null,
-      p_logo_url: data.logo_url ?? null,
-      p_pan_document_url: data.pan_document_url ?? null,
-      p_subdomain: data.subdomain ?? null,
-      p_opening_time: data.opening_time ?? null,
-      p_closing_time: data.closing_time ?? null,
-      p_site_origin: getSiteUrl(),
-      p_verification_status: "unverified",
-      p_kyc_confidence: null,
-    },
-  );
+  let shopId: string;
+  let qrToken: string;
+  let qrTargetUrl: string;
 
-  if (rpcError) {
-    log.error("createShop RPC error", {
-      code: rpcError.code,
-      message: rpcError.message,
-      details: rpcError.details,
-      hint: rpcError.hint,
+  try {
+    const result = await prisma.$transaction(async (tx) => {
+      const newShop = await tx.shops.create({
+        data: {
+          name: data.name,
+          slug,
+          owner_id: user.id,
+          business_type: data.business_type,
+          category: data.category,
+          phone: data.phone || null,
+          address: data.address || null,
+          lat: data.lat ?? null,
+          lng: data.lng ?? null,
+          description: data.description || null,
+          logo_url: data.logo_url ?? null,
+          pan_document_url: data.pan_document_url ?? null,
+          subdomain: data.subdomain ?? null,
+          opening_time: data.opening_time ? new Date(`1970-01-01T${data.opening_time}:00Z`) : null,
+          closing_time: data.closing_time ? new Date(`1970-01-01T${data.closing_time}:00Z`) : null,
+          status: "active",
+          verification_status: "unverified",
+          kyc_confidence: null,
+          shop_members: {
+            create: {
+              user_id: user.id,
+              role: "owner",
+              status: "active",
+            },
+          },
+        },
+      });
+
+      const generatedQrToken = Math.random().toString(16).slice(2, 14); // basic hex
+      const generatedQrTargetUrl = `${getSiteUrl()}/s/${slug}`;
+
+      const qrCode = await tx.shop_qr_codes.create({
+        data: {
+          shop_id: newShop.id,
+          qr_token: generatedQrToken,
+          qr_target_url: generatedQrTargetUrl,
+          is_primary: true,
+          is_active: true,
+        },
+      });
+
+      return { newShop, qrCode };
     });
-    if (rpcError.code === "23505") {
+
+    shopId = result.newShop.id;
+    qrToken = result.qrCode.qr_token;
+    qrTargetUrl = result.qrCode.qr_target_url;
+
+    await prisma.profiles.update({
+      where: { id: user.id },
+      data: {
+        role: "owner",
+        active_shop_id: shopId,
+      },
+    }).catch(e => {
+      log.error("createShop: could not update profile", { error: e.message });
+    });
+
+  } catch (err: any) {
+    if (err.code === "P2002") {
       return { error: "A shop with that name or subdomain already exists." };
     }
-    if (rpcError.code === "42501") {
-      return { error: "Unauthorized. Please sign in again." };
-    }
-    if (rpcError.code === "23514") {
-      return { error: `Validation failed: ${rpcError.message}` };
-    }
-    return {
-      error: `RPC ${rpcError.code ?? "?"}: ${rpcError.message ?? "unknown error"}${rpcError.hint ? ` (hint: ${rpcError.hint})` : ""}`,
-    };
+    return { error: `Database error: ${err.message}` };
   }
 
-  const row = Array.isArray(rpcData) ? rpcData[0] : rpcData;
-  if (!row) {
-    log.error("createShop: RPC returned no row", { rpcData });
-    return { error: "Shop creation returned no result. Check server logs." };
-  }
-
-  // Make the new shop the user's active shop. Best-effort: if the column
-  // doesn't exist yet (migration 13 not applied), log and continue.
-  const { error: activeError } = await supabase
-    .from("profiles")
-    .update({ active_shop_id: row.shop_id })
-    .eq("id", user.id);
-  if (activeError && activeError.code !== "42703") {
-    log.error("createShop: could not set active_shop_id", {
-      code: activeError.code,
-      message: activeError.message,
-    });
-  }
-
-  // Best-effort KYC welcome email — must NEVER block shop creation. The
-  // shop is already inserted in the DB at this point; any email/network
-  // failure here is informational only.
+  // Best-effort KYC welcome email
   if (user.email) {
     try {
       const graceEndsAt = new Date(
@@ -219,22 +222,15 @@ export async function createShop(formData: FormData) {
         daysRemaining: KYC_GRACE_DAYS,
       });
       if (emailResult.ok) {
-        const { error: emailMarkError } = await supabase
-          .from("shops")
-          .update({ kyc_grace_email_sent_at: new Date().toISOString() })
-          .eq("id", row.shop_id);
-        if (emailMarkError && emailMarkError.code !== "42703") {
-          log.error("createShop: could not mark KYC email sent", {
-            code: emailMarkError.code,
-            message: emailMarkError.message,
-          });
-        }
+        await prisma.shops.update({
+          where: { id: shopId },
+          data: { kyc_grace_email_sent_at: new Date() },
+        }).catch(e => log.error("createShop: could not mark KYC email sent", { error: e.message }));
       }
     } catch (err) {
       log.error("createShop: KYC welcome email threw", {
         err: err instanceof Error ? err.message : String(err),
       });
-      // Continue — the shop already exists.
     }
   }
 
@@ -251,10 +247,10 @@ export async function createShop(formData: FormData) {
 
   return {
     success: true,
-    shop_id: row.shop_id as string,
+    shop_id: shopId,
     slug,
-    qr_token: row.qr_token as string,
-    qr_target_url: row.qr_target_url as string,
+    qr_token: qrToken,
+    qr_target_url: qrTargetUrl,
   };
 }
 
@@ -270,48 +266,35 @@ export async function setActiveShop(shopId: string) {
   } = await supabase.auth.getUser();
   if (!user) return { error: "Unauthorized" };
 
-  // Verify the caller is an active member of the target shop
-  const { data: member, error: memberError } = await supabase
-    .from("shop_members")
-    .select("shop_id")
-    .eq("user_id", user.id)
-    .eq("shop_id", parse.data)
-    .eq("status", "active")
-    .maybeSingle();
+  const member = await prisma.shop_members.findFirst({
+    where: {
+      user_id: user.id,
+      shop_id: parse.data,
+      status: "active",
+    },
+    select: { shop_id: true }
+  }).catch(e => {
+    log.error("setActiveShop: membership check failed", { error: e.message });
+    return null; // Will trigger the !member check below
+  });
 
-  if (memberError) {
-    log.error("setActiveShop: membership check failed", {
-      code: memberError.code,
-      message: memberError.message,
-      details: memberError.details,
-      hint: memberError.hint,
+  if (!member) return { error: "You are not a member of that shop or the check failed." };
+
+  try {
+    await prisma.profiles.update({
+      where: { id: user.id },
+      data: { active_shop_id: parse.data }
     });
-    return {
-      error: `Membership check failed (${memberError.code ?? "?"}): ${memberError.message ?? "unknown"}`,
-    };
-  }
-  if (!member) return { error: "You are not a member of that shop." };
-
-  const { error: updateError } = await supabase
-    .from("profiles")
-    .update({ active_shop_id: parse.data })
-    .eq("id", user.id);
-
-  if (updateError) {
-    log.error("setActiveShop: profile update failed", {
-      code: updateError.code,
-      message: updateError.message,
-      details: updateError.details,
-      hint: updateError.hint,
-    });
-    if (updateError.code === "42703") {
+  } catch (updateError: any) {
+    log.error("setActiveShop: profile update failed", { error: updateError.message });
+    if (updateError.message?.includes("active_shop_id")) {
       return {
         error:
-          "active_shop_id column missing. Apply migration 20240101000013_profiles_active_shop.sql in your Supabase SQL editor.",
+          "active_shop_id column missing. Check database schema.",
       };
     }
     return {
-      error: `Update failed (${updateError.code ?? "?"}): ${updateError.message ?? "unknown"}`,
+      error: `Update failed: ${updateError.message}`,
     };
   }
 
@@ -350,6 +333,7 @@ const ProductSchema = z.object({
   cost_price: z.coerce.number().min(0).max(10000000).optional(),
   stock: z.coerce.number().int().min(0).max(1000000).default(0),
   low_stock_threshold: z.coerce.number().int().min(0).max(100000).default(5),
+  max_stock: z.coerce.number().int().min(0).max(1000000).optional(),
   barcode: z.string().trim().max(100).optional(),
   status: z.enum(["active", "draft", "archived"]).default("active"),
   image_url: OptionalUrl,
@@ -386,6 +370,7 @@ export async function addProduct(shopId: string, formData: FormData) {
     cost_price: formData.get("cost_price")?.toString() || undefined,
     stock: formData.get("stock")?.toString() ?? "0",
     low_stock_threshold: formData.get("low_stock_threshold")?.toString() ?? "5",
+    max_stock: formData.get("max_stock")?.toString() || undefined,
     barcode: formData.get("barcode")?.toString() || undefined,
     status: "active",
     image_url: imagesList[0] ?? formData.get("image_url")?.toString() ?? "",
@@ -393,26 +378,25 @@ export async function addProduct(shopId: string, formData: FormData) {
   });
   if (!parse.success) return { error: parse.error.issues[0].message };
 
-  const { supabase } = await getAuthUser();
-  const { data, error } = await supabase
-    .from("products")
-    .insert({ shop_id: idParse.data, ...parse.data })
-    .select("id, barcode")
-    .single();
-
-  if (error) {
-    if (
-      error.code === "23505" &&
-      error.message.includes("idx_products_barcode_unique")
-    ) {
+  try {
+    const data = await prisma.products.create({
+      data: {
+        shop_id: idParse.data,
+        ...parse.data,
+      },
+      select: { id: true, barcode: true },
+    });
+    
+    revalidatePath("/dashboard/owner/products");
+    return { success: true, id: data.id, barcode: data.barcode };
+  } catch (error: any) {
+    if (error.code === "P2002" && error.message.includes("barcode")) {
       return {
         error: "A product with this barcode already exists in this shop.",
       };
     }
     return { error: `Could not add product: ${error.message}` };
   }
-  revalidatePath("/dashboard/owner/products");
-  return { success: true, id: data.id, barcode: data.barcode };
 }
 
 export async function restockProduct(
@@ -427,20 +411,27 @@ export async function restockProduct(
   if (!pidParse.success || !sidParse.success) return { error: "Invalid ID" };
   if (addQty <= 0) return { error: "Quantity must be greater than 0" };
 
-  const { supabase } = await getAuthUser();
-  const { data, error } = await supabase
-    .rpc("restock_product", {
-      p_product_id: pidParse.data,
-      p_shop_id: sidParse.data,
-      p_add_qty: addQty,
-      p_cost_price: costPrice ?? undefined,
-      p_new_price: newPrice ?? undefined,
-    })
-    .single<{ new_stock: number; barcode: string }>();
+  try {
+    // Cannot easily call rpc("restock_product") via Prisma. We should just do a raw query to execute the function.
+    const result: any[] = await prisma.$queryRaw`
+      SELECT new_stock, barcode FROM restock_product(
+        ${pidParse.data}::uuid,
+        ${sidParse.data}::uuid,
+        ${addQty}::numeric,
+        ${costPrice ?? null}::numeric,
+        ${newPrice ?? null}::numeric
+      )
+    `;
 
-  if (error) return { error: error.message };
-  revalidatePath("/dashboard/owner/products");
-  return { newStock: data.new_stock, barcode: data.barcode };
+    if (!result || result.length === 0) {
+      return { error: "Failed to restock product." };
+    }
+
+    revalidatePath("/dashboard/owner/products");
+    return { newStock: Number(result[0].new_stock), barcode: result[0].barcode };
+  } catch (error: any) {
+    return { error: error.message };
+  }
 }
 
 export async function updateProduct(
@@ -478,6 +469,7 @@ export async function updateProduct(
     cost_price: formData.get("cost_price")?.toString() || undefined,
     stock: formData.get("stock")?.toString() ?? "0",
     low_stock_threshold: formData.get("low_stock_threshold")?.toString() ?? "5",
+    max_stock: formData.get("max_stock")?.toString() || undefined,
     barcode: formData.get("barcode")?.toString() || undefined,
     status:
       (formData.get("status")?.toString() as "active" | "draft" | "archived") ??
@@ -487,27 +479,26 @@ export async function updateProduct(
   });
   if (!parse.success) return { error: parse.error.issues[0].message };
 
-  const { supabase } = await getAuthUser();
-  const { error } = await supabase
-    .from("products")
-    .update(parse.data)
-    .eq("id", pidParse.data)
-    .eq("shop_id", sidParse.data);
-
-  if (error) {
-    if (
-      error.code === "23505" &&
-      error.message.includes("idx_products_barcode_unique")
-    ) {
+  try {
+    await prisma.products.update({
+      where: {
+        id: pidParse.data,
+        shop_id: sidParse.data,
+      },
+      data: parse.data,
+    });
+    
+    revalidatePath("/dashboard/owner/products");
+    revalidatePath(`/dashboard/owner/products/${pidParse.data}/edit`);
+    return { success: true };
+  } catch (error: any) {
+    if (error.code === "P2002" && error.message.includes("barcode")) {
       return {
         error: "A product with this barcode already exists in this shop.",
       };
     }
     return { error: `Could not update product: ${error.message}` };
   }
-  revalidatePath("/dashboard/owner/products");
-  revalidatePath(`/dashboard/owner/products/${pidParse.data}/edit`);
-  return { success: true };
 }
 
 export async function adjustStock(
@@ -521,26 +512,31 @@ export async function adjustStock(
   if (!Number.isInteger(delta) || delta === 0)
     return { error: "Invalid delta" };
 
-  const { supabase } = await getAuthUser();
-  const { data: product } = await supabase
-    .from("products")
-    .select("stock")
-    .eq("id", pidParse.data)
-    .eq("shop_id", sidParse.data)
-    .single();
+  try {
+    const product = await prisma.products.findUnique({
+      where: {
+        id: pidParse.data,
+        shop_id: sidParse.data,
+      },
+      select: { stock: true },
+    });
 
-  if (!product) return { error: "Product not found" };
+    if (!product) return { error: "Product not found" };
 
-  const newStock = Math.max(0, product.stock + delta);
-  const { error } = await supabase
-    .from("products")
-    .update({ stock: newStock })
-    .eq("id", pidParse.data)
-    .eq("shop_id", sidParse.data);
+    const newStock = Math.max(0, Number(product.stock) + delta);
+    
+    await prisma.products.update({
+      where: {
+        id: pidParse.data,
+      },
+      data: { stock: newStock },
+    });
 
-  if (error) return { error: `Could not update stock: ${error.message}` };
-  revalidatePath("/dashboard/owner/products");
-  return { success: true, newStock };
+    revalidatePath("/dashboard/owner/products");
+    return { success: true, newStock };
+  } catch (error: any) {
+    return { error: `Could not update stock: ${error.message}` };
+  }
 }
 
 export async function deleteProduct(productId: string, shopId: string) {
@@ -548,16 +544,20 @@ export async function deleteProduct(productId: string, shopId: string) {
   const sidParse = ShopIdSchema.safeParse(shopId);
   if (!pidParse.success || !sidParse.success) return { error: "Invalid ID" };
 
-  const { supabase } = await getAuthUser();
-  const { error } = await supabase
-    .from("products")
-    .update({ status: "archived" })
-    .eq("id", pidParse.data)
-    .eq("shop_id", sidParse.data);
-
-  if (error) return { error: `Could not delete product: ${error.message}` };
-  revalidatePath("/dashboard/owner/products");
-  return { success: true };
+  try {
+    await prisma.products.update({
+      where: {
+        id: pidParse.data,
+        shop_id: sidParse.data,
+      },
+      data: { status: "archived" },
+    });
+    
+    revalidatePath("/dashboard/owner/products");
+    return { success: true };
+  } catch (error: any) {
+    return { error: `Could not delete product: ${error.message}` };
+  }
 }
 
 // ─── Customers (Shop CRM) ─────────────────────────────────────────────────────
@@ -579,19 +579,24 @@ export async function addShopCustomer(shopId: string, formData: FormData) {
   });
   if (!parse.success) return { error: parse.error.issues[0].message };
 
-  const { supabase } = await getAuthUser();
-  const { error } = await supabase.from("shop_customers").insert({
-    shop_id: idParse.data,
-    name: parse.data.name,
-    phone: parse.data.phone ?? null,
-    email: parse.data.email || null,
-  });
-
-  if (error?.code === "23505")
-    return { error: "A customer with that phone already exists." };
-  if (error) return { error: `Could not add customer: ${error.message}` };
-  revalidatePath("/dashboard/owner/customers");
-  return { success: true };
+  try {
+    await prisma.shop_customers.create({
+      data: {
+        shop_id: idParse.data,
+        name: parse.data.name,
+        phone: parse.data.phone ?? null,
+        email: parse.data.email || null,
+      }
+    });
+    
+    revalidatePath("/dashboard/owner/customers");
+    return { success: true };
+  } catch (error: any) {
+    if (error.code === "P2002" && error.message.includes("phone")) {
+      return { error: "A customer with that phone already exists." };
+    }
+    return { error: `Could not add customer: ${error.message}` };
+  }
 }
 
 export async function settleUdhar(
@@ -604,38 +609,42 @@ export async function settleUdhar(
   if (!cidParse.success || !sidParse.success) return { error: "Invalid ID" };
   if (amount <= 0) return { error: "Amount must be positive" };
 
-  const { supabase } = await getAuthUser();
+  try {
+    const customer = await prisma.shop_customers.findUnique({
+      where: {
+        id: cidParse.data,
+        shop_id: sidParse.data,
+      },
+      select: { udhar_balance: true },
+    });
 
-  const { data: customer } = await supabase
-    .from("shop_customers")
-    .select("udhar_balance")
-    .eq("id", cidParse.data)
-    .eq("shop_id", sidParse.data)
-    .single();
+    if (!customer) return { error: "Customer not found" };
 
-  if (!customer) return { error: "Customer not found" };
+    const newBalance = Math.max(0, Number(customer.udhar_balance ?? 0) - amount);
 
-  const newBalance = Math.max(0, (customer.udhar_balance ?? 0) - amount);
+    await prisma.$transaction(async (tx) => {
+      await tx.shop_customers.update({
+        where: { id: cidParse.data },
+        data: { udhar_balance: newBalance },
+      });
 
-  const [updateResult, txnResult] = await Promise.all([
-    supabase
-      .from("shop_customers")
-      .update({ udhar_balance: newBalance })
-      .eq("id", cidParse.data)
-      .eq("shop_id", sidParse.data),
-    supabase.from("shop_transactions").insert({
-      shop_id: sidParse.data,
-      amount,
-      type: "udhar_payment",
-      reference_id: cidParse.data,
-      description: `Udhar settled`,
-      payment_method: "cash",
-    }),
-  ]);
+      await tx.shop_transactions.create({
+        data: {
+          shop_id: sidParse.data,
+          amount,
+          type: "udhar_payment",
+          reference_id: cidParse.data,
+          description: `Udhar settled`,
+          payment_method: "cash",
+        }
+      });
+    });
 
-  if (updateResult.error) return { error: "Could not settle udhar." };
-  revalidatePath("/dashboard/owner/customers");
-  return { success: true };
+    revalidatePath("/dashboard/owner/customers");
+    return { success: true };
+  } catch (error: any) {
+    return { error: "Could not settle udhar." };
+  }
 }
 
 // ─── Suppliers ────────────────────────────────────────────────────────────────
@@ -695,25 +704,29 @@ export async function addSupplier(shopId: string, formData: FormData) {
   });
   if (!parse.success) return { error: parse.error.issues[0].message };
 
-  const { supabase } = await getAuthUser();
-  const { error } = await supabase.from("shop_suppliers").insert({
-    shop_id: idParse.data,
-    name: parse.data.name,
-    contact_person: parse.data.contact_person ?? null,
-    phone: parse.data.phone ?? null,
-    email: parse.data.email || null,
-    address: parse.data.address ?? null,
-    category: parse.data.category ?? null,
-    logo_url: parse.data.logo_url ?? null,
-    tax_id: parse.data.tax_id ?? null,
-    notes: parse.data.notes ?? null,
-    opening_balance: parse.data.opening_balance,
-    balance_due: parse.data.opening_balance,
-  });
+  try {
+    await prisma.shop_suppliers.create({
+      data: {
+        shop_id: idParse.data,
+        name: parse.data.name,
+        contact_person: parse.data.contact_person ?? null,
+        phone: parse.data.phone ?? null,
+        email: parse.data.email || null,
+        address: parse.data.address ?? null,
+        category: parse.data.category ?? null,
+        logo_url: parse.data.logo_url ?? null,
+        tax_id: parse.data.tax_id ?? null,
+        notes: parse.data.notes ?? null,
+        opening_balance: parse.data.opening_balance,
+        balance_due: parse.data.opening_balance,
+      }
+    });
 
-  if (error) return { error: `Could not add supplier: ${error.message}` };
-  revalidatePath("/dashboard/owner/suppliers");
-  return { success: true };
+    revalidatePath("/dashboard/owner/suppliers");
+    return { success: true };
+  } catch (error: any) {
+    return { error: `Could not add supplier: ${error.message}` };
+  }
 }
 
 export async function paySupplierDue(
@@ -726,38 +739,42 @@ export async function paySupplierDue(
   if (!sidParse.success || !shopIdParse.success) return { error: "Invalid ID" };
   if (amount <= 0) return { error: "Amount must be positive" };
 
-  const { supabase } = await getAuthUser();
+  try {
+    const supplier = await prisma.shop_suppliers.findUnique({
+      where: {
+        id: sidParse.data,
+        shop_id: shopIdParse.data,
+      },
+      select: { balance_due: true },
+    });
 
-  const { data: supplier } = await supabase
-    .from("shop_suppliers")
-    .select("balance_due")
-    .eq("id", sidParse.data)
-    .eq("shop_id", shopIdParse.data)
-    .single();
+    if (!supplier) return { error: "Supplier not found" };
 
-  if (!supplier) return { error: "Supplier not found" };
+    const newBalance = Math.max(0, Number(supplier.balance_due ?? 0) - amount);
 
-  const newBalance = Math.max(0, (supplier.balance_due ?? 0) - amount);
+    await prisma.$transaction(async (tx) => {
+      await tx.shop_suppliers.update({
+        where: { id: sidParse.data },
+        data: { balance_due: newBalance },
+      });
 
-  const [updateResult] = await Promise.all([
-    supabase
-      .from("shop_suppliers")
-      .update({ balance_due: newBalance })
-      .eq("id", sidParse.data)
-      .eq("shop_id", shopIdParse.data),
-    supabase.from("shop_transactions").insert({
-      shop_id: shopIdParse.data,
-      amount,
-      type: "supplier_payment",
-      reference_id: sidParse.data,
-      description: "Supplier payment",
-      payment_method: "cash",
-    }),
-  ]);
+      await tx.shop_transactions.create({
+        data: {
+          shop_id: shopIdParse.data,
+          amount,
+          type: "supplier_payment",
+          reference_id: sidParse.data,
+          description: "Supplier payment",
+          payment_method: "cash",
+        }
+      });
+    });
 
-  if (updateResult.error) return { error: "Could not record payment." };
-  revalidatePath("/dashboard/owner/suppliers");
-  return { success: true };
+    revalidatePath("/dashboard/owner/suppliers");
+    return { success: true };
+  } catch (error: any) {
+    return { error: "Could not record payment." };
+  }
 }
 
 export async function recordSupplierLedgerEntry(
@@ -777,57 +794,58 @@ export async function recordSupplierLedgerEntry(
   });
   if (!parse.success) return { error: parse.error.issues[0].message };
 
-  const { supabase } = await getAuthUser();
+  try {
+    const supplier = await prisma.shop_suppliers.findUnique({
+      where: {
+        id: sidParse.data,
+        shop_id: shopIdParse.data,
+      },
+      select: { balance_due: true, name: true },
+    });
 
-  const { data: supplier } = await supabase
-    .from("shop_suppliers")
-    .select("balance_due, name")
-    .eq("id", sidParse.data)
-    .eq("shop_id", shopIdParse.data)
-    .single();
+    if (!supplier) return { error: "Supplier not found" };
 
-  if (!supplier) return { error: "Supplier not found" };
+    const isCredit =
+      parse.data.entry_type === "purchase" ||
+      parse.data.entry_type === "credit_adjustment";
+    const currentBalance = Number(supplier.balance_due ?? 0);
+    const nextBalance = isCredit
+      ? currentBalance + parse.data.amount
+      : Math.max(0, currentBalance - parse.data.amount);
 
-  const isCredit =
-    parse.data.entry_type === "purchase" ||
-    parse.data.entry_type === "credit_adjustment";
-  const currentBalance = Number(supplier.balance_due ?? 0);
-  const nextBalance = isCredit
-    ? currentBalance + parse.data.amount
-    : Math.max(0, currentBalance - parse.data.amount);
+    const defaultDescription =
+      parse.data.entry_type === "purchase"
+        ? `Purchase from ${supplier.name}`
+        : parse.data.entry_type === "payment"
+          ? `Payment to ${supplier.name}`
+          : parse.data.entry_type === "credit_adjustment"
+            ? `Credit adjustment for ${supplier.name}`
+            : `Debit adjustment for ${supplier.name}`;
 
-  const defaultDescription =
-    parse.data.entry_type === "purchase"
-      ? `Purchase from ${supplier.name}`
-      : parse.data.entry_type === "payment"
-        ? `Payment to ${supplier.name}`
-        : parse.data.entry_type === "credit_adjustment"
-          ? `Credit adjustment for ${supplier.name}`
-          : `Debit adjustment for ${supplier.name}`;
+    await prisma.$transaction(async (tx) => {
+      await tx.shop_suppliers.update({
+        where: { id: sidParse.data },
+        data: { balance_due: nextBalance },
+      });
 
-  const [updateResult, insertResult] = await Promise.all([
-    supabase
-      .from("shop_suppliers")
-      .update({ balance_due: nextBalance })
-      .eq("id", sidParse.data)
-      .eq("shop_id", shopIdParse.data),
-    supabase.from("shop_transactions").insert({
-      shop_id: shopIdParse.data,
-      amount: parse.data.amount,
-      type: isCredit ? "expense" : "supplier_payment",
-      reference_id: sidParse.data,
-      description: parse.data.description || defaultDescription,
-      payment_method: isCredit ? "udhar" : parse.data.payment_method,
-    }),
-  ]);
+      await tx.shop_transactions.create({
+        data: {
+          shop_id: shopIdParse.data,
+          amount: parse.data.amount,
+          type: isCredit ? "expense" : "supplier_payment",
+          reference_id: sidParse.data,
+          description: parse.data.description || defaultDescription,
+          payment_method: isCredit ? "udhar" : parse.data.payment_method,
+        }
+      });
+    });
 
-  if (updateResult.error || insertResult.error) {
+    revalidatePath("/dashboard/owner/suppliers");
+    revalidatePath(`/dashboard/owner/suppliers/${sidParse.data}`);
+    return { success: true };
+  } catch (error: any) {
     return { error: "Could not record supplier ledger entry." };
   }
-
-  revalidatePath("/dashboard/owner/suppliers");
-  revalidatePath(`/dashboard/owner/suppliers/${sidParse.data}`);
-  return { success: true };
 }
 
 // ─── Staff ────────────────────────────────────────────────────────────────────
@@ -857,20 +875,24 @@ export async function addShopStaff(shopId: string, formData: FormData) {
 
   const imageUrl = formData.get("image_url")?.toString() || null;
 
-  const { supabase } = await getAuthUser();
-  const { error } = await supabase.from("shop_staff").insert({
-    shop_id: idParse.data,
-    name: parse.data.name,
-    role: parse.data.role,
-    phone: parse.data.phone ?? null,
-    email: parse.data.email || null,
-    notes: parse.data.notes ?? null,
-    image_url: imageUrl,
-  });
+  try {
+    await prisma.shop_staff.create({
+      data: {
+        shop_id: idParse.data,
+        name: parse.data.name,
+        role: parse.data.role,
+        phone: parse.data.phone ?? null,
+        email: parse.data.email || null,
+        notes: parse.data.notes ?? null,
+        image_url: imageUrl,
+      }
+    });
 
-  if (error) return { error: `Could not add staff: ${error.message}` };
-  revalidatePath("/dashboard/owner/staff");
-  return { success: true };
+    revalidatePath("/dashboard/owner/staff");
+    return { success: true };
+  } catch (error: any) {
+    return { error: `Could not add staff: ${error.message}` };
+  }
 }
 
 export async function updateShopStaffStatus(
@@ -882,16 +904,20 @@ export async function updateShopStaffStatus(
   const shopParse = ShopIdSchema.safeParse(shopId);
   if (!sidParse.success || !shopParse.success) return { error: "Invalid ID" };
 
-  const { supabase } = await getAuthUser();
-  const { error } = await supabase
-    .from("shop_staff")
-    .update({ status })
-    .eq("id", sidParse.data)
-    .eq("shop_id", shopParse.data);
+  try {
+    await prisma.shop_staff.update({
+      where: {
+        id: sidParse.data,
+        shop_id: shopParse.data,
+      },
+      data: { status }
+    });
 
-  if (error) return { error: "Could not update staff." };
-  revalidatePath("/dashboard/owner/staff");
-  return { success: true };
+    revalidatePath("/dashboard/owner/staff");
+    return { success: true };
+  } catch (error: any) {
+    return { error: "Could not update staff." };
+  }
 }
 
 // ─── Orders ───────────────────────────────────────────────────────────────────
@@ -915,16 +941,20 @@ export async function updateOrderStatus(
   if (!oidParse.success || !sidParse.success) return { error: "Invalid ID" };
   if (!OrderStatusValues.includes(status)) return { error: "Invalid status" };
 
-  const { supabase } = await getAuthUser();
-  const { error } = await supabase
-    .from("orders")
-    .update({ status })
-    .eq("id", oidParse.data)
-    .eq("shop_id", sidParse.data);
+  try {
+    await prisma.orders.update({
+      where: {
+        id: oidParse.data,
+        shop_id: sidParse.data,
+      },
+      data: { status }
+    });
 
-  if (error) return { error: `Could not update order: ${error.message}` };
-  revalidatePath("/dashboard/owner/orders");
-  return { success: true };
+    revalidatePath("/dashboard/owner/orders");
+    return { success: true };
+  } catch (error: any) {
+    return { error: `Could not update order: ${error.message}` };
+  }
 }
 
 // ─── Finances ─────────────────────────────────────────────────────────────────
@@ -946,18 +976,22 @@ export async function addExpense(shopId: string, formData: FormData) {
   });
   if (!parse.success) return { error: parse.error.issues[0].message };
 
-  const { supabase } = await getAuthUser();
-  const { error } = await supabase.from("shop_transactions").insert({
-    shop_id: idParse.data,
-    amount: parse.data.amount,
-    type: "expense",
-    description: parse.data.description,
-    payment_method: parse.data.payment_method,
-  });
+  try {
+    await prisma.shop_transactions.create({
+      data: {
+        shop_id: idParse.data,
+        amount: parse.data.amount,
+        type: "expense",
+        description: parse.data.description,
+        payment_method: parse.data.payment_method,
+      }
+    });
 
-  if (error) return { error: `Could not record expense: ${error.message}` };
-  revalidatePath("/dashboard/owner/finances");
-  return { success: true };
+    revalidatePath("/dashboard/owner/finances");
+    return { success: true };
+  } catch (error: any) {
+    return { error: `Could not record expense: ${error.message}` };
+  }
 }
 
 // ─── Shop Settings ────────────────────────────────────────────────────────────
@@ -1038,15 +1072,18 @@ export async function updateShopSettings(shopId: string, formData: FormData) {
     update.pan_number = parse.data.pan_number ?? null;
   if (parse.data.timezone !== undefined) update.timezone = parse.data.timezone;
 
-  const { error } = await supabase
-    .from("shops")
-    .update(update)
-    .eq("id", idParse.data);
+  try {
+    await prisma.shops.update({
+      where: { id: idParse.data },
+      data: update
+    });
 
-  if (error) return { error: `Could not save settings: ${error.message}` };
-  revalidatePath("/dashboard/owner");
-  revalidatePath("/dashboard/owner/settings");
-  return { success: true };
+    revalidatePath("/dashboard/owner");
+    revalidatePath("/dashboard/owner/settings");
+    return { success: true };
+  } catch (error: any) {
+    return { error: `Could not save settings: ${error.message}` };
+  }
 }
 
 // ─── Storefront / Theme ───────────────────────────────────────────────────────
@@ -1059,18 +1096,20 @@ export async function updateStorefrontTheme(
   const idParse = ShopIdSchema.safeParse(shopId);
   if (!idParse.success) return { error: "Invalid shop ID" };
 
-  const { supabase } = await getAuthUser();
-  const { error } = await supabase
-    .from("shops")
-    .update({
-      theme_color: themeColor,
-      theme_layout: themeLayout,
-    })
-    .eq("id", idParse.data);
+  try {
+    await prisma.shops.update({
+      where: { id: idParse.data },
+      data: {
+        theme_color: themeColor,
+        theme_layout: themeLayout,
+      }
+    });
 
-  if (error) return { error: `Could not update theme: ${error.message}` };
-  revalidatePath("/dashboard/owner/storefront");
-  return { success: true };
+    revalidatePath("/dashboard/owner/storefront");
+    return { success: true };
+  } catch (error: any) {
+    return { error: `Could not update theme: ${error.message}` };
+  }
 }
 
 // ─── POS ──────────────────────────────────────────────────────────────────────
@@ -1107,51 +1146,53 @@ export async function completePOSSale(input: POSSaleInput) {
   if (!idParse.success) return { error: "Invalid shop ID" };
   if (!input.items?.length) return { error: "Cart is empty" };
 
-  const { supabase } = await getAuthUser();
-  // Phase 3: prefer FEFO v4 (drains soonest-expiry batch first); falls back
-  // to legacy products.stock for products without batches.
-  const { data, error } = await supabase.rpc("complete_pos_sale_v4", {
-    p_shop_id: idParse.data,
-    p_items: input.items,
-    p_subtotal: input.subtotal,
-    p_discount: input.discount,
-    p_tax_rate: input.taxRate,
-    p_tax_amount: input.taxAmount,
-    p_total: input.total,
-    p_payment_method: input.paymentMethod,
-    p_notes: input.notes ?? null,
-    p_split_payments:
-      input.splits && input.splits.length > 0 ? input.splits : null,
-  });
+  try {
+    const result = await prisma.$queryRaw`
+      SELECT complete_pos_sale_v4(
+        ${idParse.data}::uuid,
+        ${JSON.stringify(input.items)}::jsonb,
+        ${input.subtotal}::numeric,
+        ${input.discount}::numeric,
+        ${input.taxRate}::numeric,
+        ${input.taxAmount}::numeric,
+        ${input.total}::numeric,
+        ${input.paymentMethod},
+        ${input.notes ?? null},
+        ${input.splits && input.splits.length > 0 ? JSON.stringify(input.splits) : null}::jsonb
+      ) as transaction_id;
+    `;
+    const data = (result as any[])[0]?.transaction_id;
 
-  if (error) return { error: error.message };
 
-  // Fire-and-forget the domain event for downstream consumers (email, in-app
-  // notifications). Phase 2 wires the handler; today the row sits unprocessed.
-  if (data) {
-    emitBackground({
-      name: "transaction.completed",
-      payload: {
-        transaction_id: data as string,
-        shop_id: idParse.data,
-        total: input.total,
-        tax_amount: input.taxAmount,
-        payment_method:
-          input.splits && input.splits.length > 0
-            ? "split"
-            : input.paymentMethod,
-        item_count: input.items.length,
-      },
-      shopId: idParse.data,
-      aggregateId: data as string,
-      idempotencyKey: `pos:${data}`,
-    });
+    // Fire-and-forget the domain event for downstream consumers (email, in-app
+    // notifications). Phase 2 wires the handler; today the row sits unprocessed.
+    if (data) {
+      emitBackground({
+        name: "transaction.completed",
+        payload: {
+          transaction_id: data as string,
+          shop_id: idParse.data,
+          total: input.total,
+          tax_amount: input.taxAmount,
+          payment_method:
+            input.splits && input.splits.length > 0
+              ? "split"
+              : input.paymentMethod,
+          item_count: input.items.length,
+        },
+        shopId: idParse.data,
+        aggregateId: data as string,
+        idempotencyKey: `pos:${data}`,
+      });
+    }
+
+    revalidatePath("/dashboard/owner");
+    revalidatePath("/dashboard/owner/pos");
+    revalidatePath("/dashboard/owner/products");
+    return { success: true, transaction_id: data };
+  } catch (error: any) {
+    return { error: `Transaction failed: ${error.message}` };
   }
-
-  revalidatePath("/dashboard/owner");
-  revalidatePath("/dashboard/owner/pos");
-  revalidatePath("/dashboard/owner/products");
-  return { success: true, transaction_id: data };
 }
 
 // ─── Delete Shop ──────────────────────────────────────────────────────────────
@@ -1160,37 +1201,41 @@ export async function deleteShop(shopId: string) {
   const idParse = ShopIdSchema.safeParse(shopId);
   if (!idParse.success) return { error: "Invalid shop ID" };
 
-  const { supabase, user } = await getAuthUser();
+  const { user } = await getAuthUser();
 
-  // Must be the owner role
-  const { data: member } = await supabase
-    .from("shop_members")
-    .select("role")
-    .eq("shop_id", idParse.data)
-    .eq("user_id", user.id)
-    .eq("role", "owner")
-    .eq("status", "active")
-    .maybeSingle();
+  try {
+    const member = await prisma.shop_members.findFirst({
+      where: {
+        shop_id: idParse.data,
+        user_id: user.id,
+        role: "owner",
+        status: "active",
+      },
+      select: { role: true }
+    });
 
-  if (!member) return { error: "You must be the shop owner to delete it." };
+    if (!member) return { error: "You must be the shop owner to delete it." };
 
-  // Clear active_shop_id if pointing to this shop so the user isn't stuck
-  await supabase
-    .from("profiles")
-    .update({ active_shop_id: null })
-    .eq("id", user.id)
-    .eq("active_shop_id", idParse.data);
+    await prisma.$transaction(async (tx) => {
+      await tx.profiles.updateMany({
+        where: {
+          id: user.id,
+          active_shop_id: idParse.data,
+        },
+        data: { active_shop_id: null },
+      });
 
-  const { error } = await supabase
-    .from("shops")
-    .delete()
-    .eq("id", idParse.data);
+      await tx.shops.delete({
+        where: { id: idParse.data },
+      });
+    });
 
-  if (error) return { error: `Could not delete shop: ${error.message}` };
-
-  revalidatePath("/dashboard/owner");
-  revalidatePath("/dashboard");
-  return { success: true };
+    revalidatePath("/dashboard/owner");
+    revalidatePath("/dashboard");
+    return { success: true };
+  } catch (error: any) {
+    return { error: `Could not delete shop: ${error.message}` };
+  }
 }
 
 export async function submitKYCDocuments(shopId: string, docUrls: string[]) {
@@ -1198,61 +1243,71 @@ export async function submitKYCDocuments(shopId: string, docUrls: string[]) {
   if (!idParse.success) return { error: "Invalid shop ID" };
   if (!docUrls.length) return { error: "Upload at least one document." };
 
-  const { supabase } = await getAuthUser();
-  const { error } = await supabase.rpc("submit_kyc_review", {
-    p_shop_id: idParse.data,
-    p_doc_urls: docUrls,
-  });
-
-  if (error) return { error: error.message };
-  revalidatePath("/dashboard/owner");
-  revalidatePath("/dashboard/owner/settings");
-  return { success: true };
+  try {
+    await prisma.$queryRaw`
+      SELECT submit_kyc_review(
+        ${idParse.data}::uuid,
+        ${docUrls}::text[]
+      );
+    `;
+    
+    revalidatePath("/dashboard/owner");
+    revalidatePath("/dashboard/owner/settings");
+    return { success: true };
+  } catch (error: any) {
+    return { error: error.message };
+  }
 }
 
 export async function getKYCStatus(shopId: string) {
   const idParse = ShopIdSchema.safeParse(shopId);
   if (!idParse.success) return { error: "Invalid shop ID" };
 
-  const { supabase } = await getAuthUser();
-  const { data, error } = await supabase
-    .from("shops")
-    .select(
-      "verification_status, kyc_submitted_at, kyc_rejection_reason, kyc_document_urls, kyc_confidence",
-    )
-    .eq("id", idParse.data)
-    .single();
+  try {
+    const data = await prisma.shops.findUnique({
+      where: { id: idParse.data },
+      select: {
+        verification_status: true,
+        kyc_submitted_at: true,
+        kyc_rejection_reason: true,
+        kyc_document_urls: true,
+        kyc_confidence: true,
+      }
+    });
 
-  if (error) return { error: error.message };
-  return { data };
+    return { data };
+  } catch (error: any) {
+    return { error: error.message };
+  }
 }
 
 export async function deleteShopCustomer(customerId: string, shopId: string) {
   const idParse = ShopIdSchema.safeParse(shopId);
   if (!idParse.success) return { error: "Invalid shop ID" };
 
-  const { supabase } = await getAuthUser();
+  try {
+    const customer = await prisma.shop_customers.findUnique({
+      where: {
+        id: customerId,
+        shop_id: idParse.data,
+      },
+      select: { udhar_balance: true },
+    });
 
-  // Verify customer belongs to shop
-  const { data: customer } = await supabase
-    .from("shop_customers")
-    .select("udhar_balance")
-    .eq("id", customerId)
-    .eq("shop_id", idParse.data)
-    .single();
+    if (!customer) return { error: "Customer not found." };
+    if (Number(customer.udhar_balance) > 0)
+      return { error: "Cannot delete customer with pending Udhar." };
 
-  if (!customer) return { error: "Customer not found." };
-  if (customer.udhar_balance > 0)
-    return { error: "Cannot delete customer with pending Udhar." };
+    await prisma.shop_customers.delete({
+      where: {
+        id: customerId,
+        shop_id: idParse.data,
+      }
+    });
 
-  const { error } = await supabase
-    .from("shop_customers")
-    .delete()
-    .eq("id", customerId)
-    .eq("shop_id", idParse.data);
-
-  if (error) return { error: `Could not delete customer: ${error.message}` };
-
-  revalidatePath("/dashboard/owner/customers");
-  return { success: true };
+    revalidatePath("/dashboard/owner/customers");
+    return { success: true };
+  } catch (error: any) {
+    return { error: `Could not delete customer: ${error.message}` };
+  }
 }

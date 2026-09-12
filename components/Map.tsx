@@ -13,9 +13,9 @@ const TILE_ATTR =
 const DEFAULT_ICON = L.divIcon({
   html: `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="36" viewBox="0 0 28 36">
     <ellipse cx="14" cy="34" rx="6" ry="2" fill="rgba(0,0,0,0.18)"/>
-    <path d="M14 0C6.27 0 0 6.27 0 14c0 9 14 22 14 22S28 23 28 14C28 6.27 21.73 0 14 0z" fill="#A7653A"/>
+    <path d="M14 0C6.27 0 0 6.27 0 14c0 9 14 22 14 22S28 23 28 14C28 6.27 21.73 0 14 0z" fill="#3B82F6"/>
     <circle cx="14" cy="14" r="6" fill="white"/>
-    <circle cx="14" cy="14" r="3.5" fill="#A7653A"/>
+    <circle cx="14" cy="14" r="3.5" fill="#3B82F6"/>
   </svg>`,
   className: "",
   iconSize: [28, 36],

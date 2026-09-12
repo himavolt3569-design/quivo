@@ -143,12 +143,12 @@ export function VatReportView({ shopId }: Props) {
         <div>
           <Link
             href="/dashboard/owner/finances"
-            className="inline-flex items-center gap-1 text-xs font-bold text-[#746E73] hover:text-[#27324A] mb-2"
+            className="inline-flex items-center gap-1 text-xs font-bold text-[#746E73] hover:text-[#0F172A] mb-2"
           >
             <ChevronLeft className="h-3 w-3" /> Back to Finances
           </Link>
-          <h1 className="text-2xl font-black text-[#27324A] flex items-center gap-2">
-            <FileSpreadsheet className="h-6 w-6 text-[#A7653A]" />
+          <h1 className="text-2xl font-black text-[#0F172A] flex items-center gap-2">
+            <FileSpreadsheet className="h-6 w-6 text-[#3B82F6]" />
             VAT-3 Sales Register
           </h1>
           <p className="text-sm font-medium text-[#746E73] mt-1">
@@ -159,14 +159,14 @@ export function VatReportView({ shopId }: Props) {
         <button
           onClick={exportCsv}
           disabled={isPending || !report || report.rows.length === 0}
-          className="h-11 px-4 rounded-xl bg-[#27324A] hover:bg-[#1b2333] text-white font-bold text-sm flex items-center gap-2 shadow-sm disabled:opacity-40"
+          className="h-11 px-4 rounded-xl bg-[#0F172A] hover:bg-[#1b2333] text-white font-bold text-sm flex items-center gap-2 shadow-sm disabled:opacity-40"
         >
           <Download className="h-4 w-4" /> Export CSV
         </button>
       </div>
 
       {/* Period picker */}
-      <div className="bg-white p-4 rounded-2xl border border-[#2E3344]/8 shadow-sm flex gap-3 items-end flex-wrap">
+      <div className="bg-white p-4 rounded-2xl border border-[#1E293B]/8 shadow-sm flex gap-3 items-end flex-wrap">
         <div>
           <label className="text-[10px] font-black uppercase tracking-wider text-[#746E73] mb-1 block">
             Year
@@ -174,7 +174,7 @@ export function VatReportView({ shopId }: Props) {
           <select
             value={year}
             onChange={(e) => setYear(Number(e.target.value))}
-            className="h-11 px-3 rounded-xl border border-[#2E3344]/15 bg-white text-sm font-bold focus:outline-none focus:border-[#27324A]"
+            className="h-11 px-3 rounded-xl border border-[#1E293B]/15 bg-white text-sm font-bold focus:outline-none focus:border-[#0F172A]"
           >
             {yearOptions.map((y) => (
               <option key={y} value={y}>
@@ -190,7 +190,7 @@ export function VatReportView({ shopId }: Props) {
           <select
             value={month}
             onChange={(e) => setMonth(Number(e.target.value))}
-            className="h-11 px-3 rounded-xl border border-[#2E3344]/15 bg-white text-sm font-bold focus:outline-none focus:border-[#27324A]"
+            className="h-11 px-3 rounded-xl border border-[#1E293B]/15 bg-white text-sm font-bold focus:outline-none focus:border-[#0F172A]"
           >
             {MONTHS.map((m, i) => (
               <option key={m} value={i + 1}>
@@ -200,7 +200,7 @@ export function VatReportView({ shopId }: Props) {
           </select>
         </div>
         {report && !report.shop.vat_registered && (
-          <div className="flex items-center gap-2 text-xs text-[#A7653A] font-bold ml-auto bg-[#F7F0E6] px-3 py-2 rounded-xl">
+          <div className="flex items-center gap-2 text-xs text-[#3B82F6] font-bold ml-auto bg-[#F8FAFC] px-3 py-2 rounded-xl">
             <AlertCircle className="h-3.5 w-3.5" />
             This shop is not marked VAT-registered. Tax amounts will be zero.
           </div>
@@ -219,23 +219,23 @@ export function VatReportView({ shopId }: Props) {
           <KpiCard
             label="Taxable amount"
             value={`Rs. ${report.totals.taxable.toLocaleString()}`}
-            accent="#27324A"
+            accent="#0F172A"
           />
           <KpiCard
             label={`VAT collected (${report.shop.vat_rate.toFixed(2)}%)`}
             value={`Rs. ${report.totals.tax.toLocaleString()}`}
-            accent="#A7653A"
+            accent="#3B82F6"
           />
           <KpiCard
             label="Gross total"
             value={`Rs. ${report.totals.total.toLocaleString()}`}
-            accent="#27324A"
+            accent="#0F172A"
           />
         </div>
       )}
 
       {/* Table */}
-      <div className="bg-white rounded-2xl border border-[#2E3344]/8 shadow-sm overflow-hidden">
+      <div className="bg-white rounded-2xl border border-[#1E293B]/8 shadow-sm overflow-hidden">
         {!report ? (
           <div className="py-12 text-center text-sm font-bold text-[#746E73]">
             {isPending ? "Loading…" : "Pick a period to load the report."}
@@ -258,7 +258,7 @@ export function VatReportView({ shopId }: Props) {
                   <Th align="right">Total</Th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#2E3344]/5">
+              <tbody className="divide-y divide-[#1E293B]/5">
                 {report.rows.map((r) => (
                   <tr
                     key={`${r.source}-${r.invoice_no}-${r.date_iso}`}
@@ -279,8 +279,8 @@ export function VatReportView({ shopId }: Props) {
                       <span
                         className={`text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full ${
                           r.source === "pos"
-                            ? "bg-[#27324A]/10 text-[#27324A]"
-                            : "bg-[#A7653A]/10 text-[#A7653A]"
+                            ? "bg-[#0F172A]/10 text-[#0F172A]"
+                            : "bg-[#3B82F6]/10 text-[#3B82F6]"
                         }`}
                       >
                         {r.source}
@@ -293,7 +293,7 @@ export function VatReportView({ shopId }: Props) {
                     </Td>
                   </tr>
                 ))}
-                <tr className="bg-[#27324A] text-white font-black text-sm">
+                <tr className="bg-[#0F172A] text-white font-black text-sm">
                   <Td colSpan={3}>Total</Td>
                   <Td align="right">Rs. {report.totals.taxable.toFixed(2)}</Td>
                   <Td align="right">Rs. {report.totals.tax.toFixed(2)}</Td>
@@ -353,7 +353,7 @@ function KpiCard({
   accent: string;
 }) {
   return (
-    <div className="bg-white p-4 rounded-2xl border border-[#2E3344]/8 shadow-sm">
+    <div className="bg-white p-4 rounded-2xl border border-[#1E293B]/8 shadow-sm">
       <p className="text-[10px] font-black uppercase tracking-widest text-[#746E73]">
         {label}
       </p>

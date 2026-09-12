@@ -169,8 +169,8 @@ export function SavedItems({
               onClick={() => setSubTab(t)}
               className={`flex items-center gap-2 px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider transition ${
                 subTab === t
-                  ? "bg-white text-[#27324A] shadow-sm"
-                  : "text-[#746E73] hover:text-[#27324A]"
+                  ? "bg-white text-[#0F172A] shadow-sm"
+                  : "text-[#746E73] hover:text-[#0F172A]"
               }`}
             >
               {t === "wishlist" ? (
@@ -182,7 +182,7 @@ export function SavedItems({
             </button>
           ))}
         </div>
-        <p className="text-[11px] font-bold uppercase tracking-widest text-[#A7653A] bg-[#F7F0E6] px-3 py-1.5 rounded-full">
+        <p className="text-[11px] font-bold uppercase tracking-widest text-[#3B82F6] bg-[#F8FAFC] px-3 py-1.5 rounded-full">
           {subTab === "wishlist"
             ? `${savedProducts.length} items`
             : `${savedShops.length} stores`}
@@ -193,11 +193,11 @@ export function SavedItems({
       {subTab === "wishlist" && (
         <div className="space-y-6">
           {savedProducts.length === 0 ? (
-            <div className="rounded-[2.5rem] border border-dashed border-[#2E3344]/15 bg-white/50 p-16 text-center">
-              <div className="mx-auto mb-4 h-16 w-16 grid place-items-center rounded-2xl bg-[#F7F0E6] text-[#A7653A]">
+            <div className="rounded-[2.5rem] border border-dashed border-[#1E293B]/15 bg-white/50 p-16 text-center">
+              <div className="mx-auto mb-4 h-16 w-16 grid place-items-center rounded-2xl bg-[#F8FAFC] text-[#3B82F6]">
                 <Bookmark className="h-8 w-8" />
               </div>
-              <p className="text-base font-bold text-[#27324A]">
+              <p className="text-base font-bold text-[#0F172A]">
                 Your wishlist is empty
               </p>
               <p className="mt-1 text-sm text-[#746E73] max-w-xs mx-auto">
@@ -209,7 +209,7 @@ export function SavedItems({
             <>
               {/* Wishlist Bento Summary */}
               <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
-                <div className="md:col-span-8 rounded-[2.5rem] bg-[#27324A] p-8 text-white relative overflow-hidden group">
+                <div className="md:col-span-8 rounded-[2.5rem] bg-[#0F172A] p-8 text-white relative overflow-hidden group">
                   <div className="absolute top-0 right-0 p-8 opacity-[0.05]">
                     <Bookmark className="h-32 w-32 rotate-12" />
                   </div>
@@ -229,7 +229,7 @@ export function SavedItems({
                     </p>
                   </div>
                 </div>
-                <div className="md:col-span-4 rounded-[2.5rem] bg-[#F7F0E6] border border-[#A7653A]/10 p-8 flex flex-col justify-center text-center">
+                <div className="md:col-span-4 rounded-[2.5rem] bg-[#F8FAFC] border border-[#3B82F6]/10 p-8 flex flex-col justify-center text-center">
                   <p className="text-xs font-bold uppercase tracking-widest text-[#8D5132]">
                     Quick Action
                   </p>
@@ -240,7 +240,7 @@ export function SavedItems({
                         Object.values(productsByShop)[0],
                       )
                     }
-                    className="mt-4 py-4 rounded-full bg-[#A7653A] text-white text-xs font-black uppercase tracking-widest shadow-lg shadow-[#A7653A]/20 hover:bg-[#8E5432] transition active:scale-95"
+                    className="mt-4 py-4 rounded-full bg-[#3B82F6] text-white text-xs font-black uppercase tracking-widest shadow-lg shadow-[#3B82F6]/20 hover:bg-[#8E5432] transition active:scale-95"
                   >
                     Order Top Shop
                   </button>
@@ -259,15 +259,15 @@ export function SavedItems({
                   return (
                     <div
                       key={shopName}
-                      className="rounded-[2.25rem] border border-[#2E3344]/8 bg-white overflow-hidden shadow-sm flex flex-col"
+                      className="rounded-[2.25rem] border border-[#1E293B]/8 bg-white overflow-hidden shadow-sm flex flex-col"
                     >
                       {/* Shop header */}
-                      <div className="px-6 py-5 border-b border-[#2E3344]/6 bg-[#F7F0E6]/30 flex items-center justify-between">
+                      <div className="px-6 py-5 border-b border-[#1E293B]/6 bg-[#F8FAFC]/30 flex items-center justify-between">
                         <div className="min-w-0">
-                          <p className="text-[10px] font-black uppercase tracking-widest text-[#A7653A]">
+                          <p className="text-[10px] font-black uppercase tracking-widest text-[#3B82F6]">
                             {shopName}
                           </p>
-                          <p className="text-xs font-bold text-[#27324A] mt-0.5">
+                          <p className="text-xs font-bold text-[#0F172A] mt-0.5">
                             {products.length} Items · Rs.{" "}
                             {shopTotal.toLocaleString()}
                           </p>
@@ -277,7 +277,7 @@ export function SavedItems({
                             handleOrderAllFromShop(shopName, products)
                           }
                           disabled={isOrderingThisShop}
-                          className="h-10 w-10 rounded-xl bg-[#27324A] text-white flex items-center justify-center hover:bg-[#1B2030] disabled:opacity-50 transition active:scale-95"
+                          className="h-10 w-10 rounded-xl bg-[#0F172A] text-white flex items-center justify-center hover:bg-[#1B2030] disabled:opacity-50 transition active:scale-95"
                         >
                           <ShoppingBag className="h-4 w-4" />
                         </button>
@@ -288,9 +288,9 @@ export function SavedItems({
                         {products.map((product) => (
                           <div
                             key={product.product_id}
-                            className="flex items-center gap-3 p-2 rounded-2xl border border-transparent hover:border-[#2E3344]/8 hover:bg-[#F7F0E6]/20 transition"
+                            className="flex items-center gap-3 p-2 rounded-2xl border border-transparent hover:border-[#1E293B]/8 hover:bg-[#F8FAFC]/20 transition"
                           >
-                            <div className="h-14 w-14 rounded-2xl bg-[#F7F0E6] overflow-hidden flex-shrink-0">
+                            <div className="h-14 w-14 rounded-2xl bg-[#F8FAFC] overflow-hidden flex-shrink-0">
                               {product.product_image ? (
                                 <img
                                   src={product.product_image}
@@ -298,17 +298,17 @@ export function SavedItems({
                                   className="h-full w-full object-cover"
                                 />
                               ) : (
-                                <div className="h-full w-full flex items-center justify-center text-[#A7653A]">
+                                <div className="h-full w-full flex items-center justify-center text-[#3B82F6]">
                                   <Package className="h-5 w-5" />
                                 </div>
                               )}
                             </div>
 
                             <div className="flex-1 min-w-0">
-                              <p className="text-sm font-bold text-[#27324A] truncate">
+                              <p className="text-sm font-bold text-[#0F172A] truncate">
                                 {product.product_name}
                               </p>
-                              <p className="text-sm font-black text-[#A7653A] mt-0.5">
+                              <p className="text-sm font-black text-[#3B82F6] mt-0.5">
                                 {product.product_price ?? "–"}
                               </p>
                             </div>
@@ -320,7 +320,7 @@ export function SavedItems({
                                   orderingProduct === product.product_id ||
                                   isOrderingThisShop
                                 }
-                                className="h-9 px-4 rounded-full bg-[#F7F0E6] text-[11px] font-bold text-[#27324A] hover:bg-[#A7653A] hover:text-white transition active:scale-95 disabled:opacity-30"
+                                className="h-9 px-4 rounded-full bg-[#F8FAFC] text-[11px] font-bold text-[#0F172A] hover:bg-[#3B82F6] hover:text-white transition active:scale-95 disabled:opacity-30"
                               >
                                 {orderingProduct === product.product_id
                                   ? "…"
@@ -349,11 +349,11 @@ export function SavedItems({
       {subTab === "shops" && (
         <div className="space-y-6">
           {savedShops.length === 0 ? (
-            <div className="rounded-[2.5rem] border border-dashed border-[#2E3344]/15 bg-white/50 p-16 text-center">
-              <div className="mx-auto mb-4 h-16 w-16 grid place-items-center rounded-2xl bg-[#F7F0E6] text-[#A7653A]">
+            <div className="rounded-[2.5rem] border border-dashed border-[#1E293B]/15 bg-white/50 p-16 text-center">
+              <div className="mx-auto mb-4 h-16 w-16 grid place-items-center rounded-2xl bg-[#F8FAFC] text-[#3B82F6]">
                 <Store className="h-8 w-8" />
               </div>
-              <p className="text-base font-bold text-[#27324A]">
+              <p className="text-base font-bold text-[#0F172A]">
                 No saved shops
               </p>
               <p className="mt-1 text-sm text-[#746E73]">
@@ -365,7 +365,7 @@ export function SavedItems({
               {savedShops.map((shop) => (
                 <div
                   key={shop.shop_name}
-                  className="group relative flex flex-col rounded-[2.25rem] border border-[#2E3344]/8 bg-white p-5 shadow-sm hover:shadow-md transition cursor-pointer"
+                  className="group relative flex flex-col rounded-[2.25rem] border border-[#1E293B]/8 bg-white p-5 shadow-sm hover:shadow-md transition cursor-pointer"
                 >
                   <div className="flex items-center gap-4">
                     <div className="h-16 w-16 rounded-2xl bg-[#E8E3D1] overflow-hidden flex-shrink-0">
@@ -382,16 +382,16 @@ export function SavedItems({
                       )}
                     </div>
                     <div className="min-w-0 flex-1">
-                      <h4 className="text-base font-bold text-[#27324A] truncate">
+                      <h4 className="text-base font-bold text-[#0F172A] truncate">
                         {shop.shop_name}
                       </h4>
-                      <p className="text-xs font-bold text-[#A7653A] mt-0.5">
+                      <p className="text-xs font-bold text-[#3B82F6] mt-0.5">
                         {shop.shop_category}
                       </p>
                     </div>
                   </div>
 
-                  <div className="mt-5 pt-4 border-t border-[#2E3344]/5 flex items-center justify-between">
+                  <div className="mt-5 pt-4 border-t border-[#1E293B]/5 flex items-center justify-between">
                     <p className="text-[11px] font-bold text-[#746E73]">
                       {shop.shop_distance}km away
                     </p>
@@ -401,11 +401,11 @@ export function SavedItems({
                           e.stopPropagation();
                           handleRemoveShop(shop);
                         }}
-                        className="h-9 w-9 rounded-full bg-[#F7F0E6] text-[#A7653A] flex items-center justify-center hover:bg-red-50 hover:text-red-500 transition"
+                        className="h-9 w-9 rounded-full bg-[#F8FAFC] text-[#3B82F6] flex items-center justify-center hover:bg-red-50 hover:text-red-500 transition"
                       >
                         <Heart className="h-4 w-4 fill-current" />
                       </button>
-                      <ChevronRight className="h-4 w-4 text-[#746E73]/40 group-hover:text-[#A7653A] transition group-hover:translate-x-1" />
+                      <ChevronRight className="h-4 w-4 text-[#746E73]/40 group-hover:text-[#3B82F6] transition group-hover:translate-x-1" />
                     </div>
                   </div>
                 </div>

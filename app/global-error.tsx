@@ -24,8 +24,8 @@ export default function GlobalError({
             alignItems: "center",
             justifyContent: "center",
             padding: "24px",
-            background: "#F7F0E6",
-            color: "#27324A",
+            background: "#F8FAFC",
+            color: "#0F172A",
             fontFamily:
               "Poppins, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif",
           }}
@@ -79,7 +79,7 @@ export default function GlobalError({
                 width: "100%",
                 border: 0,
                 borderRadius: "12px",
-                background: "#27324A",
+                background: "#0F172A",
                 color: "#ffffff",
                 fontWeight: 800,
               }}

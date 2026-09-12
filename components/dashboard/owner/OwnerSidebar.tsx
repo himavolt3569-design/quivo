@@ -148,10 +148,10 @@ export function OwnerSidebar({
       className={`${
         isMobile
           ? "flex w-full h-full flex-col bg-[#f8f8f7]"
-          : "hidden md:flex md:w-20 lg:w-64 flex-col border-r border-[#2E3344]/8 bg-white/50 backdrop-blur-xl h-[calc(100vh-4rem)] sticky top-16 transition-all duration-300"
+          : "hidden md:flex md:w-20 lg:w-64 flex-col border-r border-[#1E293B]/8 bg-white/50 backdrop-blur-xl h-[calc(100vh-4rem)] sticky top-16 transition-all duration-300"
       }`}
     >
-      <div className="p-4 border-b border-[#2E3344]/8">
+      <div className="p-4 border-b border-[#1E293B]/8">
         <OwnerShopSwitcher shops={shops} activeShopId={activeShopId} />
       </div>
       <nav className="flex-1 overflow-y-auto p-4 space-y-1">
@@ -166,8 +166,8 @@ export function OwnerSidebar({
               href={route.href}
               className={`flex items-center gap-3 px-3 py-2.5 rounded-[12px] text-sm font-bold transition-all ${
                 isActive
-                  ? "bg-[#27324A] text-white shadow-md shadow-[#27324A]/10"
-                  : "text-[#746E73] hover:bg-[#F7F0E6] hover:text-[#27324A]"
+                  ? "bg-[#0F172A] text-white shadow-md shadow-[#0F172A]/10"
+                  : "text-[#746E73] hover:bg-[#F8FAFC] hover:text-[#0F172A]"
               } ${isMobile ? "" : "md:justify-center lg:justify-start"}`}
               title={route.label}
             >
@@ -191,7 +191,7 @@ export function OwnerSidebar({
           sits clearly above the chrome instead of getting clipped or visually
           competing with the bottom nav. */}
       <div
-        className="p-4 border-t border-[#2E3344]/8 space-y-3"
+        className="p-4 border-t border-[#1E293B]/8 space-y-3"
         style={
           isMobile
             ? {
@@ -207,15 +207,15 @@ export function OwnerSidebar({
         <div
           className={`relative overflow-hidden rounded-2xl p-4 text-center ${
             isMobile
-              ? "bg-gradient-to-br from-[#E8E3D1] to-[#F7F0E6] border border-[#A7653A]/20 shadow-sm"
+              ? "bg-gradient-to-br from-[#E8E3D1] to-[#F8FAFC] border border-[#3B82F6]/20 shadow-sm"
               : "bg-[#E8E3D1]/50 hidden lg:block"
           }`}
         >
           <div className="flex items-center justify-center gap-2 mb-1">
-            <span className="grid h-7 w-7 place-items-center rounded-lg bg-[#A7653A] text-white">
+            <span className="grid h-7 w-7 place-items-center rounded-lg bg-[#3B82F6] text-white">
               <Store className="h-3.5 w-3.5" />
             </span>
-            <p className="text-xs font-black uppercase tracking-widest text-[#27324A]">
+            <p className="text-xs font-black uppercase tracking-widest text-[#0F172A]">
               Kirana Pro
             </p>
           </div>

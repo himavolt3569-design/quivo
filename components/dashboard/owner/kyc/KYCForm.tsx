@@ -187,7 +187,7 @@ export function KYCForm({
           </div>
           <div className="flex-1">
             <div className="flex items-center gap-3 mb-1">
-              <h2 className="font-black text-lg text-[#27324A]">
+              <h2 className="font-black text-lg text-[#0F172A]">
                 Verification Status
               </h2>
               <span
@@ -200,7 +200,7 @@ export function KYCForm({
             {verificationStatus !== "verified" &&
               verificationStatus !== "pending" && (
                 <p
-                  className={`text-xs mt-2 font-bold ${isBlocked ? "text-red-700" : "text-[#A7653A]"}`}
+                  className={`text-xs mt-2 font-bold ${isBlocked ? "text-red-700" : "text-[#3B82F6]"}`}
                 >
                   {isBlocked
                     ? `Documents are now required. Grace period ended on ${dueDate}.`
@@ -251,16 +251,16 @@ export function KYCForm({
 
       {/* Pending — live status polling notice */}
       {verificationStatus === "pending" && (
-        <div className="rounded-3xl bg-[#F7F0E6]/60 border border-[#A7653A]/20 p-5">
+        <div className="rounded-3xl bg-[#F8FAFC]/60 border border-[#3B82F6]/20 p-5">
           <div className="flex items-center gap-3">
-            <div className="h-9 w-9 rounded-xl bg-[#A7653A]/10 flex items-center justify-center shrink-0">
+            <div className="h-9 w-9 rounded-xl bg-[#3B82F6]/10 flex items-center justify-center shrink-0">
               <RefreshCw
-                className="h-4 w-4 text-[#A7653A] animate-spin"
+                className="h-4 w-4 text-[#3B82F6] animate-spin"
                 style={{ animationDuration: "3s" }}
               />
             </div>
             <div>
-              <p className="font-bold text-sm text-[#27324A]">
+              <p className="font-bold text-sm text-[#0F172A]">
                 Review in progress
               </p>
               <p className="text-xs text-[#746E73]">
@@ -275,7 +275,7 @@ export function KYCForm({
       {/* Already submitted docs */}
       {kycDocumentUrls.length > 0 && (
         <div className="space-y-3">
-          <p className="text-sm font-bold text-[#27324A] uppercase tracking-wider">
+          <p className="text-sm font-bold text-[#0F172A] uppercase tracking-wider">
             Submitted Documents
           </p>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
@@ -285,10 +285,10 @@ export function KYCForm({
                 href={url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex flex-col items-center gap-2 p-4 rounded-2xl border border-[#2E3344]/10 bg-[#f8f8f7] hover:bg-[#F7F0E6] transition group"
+                className="flex flex-col items-center gap-2 p-4 rounded-2xl border border-[#1E293B]/10 bg-[#f8f8f7] hover:bg-[#F8FAFC] transition group"
               >
                 {url.endsWith(".pdf") ? (
-                  <FileText className="h-8 w-8 text-[#A7653A]" />
+                  <FileText className="h-8 w-8 text-[#3B82F6]" />
                 ) : (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
@@ -297,7 +297,7 @@ export function KYCForm({
                     className="h-16 w-full object-cover rounded-xl"
                   />
                 )}
-                <span className="text-[10px] font-bold text-[#746E73] group-hover:text-[#A7653A]">
+                <span className="text-[10px] font-bold text-[#746E73] group-hover:text-[#3B82F6]">
                   Doc {idx + 1}
                 </span>
               </a>
@@ -308,9 +308,9 @@ export function KYCForm({
 
       {/* Upload form — only for unverified / rejected */}
       {canSubmit && (
-        <div className="bg-white rounded-4xl border border-[#2E3344]/10 p-6 space-y-5">
+        <div className="bg-white rounded-4xl border border-[#1E293B]/10 p-6 space-y-5">
           <div>
-            <h3 className="font-black text-[#27324A] mb-1">
+            <h3 className="font-black text-[#0F172A] mb-1">
               {kycDocumentUrls.length > 0
                 ? "Add More Documents"
                 : "Upload KYC Documents"}
@@ -322,12 +322,12 @@ export function KYCForm({
           </div>
 
           {/* Drop zone */}
-          <label className="flex flex-col items-center justify-center gap-3 p-8 border-2 border-dashed border-[#2E3344]/15 rounded-2xl cursor-pointer hover:border-[#A7653A]/50 hover:bg-[#F7F0E6]/30 transition group">
-            <div className="h-12 w-12 rounded-2xl bg-[#F7F0E6] flex items-center justify-center group-hover:scale-110 transition">
-              <Upload className="h-5 w-5 text-[#A7653A]" />
+          <label className="flex flex-col items-center justify-center gap-3 p-8 border-2 border-dashed border-[#1E293B]/15 rounded-2xl cursor-pointer hover:border-[#3B82F6]/50 hover:bg-[#F8FAFC]/30 transition group">
+            <div className="h-12 w-12 rounded-2xl bg-[#F8FAFC] flex items-center justify-center group-hover:scale-110 transition">
+              <Upload className="h-5 w-5 text-[#3B82F6]" />
             </div>
             <div className="text-center">
-              <p className="font-bold text-[#27324A] text-sm">
+              <p className="font-bold text-[#0F172A] text-sm">
                 Click to upload
               </p>
               <p className="text-xs text-[#746E73]">
@@ -349,11 +349,11 @@ export function KYCForm({
               {files.map((file, idx) => (
                 <div
                   key={idx}
-                  className="relative rounded-2xl overflow-hidden border border-[#2E3344]/10 bg-[#f8f8f7]"
+                  className="relative rounded-2xl overflow-hidden border border-[#1E293B]/10 bg-[#f8f8f7]"
                 >
                   {file.type === "application/pdf" ? (
                     <div className="flex flex-col items-center justify-center h-20 gap-1">
-                      <FileText className="h-8 w-8 text-[#A7653A]" />
+                      <FileText className="h-8 w-8 text-[#3B82F6]" />
                       <span className="text-[9px] text-[#746E73] px-2 truncate w-full text-center">
                         {file.name}
                       </span>
@@ -385,7 +385,7 @@ export function KYCForm({
               isPending ||
               (files.length === 0 && kycDocumentUrls.length === 0)
             }
-            className="w-full h-14 rounded-2xl bg-[#27324A] text-white font-black text-base disabled:opacity-40 hover:bg-[#1b2333] transition flex items-center justify-center gap-2"
+            className="w-full h-14 rounded-2xl bg-[#0F172A] text-white font-black text-base disabled:opacity-40 hover:bg-[#1b2333] transition flex items-center justify-center gap-2"
           >
             {uploading || isPending ? (
               <>
@@ -406,7 +406,7 @@ export function KYCForm({
           <div className="h-16 w-16 rounded-2xl bg-green-50 flex items-center justify-center">
             <CheckCircle2 className="h-8 w-8 text-green-500" />
           </div>
-          <p className="font-black text-[#27324A] text-lg">
+          <p className="font-black text-[#0F172A] text-lg">
             You&apos;re all set!
           </p>
           <p className="text-sm text-[#746E73]">

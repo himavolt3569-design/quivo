@@ -208,7 +208,7 @@ export function StaffShiftsView({ initialShifts, userName, staffIds }: Props) {
         <p className="text-xs font-bold uppercase tracking-widest text-[#8D5132]">
           Staff dashboard
         </p>
-        <h1 className="text-2xl font-black text-[#27324A] mt-1">
+        <h1 className="text-2xl font-black text-[#0F172A] mt-1">
           Hi {userName.split(" ")[0] || "there"} 👋
         </h1>
         <p className="text-sm text-[#746E73] mt-1">
@@ -248,16 +248,16 @@ export function StaffShiftsView({ initialShifts, userName, staffIds }: Props) {
             type="button"
             disabled={isPending}
             onClick={() => handleClockOut(partitions.active!.id)}
-            className="mt-5 w-full h-12 rounded-2xl bg-white text-[#27324A] font-black flex items-center justify-center gap-2 active:scale-95 transition disabled:opacity-60"
+            className="mt-5 w-full h-12 rounded-2xl bg-white text-[#0F172A] font-black flex items-center justify-center gap-2 active:scale-95 transition disabled:opacity-60"
           >
             <LogOut className="h-4 w-4" />{" "}
             {isPending ? "Clocking out…" : "Clock out"}
           </button>
         </section>
       ) : (
-        <section className="rounded-[2rem] p-6 bg-white border border-[#2E3344]/8 text-center">
+        <section className="rounded-[2rem] p-6 bg-white border border-[#1E293B]/8 text-center">
           <Clock className="h-10 w-10 text-[#746E73]/30 mx-auto mb-2" />
-          <p className="text-sm font-bold text-[#27324A]">
+          <p className="text-sm font-bold text-[#0F172A]">
             Not on a shift right now.
           </p>
           <p className="text-xs text-[#746E73] mt-1">
@@ -278,13 +278,13 @@ export function StaffShiftsView({ initialShifts, userName, staffIds }: Props) {
             {partitions.today.map((s) => (
               <li
                 key={s.id}
-                className="bg-white rounded-2xl p-4 border border-[#2E3344]/8 flex items-center gap-3"
+                className="bg-white rounded-2xl p-4 border border-[#1E293B]/8 flex items-center gap-3"
               >
-                <div className="h-12 w-12 rounded-2xl bg-[#F7F0E6] flex items-center justify-center">
-                  <Calendar className="h-5 w-5 text-[#A7653A]" />
+                <div className="h-12 w-12 rounded-2xl bg-[#F8FAFC] flex items-center justify-center">
+                  <Calendar className="h-5 w-5 text-[#3B82F6]" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-bold text-[#27324A] truncate">
+                  <p className="text-sm font-bold text-[#0F172A] truncate">
                     {s.shop_name ?? "Shop"}
                   </p>
                   <p className="text-xs text-[#746E73] font-medium">
@@ -300,7 +300,7 @@ export function StaffShiftsView({ initialShifts, userName, staffIds }: Props) {
                   type="button"
                   disabled={isPending}
                   onClick={() => handleClockIn(s.id)}
-                  className="h-10 px-4 rounded-xl bg-[#27324A] hover:bg-[#1b2333] text-white text-xs font-black flex items-center gap-1.5 active:scale-95 transition disabled:opacity-60"
+                  className="h-10 px-4 rounded-xl bg-[#0F172A] hover:bg-[#1b2333] text-white text-xs font-black flex items-center gap-1.5 active:scale-95 transition disabled:opacity-60"
                 >
                   <LogIn className="h-3.5 w-3.5" /> Clock in
                 </button>
@@ -320,13 +320,13 @@ export function StaffShiftsView({ initialShifts, userName, staffIds }: Props) {
             {partitions.upcoming.map((s) => (
               <li
                 key={s.id}
-                className="bg-white rounded-2xl p-4 border border-[#2E3344]/8 flex items-center gap-3"
+                className="bg-white rounded-2xl p-4 border border-[#1E293B]/8 flex items-center gap-3"
               >
                 <div className="h-12 w-12 rounded-2xl bg-[#f8f8f7] flex items-center justify-center">
                   <Calendar className="h-5 w-5 text-[#746E73]" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-bold text-[#27324A] truncate">
+                  <p className="text-sm font-bold text-[#0F172A] truncate">
                     {s.shop_name ?? "Shop"}
                   </p>
                   <p className="text-xs text-[#746E73] font-medium">
@@ -357,13 +357,13 @@ export function StaffShiftsView({ initialShifts, userName, staffIds }: Props) {
               return (
                 <li
                   key={s.id}
-                  className="bg-white/60 rounded-2xl p-4 border border-[#2E3344]/5 flex items-center gap-3"
+                  className="bg-white/60 rounded-2xl p-4 border border-[#1E293B]/5 flex items-center gap-3"
                 >
                   <CheckCircle2
                     className={`h-5 w-5 ${s.status === "completed" ? "text-[#41A560]" : "text-[#746E73]/40"}`}
                   />
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs font-bold text-[#27324A] truncate">
+                    <p className="text-xs font-bold text-[#0F172A] truncate">
                       {s.shop_name ?? "Shop"} ·{" "}
                       {STATUS_LABEL[s.status] ?? s.status}
                     </p>
@@ -371,7 +371,7 @@ export function StaffShiftsView({ initialShifts, userName, staffIds }: Props) {
                       {fmtDateLine(s.scheduled_start)} ·{" "}
                       {fmtTime(s.scheduled_start)} – {fmtTime(s.scheduled_end)}
                       {hours && (
-                        <span className="text-[#A7653A] ml-2">
+                        <span className="text-[#3B82F6] ml-2">
                           · {hours} worked
                         </span>
                       )}

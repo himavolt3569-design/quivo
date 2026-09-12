@@ -325,7 +325,7 @@ export function HeroSection({
       />
       <section className="award-hero relative overflow-hidden">
         <div
-          className="absolute inset-0 opacity-50"
+          className="absolute inset-0 opacity-20"
           style={{
             backgroundImage: `url(${patternImage})`,
             backgroundSize: "cover",
@@ -334,7 +334,7 @@ export function HeroSection({
           aria-hidden="true"
         />
         <div
-          className="absolute inset-0 bg-[radial-gradient(circle_at_24%_20%,rgba(216,201,154,0.36),transparent_30%),radial-gradient(circle_at_78%_18%,rgba(167,101,58,0.18),transparent_34%),linear-gradient(135deg,rgba(255,251,244,0.86),rgba(247,240,230,0.72))]"
+          className="absolute inset-0 bg-[radial-gradient(circle_at_24%_20%,rgba(30,41,59,0.36),transparent_40%),radial-gradient(circle_at_78%_18%,rgba(15,23,42,0.4),transparent_40%),linear-gradient(135deg,#0F172A,#1E293B)]"
           aria-hidden="true"
         />
         <div
@@ -342,7 +342,7 @@ export function HeroSection({
           aria-hidden="true"
         />
         <div
-          className="parallax-orb absolute -right-24 top-24 h-72 w-72 rounded-full bg-[#A7653A]/18 blur-3xl"
+          className="parallax-orb absolute -right-24 top-24 h-72 w-72 rounded-full bg-[#3B82F6]/18 blur-3xl"
           aria-hidden="true"
         />
         <div
@@ -355,12 +355,12 @@ export function HeroSection({
             <div className="hero-kicker">
               <Eyebrow icon={Barcode}>Barcode-first local shopping</Eyebrow>
             </div>
-            <h1 className="hero-title mt-4 max-w-[20.5rem] text-[clamp(2rem,8.8vw,2.42rem)] font-bold leading-[1.04] tracking-[-0.045em] text-[#27324A] min-[430px]:max-w-[24rem] min-[430px]:text-[clamp(2.35rem,8.2vw,3.25rem)] sm:mt-7 sm:max-w-none sm:text-[clamp(3rem,6.3vw,5.9rem)]">
+            <h1 className="hero-title mt-4 max-w-[20.5rem] text-[clamp(2rem,8.8vw,2.42rem)] font-bold leading-[1.04] tracking-[-0.045em] text-white min-[430px]:max-w-[24rem] min-[430px]:text-[clamp(2.35rem,8.2vw,3.25rem)] sm:mt-7 sm:max-w-none sm:text-[clamp(3rem,6.3vw,5.9rem)]">
               <span className="block">Scan a barcode.</span>
-              <span className="block text-[#A7653A]">Find it nearby.</span>
+              <span className="block text-[#60A5FA]">Find it nearby.</span>
               <span className="block">Order in minutes.</span>
             </h1>
-            <p className="hero-copy mt-3 max-w-[20.5rem] text-[0.95rem] font-normal leading-6 text-[#4A4854] min-[430px]:max-w-[23rem] sm:mt-6 sm:max-w-2xl sm:text-xl sm:leading-8">
+            <p className="hero-copy mt-3 max-w-[20.5rem] text-[0.95rem] font-normal leading-6 text-slate-300 min-[430px]:max-w-[23rem] sm:mt-6 sm:max-w-2xl sm:text-xl sm:leading-8">
               Quivo turns everyday barcodes into nearby shopping: scan rice,
               milk, medicine, or chargers, compare trusted shops within 6km, and
               send a ready basket.
@@ -369,14 +369,14 @@ export function HeroSection({
             <div className="hero-actions mt-6 flex flex-col gap-3 sm:mt-8 sm:flex-row sm:gap-4">
               <button
                 onClick={() => setScannerOpen(true)}
-                className="group inline-flex min-h-14 w-full items-center justify-center gap-2 rounded-full bg-[#A7653A] px-6 text-sm font-bold text-white shadow-xl shadow-[#A7653A]/25 transition hover:-translate-y-0.5 hover:bg-[#8E5432] focus:outline-none focus:ring-2 focus:ring-[#A7653A] focus:ring-offset-4 sm:w-auto sm:px-8 sm:text-base"
+                className="group inline-flex min-h-14 w-full items-center justify-center gap-2 rounded-full bg-[#3B82F6] px-6 text-sm font-bold text-white shadow-xl shadow-[#3B82F6]/25 transition hover:-translate-y-0.5 hover:bg-[#2563EB] focus:outline-none focus:ring-2 focus:ring-[#3B82F6] focus:ring-offset-4 sm:w-auto sm:px-8 sm:text-base"
               >
                 <Barcode className="h-5 w-5" />
                 Scan Barcode
               </button>
               <Link
                 href="/?login=true"
-                className="inline-flex min-h-14 w-full items-center justify-center rounded-full border border-[#2E3344]/12 bg-white px-6 text-sm font-bold text-[#27324A] shadow-sm transition hover:-translate-y-0.5 hover:border-[#A7653A]/45 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-[#A7653A] focus:ring-offset-4 sm:w-auto sm:px-8 sm:text-base"
+                className="inline-flex min-h-14 w-full items-center justify-center rounded-full border border-slate-700 bg-slate-800/50 px-6 text-sm font-bold text-white shadow-sm transition hover:-translate-y-0.5 hover:border-slate-500 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-[#3B82F6] focus:ring-offset-4 sm:w-auto sm:px-8 sm:text-base backdrop-blur-md"
               >
                 Sign In / Sign Up
               </Link>
@@ -385,7 +385,7 @@ export function HeroSection({
               {customerSearchChips.slice(0, 4).map((chip) => (
                 <span
                   key={chip}
-                  className="rounded-full border border-[#2E3344]/8 bg-white/82 px-3 py-2 text-center shadow-sm sm:px-4"
+                  className="rounded-full border border-[#1E293B]/8 bg-white/82 px-3 py-2 text-center shadow-sm sm:px-4"
                 >
                   {chip}
                 </span>
@@ -395,9 +395,9 @@ export function HeroSection({
               {stats.map((stat) => (
                 <div
                   key={stat.label}
-                  className="hero-stat float-card rounded-[1.1rem] border border-[#2E3344]/8 bg-white/82 p-3 shadow-sm backdrop-blur sm:rounded-2xl sm:p-4"
+                  className="hero-stat float-card rounded-[1.1rem] border border-[#1E293B]/8 bg-white/82 p-3 shadow-sm backdrop-blur sm:rounded-2xl sm:p-4"
                 >
-                  <div className="text-xl font-bold tracking-[-0.02em] text-[#27324A] sm:text-2xl">
+                  <div className="text-xl font-bold tracking-[-0.02em] text-[#0F172A] sm:text-2xl">
                     {stat.value}
                   </div>
                   <div className="mt-1 text-[0.64rem] font-semibold uppercase tracking-[0.06em] text-[#746E73] sm:text-xs sm:tracking-[0.08em]">
@@ -409,26 +409,26 @@ export function HeroSection({
           </div>
 
           <div className="hero-visual relative hidden min-w-0 md:block">
-            <div className="tilt-card magnetic-card relative overflow-hidden rounded-[1.5rem] border border-white bg-white p-3 shadow-2xl shadow-[#27324A]/16 sm:rounded-[2rem] sm:p-4">
-              <div className="scanner-panel relative overflow-hidden rounded-[1.35rem] bg-[#27324A] p-4 text-white sm:rounded-[1.55rem] sm:p-5">
+            <div className="tilt-card magnetic-card relative overflow-hidden rounded-[1.5rem] border border-slate-700 bg-[#0F172A]/80 backdrop-blur-xl p-3 shadow-2xl shadow-black/50 sm:rounded-[2rem] sm:p-4">
+              <div className="scanner-panel relative overflow-hidden rounded-[1.35rem] bg-[#1E293B] p-4 text-white sm:rounded-[1.55rem] sm:p-5">
                 <div className="scan-beam" aria-hidden="true" />
                 <div className="flex items-center justify-between gap-4">
                   <div>
-                    <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#D8C99A]">
+                    <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#94A3B8]">
                       Live barcode scan
                     </p>
-                    <h3 className="mt-2 text-3xl font-bold tracking-[-0.03em]">
+                    <h3 className="mt-2 text-3xl font-bold tracking-[-0.03em] text-white">
                       8941001 204812
                     </h3>
                   </div>
                   <span className="grid h-14 w-14 place-items-center rounded-2xl bg-white/10">
                     <Barcode
-                      className="h-7 w-7 text-[#D8C99A]"
+                      className="h-7 w-7 text-white"
                       aria-hidden="true"
                     />
                   </span>
                 </div>
-                <div className="mt-5 rounded-3xl bg-white px-5 py-4 text-[#27324A] shadow-xl shadow-black/10">
+                <div className="mt-5 rounded-3xl bg-white px-5 py-4 text-[#0F172A] shadow-xl shadow-black/10">
                   <div className="flex items-center gap-4">
                     <img
                       src={popularProducts[0].image}
@@ -436,7 +436,7 @@ export function HeroSection({
                       className="h-20 w-20 rounded-2xl object-cover"
                     />
                     <div>
-                      <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#8D5132]">
+                      <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#60A5FA]">
                         Matched nearby
                       </p>
                       <h4 className="mt-1 text-xl font-bold tracking-[-0.02em]">
@@ -451,12 +451,12 @@ export function HeroSection({
               </div>
 
               <div className="mt-4 grid gap-4 lg:grid-cols-2">
-                <div className="rounded-[1.55rem] bg-[#F7F0E6] p-4">
+                <div className="rounded-[1.55rem] bg-[#0F172A] p-4 border border-slate-700">
                   <div className="flex items-center justify-between">
-                    <p className="text-xs font-bold uppercase tracking-[0.13em] text-[#8D5132]">
+                    <p className="text-xs font-bold uppercase tracking-[0.13em] text-[#60A5FA]">
                       Popular near you
                     </p>
-                    <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-[#27324A]">
+                    <span className="rounded-full bg-slate-800 px-3 py-1 text-xs font-semibold text-slate-300">
                       Above fold
                     </span>
                   </div>
@@ -466,7 +466,7 @@ export function HeroSection({
                         key={product.id}
                         type="button"
                         onClick={() => addProductToBasket(product.id)}
-                        className="flex w-full items-center gap-3 rounded-2xl bg-white p-3 text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-[#A7653A]"
+                        className="flex w-full items-center gap-3 rounded-2xl bg-slate-800 p-3 text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-[#3B82F6]"
                       >
                         <img
                           src={product.image}
@@ -474,14 +474,14 @@ export function HeroSection({
                           className="h-12 w-12 rounded-xl object-cover"
                         />
                         <span className="min-w-0 flex-1">
-                          <span className="block truncate text-sm font-bold text-[#27324A]">
+                          <span className="block truncate text-sm font-bold text-white">
                             {product.name}
                           </span>
-                          <span className="block text-xs font-semibold text-[#746E73]">
+                          <span className="block text-xs font-semibold text-slate-400">
                             {product.stock}
                           </span>
                         </span>
-                        <span className="text-sm font-bold text-[#A7653A]">
+                        <span className="text-sm font-bold text-[#60A5FA]">
                           {product.price}
                         </span>
                       </button>
@@ -489,8 +489,8 @@ export function HeroSection({
                   </div>
                 </div>
 
-                <div className="rounded-[1.55rem] bg-[#FFFBF4] p-4">
-                  <p className="text-xs font-bold uppercase tracking-[0.13em] text-[#8D5132]">
+                <div className="rounded-[1.55rem] bg-[#0F172A] p-4 border border-slate-700">
+                  <p className="text-xs font-bold uppercase tracking-[0.13em] text-[#60A5FA]">
                     Nearby store
                   </p>
                   <img
@@ -498,16 +498,16 @@ export function HeroSection({
                     alt="Maitidevi Fresh Mart storefront"
                     className="mt-3 h-32 w-full rounded-2xl object-cover"
                   />
-                  <h4 className="mt-3 text-lg font-bold text-[#27324A]">
+                  <h4 className="mt-3 text-lg font-bold text-white">
                     {nearbyShops[0].name}
                   </h4>
-                  <p className="mt-1 text-sm font-medium text-[#746E73]">
+                  <p className="mt-1 text-sm font-medium text-slate-400">
                     1.2 km away · accepts scan orders 24/7
                   </p>
                   <button
                     type="button"
                     onClick={() => scrollToSection("orders")}
-                    className="mt-4 inline-flex min-h-11 w-full items-center justify-center rounded-full bg-[#A7653A] px-4 text-sm font-semibold text-white transition hover:bg-[#8E5432] focus:outline-none focus:ring-2 focus:ring-[#A7653A] focus:ring-offset-2"
+                    className="mt-4 inline-flex min-h-11 w-full items-center justify-center rounded-full bg-[#3B82F6] px-4 text-sm font-semibold text-white transition hover:bg-[#8E5432] focus:outline-none focus:ring-2 focus:ring-[#3B82F6] focus:ring-offset-2"
                   >
                     Build basket
                     <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />

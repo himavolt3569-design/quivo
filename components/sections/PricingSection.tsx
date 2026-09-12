@@ -8,12 +8,12 @@ export function PricingSection() {
   return (
     <section
       id="pricing"
-      className="reveal-section bg-[#F7F0E6] py-14 sm:py-20 lg:py-24"
+      className="reveal-section bg-[#F8FAFC] py-14 sm:py-20 lg:py-24"
     >
       <div className="container">
         <div className="reveal-item max-w-3xl">
           <Eyebrow icon={WalletCards}>Pricing teaser</Eyebrow>
-          <h2 className="mt-5 text-[clamp(2.25rem,4vw,4rem)] font-bold leading-[1.08] tracking-[-0.03em] text-[#27324A]">
+          <h2 className="mt-5 text-[clamp(2.25rem,4vw,4rem)] font-bold leading-[1.08] tracking-[-0.03em] text-[#0F172A]">
             Start free. Grow when your shop is ready.
           </h2>
           <p className="mt-5 text-lg leading-8 text-[#5F5A61]">
@@ -26,12 +26,12 @@ export function PricingSection() {
           {plans.map((plan) => (
             <article
               key={plan.name}
-              className={`reveal-item rounded-[1.5rem] p-5 shadow-lg sm:rounded-[2rem] sm:p-8 ${plan.featured ? "bg-[#A7653A] text-white shadow-[#A7653A]/18" : "bg-white text-[#2E3344] shadow-[#27324A]/8"}`}
+              className={`reveal-item rounded-[1.5rem] p-5 shadow-lg sm:rounded-[2rem] sm:p-8 ${plan.featured ? "bg-[#3B82F6] text-white shadow-[#3B82F6]/18" : "bg-white text-[#1E293B] shadow-[#0F172A]/8"}`}
             >
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <h3
-                    className={`text-2xl font-semibold ${plan.featured ? "text-white" : "text-[#27324A]"}`}
+                    className={`text-2xl font-semibold ${plan.featured ? "text-white" : "text-[#0F172A]"}`}
                   >
                     {plan.name}
                   </h3>
@@ -73,7 +73,7 @@ export function PricingSection() {
                 ))}
               </ul>
               <button
-                className={`mt-8 min-h-13 w-full rounded-full px-6 text-base font-semibold transition hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-offset-4 ${plan.featured ? "bg-white text-[#8E5432] hover:bg-[#F3E1CB] focus:ring-white focus:ring-offset-[#A7653A]" : "bg-[#27324A] text-white hover:bg-[#A7653A] focus:ring-[#A7653A]"}`}
+                className={`mt-8 min-h-13 w-full rounded-full px-6 text-base font-semibold transition hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-offset-4 ${plan.featured ? "bg-white text-[#8E5432] hover:bg-[#F3E1CB] focus:ring-white focus:ring-offset-[#3B82F6]" : "bg-[#0F172A] text-white hover:bg-[#3B82F6] focus:ring-[#3B82F6]"}`}
               >
                 Select plan
               </button>
@@ -81,17 +81,17 @@ export function PricingSection() {
           ))}
         </div>
 
-        <details className="reveal-item group mt-10 overflow-hidden rounded-[2rem] border border-[#2E3344]/8 bg-white shadow-xl shadow-[#27324A]/8">
-          <summary className="flex cursor-pointer list-none flex-col gap-4 bg-[#FFFBF4] px-4 py-5 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#A7653A] focus-visible:ring-offset-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 sm:py-6 lg:px-8">
+        <details className="reveal-item group mt-10 overflow-hidden rounded-[2rem] border border-[#1E293B]/8 bg-white shadow-xl shadow-[#0F172A]/8">
+          <summary className="flex cursor-pointer list-none flex-col gap-4 bg-[#FFFBF4] px-4 py-5 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#3B82F6] focus-visible:ring-offset-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 sm:py-6 lg:px-8">
             <div>
               <p className="text-sm font-semibold uppercase tracking-[0.14em] text-[#8D5132]">
                 Plan comparison
               </p>
-              <h3 className="mt-2 text-2xl font-bold tracking-[-0.025em] text-[#27324A]">
+              <h3 className="mt-2 text-2xl font-bold tracking-[-0.025em] text-[#0F172A]">
                 Need details? Open the feature table
               </h3>
             </div>
-            <span className="inline-flex items-center gap-2 rounded-full bg-[#27324A] px-4 py-2 text-sm font-semibold text-white">
+            <span className="inline-flex items-center gap-2 rounded-full bg-[#0F172A] px-4 py-2 text-sm font-semibold text-white">
               <span className="group-open:hidden">Show table</span>
               <span className="hidden group-open:inline">Hide table</span>
               <Minus
@@ -105,13 +105,13 @@ export function PricingSection() {
             </span>
           </summary>
 
-          <div className="overflow-x-auto border-t border-[#2E3344]/8">
+          <div className="overflow-x-auto border-t border-[#1E293B]/8">
             <table className="w-full min-w-[920px] border-collapse text-left">
               <caption className="sr-only">
                 Detailed comparison of Quivo Starter and Growth pricing plans
               </caption>
               <thead>
-                <tr className="bg-[#F7F0E6] text-sm font-semibold text-[#27324A]">
+                <tr className="bg-[#F8FAFC] text-sm font-semibold text-[#0F172A]">
                   <th scope="col" className="w-[15%] px-6 py-4 lg:px-8">
                     Area
                   </th>
@@ -129,18 +129,18 @@ export function PricingSection() {
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#2E3344]/8">
+              <tbody className="divide-y divide-[#1E293B]/8">
                 {pricingComparison.map((row) => (
                   <tr
                     key={`${row.category}-${row.feature}`}
-                    className="transition hover:bg-[#F7F0E6]/70"
+                    className="transition hover:bg-[#F8FAFC]/70"
                   >
                     <td className="px-6 py-5 align-top lg:px-8">
                       <span className="rounded-full bg-[#E8E3D1] px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-[#626A54]">
                         {row.category}
                       </span>
                     </td>
-                    <td className="px-6 py-5 align-top text-[0.98rem] font-semibold leading-6 text-[#27324A]">
+                    <td className="px-6 py-5 align-top text-[0.98rem] font-semibold leading-6 text-[#0F172A]">
                       {row.feature}
                     </td>
                     <td className="px-6 py-5 align-top text-sm leading-6 text-[#746E73]">
@@ -157,7 +157,7 @@ export function PricingSection() {
                               ? "bg-[#E8E3D1] text-[#626A54]"
                               : value === "Limited" || value === "Standard"
                                 ? "bg-[#F3E1CB] text-[#8D5132]"
-                                : "bg-[#2E3344]/8 text-[#746E73]"
+                                : "bg-[#1E293B]/8 text-[#746E73]"
                           }`}
                         >
                           {value === "Included" || value === "Priority" ? (
@@ -177,13 +177,13 @@ export function PricingSection() {
           </div>
         </details>
 
-        <div className="reveal-item mt-8 rounded-[2rem] border border-[#2E3344]/8 bg-[#FFFBF4] p-6 shadow-sm shadow-[#27324A]/6 lg:p-8">
+        <div className="reveal-item mt-8 rounded-[2rem] border border-[#1E293B]/8 bg-[#FFFBF4] p-6 shadow-sm shadow-[#0F172A]/6 lg:p-8">
           <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
             <div>
               <p className="text-sm font-semibold uppercase tracking-[0.14em] text-[#8D5132]">
                 Plan FAQ
               </p>
-              <h3 className="mt-2 text-2xl font-bold tracking-[-0.025em] text-[#27324A]">
+              <h3 className="mt-2 text-2xl font-bold tracking-[-0.025em] text-[#0F172A]">
                 Common questions before choosing a plan
               </h3>
             </div>
@@ -196,9 +196,9 @@ export function PricingSection() {
             {pricingFaqs.map((faq) => (
               <details
                 key={faq.question}
-                className="group rounded-[1.25rem] border border-[#2E3344]/8 bg-white p-5 shadow-sm transition hover:border-[#A7653A]/28 hover:shadow-md"
+                className="group rounded-[1.25rem] border border-[#1E293B]/8 bg-white p-5 shadow-sm transition hover:border-[#3B82F6]/28 hover:shadow-md"
               >
-                <summary className="flex cursor-pointer list-none items-start justify-between gap-4 text-base font-semibold leading-6 text-[#27324A] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#A7653A] focus-visible:ring-offset-4 focus-visible:ring-offset-white">
+                <summary className="flex cursor-pointer list-none items-start justify-between gap-4 text-base font-semibold leading-6 text-[#0F172A] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#3B82F6] focus-visible:ring-offset-4 focus-visible:ring-offset-white">
                   {faq.question}
                   <span
                     className="mt-1 grid h-6 w-6 shrink-0 place-items-center rounded-full bg-[#E8E3D1] text-[#626A54] transition group-open:rotate-45"

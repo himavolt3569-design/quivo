@@ -21,7 +21,7 @@ const PRESETS: { id: Parameters<typeof presetRange>[0]; label: string }[] = [
 
 export function ReportDateBar({ from, to, onChange, right }: Props) {
   return (
-    <div className="bg-white p-4 rounded-2xl border border-[#2E3344]/8 shadow-sm flex flex-wrap items-end gap-3">
+    <div className="bg-white p-4 rounded-2xl border border-[#1E293B]/8 shadow-sm flex flex-wrap items-end gap-3">
       <div>
         <label className="text-[10px] font-black uppercase tracking-wider text-[#746E73] mb-1 block">
           From
@@ -55,7 +55,7 @@ export function ReportDateBar({ from, to, onChange, right }: Props) {
               const r = presetRange(p.id);
               onChange(r.from, r.to);
             }}
-            className="h-9 px-3 rounded-lg text-xs font-bold bg-[#f8f8f7] text-[#27324A] hover:bg-[#F7F0E6] transition"
+            className="h-9 px-3 rounded-lg text-xs font-bold bg-[#f8f8f7] text-[#0F172A] hover:bg-[#F8FAFC] transition"
           >
             {p.label}
           </button>

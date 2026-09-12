@@ -104,7 +104,7 @@ export function BatchesPanel({
   const SEVEN_DAYS = 7 * 24 * 60 * 60 * 1000;
 
   return (
-    <div className="bg-white rounded-[2rem] border border-[#2E3344]/8 shadow-sm p-6 space-y-5">
+    <div className="bg-white rounded-[2rem] border border-[#1E293B]/8 shadow-sm p-6 space-y-5">
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
           <h2 className="text-sm font-black uppercase tracking-widest text-[#746E73] flex items-center gap-2">
@@ -116,7 +116,7 @@ export function BatchesPanel({
         </div>
         <button
           onClick={() => setShowForm((v) => !v)}
-          className="h-10 px-4 rounded-xl bg-[#27324A] hover:bg-[#1b2333] text-white text-sm font-bold"
+          className="h-10 px-4 rounded-xl bg-[#0F172A] hover:bg-[#1b2333] text-white text-sm font-bold"
         >
           {showForm ? "Cancel" : "Receive stock"}
         </button>
@@ -177,7 +177,7 @@ export function BatchesPanel({
           <button
             onClick={handleAdd}
             disabled={isPending}
-            className="sm:col-span-4 h-11 rounded-xl bg-[#A7653A] hover:bg-[#8D5132] text-white font-bold text-sm flex items-center justify-center gap-2 disabled:opacity-40"
+            className="sm:col-span-4 h-11 rounded-xl bg-[#3B82F6] hover:bg-[#8D5132] text-white font-bold text-sm flex items-center justify-center gap-2 disabled:opacity-40"
           >
             {isPending ? (
               <Loader2 className="h-4 w-4 animate-spin" />
@@ -195,7 +195,7 @@ export function BatchesPanel({
           product&apos;s plain stock count.
         </div>
       ) : (
-        <ul className="divide-y divide-[#2E3344]/5 border border-[#2E3344]/10 rounded-2xl overflow-hidden">
+        <ul className="divide-y divide-[#1E293B]/5 border border-[#1E293B]/10 rounded-2xl overflow-hidden">
           {batches.map((b) => {
             const expiry = b.expiry_date ? new Date(b.expiry_date) : null;
             const daysLeft = expiry
@@ -213,7 +213,7 @@ export function BatchesPanel({
                 className="grid grid-cols-[1.2fr_1fr_1fr_1fr_36px] gap-3 items-center p-3 bg-white"
               >
                 <div>
-                  <p className="text-sm font-bold text-[#27324A]">
+                  <p className="text-sm font-bold text-[#0F172A]">
                     {b.batch_no || "—"}
                   </p>
                   <p className="text-[11px] text-[#746E73]">
@@ -225,7 +225,7 @@ export function BatchesPanel({
                     Expiry
                   </p>
                   <p
-                    className={`text-sm font-bold flex items-center gap-1 ${expired ? "text-red-600" : expiringSoon ? "text-amber-600" : "text-[#27324A]"}`}
+                    className={`text-sm font-bold flex items-center gap-1 ${expired ? "text-red-600" : expiringSoon ? "text-amber-600" : "text-[#0F172A]"}`}
                   >
                     <Calendar className="h-3 w-3" />
                     {fmtDate(b.expiry_date)}
@@ -240,7 +240,7 @@ export function BatchesPanel({
                   <p className="text-[10px] font-black uppercase tracking-widest text-[#746E73]">
                     Stock
                   </p>
-                  <p className="text-sm font-bold text-[#27324A]">
+                  <p className="text-sm font-bold text-[#0F172A]">
                     {b.remaining_qty}{" "}
                     <span className="text-[11px] text-[#746E73]">
                       of {b.received_qty}
@@ -251,7 +251,7 @@ export function BatchesPanel({
                   <p className="text-[10px] font-black uppercase tracking-widest text-[#746E73]">
                     Cost
                   </p>
-                  <p className="text-sm font-bold text-[#27324A]">
+                  <p className="text-sm font-bold text-[#0F172A]">
                     Rs. {Number(b.cost_price).toFixed(2)}
                   </p>
                 </div>

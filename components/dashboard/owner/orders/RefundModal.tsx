@@ -138,7 +138,7 @@ export function RefundModal({
       aria-labelledby="refund-modal-title"
     >
       <div className="bg-white rounded-[2rem] w-full max-w-xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
-        <div className="bg-gradient-to-br from-[#27324A] to-[#1b2333] p-6 text-white flex items-start justify-between gap-4">
+        <div className="bg-gradient-to-br from-[#0F172A] to-[#1b2333] p-6 text-white flex items-start justify-between gap-4">
           <div>
             <h2
               id="refund-modal-title"
@@ -159,9 +159,9 @@ export function RefundModal({
         </div>
 
         <div className="p-6 space-y-4 overflow-y-auto">
-          <div className="flex items-start gap-3 bg-[#F7F0E6]/60 rounded-2xl p-4 border border-[#A7653A]/15">
-            <AlertTriangle className="h-5 w-5 text-[#A7653A] shrink-0 mt-0.5" />
-            <p className="text-xs text-[#27324A] leading-relaxed">
+          <div className="flex items-start gap-3 bg-[#F8FAFC]/60 rounded-2xl p-4 border border-[#3B82F6]/15">
+            <AlertTriangle className="h-5 w-5 text-[#3B82F6] shrink-0 mt-0.5" />
+            <p className="text-xs text-[#0F172A] leading-relaxed">
               Selected items will be restocked and the refund amount will be
               subtracted from this shop&apos;s finance dashboard. This action is
               irreversible.
@@ -185,8 +185,8 @@ export function RefundModal({
                     key={l.product_id}
                     className={`rounded-2xl border px-4 py-3 transition ${
                       l.selected
-                        ? "border-[#27324A] bg-[#f8f8f7]"
-                        : "border-[#2E3344]/10 hover:bg-[#f8f8f7]/50"
+                        ? "border-[#0F172A] bg-[#f8f8f7]"
+                        : "border-[#1E293B]/10 hover:bg-[#f8f8f7]/50"
                     }`}
                   >
                     <label className="flex items-start gap-3 cursor-pointer">
@@ -194,11 +194,11 @@ export function RefundModal({
                         type="checkbox"
                         checked={l.selected}
                         onChange={() => toggle(l.product_id)}
-                        className="h-4 w-4 mt-1 accent-[#27324A]"
+                        className="h-4 w-4 mt-1 accent-[#0F172A]"
                       />
                       <div className="flex-1">
                         <div className="flex justify-between gap-3">
-                          <p className="text-sm font-bold text-[#27324A]">
+                          <p className="text-sm font-bold text-[#0F172A]">
                             {l.name}
                           </p>
                           <p className="text-xs text-[#746E73]">
@@ -229,7 +229,7 @@ export function RefundModal({
                             <span className="text-[10px] text-[#746E73]">
                               of {l.qty}
                             </span>
-                            <span className="ml-auto text-sm font-bold text-[#27324A]">
+                            <span className="ml-auto text-sm font-bold text-[#0F172A]">
                               Rs. {round2(l.price * l.refundQty).toFixed(2)}
                             </span>
                           </div>
@@ -256,7 +256,7 @@ export function RefundModal({
             />
           </div>
 
-          <div className="rounded-2xl bg-[#27324A] text-white p-4 space-y-1">
+          <div className="rounded-2xl bg-[#0F172A] text-white p-4 space-y-1">
             <div className="flex justify-between text-xs text-white/70">
               <span>Items subtotal</span>
               <span>Rs. {refundSubtotal.toFixed(2)}</span>
@@ -279,7 +279,7 @@ export function RefundModal({
             type="button"
             onClick={onClose}
             disabled={isPending}
-            className="flex-1 h-12 rounded-2xl border border-[#2E3344]/10 font-bold text-[#27324A] hover:bg-[#f8f8f7]"
+            className="flex-1 h-12 rounded-2xl border border-[#1E293B]/10 font-bold text-[#0F172A] hover:bg-[#f8f8f7]"
           >
             Cancel
           </button>

@@ -160,7 +160,7 @@ export function ManusDialog({
       open={onOpenChange ? open : internalOpen}
       onOpenChange={handleOpenChange}
     >
-      <DialogContent className="w-[92vw] sm:w-[400px] max-w-[400px] max-h-[90vh] overflow-y-auto bg-[#f8f8f7] rounded-[24px] shadow-2xl border border-[rgba(0,0,0,0.08)] backdrop-blur-2xl p-0 gap-0">
+      <DialogContent className="w-[92vw] sm:w-[400px] max-w-[400px] max-h-[90vh] overflow-y-auto bg-white rounded-[24px] shadow-2xl border border-[rgba(0,0,0,0.08)] backdrop-blur-2xl p-0 gap-0">
         <DialogHeader className="flex flex-col items-center gap-2 pt-6 pb-2 px-4 sm:px-6">
           {logo ? (
             <div className="w-16 h-16 bg-white rounded-xl border border-[rgba(0,0,0,0.08)] flex items-center justify-center mb-2">
@@ -191,12 +191,12 @@ export function ManusDialog({
 
         {isVerificationPending ? (
           <div className="px-4 sm:px-6 pb-8 pt-2 flex flex-col items-center text-center animate-in fade-in zoom-in duration-300">
-            <div className="bg-white border border-[#2E3344]/8 rounded-xl p-4 w-full mb-6 shadow-sm">
+            <div className="bg-white border border-[#1E293B]/8 rounded-xl p-4 w-full mb-6 shadow-sm">
               <p className="text-xs font-semibold text-[#746E73] uppercase tracking-wider mb-1">
                 Link expires in
               </p>
               <p
-                className={`text-3xl font-black ${timeLeft < 60 ? "text-red-500 animate-pulse" : "text-[#A7653A]"}`}
+                className={`text-3xl font-black ${timeLeft < 60 ? "text-red-500 animate-pulse" : "text-[#0F172A]"}`}
               >
                 {formatTime(timeLeft)}
               </p>
@@ -214,7 +214,7 @@ export function ManusDialog({
                 setIsLogin(true);
                 setTimeLeft(15 * 60);
               }}
-              className="w-full h-11 bg-[#A7653A] hover:bg-[#8E5432] text-white rounded-[10px] text-sm font-semibold transition"
+              className="w-full h-11 bg-[#0F172A] hover:bg-[#1b2333] text-white rounded-[10px] text-sm font-semibold transition"
             >
               Back to Login
             </Button>
@@ -227,7 +227,7 @@ export function ManusDialog({
             <div className="space-y-2">
               <label
                 htmlFor="email"
-                className="text-sm font-medium text-[#27324A]"
+                className="text-sm font-medium text-[#0F172A]"
               >
                 Email
               </label>
@@ -244,7 +244,7 @@ export function ManusDialog({
             <Button
               type="submit"
               disabled={isLoading}
-              className="w-full h-11 bg-[#A7653A] hover:bg-[#8E5432] text-white rounded-[10px] text-sm font-semibold transition mt-2"
+              className="w-full h-11 bg-[#0F172A] hover:bg-[#1b2333] text-white rounded-[10px] text-sm font-semibold transition mt-2"
             >
               {isLoading ? "Please wait..." : "Send Reset Link"}
             </Button>
@@ -253,7 +253,7 @@ export function ManusDialog({
               <button
                 type="button"
                 onClick={() => setIsForgotPassword(false)}
-                className="text-sm text-[#A7653A] hover:underline focus:outline-none"
+                className="text-sm text-[#0F172A] hover:underline focus:outline-none"
               >
                 Back to Login
               </button>
@@ -262,18 +262,18 @@ export function ManusDialog({
         ) : (
           <>
             {!isLogin && (
-              <div className="flex gap-2 p-1.5 bg-[#E8E3D1]/40 rounded-[12px] mx-4 sm:mx-6 mt-1">
+              <div className="flex gap-2 p-1.5 bg-slate-100/40 rounded-[12px] mx-4 sm:mx-6 mt-1">
                 <button
                   type="button"
                   onClick={() => setRole("customer")}
-                  className={`flex-1 py-1.5 text-xs sm:text-sm font-semibold rounded-[8px] transition ${role === "customer" ? "bg-white text-[#27324A] shadow-sm" : "text-[#746E73] hover:text-[#27324A]"}`}
+                  className={`flex-1 py-1.5 text-xs sm:text-sm font-semibold rounded-[8px] transition ${role === "customer" ? "bg-white text-[#0F172A] shadow-sm" : "text-[#746E73] hover:text-[#0F172A]"}`}
                 >
                   Customer
                 </button>
                 <button
                   type="button"
                   onClick={() => setRole("owner")}
-                  className={`flex-1 py-1.5 text-xs sm:text-sm font-semibold rounded-[8px] transition ${role === "owner" ? "bg-white text-[#27324A] shadow-sm" : "text-[#746E73] hover:text-[#27324A]"}`}
+                  className={`flex-1 py-1.5 text-xs sm:text-sm font-semibold rounded-[8px] transition ${role === "owner" ? "bg-white text-[#0F172A] shadow-sm" : "text-[#746E73] hover:text-[#0F172A]"}`}
                 >
                   Shop Owner
                 </button>
@@ -288,7 +288,7 @@ export function ManusDialog({
                 <div className="space-y-2">
                   <label
                     htmlFor="email"
-                    className="text-sm font-medium text-[#27324A]"
+                    className="text-sm font-medium text-[#0F172A]"
                   >
                     Email
                   </label>
@@ -304,7 +304,7 @@ export function ManusDialog({
                 <div className="space-y-2">
                   <label
                     htmlFor="password"
-                    className="text-sm font-medium text-[#27324A]"
+                    className="text-sm font-medium text-[#0F172A]"
                   >
                     Password
                   </label>
@@ -325,7 +325,7 @@ export function ManusDialog({
                       type="checkbox"
                       name="rememberMe"
                       defaultChecked
-                      className="w-4 h-4 rounded border-[#2E3344]/20 text-[#A7653A] focus:ring-[#A7653A]"
+                      className="w-4 h-4 rounded border-[#1E293B]/20 text-[#0F172A] focus:ring-[#0F172A]"
                     />
                     <span className="text-xs font-medium text-[#746E73]">
                       Remember me
@@ -334,7 +334,7 @@ export function ManusDialog({
                   <button
                     type="button"
                     onClick={() => setIsForgotPassword(true)}
-                    className="text-xs font-medium text-[#A7653A] hover:underline focus:outline-none"
+                    className="text-xs font-medium text-[#0F172A] hover:underline focus:outline-none"
                   >
                     Forgot password?
                   </button>
@@ -344,7 +344,7 @@ export function ManusDialog({
               <Button
                 type="submit"
                 disabled={isLoading}
-                className="w-full h-11 bg-[#A7653A] hover:bg-[#8E5432] text-white rounded-[10px] text-sm font-semibold transition"
+                className="w-full h-11 bg-[#0F172A] hover:bg-[#1b2333] text-white rounded-[10px] text-sm font-semibold transition"
               >
                 {isLoading ? "Please wait..." : isLogin ? "Sign In" : "Sign Up"}
               </Button>
@@ -353,7 +353,7 @@ export function ManusDialog({
                 <button
                   type="button"
                   onClick={() => setIsLogin(!isLogin)}
-                  className="text-sm text-[#A7653A] hover:underline focus:outline-none"
+                  className="text-sm text-[#0F172A] hover:underline focus:outline-none"
                 >
                   {isLogin
                     ? "Don't have an account? Sign up"
@@ -366,10 +366,10 @@ export function ManusDialog({
               <div className="px-4 sm:px-6 pb-6 pt-2">
                 <div className="relative mb-4">
                   <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-[#2E3344]/10" />
+                    <div className="w-full border-t border-[#1E293B]/10" />
                   </div>
                   <div className="relative flex justify-center text-xs">
-                    <span className="bg-[#f8f8f7] px-2 text-[#746E73]">
+                    <span className="bg-white px-2 text-[#746E73]">
                       {isLogin ? "Are you a Shop Owner?" : "Or continue with"}
                     </span>
                   </div>
@@ -379,7 +379,7 @@ export function ManusDialog({
                   variant="outline"
                   disabled={isLoading}
                   onClick={handleGoogleLogin}
-                  className="w-full h-11 bg-white hover:bg-gray-50 text-[#27324A] border border-[#2E3344]/10 rounded-[10px] text-xs sm:text-sm font-semibold transition flex items-center justify-center gap-2 px-2"
+                  className="w-full h-11 bg-white hover:bg-gray-50 text-[#0F172A] border border-[#1E293B]/10 rounded-[10px] text-xs sm:text-sm font-semibold transition flex items-center justify-center gap-2 px-2"
                 >
                   <svg
                     width="18"

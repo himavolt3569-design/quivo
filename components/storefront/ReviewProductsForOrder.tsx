@@ -127,7 +127,7 @@ export function ReviewProductsForOrder({
                 }
                 placeholder="Optional — share what worked or didn't."
                 rows={2}
-                className="w-full rounded-xl border border-black/10 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#A7653A]/30"
+                className="w-full rounded-xl border border-black/10 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#3B82F6]/30"
                 disabled={isPending}
               />
               <div className="flex justify-end">
@@ -135,7 +135,7 @@ export function ReviewProductsForOrder({
                   type="button"
                   onClick={() => handleSubmit(pid)}
                   disabled={isPending || s.rating < 1}
-                  className="h-9 px-4 rounded-xl bg-[#27324A] text-white text-xs font-bold disabled:opacity-40 disabled:cursor-not-allowed"
+                  className="h-9 px-4 rounded-xl bg-[#0F172A] text-white text-xs font-bold disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                   {s.submitted ? "Update" : "Submit"}
                 </button>

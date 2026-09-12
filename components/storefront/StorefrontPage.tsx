@@ -146,7 +146,7 @@ export function StorefrontPage({ shop, products }: StorefrontPageProps) {
     };
   }, [cart, shop.id]);
 
-  const themeColor = shop.theme_color || "#A7653A";
+  const themeColor = shop.theme_color || "#3B82F6";
   const fontFamily = FONT_MAP[shop.font_family] ?? FONT_MAP.inter;
 
   const templateProps = {

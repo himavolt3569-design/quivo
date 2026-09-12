@@ -22,8 +22,8 @@ export default async function WholesalePage() {
 
   if (!shopData?.is_wholesale) {
     return (
-      <div className="p-8 max-w-2xl mx-auto mt-10 bg-white border border-[#2E3344]/8 rounded-[2rem] shadow-sm text-center space-y-4">
-        <h2 className="text-xl font-bold text-[#27324A]">Wholesale Not Enabled</h2>
+      <div className="p-8 max-w-2xl mx-auto mt-10 bg-white border border-[#1E293B]/8 rounded-[2rem] shadow-sm text-center space-y-4">
+        <h2 className="text-xl font-bold text-[#0F172A]">Wholesale Not Enabled</h2>
         <p className="text-[#746E73]">
           Your shop is not currently set up as a Wholesaler. You can enable Wholesale mode 
           in your Shop Settings to start accepting applications from Retailers.
